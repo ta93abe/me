@@ -38,7 +38,7 @@ export const Button = ({
     ? "storybook-button--primary"
     : "storybook-button--secondary";
   return (
-    <button type="button" className="rounded-md bg-blue-300" {...props}>
+    <button type="button" className="rounded-md bg-purple-300" {...props}>
       {label}
       <style jsx>{`
         button {
