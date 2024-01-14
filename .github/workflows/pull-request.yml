@@ -1,0 +1,33 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - development
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout
+      - name: Check if Pull Request exists
+        id: check_pr
+        run: |
+          PR_COUNT=$(gh pr list --base development --head ${{ github.ref_name }} --state open | wc -l)
+          echo "pr_count=$PR_COUNT" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Pull Request
+        if: steps.check_pr.outputs.pr_count == 0
+        run: |
+          gh pr create \
+          --title "release ${{ github.ref_name }}" \
+          --body "" \
+          --base main \
+          --head ${{ github.ref_name }} \
+          --assignee ta93abe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
