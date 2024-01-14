@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "biome lint --apply-unsafe src",
     "check": "biome check --apply-unsafe src",
-    "format": "biome format --write src"
+    "format": "biome format --write src",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@vercel/analytics": "^1.1.1",
@@ -19,11 +21,21 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.1",
+    "@storybook/addon-a11y": "^7.6.8",
+    "@storybook/addon-essentials": "^7.6.8",
+    "@storybook/addon-interactions": "^7.6.8",
+    "@storybook/addon-links": "^7.6.8",
+    "@storybook/addon-onboarding": "^1.0.10",
+    "@storybook/blocks": "^7.6.8",
+    "@storybook/nextjs": "^7.6.8",
+    "@storybook/react": "^7.6.8",
+    "@storybook/test": "^7.6.8",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "postcss": "^8",
+    "storybook": "^7.6.8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
