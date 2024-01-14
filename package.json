@@ -10,7 +10,12 @@
     "check": "biome check --apply-unsafe src",
     "format": "biome format --write src",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "exec playwright test",
+    "test:ui": "exec playwright test --ui",
+    "test:chromium": "exec playwright test --project=chromium",
+    "test:debug": "exec playwright test --debug",
+    "test:codegen": "exec playwright codegen"
   },
   "dependencies": {
     "@vercel/analytics": "^1.1.1",
@@ -21,6 +26,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.1",
+    "@playwright/test": "^1.40.1",
     "@storybook/addon-a11y": "^7.6.8",
     "@storybook/addon-essentials": "^7.6.8",
     "@storybook/addon-interactions": "^7.6.8",
