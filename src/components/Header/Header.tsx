@@ -1,6 +1,6 @@
 export function Header() {
 	return (
-		<nav>
+		<nav className="mx-6 md:mx-0">
 			<ul className="flex gap-4 py-8">
 				<li>
 					<a href="/">Top</a>
