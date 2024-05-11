@@ -1,7 +1,5 @@
-import { baseUrl } from "@/libs/constants";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import client from "../../../../tina/__generated__/client";
 
 type Props = {

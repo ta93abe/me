@@ -17,6 +17,7 @@ const meta = {
 		},
 		title: "Title",
 		date: "2021-01-01",
+		href: "#",
 	},
 } as Meta<typeof Card>;
 
