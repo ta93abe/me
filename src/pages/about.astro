@@ -1,0 +1,35 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const aboutEntries = await getCollection("about");
+const aboutContent = aboutEntries[0];
+const { Content } = await aboutContent.render();
+---
+
+<Layout
+	title={`${aboutContent.data.title} | Portfolio`}
+	description={aboutContent.data.summary.join(", ")}
+>
+	<main class="mx-auto max-w-4xl px-6 py-12">
+		<div class="mb-8">
+			{aboutContent.data.heading && (
+				<p class="mb-2 text-sm uppercase tracking-wide text-gray-600">
+					{aboutContent.data.heading}
+				</p>
+			)}
+			<h1 class="mb-4 text-4xl font-bold">{aboutContent.data.title}</h1>
+			<div class="flex flex-wrap gap-2">
+				{aboutContent.data.summary.map((item) => (
+					<span class="rounded-full bg-gray-100 px-4 py-1 text-sm">
+						{item}
+					</span>
+				))}
+			</div>
+		</div>
+
+		<article class="prose prose-lg max-w-none">
+			<Content />
+		</article>
+	</main>
+</Layout>
