@@ -1,0 +1,46 @@
+---
+// SNSリンク集コンポーネント
+// 必要に応じてリンクを追加・編集してください
+
+interface SnsLink {
+	name: string;
+	url: string;
+	icon: string;
+}
+
+const snsLinks: SnsLink[] = [
+	{
+		name: "GitHub",
+		url: "https://github.com/ta93abe",
+		icon: "🔗",
+	},
+	// 以下、必要に応じて追加
+	// {
+	//   name: "Twitter",
+	//   url: "https://twitter.com/your_handle",
+	//   icon: "🐦"
+	// },
+	// {
+	//   name: "LinkedIn",
+	//   url: "https://linkedin.com/in/your_profile",
+	//   icon: "💼"
+	// }
+];
+---
+
+<div class="flex gap-4">
+	{
+		snsLinks.map((link) => (
+			<a
+				href={link.url}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md"
+				aria-label={link.name}
+			>
+				<span>{link.icon}</span>
+				<span class="text-sm">{link.name}</span>
+			</a>
+		))
+	}
+</div>

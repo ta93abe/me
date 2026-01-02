@@ -1,18 +1,63 @@
 ---
 import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+	title?: string;
+	description?: string;
+	ogImage?: string;
+	ogSiteName?: string;
+	noHeader?: boolean;
+	noFooter?: boolean;
+}
+
+const {
+	title = "Portfolio",
+	description = "個人ポートフォリオサイト",
+	ogImage = "/og-image.png",
+	ogSiteName = "Portfolio",
+	noHeader = false,
+	noFooter = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+
+		<!-- Primary Meta Tags -->
+		<title>{title}</title>
+		<meta name="title" content={title} />
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:site_name" content={ogSiteName} />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={canonicalURL} />
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={ogImageURL} />
 	</head>
 	<body>
+		{!noHeader && <Header />}
 		<slot />
+		{!noFooter && <Footer />}
 	</body>
 </html>
 
@@ -22,5 +67,6 @@ import "../styles/global.css";
 		margin: 0;
 		width: 100%;
 		height: 100%;
+		font-family: "Shippori Mincho", serif;
 	}
 </style>

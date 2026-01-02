@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { formatDate } from "../../utils/date";
+
+const blogPosts = await getCollection("blog");
+const sortedPosts = blogPosts.sort(
+	(a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+
+<Layout
+	title="Blog | Portfolio"
+	description="技術ブログ。日々の学びや開発の記録を共有しています。"
+>
+	<main class="mx-auto max-w-4xl px-6 py-12">
+		<h1 class="mb-12 text-4xl font-bold">Blog</h1>
+
+		<div class="space-y-8">
+			{sortedPosts.map((post) => (
+				<article class="border-b border-gray-200 pb-8">
+					<a href={`/blog/${post.id}`} class="group block">
+						<time class="mb-2 block text-sm text-gray-600">
+							{formatDate(post.data.date)}
+							{post.data.updatedDate && (
+								<span class="ml-2 text-xs">
+									(更新: {formatDate(post.data.updatedDate)})
+								</span>
+							)}
+						</time>
+						<h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600">
+							{post.data.title}
+						</h2>
+						<p class="text-gray-700">{post.data.excerpt}</p>
+					</a>
+				</article>
+			))}
+		</div>
+	</main>
+</Layout>

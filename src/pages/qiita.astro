@@ -1,0 +1,62 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { formatDate } from "../utils/date";
+
+const qiitaArticles = await getCollection("qiita");
+const sortedArticles = qiitaArticles.sort(
+	(a, b) => b.data.createdAt.getTime() - a.data.createdAt.getTime()
+);
+---
+
+<Layout
+	title="Qiita記事 | Portfolio"
+	description="Qiitaで公開している技術記事の一覧です。"
+>
+	<main class="mx-auto max-w-4xl px-6 py-12">
+		<div class="mb-12">
+			<h1 class="mb-4 text-4xl font-bold">Qiita記事</h1>
+			<p class="text-gray-600">
+				Qiitaで公開している技術記事です（最新5件）
+			</p>
+		</div>
+
+		<div class="space-y-6">
+			{sortedArticles.map((article) => (
+				<article class="border-b border-gray-200 pb-6">
+					<a
+						href={article.data.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="group block"
+					>
+						<time class="mb-2 block text-sm text-gray-600">
+							{formatDate(article.data.createdAt)}
+						</time>
+						<h2 class="flex items-center gap-2 text-xl font-bold group-hover:text-gray-600">
+							{article.data.title}
+							<span class="text-sm">→</span>
+						</h2>
+					</a>
+				</article>
+			))}
+		</div>
+
+		{sortedArticles.length === 0 && (
+			<p class="text-gray-600">
+				Qiita記事を取得できませんでした。後ほど再度お試しください。
+			</p>
+		)}
+
+		<div class="mt-12 text-center">
+			<a
+				href="https://qiita.com/ta93abe"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="inline-block rounded-lg border border-gray-300 px-6 py-3 transition-colors hover:bg-gray-50"
+			>
+				Qiitaで全ての記事を見る →
+			</a>
+		</div>
+	</main>
+</Layout>

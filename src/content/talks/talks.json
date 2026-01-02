@@ -1,0 +1,15 @@
+{
+	"items": [
+		{
+			"id": "talk-1",
+			"title": "Astroで始めるモダンWeb開発",
+			"url": "https://example.com/talk-1",
+			"date": "2024-06-01"
+		},
+		{
+			"id": "talk-2",
+			"title": "TypeScriptのベストプラクティス",
+			"date": "2024-03-15"
+		}
+	]
+}
