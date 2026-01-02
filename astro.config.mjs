@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://example.com', // 実際のドメインに変更してください
+  site: 'https://ta93abe.com',
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()]

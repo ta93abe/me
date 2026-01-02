@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://example.com/sitemap-index.xml
+Sitemap: https://ta93abe.com/sitemap-index.xml
