@@ -53,6 +53,14 @@ const talks = defineCollection({
 	}),
 });
 
+// Qiita APIレスポンスの型定義
+interface QiitaArticle {
+	id: string;
+	title: string;
+	url: string;
+	created_at: string;
+}
+
 // Qiita記事コレクション（外部API）
 const qiita = defineCollection({
 	loader: async () => {
@@ -69,13 +77,15 @@ const qiita = defineCollection({
 				return [];
 			}
 
-			const articles = await response.json();
+			const articles: QiitaArticle[] = await response.json();
 
-			return articles.map((article: any) => ({
+			return articles.map((article) => ({
 				id: article.id,
-				title: article.title,
-				url: article.url,
-				createdAt: new Date(article.created_at),
+				data: {
+					title: article.title,
+					url: article.url,
+					createdAt: new Date(article.created_at),
+				},
 			}));
 		} catch (error) {
 			console.error("Error fetching Qiita articles:", error);

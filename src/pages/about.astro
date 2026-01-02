@@ -4,6 +4,11 @@ import { getCollection, render } from "astro:content";
 
 const aboutEntries = await getCollection("about");
 const aboutContent = aboutEntries[0];
+
+if (!aboutContent) {
+	return Astro.redirect("/404");
+}
+
 const { Content } = await render(aboutContent);
 ---
 

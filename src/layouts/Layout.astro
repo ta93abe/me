@@ -7,6 +7,7 @@ interface Props {
 	title?: string;
 	description?: string;
 	ogImage?: string;
+	ogSiteName?: string;
 	noHeader?: boolean;
 	noFooter?: boolean;
 }
@@ -15,6 +16,7 @@ const {
 	title = "Portfolio",
 	description = "個人ポートフォリオサイト",
 	ogImage = "/og-image.png",
+	ogSiteName = "Portfolio",
 	noHeader = false,
 	noFooter = false,
 } = Astro.props;
@@ -43,7 +45,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content={ogImageURL} />
-		<meta property="og:site_name" content="Portfolio" />
+		<meta property="og:site_name" content={ogSiteName} />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />

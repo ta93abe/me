@@ -1,5 +1,13 @@
 ---
 // ヘッダーコンポーネント
+const navLinks = [
+	{ href: "/", text: "ホーム" },
+	{ href: "/about", text: "About" },
+	{ href: "/works", text: "Works" },
+	{ href: "/blog", text: "Blog" },
+	{ href: "/talks", text: "Talks" },
+	{ href: "/qiita", text: "Qiita" },
+];
 ---
 
 <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
@@ -8,36 +16,13 @@
 			Portfolio
 		</a>
 		<ul class="flex gap-6">
-			<li>
-				<a href="/" class="hover:opacity-70">
-					ホーム
-				</a>
-			</li>
-			<li>
-				<a href="/about" class="hover:opacity-70">
-					About
-				</a>
-			</li>
-			<li>
-				<a href="/works" class="hover:opacity-70">
-					Works
-				</a>
-			</li>
-			<li>
-				<a href="/blog" class="hover:opacity-70">
-					Blog
-				</a>
-			</li>
-			<li>
-				<a href="/talks" class="hover:opacity-70">
-					Talks
-				</a>
-			</li>
-			<li>
-				<a href="/qiita" class="hover:opacity-70">
-					Qiita
-				</a>
-			</li>
+			{navLinks.map((link) => (
+				<li>
+					<a href={link.href} class="hover:opacity-70">
+						{link.text}
+					</a>
+				</li>
+			))}
 		</ul>
 	</nav>
 </header>
