@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import { Image } from "astro:assets";
 
 export async function getStaticPaths() {
@@ -12,7 +12,7 @@ export async function getStaticPaths() {
 }
 
 const { work } = Astro.props;
-const { Content } = await work.render();
+const { Content } = await render(work);
 
 const formatDate = (date: Date) => {
 	return new Intl.DateTimeFormat("ja-JP", {

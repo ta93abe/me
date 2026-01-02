@@ -1,10 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 const aboutEntries = await getCollection("about");
 const aboutContent = aboutEntries[0];
-const { Content } = await aboutContent.render();
+const { Content } = await render(aboutContent);
 ---
 
 <Layout
