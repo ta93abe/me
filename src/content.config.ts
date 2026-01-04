@@ -1,5 +1,6 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import Parser from "rss-parser";
 
 // Aboutコレクション
 const about = defineCollection({
@@ -81,11 +82,9 @@ const qiita = defineCollection({
 
 			return articles.map((article) => ({
 				id: article.id,
-				data: {
-					title: article.title,
-					url: article.url,
-					createdAt: new Date(article.created_at),
-				},
+				title: article.title,
+				url: article.url,
+				createdAt: new Date(article.created_at),
 			}));
 		} catch (error) {
 			console.error("Error fetching Qiita articles:", error);
@@ -99,10 +98,120 @@ const qiita = defineCollection({
 	}),
 });
 
+// Zenn記事コレクション（RSS）
+const zenn = defineCollection({
+	loader: async () => {
+		try {
+			const parser = new Parser();
+			const feed = await parser.parseURL("https://zenn.dev/ta93abe/feed");
+
+			if (!feed.items) {
+				return [];
+			}
+
+			return feed.items
+				.filter((item) => item.title && item.link)
+				.map((item, index) => ({
+					id: `zenn-${index}`,
+					title: item.title!,
+					url: item.link!,
+					publishedAt: new Date(item.pubDate!),
+					excerpt: item.contentSnippet || item.content || "",
+					source: "Zenn" as const,
+				}));
+		} catch (error) {
+			console.error("Error fetching Zenn feed:", error);
+			return [];
+		}
+	},
+	schema: z.object({
+		title: z.string(),
+		url: z.string().url(),
+		publishedAt: z.date(),
+		excerpt: z.string(),
+		source: z.literal("Zenn"),
+	}),
+});
+
+// Note記事コレクション（RSS）
+const note = defineCollection({
+	loader: async () => {
+		try {
+			const parser = new Parser();
+			const feed = await parser.parseURL("https://note.com/ta93abe/rss");
+
+			if (!feed.items) {
+				return [];
+			}
+
+			return feed.items
+				.filter((item) => item.title && item.link)
+				.map((item, index) => ({
+					id: `note-${index}`,
+					title: item.title!,
+					url: item.link!,
+					publishedAt: new Date(item.pubDate!),
+					excerpt: item.contentSnippet || item.content || "",
+					source: "Note" as const,
+				}));
+		} catch (error) {
+			console.error("Error fetching Note RSS:", error);
+			return [];
+		}
+	},
+	schema: z.object({
+		title: z.string(),
+		url: z.string().url(),
+		publishedAt: z.date(),
+		excerpt: z.string(),
+		source: z.literal("Note"),
+	}),
+});
+
+// ポッドキャストコレクション（RSS）
+const podcast = defineCollection({
+	loader: async () => {
+		try {
+			const parser = new Parser();
+			const feed = await parser.parseURL(
+				"https://anchor.fm/s/4dd661e8/podcast/rss",
+			);
+
+			if (!feed.items) {
+				return [];
+			}
+
+			return feed.items
+				.filter((item) => item.title && item.link)
+				.map((item, index) => ({
+					id: `podcast-${index}`,
+					title: item.title!,
+					url: item.link!,
+					publishedAt: new Date(item.pubDate!),
+					excerpt: item.contentSnippet || item.content || "",
+					source: "Podcast" as const,
+				}));
+		} catch (error) {
+			console.error("Error fetching Podcast RSS:", error);
+			return [];
+		}
+	},
+	schema: z.object({
+		title: z.string(),
+		url: z.string().url(),
+		publishedAt: z.date(),
+		excerpt: z.string(),
+		source: z.literal("Podcast"),
+	}),
+});
+
 export const collections = {
 	about,
 	works,
 	blog,
 	talks,
 	qiita,
+	zenn,
+	note,
+	podcast,
 };
