@@ -1,0 +1,498 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+type Tool = {
+	name: string;
+	description: string;
+	url: string;
+};
+
+type Category = {
+	title: string;
+	icon: string;
+	tools: Tool[];
+};
+
+const categories: Category[] = [
+	{
+		title: "シェル・ターミナル",
+		icon: "🐚",
+		tools: [
+			{
+				name: "Fish",
+				description: "シンタックスハイライトと強力な補完機能を持つモダンなシェル",
+				url: "https://fishshell.com/",
+			},
+			{
+				name: "Starship",
+				description: "高速でカスタマイズ可能なクロスシェルプロンプト",
+				url: "https://starship.rs/",
+			},
+			{
+				name: "Ghostty",
+				description: "高速でGPUアクセラレーション対応のターミナルエミュレータ",
+				url: "https://ghostty.org/",
+			},
+			{
+				name: "Zellij",
+				description: "Vim風キーバインドを持つターミナルマルチプレクサ",
+				url: "https://zellij.dev/",
+			},
+		],
+	},
+	{
+		title: "検索・ナビゲーション",
+		icon: "🔍",
+		tools: [
+			{
+				name: "ripgrep",
+				description: "超高速な正規表現ベースの検索ツール",
+				url: "https://github.com/BurntSushi/ripgrep",
+			},
+			{
+				name: "fd",
+				description: "シンプルで高速なfindの代替",
+				url: "https://github.com/sharkdp/fd",
+			},
+			{
+				name: "fzf",
+				description: "汎用的なコマンドラインファジーファインダー",
+				url: "https://github.com/junegunn/fzf",
+			},
+			{
+				name: "zoxide",
+				description: "スマートなディレクトリジャンプツール",
+				url: "https://github.com/ajeetdsouza/zoxide",
+			},
+			{
+				name: "broot",
+				description: "ディレクトリツリーの新しい見方と操作方法",
+				url: "https://github.com/Canop/broot",
+			},
+			{
+				name: "ghq",
+				description: "Gitリポジトリの一元管理ツール",
+				url: "https://github.com/x-motemen/ghq",
+			},
+		],
+	},
+	{
+		title: "ファイル操作",
+		icon: "📄",
+		tools: [
+			{
+				name: "eza",
+				description: "カラフルで機能豊富なlsの代替",
+				url: "https://github.com/eza-community/eza",
+			},
+			{
+				name: "bat",
+				description: "シンタックスハイライト付きのcat",
+				url: "https://github.com/sharkdp/bat",
+			},
+			{
+				name: "dust",
+				description: "視覚的なディスク使用量表示ツール",
+				url: "https://github.com/bootandy/dust",
+			},
+			{
+				name: "hexyl",
+				description: "カラフルなコマンドライン16進数ビューア",
+				url: "https://github.com/sharkdp/hexyl",
+			},
+		],
+	},
+	{
+		title: "Git ツール",
+		icon: "🎨",
+		tools: [
+			{
+				name: "GitHub CLI",
+				description: "GitHubのコマンドラインツール",
+				url: "https://cli.github.com/",
+			},
+			{
+				name: "delta",
+				description: "構文強調表示を備えたGit diffビューア",
+				url: "https://github.com/dandavison/delta",
+			},
+			{
+				name: "gitui",
+				description: "高速なターミナルUIベースのGitクライアント",
+				url: "https://github.com/extrawurst/gitui",
+			},
+			{
+				name: "lazygit",
+				description: "シンプルなターミナルUIのGitツール",
+				url: "https://github.com/jesseduffield/lazygit",
+			},
+			{
+				name: "tig",
+				description: "テキストベースのGitリポジトリブラウザ",
+				url: "https://github.com/jonas/tig",
+			},
+		],
+	},
+	{
+		title: "システム監視",
+		icon: "📊",
+		tools: [
+			{
+				name: "bottom",
+				description: "カスタマイズ可能なクロスプラットフォームのシステム監視ツール",
+				url: "https://github.com/ClementTsang/bottom",
+			},
+			{
+				name: "procs",
+				description: "モダンなpsの代替",
+				url: "https://github.com/dalance/procs",
+			},
+			{
+				name: "bandwhich",
+				description: "ターミナルベースのネットワーク帯域幅監視ツール",
+				url: "https://github.com/imsnif/bandwhich",
+			},
+			{
+				name: "gping",
+				description: "グラフ付きのpingツール",
+				url: "https://github.com/orf/gping",
+			},
+		],
+	},
+	{
+		title: "テキスト処理",
+		icon: "🔧",
+		tools: [
+			{
+				name: "jq",
+				description: "軽量で柔軟なコマンドラインJSON処理ツール",
+				url: "https://jqlang.github.io/jq/",
+			},
+			{
+				name: "yq",
+				description: "YAML/JSON/XML/TOML処理のためのjqラッパー",
+				url: "https://github.com/mikefarah/yq",
+			},
+			{
+				name: "sd",
+				description: "直感的な検索と置換CLI",
+				url: "https://github.com/chmln/sd",
+			},
+			{
+				name: "xsv",
+				description: "高速なCSVコマンドラインツールキット",
+				url: "https://github.com/BurntSushi/xsv",
+			},
+		],
+	},
+	{
+		title: "ネットワーク・HTTP",
+		icon: "🌐",
+		tools: [
+			{
+				name: "xh",
+				description: "フレンドリーで高速なHTTPリクエストツール",
+				url: "https://github.com/ducaale/xh",
+			},
+			{
+				name: "httpstat",
+				description: "curlの統計情報を視覚化",
+				url: "https://github.com/reorx/httpstat",
+			},
+			{
+				name: "dog",
+				description: "ユーザーフレンドリーなコマンドラインDNSクライアント",
+				url: "https://github.com/ogham/dog",
+			},
+			{
+				name: "grpcurl",
+				description: "curlライクなコマンドラインツール（gRPC用）",
+				url: "https://github.com/fullstorydev/grpcurl",
+			},
+		],
+	},
+	{
+		title: "データベース",
+		icon: "🗄️",
+		tools: [
+			{
+				name: "usql",
+				description: "複数のSQLデータベースに対応するユニバーサルCLI",
+				url: "https://github.com/xo/usql",
+			},
+			{
+				name: "pgcli",
+				description: "自動補完と構文強調表示を備えたPostgreSQL CLI",
+				url: "https://www.pgcli.com/",
+			},
+			{
+				name: "mycli",
+				description: "自動補完と構文強調表示を備えたMySQL/MariaDB CLI",
+				url: "https://www.mycli.net/",
+			},
+		],
+	},
+	{
+		title: "Kubernetes",
+		icon: "☸️",
+		tools: [
+			{
+				name: "k9s",
+				description: "Kubernetesクラスタ管理のためのターミナルUI",
+				url: "https://k9scli.io/",
+			},
+			{
+				name: "helm",
+				description: "Kubernetesのパッケージマネージャ",
+				url: "https://helm.sh/",
+			},
+			{
+				name: "kubectx",
+				description: "Kubernetesのコンテキストとネームスペースを素早く切り替え",
+				url: "https://github.com/ahmetb/kubectx",
+			},
+			{
+				name: "stern",
+				description: "Kubernetesのマルチポッドログテーリング",
+				url: "https://github.com/stern/stern",
+			},
+		],
+	},
+	{
+		title: "エディタ・ドキュメント",
+		icon: "📝",
+		tools: [
+			{
+				name: "Helix",
+				description: "Rustで書かれたポストモダンなモーダルテキストエディタ",
+				url: "https://helix-editor.com/",
+			},
+			{
+				name: "glow",
+				description: "ターミナルでMarkdownをレンダリング",
+				url: "https://github.com/charmbracelet/glow",
+			},
+			{
+				name: "pandoc",
+				description: "ユニバーサルドキュメントコンバータ",
+				url: "https://pandoc.org/",
+			},
+			{
+				name: "mdbook",
+				description: "Markdownから本を作成",
+				url: "https://rust-lang.github.io/mdBook/",
+			},
+		],
+	},
+	{
+		title: "メディア処理",
+		icon: "🎬",
+		tools: [
+			{
+				name: "ffmpeg",
+				description: "マルチメディアファイルの処理フレームワーク",
+				url: "https://ffmpeg.org/",
+			},
+			{
+				name: "gifski",
+				description: "高品質なGIF作成ツール",
+				url: "https://gif.ski/",
+			},
+			{
+				name: "silicon",
+				description: "美しいコードスクリーンショット生成ツール",
+				url: "https://github.com/Aloxaf/silicon",
+			},
+		],
+	},
+	{
+		title: "開発ツール",
+		icon: "🛠️",
+		tools: [
+			{
+				name: "act",
+				description: "GitHub Actionsをローカルで実行",
+				url: "https://github.com/nektos/act",
+			},
+			{
+				name: "devenv",
+				description: "高速で宣言的な開発環境",
+				url: "https://devenv.sh/",
+			},
+			{
+				name: "hyperfine",
+				description: "コマンドラインベンチマークツール",
+				url: "https://github.com/sharkdp/hyperfine",
+			},
+			{
+				name: "tokei",
+				description: "コード統計を表示するプログラム",
+				url: "https://github.com/XAMPPRocky/tokei",
+			},
+		],
+	},
+	{
+		title: "クラウド・インフラ",
+		icon: "☁️",
+		tools: [
+			{
+				name: "AWS CLI",
+				description: "Amazon Web Servicesの公式CLI",
+				url: "https://aws.amazon.com/cli/",
+			},
+			{
+				name: "Azure CLI",
+				description: "Microsoft Azureの公式CLI",
+				url: "https://learn.microsoft.com/cli/azure/",
+			},
+			{
+				name: "gcloud",
+				description: "Google Cloud Platformの公式CLI",
+				url: "https://cloud.google.com/sdk/gcloud",
+			},
+			{
+				name: "flyctl",
+				description: "Fly.ioのコマンドラインインターフェース",
+				url: "https://fly.io/docs/flyctl/",
+			},
+		],
+	},
+	{
+		title: "パッケージマネージャ",
+		icon: "📦",
+		tools: [
+			{
+				name: "pnpm",
+				description: "高速で効率的なNode.jsパッケージマネージャ",
+				url: "https://pnpm.io/",
+			},
+			{
+				name: "uv",
+				description: "超高速なPythonパッケージマネージャ",
+				url: "https://github.com/astral-sh/uv",
+			},
+			{
+				name: "topgrade",
+				description: "すべてのパッケージマネージャを一度に更新",
+				url: "https://github.com/topgrade-rs/topgrade",
+			},
+			{
+				name: "Nix",
+				description: "宣言的で再現可能なパッケージマネージャ",
+				url: "https://nixos.org/",
+			},
+		],
+	},
+];
+---
+
+<Layout
+	title="Tools | Portfolio"
+	description="開発で使用しているツールやアプリケーションの一覧です。"
+>
+	<main class="mx-auto max-w-6xl px-6 py-12">
+		<!-- ヘッダー -->
+		<div class="mb-12">
+			<h1 class="mb-4 text-4xl font-bold">Tools</h1>
+			<p class="mb-2 text-lg text-gray-600">
+				普段の開発で使用しているCLIツールやアプリケーションの一覧です。
+			</p>
+			<p class="text-sm text-gray-500">
+				すべてのツールは
+				<a
+					href="https://github.com/ta93abe/dotfiles"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-blue-600 hover:underline"
+				>
+					dotfiles リポジトリ
+				</a>
+				で管理されています（Nix + Home Manager）
+			</p>
+		</div>
+
+		<!-- 統計情報 -->
+		<div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+			<div class="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+				<div class="text-3xl font-bold text-blue-600">
+					{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}
+				</div>
+				<div class="text-sm text-gray-600">ツール総数</div>
+			</div>
+			<div class="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+				<div class="text-3xl font-bold text-green-600">
+					{categories.length}
+				</div>
+				<div class="text-sm text-gray-600">カテゴリ数</div>
+			</div>
+			<div class="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+				<div class="text-3xl font-bold text-purple-600">100%</div>
+				<div class="text-sm text-gray-600">Nix管理率</div>
+			</div>
+		</div>
+
+		<!-- カテゴリ別ツールリスト -->
+		<div class="space-y-12">
+			{
+				categories.map((category) => (
+					<section id={category.title.toLowerCase().replace(/\s+/g, "-")}>
+						<h2 class="mb-6 flex items-center gap-2 text-2xl font-bold">
+							<span class="text-3xl">{category.icon}</span>
+							{category.title}
+							<span class="text-sm font-normal text-gray-500">
+								({category.tools.length})
+							</span>
+						</h2>
+
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+							{category.tools.map((tool) => (
+								<a
+									href={tool.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="group rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-400 hover:shadow-md"
+								>
+									<h3 class="mb-2 font-mono text-lg font-semibold text-blue-600 group-hover:text-blue-700">
+										{tool.name}
+										<span class="ml-1 text-sm text-gray-400">↗</span>
+									</h3>
+									<p class="text-sm text-gray-600">{tool.description}</p>
+									<p class="mt-2 truncate text-xs text-gray-400">{tool.url}</p>
+								</a>
+							))}
+						</div>
+					</section>
+				))
+			}
+		</div>
+
+		<!-- フッター情報 -->
+		<div class="mt-16 rounded-lg border border-gray-200 bg-blue-50 p-6">
+			<h3 class="mb-3 font-bold">🔧 管理方針</h3>
+			<ul class="space-y-2 text-sm text-gray-700">
+				<li>
+					<strong>Nix-First アプローチ:</strong> CLIツールは100% Nixで管理
+				</li>
+				<li>
+					<strong>Homebrew:</strong> GUIアプリケーションのみ（nixpkgsにない場合）
+				</li>
+				<li>
+					<strong>統一テーマ:</strong> Tokyo Night（Ghostty、fzf、Zellij）
+				</li>
+				<li>
+					<strong>自動更新:</strong> topgradeで一括管理
+				</li>
+			</ul>
+			<div class="mt-4">
+				<a
+					href="https://github.com/ta93abe/dotfiles"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
+				>
+					→ dotfiles リポジトリを見る
+				</a>
+			</div>
+		</div>
+	</main>
+</Layout>
