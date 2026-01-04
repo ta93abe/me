@@ -8,16 +8,47 @@ import Layout from "../layouts/Layout.astro";
 	noHeader={true}
 	noFooter={true}
 >
-	<main class="flex min-h-screen flex-col items-center justify-center px-4">
+	<main class="flex min-h-screen items-center justify-center px-6">
 		<div class="text-center">
-			<h1 class="mb-4 text-6xl font-bold">404</h1>
-			<p class="mb-8 text-xl">ページが見つかりませんでした</p>
-			<a
-				href="/"
-				class="inline-block rounded-lg bg-gray-900 px-6 py-3 text-white transition-colors hover:bg-gray-700"
-			>
-				トップページへ戻る
-			</a>
+			<!-- 404 大きな数字 -->
+			<div class="mb-8">
+				<h1
+					class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-9xl font-bold text-transparent"
+				>
+					404
+				</h1>
+			</div>
+
+			<!-- エラーメッセージ -->
+			<div class="mb-8">
+				<h2 class="mb-4 text-3xl font-bold text-gray-800">
+					ページが見つかりません
+				</h2>
+				<p class="mx-auto max-w-md text-gray-600">
+					お探しのページは存在しないか、移動または削除された可能性があります。
+				</p>
+			</div>
+
+			<!-- アクションボタン -->
+			<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+				<a
+					href="/"
+					class="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+				>
+					ホームに戻る
+				</a>
+				<button
+					onclick="history.back()"
+					class="rounded-lg border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50"
+				>
+					前のページへ
+				</button>
+			</div>
+
+			<!-- 装飾的な要素 -->
+			<div class="mt-16 text-6xl opacity-20">
+				🔍
+			</div>
 		</div>
 	</main>
 </Layout>
