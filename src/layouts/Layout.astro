@@ -72,6 +72,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 				"inLanguage": "ja"
 			}
 		</script>
+		<slot name="head" />
 	</head>
 	<body>
 		{!noHeader && <Header />}
