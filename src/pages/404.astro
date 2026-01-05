@@ -38,7 +38,8 @@ import Layout from "../layouts/Layout.astro";
 					ホームに戻る
 				</a>
 				<button
-					onclick="history.back()"
+					type="button"
+					id="history-back-button"
 					class="rounded-lg border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50"
 				>
 					前のページへ
@@ -52,3 +53,16 @@ import Layout from "../layouts/Layout.astro";
 		</div>
 	</main>
 </Layout>
+
+<script>
+	const backButton = document.getElementById("history-back-button");
+	backButton?.addEventListener("click", () => {
+		// Check if there's history to go back to
+		if (window.history.length > 1) {
+			window.history.back();
+		} else {
+			// If no history, navigate to home page
+			window.location.href = "/";
+		}
+	});
+</script>

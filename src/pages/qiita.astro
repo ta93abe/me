@@ -1,11 +1,11 @@
 ---
-import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
 import { formatDate } from "../utils/date";
 
 const qiitaArticles = await getCollection("qiita");
 const sortedArticles = qiitaArticles.sort(
-	(a, b) => b.data.createdAt.getTime() - a.data.createdAt.getTime()
+	(a, b) => b.data.createdAt.getTime() - a.data.createdAt.getTime(),
 );
 ---
 

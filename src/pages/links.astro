@@ -1,16 +1,17 @@
 ---
-import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import { formatDate } from "../utils/date";
 import SnsLinks from "../components/SnsLinks.astro";
+import Layout from "../layouts/Layout.astro";
+import { formatDate } from "../utils/date";
 
 // すべてのフィードを取得
-const [zennPosts, notePosts, podcastEpisodes, qiitaArticles] = await Promise.all([
-	getCollection("zenn"),
-	getCollection("note"),
-	getCollection("podcast"),
-	getCollection("qiita"),
-]);
+const [zennPosts, notePosts, podcastEpisodes, qiitaArticles] =
+	await Promise.all([
+		getCollection("zenn"),
+		getCollection("note"),
+		getCollection("podcast"),
+		getCollection("qiita"),
+	]);
 
 // 統合型定義
 type FeedItem = {

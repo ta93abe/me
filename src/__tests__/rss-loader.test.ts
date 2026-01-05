@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import Parser from "rss-parser";
+import { describe, expect, it } from "vitest";
 
 describe("RSS Loaders", () => {
 	describe("Zenn RSS Feed", () => {
