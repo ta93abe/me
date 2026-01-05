@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "assist": "biome check --write src",
@@ -33,6 +33,7 @@
     "@types/node": "^25.0.3",
     "@vitest/ui": "^4.0.16",
     "happy-dom": "^20.0.11",
+    "pagefind": "^1.1.0",
     "vitest": "^4.0.16"
   }
 }

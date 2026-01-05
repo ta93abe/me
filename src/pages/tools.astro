@@ -13,6 +13,12 @@ type Category = {
 	tools: Tool[];
 };
 
+const toId = (value: string) =>
+	value
+		.toLowerCase()
+		.replace(/\s+/g, "-")
+		.replace(/[\\/]/g, "-");
+
 const categories: Category[] = [
 	{
 		title: "シェル・ターミナル",
@@ -384,12 +390,19 @@ const categories: Category[] = [
 		],
 	},
 ];
+
+const enablePagefind = !import.meta.env.DEV;
 ---
 
 <Layout
 	title="Tools | Portfolio"
 	description="開発で使用しているツールやアプリケーションの一覧です。"
 >
+	{enablePagefind && (
+		<Fragment slot="head">
+			<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+		</Fragment>
+	)}
 	<main class="mx-auto max-w-6xl px-6 py-12">
 		<!-- ヘッダー -->
 		<div class="mb-12">
@@ -409,6 +422,20 @@ const categories: Category[] = [
 				</a>
 				で管理されています（Nix + Home Manager）
 			</p>
+		</div>
+
+		<!-- 検索 -->
+		<div class="mb-12 rounded-lg border border-gray-200 bg-white p-6">
+			<h2 class="mb-2 text-xl font-bold">Search</h2>
+			<p class="mb-4 text-sm text-gray-600">
+				ツール名・説明から検索できます。
+			</p>
+			<div id="pagefind-search" class="pagefind-search"></div>
+			{!enablePagefind && (
+				<p class="mt-3 text-xs text-gray-500">
+					検索はビルド後に有効になります。
+				</p>
+			)}
 		</div>
 
 		<!-- 統計情報 -->
@@ -445,21 +472,34 @@ const categories: Category[] = [
 						</h2>
 
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-							{category.tools.map((tool) => (
-								<a
-									href={tool.url}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="group rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-400 hover:shadow-md"
-								>
-									<h3 class="mb-2 font-mono text-lg font-semibold text-blue-600 group-hover:text-blue-700">
-										{tool.name}
-										<span class="ml-1 text-sm text-gray-400">↗</span>
-									</h3>
-									<p class="text-sm text-gray-600">{tool.description}</p>
-									<p class="mt-2 truncate text-xs text-gray-400">{tool.url}</p>
-								</a>
-							))}
+							{category.tools.map((tool) => {
+								const toolId = toId(`${category.title}-${tool.name}`);
+								return (
+									<article id={toolId} data-pagefind-body>
+										<a
+											href={tool.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="group block rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-400 hover:shadow-md"
+										>
+											<h3
+												class="mb-2 font-mono text-lg font-semibold text-blue-600 group-hover:text-blue-700"
+												data-pagefind-meta="title"
+											>
+												{tool.name}
+												<span class="ml-1 text-sm text-gray-400">↗</span>
+											</h3>
+											<p class="text-sm text-gray-600" data-pagefind-meta="description">
+												{tool.description}
+											</p>
+											<p class="mt-2 truncate text-xs text-gray-400">{tool.url}</p>
+											<span class="sr-only" data-pagefind-meta="category">
+												{category.title}
+											</span>
+										</a>
+									</article>
+								);
+							})}
 						</div>
 					</section>
 				))
@@ -495,4 +535,19 @@ const categories: Category[] = [
 			</div>
 		</div>
 	</main>
+
+	{
+		enablePagefind && (
+			<script type="module">
+				import { PagefindUI } from "/pagefind/pagefind-ui.js";
+
+				window.addEventListener("DOMContentLoaded", () => {
+					new PagefindUI({
+						element: "#pagefind-search",
+						showSubResults: true,
+					});
+				});
+			</script>
+		)
+	}
 </Layout>
