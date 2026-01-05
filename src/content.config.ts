@@ -28,6 +28,23 @@ const works = defineCollection({
 		}),
 });
 
+// Booksコレクション（読書記録）
+const books = defineCollection({
+	loader: glob({ pattern: "**/*.md", base: "./src/content/books" }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			author: z.string(),
+			coverImage: image(),
+			status: z.enum(["read", "reading", "stacked"]),
+			finishedDate: z.coerce.date().optional(),
+			rating: z.number().min(1).max(5).optional(),
+			category: z.string().optional(),
+			tags: z.array(z.string()),
+			excerpt: z.string(),
+		}),
+});
+
 // Blogコレクション
 const blog = defineCollection({
 	loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
@@ -208,6 +225,7 @@ const podcast = defineCollection({
 export const collections = {
 	about,
 	works,
+	books,
 	blog,
 	talks,
 	qiita,
