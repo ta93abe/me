@@ -1,12 +1,12 @@
 ---
-import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
 import { formatDate } from "../utils/date";
 
 const talksEntries = await getCollection("talks");
 const talksData = talksEntries[0]?.data.items || [];
 const sortedTalks = talksData.sort(
-	(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+	(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
 );
 ---
 

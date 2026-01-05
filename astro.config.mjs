@@ -9,7 +9,21 @@ import pagefind from 'astro-pagefind';
 export default defineConfig({
   site: 'https://ta93abe.com',
   integrations: [sitemap(), pagefind()],
+  build: {
+    inlineStylesheets: 'auto',
+  },
+  compressHTML: true,
+  prefetch: {
+    prefetchAll: false,
+    defaultStrategy: 'hover',
+  },
   vite: {
-    plugins: [tailwindcss()]
-  }
+    plugins: [tailwindcss()],
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {},
+      },
+    },
+  },
 });
