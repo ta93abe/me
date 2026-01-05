@@ -15,12 +15,36 @@ export async function getStaticPaths() {
 
 const { book } = Astro.props;
 const { Content } = await render(book);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(book.data.coverImage.src, Astro.site);
+const bookSchema = {
+	"@context": "https://schema.org",
+	"@type": "Book",
+	name: book.data.title,
+	author: {
+		"@type": "Person",
+		name: book.data.author,
+	},
+	description: book.data.excerpt,
+	image: ogImageURL.href,
+	genre: book.data.tags,
+	url: canonicalURL.href,
+	inLanguage: "ja",
+};
 ---
 
 <Layout
 	title={`${book.data.title} | Bookshelf | Portfolio`}
 	description={book.data.excerpt}
+	ogType="book"
+	ogImage={book.data.coverImage.src}
+	ogImageAlt={`${book.data.title} cover`}
 >
+	<Fragment slot="head">
+		<script type="application/ld+json">
+			{JSON.stringify(bookSchema)}
+		</script>
+	</Fragment>
 	<main class="mx-auto max-w-4xl px-6 py-12">
 		<div class="mb-8">
 			<a
