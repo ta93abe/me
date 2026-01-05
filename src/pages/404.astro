@@ -5,15 +5,13 @@ import Layout from "../layouts/Layout.astro";
 <Layout
 	title="404 - ページが見つかりません | Portfolio"
 	description="お探しのページは見つかりませんでした。"
-	noHeader={true}
-	noFooter={true}
 >
 	<main class="flex min-h-screen items-center justify-center px-6">
 		<div class="text-center">
 			<!-- 404 大きな数字 -->
 			<div class="mb-8">
 				<h1
-					class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-6xl font-bold text-transparent sm:text-9xl"
+					class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-6xl font-bold text-transparent sm:text-8xl md:text-9xl"
 				>
 					404
 				</h1>
@@ -41,6 +39,7 @@ import Layout from "../layouts/Layout.astro";
 					type="button"
 					id="history-back-button"
 					class="rounded-lg border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50"
+					aria-label="前のページに戻る"
 				>
 					前のページへ
 				</button>
@@ -57,14 +56,17 @@ import Layout from "../layouts/Layout.astro";
 <script>
 	const backButton = document.getElementById("history-back-button");
 	backButton?.addEventListener("click", () => {
-		// Check if there's a referrer from the same origin
-		if (
-			document.referrer &&
-			new URL(document.referrer).origin === window.location.origin
-		) {
-			window.history.back();
-		} else {
-			// If no referrer or different origin, navigate to home page
+		try {
+			if (
+				document.referrer &&
+				new URL(document.referrer).origin === window.location.origin
+			) {
+				window.history.back();
+			} else {
+				window.location.href = "/";
+			}
+		} catch (e) {
+			console.error("Failed to go back:", e);
 			window.location.href = "/";
 		}
 	});
