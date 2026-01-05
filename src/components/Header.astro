@@ -17,14 +17,10 @@ const navLinks = [
 		<a href="/" class="text-xl font-bold hover:opacity-70" aria-label="ホームページに戻る">
 			Portfolio
 		</a>
-		<ul class="flex gap-6" role="list">
+		<ul class="flex gap-6">
 			{navLinks.map((link) => (
 				<li>
-					<a
-						href={link.href}
-						class="hover:opacity-70"
-						aria-label={`${link.text}ページへ移動`}
-					>
+					<a href={link.href} class="hover:opacity-70">
 						{link.text}
 					</a>
 				</li>

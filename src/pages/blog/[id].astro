@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 
 export async function getStaticPaths() {
 	const blogPosts = await getCollection("blog");
@@ -20,6 +21,13 @@ const { Content } = await render(post);
 	description={post.data.excerpt}
 >
 	<main class="mx-auto max-w-4xl px-6 py-12">
+		<Breadcrumb
+			items={[
+				{ label: "ホーム", href: "/" },
+				{ label: "ブログ", href: "/blog" },
+				{ label: post.data.title },
+			]}
+		/>
 		<div class="mb-8">
 			<a
 				href="/blog"

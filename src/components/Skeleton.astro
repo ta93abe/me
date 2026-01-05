@@ -17,7 +17,14 @@ const variantClasses = {
 };
 
 const variantClass = variantClasses[variant];
-const style = `${width ? `width: ${width};` : ""} ${height ? `height: ${height};` : ""}`;
+
+let style = "";
+if (width) {
+	style += `width: ${width};`;
+}
+if (height) {
+	style += `height: ${height};`;
+}
 ---
 
 <div
@@ -28,19 +35,3 @@ const style = `${width ? `width: ${width};` : ""} ${height ? `height: ${height};
 >
 	<span class="sr-only">読み込み中...</span>
 </div>
-
-<style>
-	@keyframes pulse {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.5;
-		}
-	}
-
-	.animate-pulse {
-		animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-	}
-</style>

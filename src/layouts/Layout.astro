@@ -15,7 +15,7 @@ interface Props {
 const {
 	title = "Portfolio",
 	description = "個人ポートフォリオサイト",
-	ogImage = "/og-image.svg",
+	ogImage = "/og-image.png",
 	ogSiteName = "Portfolio",
 	noHeader = false,
 	noFooter = false,
@@ -37,7 +37,6 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<title>{title}</title>
 		<meta name="title" content={title} />
 		<meta name="description" content={description} />
-		<meta name="keywords" content="ポートフォリオ, 開発者, エンジニア, ブログ, プロジェクト" />
 		<meta name="author" content="Takumi Abe" />
 		<link rel="canonical" href={canonicalURL} />
 
@@ -63,12 +62,12 @@ const ogImageURL = new URL(ogImage, Astro.site);
 				"@context": "https://schema.org",
 				"@type": "WebSite",
 				"name": "Portfolio",
-				"url": "https://ta93abe.com",
+				"url": Astro.site.href,
 				"description": "個人ポートフォリオサイト",
 				"author": {
 					"@type": "Person",
 					"name": "Takumi Abe",
-					"url": "https://ta93abe.com"
+					"url": Astro.site.href
 				},
 				"inLanguage": "ja"
 			}

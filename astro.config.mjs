@@ -13,7 +13,7 @@ export default defineConfig({
   },
   compressHTML: true,
   prefetch: {
-    prefetchAll: true,
+    prefetchAll: false,
     defaultStrategy: 'hover',
   },
   vite: {
@@ -21,11 +21,7 @@ export default defineConfig({
     build: {
       cssCodeSplit: true,
       rollupOptions: {
-        output: {
-          manualChunks: {
-            'astro-runtime': ['astro/runtime/server/index.js'],
-          },
-        },
+        output: {},
       },
     },
   },
