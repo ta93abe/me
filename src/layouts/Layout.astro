@@ -53,6 +53,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<meta property="twitter:title" content={title} />
 		<meta property="twitter:description" content={description} />
 		<meta property="twitter:image" content={ogImageURL} />
+		<slot name="head" />
 	</head>
 	<body>
 		{!noHeader && <Header />}
