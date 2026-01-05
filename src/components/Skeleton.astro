@@ -1,0 +1,46 @@
+---
+export interface Props {
+	variant?: "text" | "title" | "card" | "image" | "circle";
+	className?: string;
+	width?: string;
+	height?: string;
+}
+
+const { variant = "text", className = "", width, height } = Astro.props;
+
+const variantClasses = {
+	text: "h-4 rounded",
+	title: "h-8 rounded",
+	card: "h-32 rounded-lg",
+	image: "aspect-video rounded-lg",
+	circle: "rounded-full",
+};
+
+const variantClass = variantClasses[variant];
+const style = `${width ? `width: ${width};` : ""} ${height ? `height: ${height};` : ""}`;
+---
+
+<div
+	class={`animate-pulse bg-gray-200 ${variantClass} ${className}`}
+	style={style}
+	role="status"
+	aria-label="読み込み中"
+>
+	<span class="sr-only">読み込み中...</span>
+</div>
+
+<style>
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+
+	.animate-pulse {
+		animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+</style>

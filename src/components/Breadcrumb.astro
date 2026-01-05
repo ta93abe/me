@@ -1,0 +1,49 @@
+---
+export interface Props {
+	items: Array<{
+		label: string;
+		href?: string;
+	}>;
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="パンくずリスト" class="mb-6">
+	<ol
+		class="flex flex-wrap items-center gap-2 text-sm text-gray-600"
+		itemscope
+		itemtype="https://schema.org/BreadcrumbList"
+	>
+		{
+			items.map((item, index) => (
+				<li
+					itemprop="itemListElement"
+					itemscope
+					itemtype="https://schema.org/ListItem"
+					class="flex items-center gap-2"
+				>
+					{item.href ? (
+						<a
+							href={item.href}
+							itemprop="item"
+							class="hover:text-gray-900 hover:underline"
+						>
+							<span itemprop="name">{item.label}</span>
+						</a>
+					) : (
+						<span itemprop="name" class="font-semibold text-gray-900">
+							{item.label}
+						</span>
+					)}
+					<meta itemprop="position" content={String(index + 1)} />
+					{index < items.length - 1 && (
+						<span aria-hidden="true" class="text-gray-400">
+							/
+						</span>
+					)}
+				</li>
+			))
+		}
+	</ol>
+</nav>
