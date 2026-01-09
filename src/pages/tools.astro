@@ -398,13 +398,18 @@ const categories: Category[] = [
 		],
 	},
 	{
-		title: "GUIアプリケーション",
-		icon: "🖥️",
+		title: "IDE・エディタ",
+		icon: "💻",
 		tools: [
 			{
 				name: "Visual Studio Code",
-				description: "マイクロソフトのコードエディタ",
+				description: "マイクロソフトの強力なコードエディタ",
 				url: "https://code.visualstudio.com/",
+			},
+			{
+				name: "Cursor",
+				description: "AI統合型のコードエディタ",
+				url: "https://cursor.sh/",
 			},
 			{
 				name: "Zed",
@@ -412,14 +417,437 @@ const categories: Category[] = [
 				url: "https://zed.dev/",
 			},
 			{
+				name: "Android Studio",
+				description: "Android開発のための公式IDE",
+				url: "https://developer.android.com/studio",
+			},
+		],
+	},
+	{
+		title: "デザイン・クリエイティブ",
+		icon: "🎨",
+		tools: [
+			{
+				name: "Figma",
+				description: "コラボレーション型UIデザインツール",
+				url: "https://www.figma.com/",
+			},
+			{
+				name: "Rive",
+				description: "インタラクティブアニメーション作成ツール",
+				url: "https://rive.app/",
+			},
+			{
+				name: "Framer",
+				description: "プロトタイピング・デザインツール",
+				url: "https://www.framer.com/",
+			},
+			{
+				name: "Spline",
+				description: "3Dデザイン・アニメーションツール",
+				url: "https://spline.design/",
+			},
+			{
+				name: "Affinity Designer",
+				description: "プロフェッショナルなベクターグラフィックデザインツール",
+				url: "https://affinity.serif.com/designer/",
+			},
+			{
+				name: "Affinity Photo",
+				description: "プロフェッショナルな写真編集ツール",
+				url: "https://affinity.serif.com/photo/",
+			},
+			{
+				name: "Affinity Publisher",
+				description: "プロフェッショナルなデスクトップパブリッシングツール",
+				url: "https://affinity.serif.com/publisher/",
+			},
+			{
+				name: "Canva",
+				description: "オンラインデザインプラットフォーム",
+				url: "https://www.canva.com/",
+			},
+			{
+				name: "Blender",
+				description: "オープンソースの3D制作スイート",
+				url: "https://www.blender.org/",
+			},
+			{
+				name: "Rotato",
+				description: "3Dデバイスモックアップ作成ツール",
+				url: "https://rotato.app/",
+			},
+			{
+				name: "Storyboarder",
+				description: "ストーリーボード作成ツール",
+				url: "https://wonderunit.com/storyboarder/",
+			},
+		],
+	},
+	{
+		title: "API・HTTP開発",
+		icon: "🔌",
+		tools: [
+			{
+				name: "Bruno",
+				description: "オープンソースのAPI開発ツール",
+				url: "https://www.usebruno.com/",
+			},
+			{
+				name: "Postman",
+				description: "APIプラットフォーム",
+				url: "https://www.postman.com/",
+			},
+			{
+				name: "HTTPie Desktop",
+				description: "APIテストのためのデスクトップクライアント",
+				url: "https://httpie.io/desktop",
+			},
+			{
+				name: "Yaak",
+				description: "モダンなAPIクライアント",
+				url: "https://yaak.app/",
+			},
+		],
+	},
+	{
+		title: "Git・バージョン管理",
+		icon: "🌿",
+		tools: [
+			{
+				name: "GitHub Desktop",
+				description: "GitHubの公式デスクトップクライアント",
+				url: "https://desktop.github.com/",
+			},
+			{
+				name: "GitKraken",
+				description: "パワフルなGitクライアント",
+				url: "https://www.gitkraken.com/",
+			},
+		],
+	},
+	{
+		title: "ブラウザ",
+		icon: "🌐",
+		tools: [
+			{
+				name: "Arc",
+				description: "モダンなウェブブラウザ",
+				url: "https://arc.net/",
+			},
+			{
+				name: "Brave",
+				description: "プライバシー重視のブラウザ",
+				url: "https://brave.com/",
+			},
+			{
+				name: "Firefox",
+				description: "オープンソースのウェブブラウザ",
+				url: "https://www.mozilla.org/firefox/",
+			},
+			{
+				name: "Google Chrome",
+				description: "Googleのウェブブラウザ",
+				url: "https://www.google.com/chrome/",
+			},
+			{
+				name: "Opera",
+				description: "高機能ウェブブラウザ",
+				url: "https://www.opera.com/",
+			},
+			{
+				name: "Opera GX",
+				description: "ゲーマー向けブラウザ",
+				url: "https://www.opera.com/gx",
+			},
+		],
+	},
+	{
+		title: "コミュニケーション",
+		icon: "💬",
+		tools: [
+			{
+				name: "Slack",
+				description: "ビジネスコミュニケーションプラットフォーム",
+				url: "https://slack.com/",
+			},
+			{
+				name: "Discord",
+				description: "コミュニティ向けチャットプラットフォーム",
+				url: "https://discord.com/",
+			},
+			{
+				name: "Zoom",
+				description: "ビデオ会議プラットフォーム",
+				url: "https://zoom.us/",
+			},
+			{
+				name: "Microsoft Teams",
+				description: "Microsoftのコラボレーションツール",
+				url: "https://www.microsoft.com/microsoft-teams/",
+			},
+			{
+				name: "Signal",
+				description: "プライバシー重視のメッセージングアプリ",
+				url: "https://signal.org/",
+			},
+		],
+	},
+	{
+		title: "音楽・オーディオ制作",
+		icon: "🎵",
+		tools: [
+			{
+				name: "Ableton Live",
+				description: "プロフェッショナルなDAW（デジタルオーディオワークステーション）",
+				url: "https://www.ableton.com/",
+			},
+			{
+				name: "Audio Hijack",
+				description: "macOS用オーディオ録音ツール",
+				url: "https://rogueamoeba.com/audiohijack/",
+			},
+			{
+				name: "Farrago",
+				description: "オーディオプレイバックツール",
+				url: "https://rogueamoeba.com/farrago/",
+			},
+			{
+				name: "Loopback",
+				description: "オーディオルーティングツール",
+				url: "https://rogueamoeba.com/loopback/",
+			},
+			{
+				name: "Splice",
+				description: "音楽制作プラットフォーム",
+				url: "https://splice.com/",
+			},
+			{
+				name: "Sonic Pi",
+				description: "ライブコーディングシンセサイザー",
+				url: "https://sonic-pi.net/",
+			},
+			{
+				name: "SuperCollider",
+				description: "オーディオ合成・アルゴリズム作曲プラットフォーム",
+				url: "https://supercollider.github.io/",
+			},
+			{
+				name: "Cycling '74 Max",
+				description: "ビジュアルプログラミング言語（音楽・マルチメディア）",
+				url: "https://cycling74.com/",
+			},
+		],
+	},
+	{
+		title: "映像・配信",
+		icon: "🎬",
+		tools: [
+			{
+				name: "OBS",
+				description: "オープンソースの配信・録画ソフトウェア",
+				url: "https://obsproject.com/",
+			},
+			{
+				name: "Camo Studio",
+				description: "スマートフォンをウェブカメラとして使用",
+				url: "https://reincubate.com/camo/",
+			},
+		],
+	},
+	{
+		title: "ビジュアルプログラミング・インタラクティブ",
+		icon: "🎭",
+		tools: [
+			{
+				name: "TouchDesigner",
+				description: "リアルタイムビジュアルプログラミングツール",
+				url: "https://derivative.ca/",
+			},
+			{
+				name: "Processing",
+				description: "ビジュアルアート向けプログラミング環境",
+				url: "https://processing.org/",
+			},
+			{
+				name: "OpenFrameworks",
+				description: "クリエイティブコーディングツールキット",
+				url: "https://openframeworks.cc/",
+			},
+			{
+				name: "Unity Hub",
+				description: "Unityエディタの管理ツール",
+				url: "https://unity.com/",
+			},
+			{
+				name: "Spark AR Studio",
+				description: "AR体験作成ツール",
+				url: "https://sparkar.facebook.com/",
+			},
+		],
+	},
+	{
+		title: "生産性",
+		icon: "⚡",
+		tools: [
+			{
 				name: "Raycast",
 				description: "拡張可能なランチャー・生産性ツール",
 				url: "https://www.raycast.com/",
 			},
 			{
-				name: "Rancher Desktop",
-				description: "Kubernetes & コンテナ管理ツール",
-				url: "https://rancherdesktop.io/",
+				name: "Notion",
+				description: "オールインワンワークスペース",
+				url: "https://www.notion.so/",
+			},
+			{
+				name: "Linear",
+				description: "モダンなプロジェクト管理ツール",
+				url: "https://linear.app/",
+			},
+			{
+				name: "Obsidian",
+				description: "ローカルファースト型ノート管理アプリ",
+				url: "https://obsidian.md/",
+			},
+			{
+				name: "Amie",
+				description: "カレンダー・タスク管理ツール",
+				url: "https://amie.so/",
+			},
+			{
+				name: "Morgen",
+				description: "統合カレンダーアプリ",
+				url: "https://www.morgen.so/",
+			},
+			{
+				name: "CleanShot",
+				description: "高機能スクリーンショットツール",
+				url: "https://cleanshot.com/",
+			},
+			{
+				name: "PixelSnap",
+				description: "画面上の要素を測定するツール",
+				url: "https://getpixelsnap.com/",
+			},
+			{
+				name: "Rectangle Pro",
+				description: "ウィンドウ管理ツール",
+				url: "https://rectangleapp.com/pro",
+			},
+			{
+				name: "Numi",
+				description: "テキストベースの計算機",
+				url: "https://numi.app/",
+			},
+		],
+	},
+	{
+		title: "開発サポート",
+		icon: "🛠️",
+		tools: [
+			{
+				name: "OrbStack",
+				description: "高速で軽量なDockerデスクトップ代替",
+				url: "https://orbstack.dev/",
+			},
+			{
+				name: "DevToys",
+				description: "開発者向けユーティリティツール集",
+				url: "https://devtoys.app/",
+			},
+			{
+				name: "DevTui",
+				description: "ターミナルベースの開発者ツール",
+				url: "https://github.com/jeremychone-channel/rust-devtui",
+			},
+		],
+	},
+	{
+		title: "AI・機械学習",
+		icon: "🤖",
+		tools: [
+			{
+				name: "ChatGPT",
+				description: "OpenAIの対話型AIアシスタント",
+				url: "https://chat.openai.com/",
+			},
+			{
+				name: "Claude",
+				description: "Anthropicの対話型AIアシスタント",
+				url: "https://claude.ai/",
+			},
+			{
+				name: "Claude Code",
+				description: "Claude AIのCLIツール",
+				url: "https://www.anthropic.com/claude/code",
+			},
+		],
+	},
+	{
+		title: "ユーティリティ",
+		icon: "🔧",
+		tools: [
+			{
+				name: "1Password",
+				description: "パスワードマネージャー",
+				url: "https://1password.com/",
+			},
+			{
+				name: "Karabiner-Elements",
+				description: "キーボードカスタマイズツール",
+				url: "https://karabiner-elements.pqrs.org/",
+			},
+			{
+				name: "Stats",
+				description: "システムモニター（メニューバー）",
+				url: "https://github.com/exelban/stats",
+			},
+			{
+				name: "Sensei",
+				description: "システム最適化・監視ツール",
+				url: "https://sensei.app/",
+			},
+			{
+				name: "Google Drive",
+				description: "クラウドストレージサービス",
+				url: "https://www.google.com/drive/",
+			},
+			{
+				name: "Logi Options+",
+				description: "Logicool周辺機器設定ツール",
+				url: "https://www.logicool.co.jp/ja-jp/software/logi-options-plus.html",
+			},
+			{
+				name: "Gyazo",
+				description: "スクリーンショット共有ツール",
+				url: "https://gyazo.com/",
+			},
+		],
+	},
+	{
+		title: "エンターテイメント",
+		icon: "🎮",
+		tools: [
+			{
+				name: "Spotify",
+				description: "音楽ストリーミングサービス",
+				url: "https://www.spotify.com/",
+			},
+			{
+				name: "Pocket Casts",
+				description: "ポッドキャストプレイヤー",
+				url: "https://pocketcasts.com/",
+			},
+			{
+				name: "Steam",
+				description: "ゲーム配信プラットフォーム",
+				url: "https://store.steampowered.com/",
+			},
+			{
+				name: "Epic Games",
+				description: "ゲームストア・ランチャー",
+				url: "https://www.epicgames.com/",
 			},
 		],
 	},
