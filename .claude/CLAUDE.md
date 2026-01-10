@@ -17,6 +17,8 @@
 | リンター/フォーマッター | Biome | 2.3.11 |
 | デプロイ | Cloudflare Workers | Wrangler |
 | 言語 | TypeScript | (Astro strict設定) |
+| Issue管理 | Linear | ta93abe team / me project |
+| PR管理 | Graphite | gt CLI |
 
 ## プロジェクト構造
 
@@ -192,33 +194,79 @@ pnpm format
 - Claude Codeがコード品質、バグ、パフォーマンス、セキュリティを確認
 - 日本語でレビューコメントを投稿
 
+## ワークフローツール
+
+### 重要: GitHub はデータベースとして扱う
+
+このプロジェクトでは GitHub をコードリポジトリとしてのみ使用し、以下のツールでワークフローを管理します：
+
+| 用途 | ツール | 備考 |
+|------|--------|------|
+| Issue管理 | **Linear** | ta93abe team / me project |
+| PR管理 | **Graphite (gt)** | スタック型PRワークフロー |
+| コード管理 | GitHub | データベースとして使用 |
+
+### Linear (Issue管理)
+
+- **チーム**: ta93abe
+- **プロジェクト**: me
+- Issue の作成・更新・クローズは Linear で行う
+- GitHub Issues は使用しない
+
+```bash
+# Linear MCP経由で操作
+# Claude Code から直接 Linear を操作可能
+```
+
+### Graphite (PR管理)
+
+`git` の代わりに `gt` コマンドを使用してPRを管理します。
+
+```bash
+# ブランチ作成とコミット
+gt create -m "feat: 新機能の追加"
+
+# PRの提出（スタック全体）
+gt submit --no-interactive
+
+# スタックの状態確認
+gt state
+
+# 上下のブランチに移動
+gt up / gt down
+
+# リベース・同期
+gt sync
+gt restack
+```
+
+**重要**: `git commit` や `git push` ではなく、`gt create` と `gt submit` を使用すること。
+
 ## ブランチ戦略
 
-### 重要: main ブランチでの直接作業禁止
+### 重要: Graphite (gt) を使用してブランチを管理
 
-**必ず feature ブランチを作成してから作業を開始してください。**
+**`gt create` コマンドでブランチ作成とコミットを同時に行います。**
 
 ```bash
 # 新機能開発の場合
-git switch -c feature/機能名
+gt create -m "feat: 機能の説明"
 
 # バグ修正の場合
-git switch -c fix/修正内容
+gt create -m "fix: 修正の説明"
 
 # ドキュメント更新の場合
-git switch -c docs/更新内容
+gt create -m "docs: 更新の説明"
 ```
 
 ### ワークフロー
 
-1. **ブランチ作成**: 作業開始前に必ず feature ブランチを作成
-2. **開発**: feature ブランチで開発を進める
-3. **コミット**: こまめにコミット（意味のある単位で）
-4. **プッシュ**: リモートに push
-5. **PR作成**: GitHub で Pull Request を作成
-6. **レビュー**: 必要に応じてコードレビュー
-7. **マージ**: PR をマージして main に反映
-8. **ブランチ削除**: マージ後は feature ブランチを削除
+1. **開発**: main ブランチ上でコードを書く
+2. **ブランチ作成+コミット**: `gt create -m "feat: 説明"` でブランチ作成とコミットを同時に行う
+3. **PR提出**: `gt submit --no-interactive` でPRを作成・更新
+4. **レビュー**: Graphite または GitHub でコードレビュー
+5. **マージ**: Graphite でマージ（スタック全体を一括マージ可能）
+6. **同期**: `gt sync` で最新の main を取得し、古いブランチを削除
 
 ### ブランチ命名規則
 
@@ -258,8 +306,9 @@ Conventional Commits に従う:
 ### ブランチ戦略
 
 - メインブランチ: `main`
-- フィーチャーブランチで開発し、手動でPRを作成
-- PRマージ後、Cloudflare Workersへのデプロイを実行
+- `gt create` でフィーチャーブランチを作成
+- `gt submit` でPRを作成・更新
+- Graphite でマージ後、Cloudflare Workersへのデプロイを実行
 
 ## 参考リンク
 
