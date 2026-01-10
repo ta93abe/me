@@ -26,7 +26,9 @@
 │   └── CLAUDE.md              # このファイル
 ├── .github/
 │   └── workflows/
-│       └── pull-request.yml   # 自動PR作成ワークフロー
+│       ├── claude.yml         # Claude Code GitHub連携
+│       ├── claude-code-review.yml  # 自動コードレビュー
+│       └── playwright.yml     # E2Eテスト
 ├── docs/                       # プロジェクトドキュメント
 │   ├── ARCHITECTURE.md        # 技術アーキテクチャ
 │   ├── DEPLOYMENT.md          # デプロイ手順
@@ -177,17 +179,18 @@ pnpm format
 
 ## CI/CD
 
-### 自動PR作成ワークフロー
+### Claude Code GitHub連携
 
-`.github/workflows/pull-request.yml` がmain以外のブランチへのプッシュで自動的にPRを作成します。
+`.github/workflows/claude.yml` - @claudeメンション時にClaude Codeを実行
+- Issue/PRコメントで@claudeをメンションすると自動実行
+- GitHub ActionsからClaude Codeを呼び出し
 
-**動作**:
-1. main以外のブランチへのプッシュで起動
-2. 既存のPRがあるか確認
-3. なければ自動的にPRを作成
-   - タイトル: "release {branch-name}"
-   - ベース: main
-   - アサイン先: ta93abe
+### 自動コードレビュー
+
+`.github/workflows/claude-code-review.yml` - PR作成・更新時に自動レビュー
+- PRが作成またはsynchronizeされた時に起動
+- Claude Codeがコード品質、バグ、パフォーマンス、セキュリティを確認
+- 日本語でレビューコメントを投稿
 
 ## ブランチ戦略
 
@@ -255,7 +258,7 @@ Conventional Commits に従う:
 ### ブランチ戦略
 
 - メインブランチ: `main`
-- フィーチャーブランチから自動PRが作成されます
+- フィーチャーブランチで開発し、手動でPRを作成
 - PRマージ後、Cloudflare Workersへのデプロイを実行
 
 ## 参考リンク
