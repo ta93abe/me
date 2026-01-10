@@ -505,14 +505,14 @@ const categories: Category[] = [
 			},
 			{
 				name: "Yaak",
-				description: "モダンなAPIクライアント",
+				description: "モダンなAPIクライアント（開発停止中）",
 				url: "https://yaak.app/",
 			},
 		],
 	},
 	{
 		title: "Git・バージョン管理",
-		icon: "🌿",
+		icon: "🔀",
 		tools: [
 			{
 				name: "GitHub Desktop",
@@ -599,7 +599,8 @@ const categories: Category[] = [
 		tools: [
 			{
 				name: "Ableton Live",
-				description: "プロフェッショナルなDAW（デジタルオーディオワークステーション）",
+				description:
+					"プロフェッショナルなDAW（デジタルオーディオワークステーション）",
 				url: "https://www.ableton.com/",
 			},
 			{
@@ -681,7 +682,7 @@ const categories: Category[] = [
 			},
 			{
 				name: "Spark AR Studio",
-				description: "AR体験作成ツール",
+				description: "AR体験作成ツール（非推奨・2024年9月終了）",
 				url: "https://sparkar.facebook.com/",
 			},
 		],
@@ -712,12 +713,12 @@ const categories: Category[] = [
 			},
 			{
 				name: "Amie",
-				description: "カレンダー・タスク管理ツール",
+				description: "カレンダー・タスク管理ツール（Notionに統合予定）",
 				url: "https://amie.so/",
 			},
 			{
 				name: "Morgen",
-				description: "統合カレンダーアプリ",
+				description: "統合カレンダーアプリ（Clockwiseに統合予定）",
 				url: "https://www.morgen.so/",
 			},
 			{
@@ -758,7 +759,7 @@ const categories: Category[] = [
 			},
 			{
 				name: "DevTui",
-				description: "ターミナルベースの開発者ツール",
+				description: "ターミナルベースの開発者ツール（アーカイブ済）",
 				url: "https://github.com/jeremychone-channel/rust-devtui",
 			},
 		],
@@ -779,8 +780,8 @@ const categories: Category[] = [
 			},
 			{
 				name: "Claude Code",
-				description: "Claude AIのCLIツール",
-				url: "https://www.anthropic.com/claude/code",
+				description: "Claude AIの開発ツール（CLI）",
+				url: "https://docs.anthropic.com/en/docs/claude-code/overview",
 			},
 		],
 	},
@@ -816,7 +817,7 @@ const categories: Category[] = [
 			{
 				name: "Logi Options+",
 				description: "Logicool周辺機器設定ツール",
-				url: "https://www.logicool.co.jp/ja-jp/software/logi-options-plus.html",
+				url: "https://www.logitech.com/en-us/software/logi-options-plus.html",
 			},
 			{
 				name: "Gyazo",
@@ -919,7 +920,7 @@ const enablePagefind = !import.meta.env.DEV;
 		<div class="space-y-12">
 			{
 				categories.map((category) => (
-					<section id={category.title.toLowerCase().replace(/\s+/g, "-")}>
+					<section id={category.title.toLowerCase().replace(/[・\s]+/g, "-").replace(/[^a-z0-9-]/g, "")}>
 						<h2 class="mb-6 flex items-center gap-2 text-2xl font-bold">
 							<span class="text-3xl">{category.icon}</span>
 							{category.title}
