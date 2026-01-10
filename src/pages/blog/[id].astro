@@ -51,9 +51,7 @@ const blogSchema = {
 		{post.data.updatedDate && (
 			<meta property="article:modified_time" content={modifiedTime} />
 		)}
-		<script type="application/ld+json">
-			{JSON.stringify(blogSchema)}
-		</script>
+		<script type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
 	</Fragment>
 	<main class="mx-auto max-w-4xl px-6 py-12">
 		<Breadcrumb

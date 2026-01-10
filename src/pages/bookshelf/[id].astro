@@ -45,9 +45,7 @@ const bookSchema = {
 	<Fragment slot="head">
 		<meta property="book:author" content={book.data.author} />
 		{book.data.tags.map((tag) => <meta property="book:tag" content={tag} />)}
-		<script type="application/ld+json">
-			{JSON.stringify(bookSchema)}
-		</script>
+		<script type="application/ld+json" set:html={JSON.stringify(bookSchema)} />
 	</Fragment>
 	<main class="mx-auto max-w-4xl px-6 py-12">
 		<div class="mb-8">
