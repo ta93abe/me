@@ -53,7 +53,10 @@ const workSchema = {
 		{work.data.endDate && (
 			<meta property="article:modified_time" content={modifiedTime} />
 		)}
-		<script type="application/ld+json" set:html={JSON.stringify(workSchema)} />
+		<script
+			type="application/ld+json"
+			set:html={JSON.stringify(workSchema).replace(/</g, "\\u003c")}
+		/>
 	</Fragment>
 	<main class="mx-auto max-w-4xl px-6 py-12">
 		<Breadcrumb

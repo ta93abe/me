@@ -17,6 +17,11 @@ const { book } = Astro.props;
 const { Content } = await render(book);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(book.data.coverImage.src, Astro.site);
+const tags = book.data.tags
+	? Array.isArray(book.data.tags)
+		? book.data.tags
+		: [book.data.tags]
+	: [];
 const bookSchema = {
 	"@context": "https://schema.org",
 	"@type": "Book",
@@ -27,9 +32,7 @@ const bookSchema = {
 	},
 	description: book.data.excerpt,
 	image: ogImageURL.href,
-	genre: Array.isArray(book.data.tags)
-		? book.data.tags.join(", ")
-		: book.data.tags,
+	genre: tags.join(", "),
 	url: canonicalURL.href,
 	inLanguage: "ja",
 };
@@ -44,8 +47,11 @@ const bookSchema = {
 >
 	<Fragment slot="head">
 		<meta property="book:author" content={book.data.author} />
-		{book.data.tags.map((tag) => <meta property="book:tag" content={tag} />)}
-		<script type="application/ld+json" set:html={JSON.stringify(bookSchema)} />
+		{tags.map((tag) => <meta property="book:tag" content={tag} />)}
+		<script
+			type="application/ld+json"
+			set:html={JSON.stringify(bookSchema).replace(/</g, "\\u003c")}
+		/>
 	</Fragment>
 	<main class="mx-auto max-w-4xl px-6 py-12">
 		<div class="mb-8">
@@ -80,7 +86,7 @@ const bookSchema = {
 				)}
 			</div>
 			<div class="flex flex-wrap gap-2">
-				{book.data.tags.map((tag) => (
+				{tags.map((tag) => (
 					<span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
 						{tag}
 					</span>
