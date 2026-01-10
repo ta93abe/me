@@ -14,7 +14,7 @@
 | スタイリング | Tailwind CSS | ^4.1.18 |
 | ビルドツール | Vite | (Astroに内包) |
 | パッケージマネージャー | pnpm | Latest |
-| リンター/フォーマッター | Biome | 2.3.10 |
+| リンター/フォーマッター | Biome | 2.3.11 |
 | デプロイ | Cloudflare Workers | Wrangler |
 | 言語 | TypeScript | (Astro strict設定) |
 
@@ -29,6 +29,11 @@
 │       ├── claude.yml         # Claude Code GitHub連携
 │       ├── claude-code-review.yml  # 自動コードレビュー
 │       └── playwright.yml     # E2Eテスト
+├── docs/                       # プロジェクトドキュメント
+│   ├── ARCHITECTURE.md        # 技術アーキテクチャ
+│   ├── DEPLOYMENT.md          # デプロイ手順
+│   ├── STYLE_GUIDE.md         # コーディング規約
+│   └── TROUBLESHOOTING.md     # トラブルシューティング
 ├── public/
 │   └── favicon.svg            # 静的ファイル(ルートで配信)
 ├── src/
@@ -150,7 +155,7 @@ npx wrangler deploy
 
 ### Biome
 
-プロジェクトはBiome (v2.3.10) を使用してコード品質を管理しています。
+プロジェクトはBiome (v2.3.11) を使用してコード品質を管理しています。
 
 **設定内容**:
 - タブインデント
