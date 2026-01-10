@@ -27,7 +27,9 @@ const bookSchema = {
 	},
 	description: book.data.excerpt,
 	image: ogImageURL.href,
-	genre: book.data.tags,
+	genre: Array.isArray(book.data.tags)
+		? book.data.tags.join(", ")
+		: book.data.tags,
 	url: canonicalURL.href,
 	inLanguage: "ja",
 };
@@ -37,10 +39,12 @@ const bookSchema = {
 	title={`${book.data.title} | Bookshelf | Portfolio`}
 	description={book.data.excerpt}
 	ogType="book"
-	ogImage={book.data.coverImage.src}
+	ogImage={ogImageURL.href}
 	ogImageAlt={`${book.data.title} cover`}
 >
 	<Fragment slot="head">
+		<meta property="book:author" content={book.data.author} />
+		{book.data.tags.map((tag) => <meta property="book:tag" content={tag} />)}
 		<script type="application/ld+json">
 			{JSON.stringify(bookSchema)}
 		</script>

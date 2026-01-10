@@ -44,10 +44,15 @@ const workSchema = {
 	title={`${work.data.title} | Works | Portfolio`}
 	description={work.data.excerpt}
 	ogType="article"
-	ogImage={work.data.coverImage.src}
+	ogImage={ogImageURL.href}
 	ogImageAlt={work.data.title}
 >
 	<Fragment slot="head">
+		<meta property="article:author" content="Takumi Abe" />
+		<meta property="article:published_time" content={createdTime} />
+		{work.data.endDate && (
+			<meta property="article:modified_time" content={modifiedTime} />
+		)}
 		<script type="application/ld+json">
 			{JSON.stringify(workSchema)}
 		</script>
