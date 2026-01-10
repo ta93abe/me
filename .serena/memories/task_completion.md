@@ -54,10 +54,11 @@ git push -u origin ブランチ名
 ```
 
 ### 7. Pull Request作成
-- GitHubで自動的にPRが作成される（.github/workflows/pull-request.yml）
-- PRタイトル: "release {branch-name}"
+```bash
+gh pr create --title "PRタイトル" --body "変更内容の説明"
+```
 - ベースブランチ: main
-- アサイン先: ta93abe
+- 変更内容を明確に記載
 
 ## デプロイ前
 
@@ -76,11 +77,8 @@ git switch main
 # 最新を取得
 git pull
 
-# ビルド
-pnpm build
-
-# デプロイ
-npx wrangler deploy
+# ビルド + デプロイ
+pnpm deploy
 ```
 
 ## 注意事項
