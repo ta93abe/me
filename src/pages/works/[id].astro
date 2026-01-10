@@ -15,12 +15,49 @@ export async function getStaticPaths() {
 
 const { work } = Astro.props;
 const { Content } = await render(work);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(work.data.coverImage.src, Astro.site);
+const createdTime = work.data.startDate.toISOString();
+const modifiedTime = work.data.endDate
+	? work.data.endDate.toISOString()
+	: createdTime;
+const workSchema = {
+	"@context": "https://schema.org",
+	"@type": "CreativeWork",
+	name: work.data.title,
+	description: work.data.excerpt,
+	image: ogImageURL.href,
+	keywords: work.data.keywords.join(", "),
+	dateCreated: createdTime,
+	dateModified: modifiedTime,
+	author: {
+		"@type": "Person",
+		name: "Takumi Abe",
+		url: Astro.site.href,
+	},
+	url: canonicalURL.href,
+	inLanguage: "ja",
+};
 ---
 
 <Layout
 	title={`${work.data.title} | Works | Portfolio`}
 	description={work.data.excerpt}
+	ogType="article"
+	ogImage={ogImageURL.href}
+	ogImageAlt={work.data.title}
 >
+	<Fragment slot="head">
+		<meta property="article:author" content="Takumi Abe" />
+		<meta property="article:published_time" content={createdTime} />
+		{work.data.endDate && (
+			<meta property="article:modified_time" content={modifiedTime} />
+		)}
+		<script
+			type="application/ld+json"
+			set:html={JSON.stringify(workSchema).replace(/</g, "\\u003c")}
+		/>
+	</Fragment>
 	<main class="mx-auto max-w-4xl px-6 py-12">
 		<Breadcrumb
 			items={[
