@@ -1,0 +1,54 @@
+{
+	"mcpServers": {
+		"serena": {
+			"command": "uvx",
+			"args": ["--quiet", "--from", "serena-mcp-server", "serena"],
+			"settings": {
+				"project_root": "."
+			}
+		}
+	},
+	"hooks": {
+		"preCommit": {
+			"command": "pnpm assist",
+			"description": "Biomeでコード品質チェック（リンティング・フォーマット・インポート整理）を実行",
+			"blocking": true
+		},
+		"preWrite": {
+			"command": "pnpm format -- {{file}}",
+			"description": "ファイル保存前にBiomeでフォーマット",
+			"blocking": false
+		}
+	},
+	"prompts": {
+		"commitMessage": {
+			"enabled": true,
+			"style": "conventional",
+			"scopes": [
+				"build",
+				"ci",
+				"docs",
+				"feat",
+				"fix",
+				"perf",
+				"refactor",
+				"style",
+				"test",
+				"chore"
+			]
+		}
+	},
+	"editor": {
+		"tabSize": 4,
+		"insertSpaces": false,
+		"formatOnSave": true
+	},
+	"languageSettings": {
+		"typescript": {
+			"preferredQuoteStyle": "double"
+		},
+		"astro": {
+			"preferredQuoteStyle": "double"
+		}
+	}
+}
