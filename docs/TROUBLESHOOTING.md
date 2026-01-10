@@ -33,7 +33,7 @@ pnpm install
 ### Node.js のバージョンが古い
 
 #### 問題
-```
+```text
 Error: This package requires Node.js 18 or higher
 ```
 
@@ -64,7 +64,7 @@ pnpm install
 ### ポート 4321 が既に使用されている
 
 #### 問題
-```
+```text
 Error: Port 4321 is already in use
 ```
 
@@ -103,7 +103,7 @@ pnpm dev
 ### CORS エラーが発生する
 
 #### 問題
-```
+```text
 Access to fetch at 'http://api.example.com' from origin 'http://localhost:4321' has been blocked by CORS policy
 ```
 
@@ -131,7 +131,7 @@ export default defineConfig({
 ### ビルドが失敗する
 
 #### 問題1: TypeScript エラー
-```
+```text
 error TS2322: Type 'string | undefined' is not assignable to type 'string'
 ```
 
@@ -147,11 +147,11 @@ const title: string = props.title ?? "Default Title";
 ```
 
 #### 問題2: メモリ不足
-```
+```text
 FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
 ```
 
-#### 解決方法
+#### 解決方法: メモリ上限を増やす
 ```bash
 # Node.js のメモリ上限を増やす
 NODE_OPTIONS="--max-old-space-size=4096" pnpm build
@@ -160,7 +160,7 @@ NODE_OPTIONS="--max-old-space-size=4096" pnpm build
 ### 画像の最適化でエラーが出る
 
 #### 問題
-```
+```text
 Error: Could not load image
 ```
 
@@ -209,7 +209,7 @@ export default defineConfig({
 ### Wrangler 認証エラー
 
 #### 問題
-```
+```text
 Error: Not authenticated. Please run `wrangler login`
 ```
 
@@ -348,11 +348,11 @@ const { title = "Default" } = Astro.props;
 ```
 
 #### 問題2: モジュールが見つからない
-```
+```text
 Cannot find module '@/components/Button'
 ```
 
-#### 解決方法
+#### 解決方法: パスエイリアスを設定
 `tsconfig.json` でパスエイリアスを設定:
 
 ```json
@@ -370,7 +370,7 @@ Cannot find module '@/components/Button'
 ### import が解決できない
 
 #### 問題
-```
+```text
 Cannot find module './components/Button.astro' or its corresponding type declarations
 ```
 
@@ -390,7 +390,7 @@ import Button from './components/Button';
 ### Vitest が起動しない
 
 #### 問題
-```
+```text
 Error: Cannot find module 'vitest'
 ```
 
@@ -406,7 +406,7 @@ pnpm test
 ### Playwright テストが失敗する
 
 #### 問題
-```
+```text
 Error: browserType.launch: Executable doesn't exist
 ```
 
@@ -461,7 +461,7 @@ VSCode の場合、`.vscode/settings.json` に追加:
 ### ファイル監視の上限に達した（Linux）
 
 #### 問題
-```
+```text
 Error: ENOSPC: System limit for number of file watchers reached
 ```
 

@@ -17,7 +17,7 @@
 
 ## ディレクトリ構造
 
-```
+```text
 /
 ├── .claude/                    # Claude Code 設定・ドキュメント
 │   └── CLAUDE.md              # プロジェクト概要・開発ガイド
@@ -74,7 +74,7 @@
 
 ### ビルドプロセス
 
-```
+```text
 開発時:
 ┌─────────────┐
 │ src/pages/  │
@@ -130,7 +130,7 @@
 
 Astro のファイルベースルーティングを使用し、`src/pages/` 内のファイル構造が URL 構造に対応します。
 
-```
+```text
 src/pages/
 ├── index.astro          → /
 ├── about.astro          → /about
@@ -198,7 +198,7 @@ const { title, description } = Astro.props;
 
 ### コア依存関係
 
-```
+```text
 astro
 ├── @astrojs/sitemap        # サイトマップ生成
 ├── @tailwindcss/vite       # Tailwind CSS 統合
@@ -213,7 +213,7 @@ astro
 
 ### ビルド依存関係の流れ
 
-```
+```text
 pnpm install
     │
     ▼
