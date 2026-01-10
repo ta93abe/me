@@ -1,9 +1,9 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { getCollection, render } from "astro:content";
 import { Image } from "astro:assets";
-import { formatDate } from "../../utils/date";
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
 import { statusLabels, statusStyles } from "../../utils/books";
+import { formatDate } from "../../utils/date";
 
 export async function getStaticPaths() {
 	const books = await getCollection("books");
