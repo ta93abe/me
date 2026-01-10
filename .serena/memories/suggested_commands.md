@@ -102,12 +102,9 @@ pnpm test:e2e:report
 
 ### Cloudflare Workersへデプロイ
 ```bash
-# ビルド
-pnpm build
-
-# デプロイ
-npx wrangler deploy
+pnpm deploy
 ```
+- ビルド + デプロイを一括実行
 - `./dist/` の内容をCloudflare Workersにデプロイ
 - ワーカー名: `me`
 - デプロイ先: https://ta93abe.com

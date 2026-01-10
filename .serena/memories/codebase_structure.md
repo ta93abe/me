@@ -10,7 +10,7 @@
 ├── .github/
 │   └── workflows/
 │       └── pull-request.yml  # 自動PR作成ワークフロー
-├── .serena/             # Serenaメモリファイル
+├── .serena/             # Serena MCPサーバーの設定・メモリファイル
 ├── .vscode/             # VSCode設定
 ├── dist/                # ビルド出力（自動生成）
 ├── node_modules/        # 依存関係
@@ -67,7 +67,6 @@
 再利用可能なUIコンポーネント。
 
 **主要コンポーネント:**
-- `Layout.astro` - HTML骨格（実際には layouts/ にある）
 - `Header.astro` - ヘッダー
 - `Footer.astro` - フッター
 - `Welcome.astro` - ウェルカムセクション
