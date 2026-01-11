@@ -4,17 +4,17 @@
 ---
 
 <a href="/" class="logo-link" aria-label="ホームページに戻る">
-	<svg
-		viewBox="0 0 150 45"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-		class="logo-svg"
-		aria-hidden="true"
-	>
-		<!-- 一筆書きの筆記体 ta93abe -->
-		<path
-			class="logo-path"
-			d="M 5 8
+  <svg
+    viewBox="0 0 150 45"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="logo-svg"
+    aria-hidden="true"
+  >
+    <!-- 一筆書きの筆記体 ta93abe -->
+    <path
+      class="logo-path"
+      d="M 5 8
 			   L 5 30
 			   C 5 36 10 36 12 32
 			   C 14 28 18 26 22 26
@@ -49,97 +49,95 @@
 			   C 136 42 146 38 146 30
 			   C 146 24 140 24 138 28
 			   C 136 32 140 38 148 36"
-			stroke-width="2.2"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-		/>
-		<!-- tの横線 -->
-		<path
-			class="logo-path-cross"
-			d="M 1 16 L 10 16"
-			stroke-width="2.2"
-			stroke-linecap="round"
-		/>
-	</svg>
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+    <!-- tの横線 -->
+    <path
+      class="logo-path-cross"
+      d="M 1 16 L 10 16"
+      stroke-width="2.2"
+      stroke-linecap="round"></path>
+  </svg>
 </a>
 
 <style>
-	.logo-link {
-		display: block;
-		width: 115px;
-		height: 35px;
-		user-select: none;
-	}
+  .logo-link {
+    display: block;
+    width: 115px;
+    height: 35px;
+    user-select: none;
+  }
 
-	.logo-svg {
-		width: 100%;
-		height: 100%;
-	}
+  .logo-svg {
+    width: 100%;
+    height: 100%;
+  }
 
-	.logo-path {
-		stroke: #1a1a1a;
-		fill: none;
-		/* 900 = approximate total length of the main SVG path for stroke animation */
-		stroke-dasharray: 900;
-		stroke-dashoffset: 900;
-		animation: draw 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-	}
+  .logo-path {
+    stroke: #1a1a1a;
+    fill: none;
+    /* 900 = approximate total length of the main SVG path for stroke animation */
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    animation: draw 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
 
-	.logo-path-cross {
-		stroke: #1a1a1a;
-		fill: none;
-		/* 15 = approximate length of the t-cross line (M 1 16 L 10 16 ≈ 9px) */
-		stroke-dasharray: 15;
-		stroke-dashoffset: 15;
-		animation: draw 0.2s ease-out 2s forwards;
-	}
+  .logo-path-cross {
+    stroke: #1a1a1a;
+    fill: none;
+    /* 15 = approximate length of the t-cross line (M 1 16 L 10 16 ≈ 9px) */
+    stroke-dasharray: 15;
+    stroke-dashoffset: 15;
+    animation: draw 0.2s ease-out 2s forwards;
+  }
 
-	/* Transition for hover effect (must be on base element, not :hover) */
-	.logo-path,
-	.logo-path-cross {
-		transition: stroke 0.3s ease;
-	}
+  /* Transition for hover effect (must be on base element, not :hover) */
+  .logo-path,
+  .logo-path-cross {
+    transition: stroke 0.3s ease;
+  }
 
-	@keyframes draw {
-		to {
-			stroke-dashoffset: 0;
-		}
-	}
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 
-	/* ダークモード対応 */
-	:global(.dark) .logo-path,
-	:global(.dark) .logo-path-cross {
-		stroke: #f5f5f5;
-	}
+  /* ダークモード対応 */
+  :global(.dark) .logo-path,
+  :global(.dark) .logo-path-cross {
+    stroke: #f5f5f5;
+  }
 
-	/* アクセシビリティ: モーション軽減設定 */
-	@media (prefers-reduced-motion: reduce) {
-		.logo-path,
-		.logo-path-cross {
-			animation: none;
-			stroke-dasharray: none;
-			stroke-dashoffset: 0;
-		}
-	}
+  /* アクセシビリティ: モーション軽減設定 */
+  @media (prefers-reduced-motion: reduce) {
+    .logo-path,
+    .logo-path-cross {
+      animation: none;
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+    }
+  }
 
-	/* 印刷時はアニメーション無効 */
-	@media print {
-		.logo-path,
-		.logo-path-cross {
-			animation: none;
-			stroke-dasharray: none;
-			stroke-dashoffset: 0;
-		}
-	}
+  /* 印刷時はアニメーション無効 */
+  @media print {
+    .logo-path,
+    .logo-path-cross {
+      animation: none;
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+    }
+  }
 
-	/* ホバーエフェクト */
-	.logo-link:hover .logo-path,
-	.logo-link:hover .logo-path-cross {
-		stroke: #555;
-	}
+  /* ホバーエフェクト */
+  .logo-link:hover .logo-path,
+  .logo-link:hover .logo-path-cross {
+    stroke: #555;
+  }
 
-	:global(.dark) .logo-link:hover .logo-path,
-	:global(.dark) .logo-link:hover .logo-path-cross {
-		stroke: #bbb;
-	}
+  :global(.dark) .logo-link:hover .logo-path,
+  :global(.dark) .logo-link:hover .logo-path-cross {
+    stroke: #bbb;
+  }
 </style>

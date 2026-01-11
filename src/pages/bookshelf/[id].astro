@@ -39,71 +39,79 @@ const bookSchema = {
 ---
 
 <Layout
-	title={`${book.data.title} | Bookshelf | Portfolio`}
-	description={book.data.excerpt}
-	ogType="book"
-	ogImage={ogImageURL.href}
-	ogImageAlt={`${book.data.title} cover`}
+  title={`${book.data.title} | Bookshelf | Portfolio`}
+  description={book.data.excerpt}
+  ogType="book"
+  ogImage={ogImageURL.href}
+  ogImageAlt={`${book.data.title} cover`}
 >
-	<Fragment slot="head">
-		<meta property="book:author" content={book.data.author} />
-		{tags.map((tag) => <meta property="book:tag" content={tag} />)}
-		<script
-			type="application/ld+json"
-			set:html={JSON.stringify(bookSchema).replace(/</g, "\\u003c")}
-		/>
-	</Fragment>
-	<main class="mx-auto max-w-4xl px-6 py-12">
-		<div class="mb-8">
-			<a
-				href="/bookshelf"
-				class="mb-4 inline-block text-sm text-gray-600 hover:text-gray-900"
-			>
-				← Bookshelf一覧へ戻る
-			</a>
-			<h1 class="mb-2 text-4xl font-bold">{book.data.title}</h1>
-			<p class="mb-4 text-lg text-gray-700">{book.data.author}</p>
-			<div class="mb-4 flex flex-wrap items-center gap-2">
-				<span
-					class={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[book.data.status]}`}
-				>
-					{statusLabels[book.data.status]}
-				</span>
-				{book.data.category && (
-					<span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
-						{book.data.category}
-					</span>
-				)}
-				{book.data.finishedDate && (
-					<span class="text-sm text-gray-600">
-						読了日: {formatDate(book.data.finishedDate)}
-					</span>
-				)}
-				{book.data.rating && (
-					<span class="text-sm text-gray-600">
-						評価: {book.data.rating} / 5
-					</span>
-				)}
-			</div>
-			<div class="flex flex-wrap gap-2">
-				{tags.map((tag) => (
-					<span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
-						{tag}
-					</span>
-				))}
-			</div>
-		</div>
+  <Fragment slot="head">
+    <meta property="book:author" content={book.data.author} />
+    {tags.map((tag) => <meta property="book:tag" content={tag} />)}
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(bookSchema).replace(/</g, "\\u003c")}
+    />
+  </Fragment>
+  <main class="mx-auto max-w-4xl px-6 py-12">
+    <div class="mb-8">
+      <a
+        href="/bookshelf"
+        class="mb-4 inline-block text-sm text-gray-600 hover:text-gray-900"
+      >
+        ← Bookshelf一覧へ戻る
+      </a>
+      <h1 class="mb-2 text-4xl font-bold">{book.data.title}</h1>
+      <p class="mb-4 text-lg text-gray-700">{book.data.author}</p>
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span
+          class={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[book.data.status]}`}
+        >
+          {statusLabels[book.data.status]}
+        </span>
+        {
+          book.data.category && (
+            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
+              {book.data.category}
+            </span>
+          )
+        }
+        {
+          book.data.finishedDate && (
+            <span class="text-sm text-gray-600">
+              読了日: {formatDate(book.data.finishedDate)}
+            </span>
+          )
+        }
+        {
+          book.data.rating && (
+            <span class="text-sm text-gray-600">
+              評価: {book.data.rating} / 5
+            </span>
+          )
+        }
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {
+          tags.map((tag) => (
+            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
+              {tag}
+            </span>
+          ))
+        }
+      </div>
+    </div>
 
-		<div class="mb-8 aspect-[3/4] overflow-hidden rounded-lg">
-			<Image
-				src={book.data.coverImage}
-				alt={`${book.data.title} cover`}
-				class="h-full w-full object-cover"
-			/>
-		</div>
+    <div class="mb-8 aspect-[3/4] overflow-hidden rounded-lg">
+      <Image
+        src={book.data.coverImage}
+        alt={`${book.data.title} cover`}
+        class="h-full w-full object-cover"
+      />
+    </div>
 
-		<article class="prose prose-lg max-w-none">
-			<Content />
-		</article>
-	</main>
+    <article class="prose prose-lg max-w-none">
+      <Content />
+    </article>
+  </main>
 </Layout>

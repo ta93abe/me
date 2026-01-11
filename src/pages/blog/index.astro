@@ -10,31 +10,60 @@ const sortedPosts = blogPosts.sort(
 ---
 
 <Layout
-	title="Blog | Portfolio"
-	description="技術ブログ。日々の学びや開発の記録を共有しています。"
+  title="Blog | Portfolio"
+  description="技術ブログ。日々の学びや開発の記録を共有しています。"
 >
-	<main class="mx-auto max-w-4xl px-6 py-12">
-		<h1 class="mb-12 text-4xl font-bold">Blog</h1>
+  <link
+    slot="head"
+    rel="alternate"
+    type="application/rss+xml"
+    title="ta93abe | Blog RSS Feed"
+    href="/rss.xml"
+  />
+  <main class="mx-auto max-w-4xl px-6 py-12">
+    <div class="mb-12 flex items-center justify-between">
+      <h1 class="text-4xl font-bold">Blog</h1>
+      <a
+        href="/rss.xml"
+        class="flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-100"
+        aria-label="RSS Feed"
+      >
+        <svg
+          class="h-5 w-5"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"
+          ></path>
+        </svg>
+        <span>RSS</span>
+      </a>
+    </div>
 
-		<div class="space-y-8">
-			{sortedPosts.map((post) => (
-				<article class="border-b border-gray-200 pb-8">
-					<a href={`/blog/${post.id}`} class="group block">
-						<time class="mb-2 block text-sm text-gray-600">
-							{formatDate(post.data.date)}
-							{post.data.updatedDate && (
-								<span class="ml-2 text-xs">
-									(更新: {formatDate(post.data.updatedDate)})
-								</span>
-							)}
-						</time>
-						<h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600">
-							{post.data.title}
-						</h2>
-						<p class="text-gray-700">{post.data.excerpt}</p>
-					</a>
-				</article>
-			))}
-		</div>
-	</main>
+    <div class="space-y-8">
+      {
+        sortedPosts.map((post) => (
+          <article class="border-b border-gray-200 pb-8">
+            <a href={`/blog/${post.id}`} class="group block">
+              <time class="mb-2 block text-sm text-gray-600">
+                {formatDate(post.data.date)}
+                {post.data.updatedDate && (
+                  <span class="ml-2 text-xs">
+                    (更新: {formatDate(post.data.updatedDate)})
+                  </span>
+                )}
+              </time>
+              <h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600">
+                {post.data.title}
+              </h2>
+              <p class="text-gray-700">{post.data.excerpt}</p>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </main>
 </Layout>
