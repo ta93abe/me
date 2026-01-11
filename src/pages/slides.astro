@@ -2,6 +2,8 @@
 import Layout from "../layouts/Layout.astro";
 import { formatDate } from "../utils/date";
 
+const SLIDES_BASE_URL = "https://slides.ta93abe.com";
+
 interface Slide {
 	url: string;
 	date: string;
@@ -13,7 +15,7 @@ let slides: Slide[] = [];
 let error: string | null = null;
 
 try {
-	const res = await fetch("https://slides.ta93abe.com/slides.json", {
+	const res = await fetch(`${SLIDES_BASE_URL}/slides.json`, {
 		signal: AbortSignal.timeout(10000),
 	});
 	if (res.ok) {
@@ -44,7 +46,7 @@ try {
         <div class="space-y-6">
           {slides.map((slide) => (
             <a
-              href={`https://slide.ta93abe.com${slide.url}`}
+              href={`${SLIDES_BASE_URL}${slide.url}`}
               target="_blank"
               rel="noopener noreferrer"
               class="group block rounded-lg border border-gray-200 p-6 transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"
