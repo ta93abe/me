@@ -4,128 +4,127 @@ import ThreeBackground from "./ThreeBackground.astro";
 ---
 
 <section id="hero" class="hero-section">
-	<ThreeBackground />
+  <ThreeBackground />
 
-	<div class="hero-content">
-		<div class="hero-greeting" data-animate="fade-up">
-			<span>Welcome to my portfolio</span>
-		</div>
+  <div class="hero-content">
+    <div class="hero-greeting" data-animate="fade-up">
+      <span>Welcome to my portfolio</span>
+    </div>
 
-		<h1 class="hero-title" data-animate="fade-up">
-			<span class="hero-name">ta93abe</span>
-		</h1>
+    <h1 class="hero-title" data-animate="fade-up">
+      <span class="hero-name">ta93abe</span>
+    </h1>
 
-		<p class="hero-description" data-animate="fade-up">
-			Software Engineer & Creative Developer
-		</p>
+    <p class="hero-description" data-animate="fade-up">
+      Software Engineer & Creative Developer
+    </p>
 
-		<div class="hero-cta" data-animate="fade-up">
-			<a href="/works" class="btn btn-primary">View Works</a>
-			<a href="/links" class="btn btn-secondary">Links</a>
-		</div>
-	</div>
-
+    <div class="hero-cta" data-animate="fade-up">
+      <a href="/works" class="btn btn-primary">View Works</a>
+      <a href="/links" class="btn btn-secondary">Links</a>
+    </div>
+  </div>
 </section>
 
 <style>
-	.hero-section {
-		position: relative;
-		min-height: 100vh;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-		background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
-	}
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
+  }
 
-	.hero-content {
-		position: relative;
-		z-index: 10;
-		text-align: center;
-		padding: 2rem;
-	}
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+  }
 
-	.hero-greeting {
-		margin-bottom: 1rem;
-	}
+  .hero-greeting {
+    margin-bottom: 1rem;
+  }
 
-	.hero-greeting span {
-		display: inline-block;
-		font-size: 0.875rem;
-		letter-spacing: 0.3em;
-		text-transform: uppercase;
-		color: #666;
-	}
+  .hero-greeting span {
+    display: inline-block;
+    font-size: 0.875rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #666;
+  }
 
-	.hero-title {
-		font-size: clamp(4rem, 18vw, 12rem);
-		font-weight: 700;
-		line-height: 1;
-		margin: 0;
-		color: #1a1a1a;
-	}
+  .hero-title {
+    font-size: clamp(4rem, 18vw, 12rem);
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+    color: #1a1a1a;
+  }
 
-	.hero-name {
-		display: inline-block;
-		background: linear-gradient(135deg, #1a1a1a 0%, #555 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
+  .hero-name {
+    display: inline-block;
+    background: linear-gradient(135deg, #1a1a1a 0%, #555 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-	.hero-description {
-		font-size: clamp(1.125rem, 2.5vw, 1.5rem);
-		color: #555;
-		margin: 1.5rem 0 2.5rem;
-		font-weight: 400;
-	}
+  .hero-description {
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+    color: #555;
+    margin: 1.5rem 0 2.5rem;
+    font-weight: 400;
+  }
 
-	.hero-cta {
-		display: flex;
-		gap: 1rem;
-		justify-content: center;
-		flex-wrap: wrap;
-	}
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 
-	.btn {
-		padding: 1rem 2.5rem;
-		font-size: 1rem;
-		font-weight: 500;
-		text-decoration: none;
-		border-radius: 9999px;
-		transition: all 0.3s ease;
-	}
+  .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+  }
 
-	.btn-primary {
-		background: #1a1a1a;
-		color: white;
-	}
+  .btn-primary {
+    background: #1a1a1a;
+    color: white;
+  }
 
-	.btn-primary:hover {
-		background: #333;
-		transform: translateY(-2px);
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-	}
+  .btn-primary:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
 
-	.btn-secondary {
-		background: transparent;
-		color: #1a1a1a;
-		border: 2px solid #1a1a1a;
-	}
+  .btn-secondary {
+    background: transparent;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+  }
 
-	.btn-secondary:hover {
-		background: #1a1a1a;
-		color: white;
-		transform: translateY(-2px);
-	}
+  .btn-secondary:hover {
+    background: #1a1a1a;
+    color: white;
+    transform: translateY(-2px);
+  }
 
-	@media (max-width: 768px) {
-		.hero-section {
-			min-height: 100svh;
-		}
+  @media (max-width: 768px) {
+    .hero-section {
+      min-height: 100svh;
+    }
 
-		.btn {
-			padding: 0.875rem 2rem;
-		}
-	}
+    .btn {
+      padding: 0.875rem 2rem;
+    }
+  }
 </style>

@@ -49,11 +49,11 @@ const displayTitle = title ?? defaultTitles[type];
 ---
 
 <aside class={`my-6 rounded-lg border-l-4 p-4 ${style.container}`}>
-	<div class="flex items-center gap-2 mb-2">
-		<span class={style.icon} set:html={icon} />
-		<span class={`font-semibold ${style.title}`}>{displayTitle}</span>
-	</div>
-	<div class="text-gray-700 [&>p]:m-0">
-		<slot />
-	</div>
+  <div class="flex items-center gap-2 mb-2">
+    <span class={style.icon} set:html={icon} />
+    <span class={`font-semibold ${style.title}`}>{displayTitle}</span>
+  </div>
+  <div class="text-gray-700 [&>p]:m-0">
+    <slot />
+  </div>
 </aside>
