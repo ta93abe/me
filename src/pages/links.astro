@@ -5,13 +5,11 @@ import Layout from "../layouts/Layout.astro";
 import { formatDate } from "../utils/date";
 
 // すべてのフィードを取得
-const [zennPosts, notePosts, podcastEpisodes, qiitaArticles] =
-	await Promise.all([
-		getCollection("zenn"),
-		getCollection("note"),
-		getCollection("podcast"),
-		getCollection("qiita"),
-	]);
+const [zennPosts, notePosts, podcastEpisodes] = await Promise.all([
+	getCollection("zenn"),
+	getCollection("note"),
+	getCollection("podcast"),
+]);
 
 // 統合型定義
 type FeedItem = {
@@ -20,7 +18,7 @@ type FeedItem = {
 	url: string;
 	publishedAt: Date;
 	excerpt: string;
-	source: "Zenn" | "Note" | "Podcast" | "Qiita";
+	source: "Zenn" | "Note" | "Podcast";
 	icon: string;
 	color: string;
 };
@@ -56,16 +54,6 @@ const allItems: FeedItem[] = [
 		source: episode.source,
 		icon: "🎙️",
 		color: "bg-purple-50 border-purple-200",
-	})),
-	...qiitaArticles.map((article) => ({
-		id: article.id,
-		title: article.title,
-		url: article.url,
-		publishedAt: article.createdAt,
-		excerpt: "",
-		source: "Qiita" as const,
-		icon: "💻",
-		color: "bg-emerald-50 border-emerald-200",
 	})),
 ];
 
@@ -137,7 +125,7 @@ const sortedItems = allItems
 		<!-- フィード統計 -->
 		<div class="mt-12 rounded-lg border border-gray-200 bg-gray-50 p-6">
 			<h3 class="mb-4 text-lg font-bold">統計情報</h3>
-			<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+			<div class="grid grid-cols-3 gap-4">
 				<div class="text-center">
 					<div class="text-2xl font-bold text-blue-600">{zennPosts.length}</div>
 					<div class="text-sm text-gray-600">Zenn記事</div>
@@ -149,10 +137,6 @@ const sortedItems = allItems
 				<div class="text-center">
 					<div class="text-2xl font-bold text-purple-600">{podcastEpisodes.length}</div>
 					<div class="text-sm text-gray-600">Podcast</div>
-				</div>
-				<div class="text-center">
-					<div class="text-2xl font-bold text-emerald-600">{qiitaArticles.length}</div>
-					<div class="text-sm text-gray-600">Qiita記事</div>
 				</div>
 			</div>
 		</div>

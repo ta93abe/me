@@ -1,0 +1,96 @@
+---
+title: "MDXブログ機能のデモ"
+date: 2026-01-11
+excerpt: "このブログで使える機能を紹介します。コードハイライト、コールアウト、テーブルなど。"
+tags: ["MDX", "Astro", "ブログ"]
+---
+
+import Callout from "../../components/blog/Callout.astro";
+import LinkCard from "../../components/blog/LinkCard.astro";
+
+このブログではMDXを使って、リッチなコンテンツを書くことができます。
+
+## コールアウト
+
+重要な情報を目立たせるためのコールアウトコンポーネントです。
+
+<Callout type="info">
+  これは情報を伝えるためのコールアウトです。補足説明などに使います。
+</Callout>
+
+<Callout type="tip" title="便利なTips">
+  便利なヒントや推奨事項を伝えるときに使います。
+</Callout>
+
+<Callout type="warning">
+  注意が必要な内容を伝えるときに使います。
+</Callout>
+
+<Callout type="danger" title="重要な警告">
+  絶対に避けるべきことや、危険な操作について警告するときに使います。
+</Callout>
+
+## コードブロック
+
+シンタックスハイライト付きのコードブロックです。右上のボタンでコピーできます。
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+async function getUser(id: string): Promise<User> {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+}
+```
+
+インラインコードも使えます: `const x = 1` のように書きます。
+
+## テーブル
+
+| 機能 | 対応状況 | 備考 |
+|------|:--------:|------|
+| Markdown | ✅ | 基本的なMarkdown記法 |
+| GFM | ✅ | テーブル、タスクリスト |
+| MDX | ✅ | コンポーネント埋め込み |
+| シンタックスハイライト | ✅ | Shiki使用 |
+
+## タスクリスト
+
+- [x] MDX統合
+- [x] Calloutコンポーネント
+- [x] コードブロックのコピーボタン
+- [ ] ダークモード対応（予定）
+
+## 引用
+
+> シンプルに書けて、美しく表示される。
+> それがこのブログの目標です。
+
+## リンクカード
+
+<LinkCard
+  href="https://docs.astro.build/ja/guides/markdown-content/"
+  title="Astro Markdownガイド"
+  description="Astroでのマークダウンとコンテンツコレクションの使い方"
+/>
+
+## 画像
+
+通常のMarkdown記法で画像を挿入できます。
+
+## まとめ
+
+このブログでは以下の機能が使えます：
+
+1. **Markdown** - 基本的な記法すべて
+2. **GFM** - テーブル、タスクリスト、取り消し線
+3. **MDX** - Astroコンポーネントの埋め込み
+4. **シンタックスハイライト** - Shikiによる美しいコードハイライト
+5. **コールアウト** - 4種類（info, tip, warning, danger）
+6. **リンクカード** - 外部リンクの美しい表示
+
+書きやすく、読みやすいブログを目指しています。
