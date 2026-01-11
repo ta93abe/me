@@ -71,50 +71,6 @@ const talks = defineCollection({
 	}),
 });
 
-// Qiita APIレスポンスの型定義
-interface QiitaArticle {
-	id: string;
-	title: string;
-	url: string;
-	created_at: string;
-}
-
-// Qiita記事コレクション（外部API）
-const qiita = defineCollection({
-	loader: async () => {
-		try {
-			const response = await fetch(
-				"https://qiita.com/api/v2/users/ta93abe/items?per_page=5",
-				{
-					signal: AbortSignal.timeout(10000),
-				},
-			);
-
-			if (!response.ok) {
-				console.error("Failed to fetch Qiita articles");
-				return [];
-			}
-
-			const articles: QiitaArticle[] = await response.json();
-
-			return articles.map((article) => ({
-				id: article.id,
-				title: article.title,
-				url: article.url,
-				createdAt: new Date(article.created_at),
-			}));
-		} catch (error) {
-			console.error("Error fetching Qiita articles:", error);
-			return [];
-		}
-	},
-	schema: z.object({
-		title: z.string(),
-		url: z.string().url(),
-		createdAt: z.date(),
-	}),
-});
-
 // Zenn記事コレクション（RSS）
 const zenn = defineCollection({
 	loader: async () => {
@@ -228,7 +184,6 @@ export const collections = {
 	books,
 	blog,
 	talks,
-	qiita,
 	zenn,
 	note,
 	podcast,
