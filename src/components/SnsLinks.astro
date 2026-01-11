@@ -1,35 +1,186 @@
 ---
 // SNSリンク集コンポーネント
-// 必要に応じてリンクを追加・編集してください
 
 interface SnsLink {
 	name: string;
 	url: string;
 	icon: string;
+	color: string;
 }
 
 const snsLinks: SnsLink[] = [
-	// 必要に応じて追加
-	// {
-	//   name: "Twitter",
-	//   url: "https://twitter.com/your_handle",
-	//   icon: "🐦"
-	// },
+	// 開発系
+	{
+		name: "GitHub",
+		url: "https://github.com/ta93abe",
+		icon: "🐙",
+		color: "hover:bg-gray-100",
+	},
+	{
+		name: "Zenn",
+		url: "https://zenn.dev/ta93abe",
+		icon: "📘",
+		color: "hover:bg-blue-50",
+	},
+	{
+		name: "Qiita",
+		url: "https://qiita.com/ta93abe",
+		icon: "📗",
+		color: "hover:bg-green-50",
+	},
+	{
+		name: "Speaker Deck",
+		url: "https://speakerdeck.com/ta93abe",
+		icon: "🎤",
+		color: "hover:bg-teal-50",
+	},
+	{
+		name: "connpass",
+		url: "https://connpass.com/user/ta93abe",
+		icon: "🎫",
+		color: "hover:bg-red-50",
+	},
+	// SNS
+	{
+		name: "X (Twitter)",
+		url: "https://x.com/ta93abe",
+		icon: "𝕏",
+		color: "hover:bg-gray-100",
+	},
+	{
+		name: "Bluesky",
+		url: "https://bsky.app/profile/ta93abe.bsky.social",
+		icon: "🦋",
+		color: "hover:bg-sky-50",
+	},
+	{
+		name: "Threads",
+		url: "https://threads.net/@ta93abe",
+		icon: "🧵",
+		color: "hover:bg-gray-100",
+	},
+	{
+		name: "Instagram",
+		url: "https://instagram.com/ta93abe",
+		icon: "📷",
+		color: "hover:bg-pink-50",
+	},
+	{
+		name: "Facebook",
+		url: "https://facebook.com/ta93abe",
+		icon: "👤",
+		color: "hover:bg-blue-50",
+	},
+	{
+		name: "LinkedIn",
+		url: "https://linkedin.com/in/ta93abe",
+		icon: "💼",
+		color: "hover:bg-blue-50",
+	},
+	// 動画・音声
+	{
+		name: "YouTube",
+		url: "https://youtube.com/@ta93abe",
+		icon: "🎬",
+		color: "hover:bg-red-50",
+	},
+	{
+		name: "TikTok",
+		url: "https://tiktok.com/@ta93abe",
+		icon: "🎵",
+		color: "hover:bg-gray-100",
+	},
+	// ブログ・記事
+	{
+		name: "note",
+		url: "https://note.com/ta93abe",
+		icon: "✏️",
+		color: "hover:bg-green-50",
+	},
+	{
+		name: "Medium",
+		url: "https://medium.com/@ta93abe",
+		icon: "📰",
+		color: "hover:bg-gray-100",
+	},
+	{
+		name: "Dev.to",
+		url: "https://dev.to/ta93abe",
+		icon: "👩‍💻",
+		color: "hover:bg-gray-100",
+	},
+	// コミュニティ
+	{
+		name: "Reddit",
+		url: "https://reddit.com/user/ta93abe",
+		icon: "🤖",
+		color: "hover:bg-orange-50",
+	},
+	{
+		name: "Discord",
+		url: "https://discord.com/users/ta93abe",
+		icon: "💬",
+		color: "hover:bg-indigo-50",
+	},
+	{
+		name: "Mastodon",
+		url: "https://mastodon.social/@ta93abe",
+		icon: "🐘",
+		color: "hover:bg-purple-50",
+	},
+	// デザイン・クリエイティブ
+	{
+		name: "Dribbble",
+		url: "https://dribbble.com/ta93abe",
+		icon: "🏀",
+		color: "hover:bg-pink-50",
+	},
+	{
+		name: "Behance",
+		url: "https://behance.net/ta93abe",
+		icon: "🎨",
+		color: "hover:bg-blue-50",
+	},
+	{
+		name: "Pinterest",
+		url: "https://pinterest.com/ta93abe",
+		icon: "📌",
+		color: "hover:bg-red-50",
+	},
+	{
+		name: "Figma",
+		url: "https://figma.com/@ta93abe",
+		icon: "🎯",
+		color: "hover:bg-purple-50",
+	},
+	// 開発ツール
+	{
+		name: "CodePen",
+		url: "https://codepen.io/ta93abe",
+		icon: "✒️",
+		color: "hover:bg-gray-100",
+	},
+	{
+		name: "Stack Overflow",
+		url: "https://stackoverflow.com/users/ta93abe",
+		icon: "📚",
+		color: "hover:bg-orange-50",
+	},
 ];
 ---
 
-<div class="flex gap-4">
+<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
 	{
 		snsLinks.map((link) => (
 			<a
 				href={link.url}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm transition-shadow hover:shadow-md"
+				class={`flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 transition-all hover:shadow-md ${link.color}`}
 				aria-label={link.name}
 			>
-				<span>{link.icon}</span>
-				<span class="text-sm">{link.name}</span>
+				<span class="text-xl">{link.icon}</span>
+				<span class="text-sm font-medium">{link.name}</span>
 			</a>
 		))
 	}
