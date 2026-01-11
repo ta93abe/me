@@ -1,0 +1,145 @@
+---
+// 手書き風ロゴコンポーネント
+// 一筆書きの筆記体風「ta93abe」をSVGストロークアニメーションで描画
+---
+
+<a href="/" class="logo-link" aria-label="ホームページに戻る">
+	<svg
+		viewBox="0 0 150 45"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		class="logo-svg"
+		aria-hidden="true"
+	>
+		<!-- 一筆書きの筆記体 ta93abe -->
+		<path
+			class="logo-path"
+			d="M 5 8
+			   L 5 30
+			   C 5 36 10 36 12 32
+			   C 14 28 18 26 22 26
+			   C 28 26 30 30 28 34
+			   C 26 38 20 38 18 34
+			   C 16 30 20 26 28 28
+			   C 34 30 38 26 40 22
+			   C 42 18 48 16 52 18
+			   C 56 20 56 26 52 28
+			   C 48 30 44 28 46 24
+			   C 48 20 54 20 56 24
+			   C 56 28 56 38 56 40
+			   C 56 44 50 44 48 42
+			   C 52 40 60 36 66 30
+			   C 72 24 74 20 70 18
+			   C 66 16 64 22 68 28
+			   C 72 34 78 32 78 26
+			   C 78 20 72 20 70 26
+			   C 68 32 74 38 82 36
+			   C 88 34 90 30 92 28
+			   C 96 26 102 26 104 30
+			   C 106 34 102 38 96 36
+			   C 90 34 94 28 102 28
+			   C 108 28 110 26 110 10
+			   L 110 34
+			   C 110 30 116 26 122 28
+			   C 128 30 128 36 122 38
+			   C 116 40 112 36 114 32
+			   C 118 34 126 38 132 34
+			   C 138 30 138 24 134 24
+			   C 130 24 128 30 132 36
+			   C 136 42 146 38 146 30
+			   C 146 24 140 24 138 28
+			   C 136 32 140 38 148 36"
+			stroke-width="2.2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		/>
+		<!-- tの横線 -->
+		<path
+			class="logo-path-cross"
+			d="M 1 16 L 10 16"
+			stroke-width="2.2"
+			stroke-linecap="round"
+		/>
+	</svg>
+</a>
+
+<style>
+	.logo-link {
+		display: block;
+		width: 115px;
+		height: 35px;
+		user-select: none;
+	}
+
+	.logo-svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.logo-path {
+		stroke: #1a1a1a;
+		fill: none;
+		/* 900 = approximate total length of the main SVG path for stroke animation */
+		stroke-dasharray: 900;
+		stroke-dashoffset: 900;
+		animation: draw 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+	}
+
+	.logo-path-cross {
+		stroke: #1a1a1a;
+		fill: none;
+		/* 15 = approximate length of the t-cross line (M 1 16 L 10 16 ≈ 9px) */
+		stroke-dasharray: 15;
+		stroke-dashoffset: 15;
+		animation: draw 0.2s ease-out 2s forwards;
+	}
+
+	/* Transition for hover effect (must be on base element, not :hover) */
+	.logo-path,
+	.logo-path-cross {
+		transition: stroke 0.3s ease;
+	}
+
+	@keyframes draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	/* ダークモード対応 */
+	:global(.dark) .logo-path,
+	:global(.dark) .logo-path-cross {
+		stroke: #f5f5f5;
+	}
+
+	/* アクセシビリティ: モーション軽減設定 */
+	@media (prefers-reduced-motion: reduce) {
+		.logo-path,
+		.logo-path-cross {
+			animation: none;
+			stroke-dasharray: none;
+			stroke-dashoffset: 0;
+		}
+	}
+
+	/* 印刷時はアニメーション無効 */
+	@media print {
+		.logo-path,
+		.logo-path-cross {
+			animation: none;
+			stroke-dasharray: none;
+			stroke-dashoffset: 0;
+		}
+	}
+
+	/* ホバーエフェクト */
+	.logo-link:hover .logo-path,
+	.logo-link:hover .logo-path-cross {
+		stroke: #555;
+	}
+
+	:global(.dark) .logo-link:hover .logo-path,
+	:global(.dark) .logo-link:hover .logo-path-cross {
+		stroke: #bbb;
+	}
+</style>

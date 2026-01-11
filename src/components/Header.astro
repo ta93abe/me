@@ -1,13 +1,14 @@
 ---
 // ヘッダーコンポーネント
+import Logo from "./Logo.astro";
+
 const navLinks = [
-	{ href: "/", text: "ホーム" },
 	{ href: "/about", text: "About" },
 	{ href: "/works", text: "Works" },
 	{ href: "/bookshelf", text: "Bookshelf" },
 	{ href: "/blog", text: "Blog" },
 	{ href: "/talks", text: "Talks" },
-	{ href: "/qiita", text: "Qiita" },
+	{ href: "/slides", text: "Slides" },
 	{ href: "/links", text: "Links" },
 	{ href: "/tools", text: "Tools" },
 ];
@@ -15,9 +16,7 @@ const navLinks = [
 
 <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
 	<nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4" aria-label="メインナビゲーション">
-		<a href="/" class="text-xl font-bold hover:opacity-70" aria-label="ホームページに戻る">
-			Portfolio
-		</a>
+		<Logo />
 		<ul class="flex gap-6">
 			{navLinks.map((link) => (
 				<li>
