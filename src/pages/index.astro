@@ -1,11 +1,19 @@
 ---
-import Welcome from "../components/Welcome.astro";
+import HeroSection from "../components/landing/HeroSection.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout
-	title="ホーム | Portfolio"
-	description="個人ポートフォリオサイトへようこそ。プロジェクトや作品をご覧ください。"
+	title="ta93abe | Software Engineer"
+	description="ソフトウェアエンジニア ta93abe のポートフォリオサイト。プロジェクトや作品をご覧ください。"
 >
-	<Welcome />
+	<main>
+		<HeroSection />
+	</main>
 </Layout>
+
+<style>
+	main {
+		overflow: hidden;
+	}
+</style>

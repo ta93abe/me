@@ -1,0 +1,78 @@
+---
+// Three.js パーティクル背景コンポーネント
+interface Props {
+	class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div
+	id="three-canvas-container"
+	class:list={["three-background", className]}
+	aria-hidden="true"
+>
+</div>
+
+<script>
+	import { ParticleScene } from "../../scripts/three/scene";
+
+	let scene: ParticleScene | null = null;
+
+	function initThree() {
+		const container = document.getElementById("three-canvas-container");
+		if (!container) {
+			console.error(
+				"Three.js container not found. Expected element with id='three-canvas-container'",
+			);
+			return;
+		}
+
+		try {
+			scene = new ParticleScene({
+				container,
+				particleCount: 3000,
+				color: 0x1a1a1a,
+			});
+		} catch (error) {
+			console.error("Failed to initialize Three.js scene:", error);
+			// ParticleScene constructor already shows fallback UI
+		}
+	}
+
+	// Initialize on DOMContentLoaded
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", initThree);
+	} else {
+		initThree();
+	}
+
+	// Cleanup Three.js resources before page swap to prevent memory leaks
+	document.addEventListener("astro:before-swap", () => {
+		scene?.destroy();
+		scene = null;
+	});
+</script>
+
+<style>
+	.three-background {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.three-background :global(canvas) {
+		display: block;
+	}
+
+	/* Fallback for reduced motion */
+	@media (prefers-reduced-motion: reduce) {
+		.three-background {
+			opacity: 0.3;
+		}
+	}
+</style>
