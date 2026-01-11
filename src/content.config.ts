@@ -45,14 +45,15 @@ const books = defineCollection({
 		}),
 });
 
-// Blogコレクション
+// Blogコレクション（MD/MDX対応）
 const blog = defineCollection({
-	loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
 	schema: z.object({
 		title: z.string(),
 		date: z.coerce.date(),
 		updatedDate: z.coerce.date().optional(),
 		excerpt: z.string(),
+		tags: z.array(z.string()).optional(),
 	}),
 });
 

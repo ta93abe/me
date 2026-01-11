@@ -20,11 +20,13 @@
     "deploy": "pnpm build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.13",
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/shippori-mincho": "^5.2.8",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",
     "astro-pagefind": "^1.8.5",
+    "remark-gfm": "^4.0.1",
     "rss-parser": "^3.13.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18"

@@ -1,8 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
-import Breadcrumb from "../../components/Breadcrumb.astro";
 
 export async function getStaticPaths() {
 	const blogPosts = await getCollection("blog");
@@ -30,7 +30,7 @@ const blogSchema = {
 	author: {
 		"@type": "Person",
 		name: "Takumi Abe",
-		url: Astro.site.href,
+		url: Astro.site?.href,
 	},
 	image: ogImageURL.href,
 	mainEntityOfPage: canonicalURL.href,
@@ -72,14 +72,25 @@ const blogSchema = {
 				← Blog一覧へ戻る
 			</a>
 			<h1 class="mb-4 text-4xl font-bold">{post.data.title}</h1>
-			<time class="block text-gray-600">
-				{formatDate(post.data.date)}
-				{post.data.updatedDate && (
-					<span class="ml-2 text-sm">
-						(更新: {formatDate(post.data.updatedDate)})
-					</span>
+			<div class="flex flex-wrap items-center gap-4 text-gray-600">
+				<time>
+					{formatDate(post.data.date)}
+					{post.data.updatedDate && (
+						<span class="ml-2 text-sm">
+							(更新: {formatDate(post.data.updatedDate)})
+						</span>
+					)}
+				</time>
+				{post.data.tags && post.data.tags.length > 0 && (
+					<div class="flex flex-wrap gap-2">
+						{post.data.tags.map((tag: string) => (
+							<span class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">
+								{tag}
+							</span>
+						))}
+					</div>
 				)}
-			</time>
+			</div>
 		</div>
 
 		<article class="prose prose-lg max-w-none">
@@ -87,3 +98,25 @@ const blogSchema = {
 		</article>
 	</main>
 </Layout>
+
+<script>
+	// Add copy buttons to all code blocks
+	document.querySelectorAll(".prose pre").forEach((pre) => {
+		const button = document.createElement("button");
+		button.className = "copy-button";
+		button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" /><path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" /></svg>`;
+		button.addEventListener("click", async () => {
+			const code = pre.querySelector("code");
+			if (code) {
+				await navigator.clipboard.writeText(code.textContent || "");
+				button.classList.add("copied");
+				button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /></svg>`;
+				setTimeout(() => {
+					button.classList.remove("copied");
+					button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" /><path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" /></svg>`;
+				}, 2000);
+			}
+		});
+		pre.appendChild(button);
+	});
+</script>
