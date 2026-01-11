@@ -79,6 +79,7 @@
 	.logo-path {
 		stroke: #1a1a1a;
 		fill: none;
+		/* 900 = approximate total length of the main SVG path for stroke animation */
 		stroke-dasharray: 900;
 		stroke-dashoffset: 900;
 		animation: draw 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -87,9 +88,16 @@
 	.logo-path-cross {
 		stroke: #1a1a1a;
 		fill: none;
+		/* 15 = approximate length of the t-cross line (M 1 16 L 10 16 ≈ 9px) */
 		stroke-dasharray: 15;
 		stroke-dashoffset: 15;
 		animation: draw 0.2s ease-out 2s forwards;
+	}
+
+	/* Transition for hover effect (must be on base element, not :hover) */
+	.logo-path,
+	.logo-path-cross {
+		transition: stroke 0.3s ease;
 	}
 
 	@keyframes draw {
@@ -128,7 +136,6 @@
 	.logo-link:hover .logo-path,
 	.logo-link:hover .logo-path-cross {
 		stroke: #555;
-		transition: stroke 0.3s ease;
 	}
 
 	:global(.dark) .logo-link:hover .logo-path,
