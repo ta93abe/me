@@ -4,9 +4,9 @@
 interface SnsLink {
 	name: string;
 	url: string;
-	icon: string; // SVG path
+	icon: string | { path: string; color: string }[]; // SVG path or multi-color paths
 	viewBox?: string;
-	color: string; // アイコンの色
+	color?: string; // アイコンの色（単色の場合）
 	hoverBg: string;
 }
 
@@ -174,9 +174,20 @@ const snsLinks: SnsLink[] = [
 	{
 		name: "Figma",
 		url: "https://figma.com/@ta93abe",
-		icon: "M15.852 8.981h-4.588V0h4.588c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.491-4.49 4.491zM12.735 7.51h3.117c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-3.117V7.51zm0 1.471H8.148c-2.476 0-4.49-2.014-4.49-4.49S5.672 0 8.148 0h4.588v8.981zm-4.587-7.51c-1.665 0-3.019 1.355-3.019 3.019s1.354 3.02 3.019 3.02h3.117V1.471H8.148zm4.587 15.019H8.148c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h4.588v8.98zM8.148 8.981c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h3.117V8.981H8.148zM8.172 24c-2.489 0-4.515-2.014-4.515-4.49s2.014-4.49 4.49-4.49h4.588v4.441c0 2.503-2.047 4.539-4.563 4.539zm-.024-7.51a3.023 3.023 0 0 0-3.019 3.019c0 1.665 1.365 3.019 3.044 3.019 1.705 0 3.093-1.376 3.093-3.068v-2.97H8.148zm7.704 0h-.098c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h.098c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.49-4.49 4.49zm-.097-7.509c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h.098c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-.098z",
-		color: "#F24E1E",
-		hoverBg: "hover:bg-orange-50",
+		icon: [
+			// 左上 - 赤/オレンジ
+			{ path: "M5 5.5A5.5 5.5 0 0 1 10.5 0H16v11H10.5A5.5 5.5 0 0 1 5 5.5Z", color: "#F24E1E" },
+			// 右上 - コーラル
+			{ path: "M16 0h5.5a5.5 5.5 0 1 1 0 11H16V0Z", color: "#FF7262" },
+			// 左中央 - 紫
+			{ path: "M5 16.5A5.5 5.5 0 0 1 10.5 11H16v11H10.5A5.5 5.5 0 0 1 5 16.5Z", color: "#A259FF" },
+			// 右中央 - 青
+			{ path: "M16 11h5.5a5.5 5.5 0 1 1 0 11H16V11Z", color: "#1ABCFE" },
+			// 左下 - 緑
+			{ path: "M5 27.5A5.5 5.5 0 0 1 10.5 22H16v5.5a5.5 5.5 0 1 1-11 0Z", color: "#0ACF83" },
+		],
+		viewBox: "0 0 32 33",
+		hoverBg: "hover:bg-purple-50",
 	},
 	// 開発ツール
 	{
@@ -210,10 +221,13 @@ const snsLinks: SnsLink[] = [
 				<svg
 					viewBox={link.viewBox || "0 0 24 24"}
 					class="h-5 w-5 flex-shrink-0"
-					fill={link.color}
 					aria-hidden="true"
 				>
-					<path d={link.icon} />
+					{Array.isArray(link.icon) ? (
+						link.icon.map((p) => <path d={p.path} fill={p.color} />)
+					) : (
+						<path d={link.icon} fill={link.color} />
+					)}
 				</svg>
 				<span class="text-sm font-medium">{link.name}</span>
 			</a>
