@@ -1,7 +1,7 @@
 ---
 title: "サンプルブック"
 author: "著者名"
-coverImage: "../../assets/astro.svg"
+coverImage: "../../../public/favicon.svg"
 status: "read"
 finishedDate: 2024-06-30
 rating: 4

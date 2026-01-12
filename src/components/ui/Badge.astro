@@ -1,0 +1,20 @@
+---
+import { statusLabels, statusStyles } from "../../utils/books";
+
+interface Props {
+	variant?: keyof typeof statusLabels;
+	class?: string;
+}
+
+const { variant = "reading", class: className = "" } = Astro.props;
+---
+
+<span
+  class:list={[
+    "rounded-full px-3 py-1 text-xs font-semibold",
+    statusStyles[variant],
+    className,
+  ]}
+>
+  {statusLabels[variant]}
+</span>
