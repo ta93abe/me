@@ -1,9 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { SITE } from "../config/site";
 ---
 
 <Layout
-  title="404 - ページが見つかりません | Portfolio"
+  title={`404 - ページが見つかりません | ${SITE.name}`}
   description="お探しのページは見つかりませんでした。"
 >
   <main class="flex min-h-screen items-center justify-center px-6">

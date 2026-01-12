@@ -1,8 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { SITE } from "../config/site";
 import { formatDate } from "../utils/date";
-
-const SLIDES_BASE_URL = "https://slides.ta93abe.com";
 
 interface Slide {
 	url: string;
@@ -15,7 +14,7 @@ let slides: Slide[] = [];
 let error: string | null = null;
 
 try {
-	const res = await fetch(`${SLIDES_BASE_URL}/slides.json`, {
+	const res = await fetch(`${SITE.slidesUrl}/slides.json`, {
 		signal: AbortSignal.timeout(10000),
 	});
 	if (res.ok) {
@@ -30,7 +29,7 @@ try {
 ---
 
 <Layout
-  title="Slides | Portfolio"
+  title={`Slides | ${SITE.name}`}
   description="登壇やLTで使用したスライドの一覧です。"
 >
   <main class="mx-auto max-w-4xl px-6 py-12">
@@ -46,7 +45,7 @@ try {
         <div class="space-y-6">
           {slides.map((slide) => (
             <a
-              href={`${SLIDES_BASE_URL}${slide.url}`}
+              href={`${SITE.slidesUrl}${slide.url}`}
               target="_blank"
               rel="noopener noreferrer"
               class="group block rounded-lg border border-gray-200 p-6 transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"

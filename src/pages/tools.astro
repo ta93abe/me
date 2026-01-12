@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { SITE } from "../config/site";
 
 type Tool = {
 	name: string;
@@ -913,7 +914,7 @@ const enablePagefind = !import.meta.env.DEV;
 ---
 
 <Layout
-	title="Tools | Portfolio"
+	title={`Tools | ${SITE.name}`}
 	description="開発で使用しているツールやアプリケーションの一覧です。"
 >
 	<main class="mx-auto max-w-6xl px-6 py-12">

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import { SITE } from "../../config/site";
 import { formatDate } from "../../utils/date";
 
 const blogPosts = await getCollection("blog");
@@ -10,7 +11,7 @@ const sortedPosts = blogPosts.sort(
 ---
 
 <Layout
-  title="Blog | Portfolio"
+  title={`Blog | ${SITE.name}`}
   description="技術ブログ。日々の学びや開発の記録を共有しています。"
 >
   <link

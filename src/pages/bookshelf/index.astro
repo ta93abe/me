@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import { SITE } from "../../config/site";
 import { statusLabels, statusStyles } from "../../utils/books";
 import { formatDate } from "../../utils/date";
 
@@ -15,7 +16,7 @@ const sortedBooks = [...books].sort((a, b) => {
 ---
 
 <Layout
-  title="Bookshelf | Portfolio"
+  title={`Bookshelf | ${SITE.name}`}
   description="読書記録と書評の一覧。読んだ本や積読のメモをまとめています。"
 >
   <main class="mx-auto max-w-6xl px-6 py-12">

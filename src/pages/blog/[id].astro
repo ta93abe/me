@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Layout from "../../layouts/Layout.astro";
+import { SITE } from "../../config/site";
 import { formatDate } from "../../utils/date";
 
 export async function getStaticPaths() {
@@ -29,24 +30,24 @@ const blogSchema = {
 	dateModified: modifiedTime,
 	author: {
 		"@type": "Person",
-		name: "Takumi Abe",
+		name: SITE.author,
 		url: Astro.site?.href,
 	},
 	image: ogImageURL.href,
 	mainEntityOfPage: canonicalURL.href,
-	inLanguage: "ja",
+	inLanguage: SITE.lang,
 };
 ---
 
 <Layout
-  title={`${post.data.title} | Blog | Portfolio`}
+  title={`${post.data.title} | Blog | ${SITE.name}`}
   description={post.data.excerpt}
   ogType="article"
   ogImage={ogImageURL.href}
   ogImageAlt={post.data.title}
 >
   <Fragment slot="head">
-    <meta property="article:author" content="Takumi Abe" />
+    <meta property="article:author" content={SITE.author} />
     <meta property="article:published_time" content={publishedTime} />
     {
       post.data.updatedDate && (
