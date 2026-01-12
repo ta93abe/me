@@ -1,9 +1,10 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
+import Badge from "../../components/ui/Badge.astro";
+import Tag from "../../components/ui/Tag.astro";
 import Layout from "../../layouts/Layout.astro";
 import { SITE } from "../../config/site";
-import { statusLabels, statusStyles } from "../../utils/books";
 import { formatDate } from "../../utils/date";
 
 export async function getStaticPaths() {
@@ -65,16 +66,10 @@ const bookSchema = {
       <h1 class="mb-2 text-4xl font-bold">{book.data.title}</h1>
       <p class="mb-4 text-lg text-gray-700">{book.data.author}</p>
       <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span
-          class={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[book.data.status]}`}
-        >
-          {statusLabels[book.data.status]}
-        </span>
+        <Badge variant={book.data.status} />
         {
           book.data.category && (
-            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
-              {book.data.category}
-            </span>
+            <Tag>{book.data.category}</Tag>
           )
         }
         {
@@ -93,13 +88,7 @@ const bookSchema = {
         }
       </div>
       <div class="flex flex-wrap gap-2">
-        {
-          tags.map((tag) => (
-            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs">
-              {tag}
-            </span>
-          ))
-        }
+        {tags.map((tag) => <Tag>{tag}</Tag>)}
       </div>
     </div>
 

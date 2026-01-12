@@ -1,6 +1,6 @@
 ---
 title: "サンプルプロジェクト"
-coverImage: "../../assets/astro.svg"
+coverImage: "../../../public/favicon.svg"
 keywords: ["Astro", "TypeScript", "Tailwind CSS"]
 startDate: 2024-01-01
 endDate: 2024-12-31
