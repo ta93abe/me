@@ -1,7 +1,7 @@
 ---
 title: "サンプルプロジェクト"
 coverImage: "../../../public/favicon.svg"
-keywords: ["Astro", "TypeScript", "Tailwind CSS"]
+tags: ["Astro", "TypeScript", "Tailwind CSS"]
 startDate: 2024-01-01
 endDate: 2024-12-31
 excerpt: "これはサンプルのポートフォリオプロジェクトです。"

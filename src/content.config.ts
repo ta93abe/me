@@ -2,6 +2,20 @@ import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 import { createRSSLoader, type RSSSource } from "./utils/rss-loader";
 
+// =============================================================================
+// Common Schema Parts - 共通スキーマパーツ
+// =============================================================================
+
+/** Tags schema - consistent across collections */
+const tagsSchema = z.array(z.string()).optional();
+
+/** Excerpt schema - short description */
+const excerptSchema = z.string();
+
+// =============================================================================
+// Content Collections
+// =============================================================================
+
 // Aboutコレクション
 const about = defineCollection({
 	loader: glob({ pattern: "**/*.md", base: "./src/content/about" }),
@@ -21,10 +35,10 @@ const works = defineCollection({
 		z.object({
 			title: z.string(),
 			coverImage: image(),
-			keywords: z.array(z.string()),
+			tags: z.array(z.string()),
 			startDate: z.coerce.date(),
 			endDate: z.coerce.date().optional(),
-			excerpt: z.string(),
+			excerpt: excerptSchema,
 		}),
 });
 
@@ -40,8 +54,8 @@ const books = defineCollection({
 			finishedDate: z.coerce.date().optional(),
 			rating: z.number().min(1).max(5).optional(),
 			category: z.string().optional(),
-			tags: z.array(z.string()),
-			excerpt: z.string(),
+			tags: z.array(z.string()), // Required for books
+			excerpt: excerptSchema,
 		}),
 });
 
@@ -52,8 +66,8 @@ const blog = defineCollection({
 		title: z.string(),
 		date: z.coerce.date(),
 		updatedDate: z.coerce.date().optional(),
-		excerpt: z.string(),
-		tags: z.array(z.string()).optional(),
+		excerpt: excerptSchema,
+		tags: tagsSchema,
 	}),
 });
 
