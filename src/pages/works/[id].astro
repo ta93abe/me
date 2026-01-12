@@ -2,9 +2,10 @@
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
-import Layout from "../../layouts/Layout.astro";
 import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
+import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
 
 export async function getStaticPaths() {
 	const works = await getCollection("works");
@@ -39,6 +40,12 @@ const workSchema = {
 	url: canonicalURL.href,
 	inLanguage: SITE.lang,
 };
+const breadcrumbItems = [
+	{ label: "ホーム", href: "/" },
+	{ label: "Works", href: "/works" },
+	{ label: work.data.title },
+];
+const siteUrl = Astro.site?.href || SITE.url;
 ---
 
 <Layout
@@ -58,17 +65,15 @@ const workSchema = {
     }
     <script
       type="application/ld+json"
-      set:html={JSON.stringify(workSchema).replace(/</g, "\\u003c")}
+      set:html={stringifySchema(workSchema)}
+    />
+    <script
+      type="application/ld+json"
+      set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
     />
   </Fragment>
   <main class="mx-auto max-w-4xl px-6 py-12">
-    <Breadcrumb
-      items={[
-        { label: "ホーム", href: "/" },
-        { label: "Works", href: "/works" },
-        { label: work.data.title },
-      ]}
-    />
+    <Breadcrumb items={breadcrumbItems} />
     <div class="mb-8">
       <a
         href="/works"
