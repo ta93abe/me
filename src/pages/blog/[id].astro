@@ -2,8 +2,8 @@
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Tag from "../../components/ui/Tag.astro";
-import Layout from "../../layouts/Layout.astro";
 import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
 
 export async function getStaticPaths() {
@@ -21,7 +21,7 @@ const publishedTime = post.data.date.toISOString();
 const modifiedTime = post.data.updatedDate
 	? post.data.updatedDate.toISOString()
 	: publishedTime;
-const ogImageURL = new URL("/og-image.png", Astro.site);
+const ogImageURL = new URL(`/og/blog/${post.id}.png`, Astro.site);
 const blogSchema = {
 	"@context": "https://schema.org",
 	"@type": "BlogPosting",
