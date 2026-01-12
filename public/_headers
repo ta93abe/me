@@ -16,7 +16,10 @@
 
   # Content Security Policy
   # - self: same origin
-  # - unsafe-inline: required for Astro inline scripts and styles
+  # - unsafe-inline: required for Astro inline scripts (theme-switcher, search modal, etc.)
+  #   Note: Ideally should use hash-based CSP, but Astro generates multiple inline scripts
+  #   dynamically. For a personal portfolio without sensitive data, this is acceptable.
+  #   TODO: Consider migrating to external scripts or nonce-based CSP for stricter security.
   # - cdn.jsdelivr.net: for fonts (Noto Sans JP)
   # - fonts.googleapis.com, fonts.gstatic.com: for Google Fonts
   # - data: for inline images/fonts
