@@ -1,7 +1,10 @@
 ---
+import type { CollectionEntry } from "astro:content";
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import ShareButtons from "../../components/blog/ShareButtons.astro";
+import PostNavigation from "../../components/PostNavigation.astro";
+import RelatedPosts from "../../components/RelatedPosts.astro";
 import BackToTop from "../../components/ui/BackToTop.astro";
 import Tag from "../../components/ui/Tag.astro";
 import { SITE } from "../../config/site";
@@ -12,13 +15,40 @@ import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
 
 export async function getStaticPaths() {
 	const blogPosts = await getCollection("blog");
-	return blogPosts.map((post) => ({
-		params: { id: post.id },
-		props: { post },
-	}));
+	// 公開日でソート（新しい順）
+	const sortedPosts = blogPosts.sort(
+		(a, b) => b.data.date.getTime() - a.data.date.getTime(),
+	);
+
+	return sortedPosts.map((post, index) => {
+		// 前後の記事（時系列順: prev=古い、next=新しい）
+		const prevPost = sortedPosts[index + 1];
+		const nextPost = sortedPosts[index - 1];
+
+		// 関連記事（同じタグを持つ記事、最大3件）
+		const currentTags = post.data.tags || [];
+		const relatedPosts = sortedPosts
+			.filter((p) => p.id !== post.id)
+			.filter((p) => p.data.tags?.some((t: string) => currentTags.includes(t)))
+			.slice(0, 3);
+
+		return {
+			params: { id: post.id },
+			props: {
+				post,
+				prevPost: prevPost
+					? { id: prevPost.id, title: prevPost.data.title }
+					: undefined,
+				nextPost: nextPost
+					? { id: nextPost.id, title: nextPost.data.title }
+					: undefined,
+				relatedPosts,
+			},
+		};
+	});
 }
 
-const { post } = Astro.props;
+const { post, prevPost, nextPost, relatedPosts } = Astro.props;
 const { Content } = await render(post);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const readingTime = getReadingTime(post.body || "");
@@ -117,6 +147,10 @@ const siteUrl = Astro.site?.href || SITE.url;
     <div class="mt-12 border-t border-gray-200 pt-8">
       <ShareButtons url={canonicalURL.href} title={post.data.title} />
     </div>
+
+    <PostNavigation prevPost={prevPost} nextPost={nextPost} />
+
+    <RelatedPosts posts={relatedPosts} />
   </main>
   <BackToTop />
 </Layout>

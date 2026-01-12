@@ -1,0 +1,46 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatDate } from "../utils/date";
+
+interface Props {
+	posts: CollectionEntry<"blog">[];
+	basePath?: string;
+}
+
+const { posts, basePath = "/blog" } = Astro.props;
+
+// 関連記事がない場合は何も表示しない
+if (posts.length === 0) {
+	return null;
+}
+---
+
+<aside class="mt-12 border-t border-[var(--border-color)] pt-8">
+  <h2 class="mb-6 text-xl font-bold text-[var(--text-primary)]">関連記事</h2>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      posts.map((post) => (
+        <a
+          href={`${basePath}/${post.id}`}
+          class="group flex flex-col rounded-lg border border-[var(--border-color)] p-4 transition-colors hover:border-[var(--primary-color)] hover:bg-[var(--bg-secondary)]"
+        >
+          <span class="mb-2 text-sm text-[var(--text-muted)]">
+            {formatDate(post.data.date)}
+          </span>
+          <span class="mb-2 font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary-color)]">
+            {post.data.title}
+          </span>
+          {post.data.tags && post.data.tags.length > 0 && (
+            <div class="mt-auto flex flex-wrap gap-1">
+              {post.data.tags.slice(0, 2).map((tag) => (
+                <span class="rounded bg-[var(--bg-tertiary)] px-2 py-0.5 text-xs text-[var(--text-secondary)]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </a>
+      ))
+    }
+  </div>
+</aside>
