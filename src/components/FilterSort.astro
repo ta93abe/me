@@ -67,7 +67,7 @@ const uniqueTags = [...new Set(tags)].sort();
   </div>
 </div>
 
-<style>
+<style is:global>
   .filter-tag.active {
     border-color: #3b82f6;
     background-color: #3b82f6;
@@ -78,6 +78,19 @@ const uniqueTags = [...new Set(tags)].sort();
     border-color: #60a5fa;
     background-color: #60a5fa;
     color: #1f2937;
+  }
+
+  /* Smooth filter transition */
+  [data-item] {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  [data-item].filter-hidden {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    position: absolute;
+    visibility: hidden;
   }
 </style>
 
@@ -137,14 +150,16 @@ const uniqueTags = [...new Set(tags)].sort();
           return 0;
         });
 
-        // Update visibility and order
+        // Update visibility with smooth transition
         items.forEach(function(item) {
-          item.style.display = "none";
-          item.style.order = "999";
+          if (!filteredItems.includes(item)) {
+            item.classList.add("filter-hidden");
+            item.style.order = "999";
+          }
         });
 
         filteredItems.forEach(function(item, index) {
-          item.style.display = "";
+          item.classList.remove("filter-hidden");
           item.style.order = String(index);
         });
 
