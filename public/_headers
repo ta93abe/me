@@ -1,0 +1,27 @@
+# Security Headers for Cloudflare Pages
+# https://developers.cloudflare.com/pages/platform/headers/
+
+/*
+  # Prevent clickjacking
+  X-Frame-Options: DENY
+
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # Referrer policy
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Permissions policy - disable unnecessary features
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+
+  # Content Security Policy
+  # - self: same origin
+  # - unsafe-inline: required for Astro inline scripts (theme-switcher, search modal, etc.)
+  #   Note: Ideally should use hash-based CSP, but Astro generates multiple inline scripts
+  #   dynamically. For a personal portfolio without sensitive data, this is acceptable.
+  #   TODO: Consider migrating to external scripts or nonce-based CSP for stricter security.
+  # - cdn.jsdelivr.net: for fonts (Noto Sans JP)
+  # - fonts.googleapis.com, fonts.gstatic.com: for Google Fonts
+  # - data: for inline images/fonts
+  # - blob: for Three.js workers
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;
