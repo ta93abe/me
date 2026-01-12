@@ -1,0 +1,79 @@
+---
+interface Props {
+	url: string;
+	title: string;
+	class?: string;
+}
+
+const { url, title, class: className = "" } = Astro.props;
+
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+
+const shareLinks = [
+	{
+		name: "X",
+		href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+		label: "Xでシェア",
+	},
+	{
+		name: "Bluesky",
+		href: `https://bsky.app/intent/compose?text=${encodedTitle}%20${encodedUrl}`,
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 530" fill="currentColor" class="size-5"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1937 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>`,
+		label: "Blueskyでシェア",
+	},
+	{
+		name: "LINE",
+		href: `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`,
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M12 2C6.48 2 2 6.07 2 11.01c0 4.43 3.74 8.12 8.54 8.87.33.06.78.19.9.43.1.22.07.56.03.78l-.14.91c-.04.27-.2 1.05.92.57s6.1-3.59 8.32-6.15C21.8 14.24 22 12.68 22 11.01 22 6.07 17.52 2 12 2zm-3.21 11.64c0 .2-.16.37-.37.37H5.96a.37.37 0 0 1-.37-.37V8.36c0-.2.16-.37.37-.37h.6c.2 0 .37.17.37.37v4.34h1.28c.2 0 .37.16.37.36v.58zm1.74.37a.37.37 0 0 1-.37-.37V8.36c0-.2.16-.37.37-.37h.6c.2 0 .37.17.37.37v5.28c0 .21-.16.37-.37.37h-.6zm4.82 0a.37.37 0 0 1-.3-.15l-1.93-2.64v2.42c0 .21-.16.37-.37.37h-.6a.37.37 0 0 1-.37-.37V8.36c0-.2.16-.37.37-.37h.6c.11 0 .22.05.3.15l1.93 2.64V8.36c0-.2.16-.37.37-.37h.6c.2 0 .37.17.37.37v5.28c0 .21-.17.37-.37.37h-.6zm2.67-2.26a.37.37 0 0 1 .37-.37h1.28c.2 0 .37.16.37.37v.57c0 .2-.16.37-.37.37h-1.28v.88h1.28c.2 0 .37.16.37.36v.58c0 .2-.16.37-.37.37h-2.25a.37.37 0 0 1-.37-.37V8.36c0-.2.17-.37.37-.37h2.25c.2 0 .37.17.37.37v.57c0 .2-.16.37-.37.37h-1.28v.88h1.28c.2 0 .37.17.37.37v.57c0 .2-.16.37-.37.37h-1.28v.26z"/></svg>`,
+		label: "LINEでシェア",
+	},
+];
+---
+
+<div class:list={["flex flex-wrap items-center gap-3", className]}>
+	<span class="text-sm text-gray-600">シェア:</span>
+	{shareLinks.map((link) => (
+		<a
+			href={link.href}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+			title={link.label}
+		>
+			<span set:html={link.icon} />
+			<span class="hidden sm:inline">{link.name}</span>
+		</a>
+	))}
+	<button
+		id="copy-url-btn"
+		class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+		title="URLをコピー"
+		data-url={url}
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+			<path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z" />
+			<path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" />
+		</svg>
+		<span id="copy-text" class="hidden sm:inline">コピー</span>
+	</button>
+</div>
+
+<script>
+	const copyBtn = document.getElementById("copy-url-btn");
+	const copyText = document.getElementById("copy-text");
+
+	if (copyBtn && copyText) {
+		copyBtn.addEventListener("click", async () => {
+			const url = copyBtn.dataset.url;
+			if (url) {
+				await navigator.clipboard.writeText(url);
+				copyText.textContent = "コピー済み";
+				setTimeout(() => {
+					copyText.textContent = "コピー";
+				}, 2000);
+			}
+		});
+	}
+</script>
