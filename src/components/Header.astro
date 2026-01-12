@@ -1,15 +1,9 @@
 ---
 // ヘッダーコンポーネント
+import { NAV_LINKS } from "../config/navigation";
 import Logo from "./Logo.astro";
 import SearchModal from "./SearchModal.astro";
 import ThemeToggle from "./ui/ThemeToggle.astro";
-
-const navLinks = [
-	{ href: "/works", text: "Works" },
-	{ href: "/links", text: "Links" },
-	{ href: "/blog", text: "Blog" },
-	{ href: "/slides", text: "Slides" },
-];
 
 const currentPath = Astro.url.pathname;
 ---
@@ -27,7 +21,7 @@ const currentPath = Astro.url.pathname;
     <div class="hidden items-center gap-6 md:flex">
       <ul class="flex gap-6">
         {
-          navLinks.map((link) => (
+          NAV_LINKS.map((link) => (
             <li>
               <a
                 href={link.href}
@@ -118,7 +112,7 @@ const currentPath = Astro.url.pathname;
   >
     <ul class="space-y-1 px-6 py-4">
       {
-        navLinks.map((link) => (
+        NAV_LINKS.map((link) => (
           <li>
             <a
               href={link.href}
