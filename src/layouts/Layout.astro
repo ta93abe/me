@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config/site";
+import { generateWebSiteSchema, stringifySchema } from "../utils/schema";
 
 interface Props {
 	title?: string;
@@ -68,19 +69,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<!-- 構造化データ (JSON-LD) -->
 		<script
 			type="application/ld+json"
-			set:html={JSON.stringify({
-				"@context": "https://schema.org",
-				"@type": "WebSite",
-				name: SITE.name,
-				url: Astro.site?.href,
-				description: SITE.description,
-				author: {
-					"@type": "Person",
-					name: SITE.author,
-					url: Astro.site?.href,
-				},
-				inLanguage: SITE.lang,
-			})}
+			set:html={stringifySchema(generateWebSiteSchema(Astro.site?.href || SITE.url))}
 		></script>
 		<slot name="head" />
 	</head>

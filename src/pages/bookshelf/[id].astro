@@ -1,11 +1,13 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import Badge from "../../components/ui/Badge.astro";
 import Tag from "../../components/ui/Tag.astro";
 import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
+import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
 
 export async function getStaticPaths() {
 	const books = await getCollection("books");
@@ -38,6 +40,12 @@ const bookSchema = {
 	url: canonicalURL.href,
 	inLanguage: SITE.lang,
 };
+const breadcrumbItems = [
+	{ label: "ホーム", href: "/" },
+	{ label: "Bookshelf", href: "/bookshelf" },
+	{ label: book.data.title },
+];
+const siteUrl = Astro.site?.href || SITE.url;
 ---
 
 <Layout
@@ -52,10 +60,15 @@ const bookSchema = {
     {tags.map((tag) => <meta property="book:tag" content={tag} />)}
     <script
       type="application/ld+json"
-      set:html={JSON.stringify(bookSchema).replace(/</g, "\\u003c")}
+      set:html={stringifySchema(bookSchema)}
+    />
+    <script
+      type="application/ld+json"
+      set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
     />
   </Fragment>
   <main class="mx-auto max-w-4xl px-6 py-12">
+    <Breadcrumb items={breadcrumbItems} />
     <div class="mb-8">
       <a
         href="/bookshelf"
