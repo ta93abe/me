@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import { SITE } from "../../config/site";
 import { statusLabels, statusStyles } from "../../utils/books";
 import { formatDate } from "../../utils/date";
 
@@ -34,12 +35,12 @@ const bookSchema = {
 	image: ogImageURL.href,
 	genre: tags.join(", "),
 	url: canonicalURL.href,
-	inLanguage: "ja",
+	inLanguage: SITE.lang,
 };
 ---
 
 <Layout
-  title={`${book.data.title} | Bookshelf | Portfolio`}
+  title={`${book.data.title} | Bookshelf | ${SITE.name}`}
   description={book.data.excerpt}
   ogType="book"
   ogImage={ogImageURL.href}

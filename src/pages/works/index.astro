@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import { SITE } from "../../config/site";
 
 const works = await getCollection("works");
 const sortedWorks = works.sort(
@@ -10,7 +11,7 @@ const sortedWorks = works.sort(
 ---
 
 <Layout
-  title="Works | Portfolio"
+  title={`Works | ${SITE.name}`}
   description="ポートフォリオ作品一覧。これまでに手がけたプロジェクトをご覧ください。"
 >
   <main class="mx-auto max-w-6xl px-6 py-12">

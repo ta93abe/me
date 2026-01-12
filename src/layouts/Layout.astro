@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import { SITE } from "../config/site";
 
 interface Props {
 	title?: string;
@@ -16,11 +17,11 @@ interface Props {
 }
 
 const {
-	title = "Portfolio",
-	description = "個人ポートフォリオサイト",
+	title = SITE.name,
+	description = SITE.description,
 	ogImage = "/og-image.png",
 	ogImageAlt = title,
-	ogSiteName = "Portfolio",
+	ogSiteName = SITE.name,
 	ogType = "website",
 	noHeader = false,
 	noFooter = false,
@@ -43,7 +44,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<title>{title}</title>
 		<meta name="title" content={title} />
 		<meta name="description" content={description} />
-		<meta name="author" content="Takumi Abe" />
+		<meta name="author" content={SITE.author} />
 		<link rel="canonical" href={canonicalURL} />
 
 		<!-- Open Graph / Facebook -->
@@ -54,7 +55,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<meta property="og:image" content={ogImageURL} />
 		<meta property="og:image:alt" content={ogImageAlt} />
 		<meta property="og:site_name" content={ogSiteName} />
-		<meta property="og:locale" content="ja_JP" />
+		<meta property="og:locale" content={SITE.locale} />
 
 		<!-- Twitter -->
 		<meta name="twitter:card" content="summary_large_image" />
@@ -65,21 +66,22 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<meta name="twitter:image:alt" content={ogImageAlt} />
 
 		<!-- 構造化データ (JSON-LD) -->
-		<script type="application/ld+json">
-			{
+		<script
+			type="application/ld+json"
+			set:html={JSON.stringify({
 				"@context": "https://schema.org",
 				"@type": "WebSite",
-				"name": "Portfolio",
-				"url": Astro.site.href,
-				"description": "個人ポートフォリオサイト",
-				"author": {
+				name: SITE.name,
+				url: Astro.site?.href,
+				description: SITE.description,
+				author: {
 					"@type": "Person",
-					"name": "Takumi Abe",
-					"url": Astro.site.href
+					name: SITE.author,
+					url: Astro.site?.href,
 				},
-				"inLanguage": "ja"
-			}
-		</script>
+				inLanguage: SITE.lang,
+			})}
+		></script>
 		<slot name="head" />
 	</head>
 	<body>

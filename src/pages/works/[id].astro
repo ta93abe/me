@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Layout from "../../layouts/Layout.astro";
+import { SITE } from "../../config/site";
 import { formatDate } from "../../utils/date";
 
 export async function getStaticPaths() {
@@ -32,23 +33,23 @@ const workSchema = {
 	dateModified: modifiedTime,
 	author: {
 		"@type": "Person",
-		name: "Takumi Abe",
-		url: Astro.site.href,
+		name: SITE.author,
+		url: Astro.site?.href,
 	},
 	url: canonicalURL.href,
-	inLanguage: "ja",
+	inLanguage: SITE.lang,
 };
 ---
 
 <Layout
-  title={`${work.data.title} | Works | Portfolio`}
+  title={`${work.data.title} | Works | ${SITE.name}`}
   description={work.data.excerpt}
   ogType="article"
   ogImage={ogImageURL.href}
   ogImageAlt={work.data.title}
 >
   <Fragment slot="head">
-    <meta property="article:author" content="Takumi Abe" />
+    <meta property="article:author" content={SITE.author} />
     <meta property="article:published_time" content={createdTime} />
     {
       work.data.endDate && (
