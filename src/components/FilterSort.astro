@@ -1,0 +1,193 @@
+---
+// フィルタリング・ソートコンポーネント
+// クライアントサイドでリストのフィルタ・ソートを行う
+
+interface Props {
+	tags: string[];
+	sortOptions?: { value: string; label: string }[];
+	containerId: string;
+}
+
+const {
+	tags,
+	sortOptions = [
+		{ value: "date-desc", label: "新しい順" },
+		{ value: "date-asc", label: "古い順" },
+		{ value: "title", label: "タイトル順" },
+	],
+	containerId,
+} = Astro.props;
+
+// 重複を排除してソート
+const uniqueTags = [...new Set(tags)].sort();
+---
+
+<div class="mb-8 space-y-4" data-filter-sort data-container={containerId}>
+  <!-- フィルター -->
+  {uniqueTags.length > 0 && (
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-sm font-medium text-gray-600 dark:text-gray-400">タグ:</span>
+      <button
+        type="button"
+        class="filter-tag active rounded-full border border-gray-300 px-3 py-1 text-sm transition-colors hover:border-blue-500 hover:text-blue-600 dark:border-gray-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
+        data-tag="all"
+      >
+        すべて
+      </button>
+      {uniqueTags.map((tag) => (
+        <button
+          type="button"
+          class="filter-tag rounded-full border border-gray-300 px-3 py-1 text-sm transition-colors hover:border-blue-500 hover:text-blue-600 dark:border-gray-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
+          data-tag={tag}
+        >
+          {tag}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <!-- ソート -->
+  <div class="flex items-center gap-2">
+    <label for={`sort-${containerId}`} class="text-sm font-medium text-gray-600 dark:text-gray-400">
+      並び替え:
+    </label>
+    <select
+      id={`sort-${containerId}`}
+      class="sort-select rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+    >
+      {sortOptions.map((option) => (
+        <option value={option.value}>{option.label}</option>
+      ))}
+    </select>
+  </div>
+
+  <!-- 結果数表示 -->
+  <div class="text-sm text-gray-500 dark:text-gray-400">
+    <span class="result-count"></span>
+  </div>
+</div>
+
+<style is:global>
+  .filter-tag.active {
+    border-color: #3b82f6;
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  :root.dark .filter-tag.active {
+    border-color: #60a5fa;
+    background-color: #60a5fa;
+    color: #1f2937;
+  }
+
+  /* Smooth filter transition */
+  [data-item] {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  [data-item].filter-hidden {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    position: absolute;
+    visibility: hidden;
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    document.querySelectorAll("[data-filter-sort]").forEach(function(filterComponent) {
+      const containerId = filterComponent.dataset.container;
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const items = Array.from(container.querySelectorAll("[data-item]"));
+      const filterTags = filterComponent.querySelectorAll(".filter-tag");
+      const sortSelect = filterComponent.querySelector(".sort-select");
+      const resultCount = filterComponent.querySelector(".result-count");
+
+      let currentTag = "all";
+      let currentSort = "date-desc";
+
+      function updateResultCount(count, total) {
+        if (resultCount) {
+          if (currentTag === "all") {
+            resultCount.textContent = total + "件を表示中";
+          } else {
+            resultCount.textContent = count + " / " + total + "件を表示中";
+          }
+        }
+      }
+
+      function filterAndSort() {
+        // Get sort value
+        if (sortSelect) {
+          currentSort = sortSelect.value;
+        }
+
+        // Filter
+        const filteredItems = items.filter(function(item) {
+          if (currentTag === "all") return true;
+          const itemTags = item.dataset.tags ? item.dataset.tags.split(",") : [];
+          return itemTags.includes(currentTag);
+        });
+
+        // Sort
+        filteredItems.sort(function(a, b) {
+          if (currentSort === "date-desc") {
+            const aDate = new Date(a.dataset.date || 0).getTime();
+            const bDate = new Date(b.dataset.date || 0).getTime();
+            return bDate - aDate;
+          } else if (currentSort === "date-asc") {
+            const aDate = new Date(a.dataset.date || 0).getTime();
+            const bDate = new Date(b.dataset.date || 0).getTime();
+            return aDate - bDate;
+          } else if (currentSort === "title") {
+            const aTitle = a.dataset.title || "";
+            const bTitle = b.dataset.title || "";
+            return aTitle.localeCompare(bTitle, "ja");
+          }
+          return 0;
+        });
+
+        // Update visibility with smooth transition
+        items.forEach(function(item) {
+          if (!filteredItems.includes(item)) {
+            item.classList.add("filter-hidden");
+            item.style.order = "999";
+          }
+        });
+
+        filteredItems.forEach(function(item, index) {
+          item.classList.remove("filter-hidden");
+          item.style.order = String(index);
+        });
+
+        updateResultCount(filteredItems.length, items.length);
+      }
+
+      // Tag filter click handlers
+      filterTags.forEach(function(tag) {
+        tag.addEventListener("click", function() {
+          currentTag = tag.dataset.tag;
+
+          // Update active state
+          filterTags.forEach(function(t) {
+            t.classList.remove("active");
+          });
+          tag.classList.add("active");
+
+          filterAndSort();
+        });
+      });
+
+      // Sort change handler
+      if (sortSelect) {
+        sortSelect.addEventListener("change", filterAndSort);
+      }
+
+      // Initial display
+      filterAndSort();
+    });
+  })();
+</script>

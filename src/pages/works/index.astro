@@ -1,6 +1,8 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import FilterSort from "../../components/FilterSort.astro";
+import Tag from "../../components/ui/Tag.astro";
 import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
 
@@ -8,6 +10,16 @@ const works = await getCollection("works");
 const sortedWorks = works.sort(
 	(a, b) => b.data.startDate.getTime() - a.data.startDate.getTime(),
 );
+
+// すべてのタグを収集
+const allTags = works.flatMap((work) => work.data.tags);
+
+// ソートオプション
+const sortOptions = [
+	{ value: "date-desc", label: "開始日（新しい順）" },
+	{ value: "date-asc", label: "開始日（古い順）" },
+	{ value: "title", label: "タイトル順" },
+];
 ---
 
 <Layout
@@ -17,12 +29,19 @@ const sortedWorks = works.sort(
   <main class="mx-auto max-w-6xl px-6 py-12">
     <h1 class="mb-12 text-4xl font-bold">Works</h1>
 
-    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <!-- フィルタリング・ソート -->
+    <FilterSort tags={allTags} sortOptions={sortOptions} containerId="works-list" />
+
+    <div id="works-list" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
       {
         sortedWorks.map((work) => (
           <a
             href={`/works/${work.id}`}
-            class="group block overflow-hidden rounded-lg border border-gray-200 transition-shadow hover:shadow-lg"
+            class="group block overflow-hidden rounded-lg border border-gray-200 transition-shadow hover:shadow-lg dark:border-gray-700"
+            data-item
+            data-tags={work.data.tags.join(",")}
+            data-date={work.data.startDate.toISOString()}
+            data-title={work.data.title}
           >
             <div class="aspect-video overflow-hidden bg-gray-100">
               <Image
@@ -33,12 +52,10 @@ const sortedWorks = works.sort(
             </div>
             <div class="p-4">
               <h2 class="mb-2 text-xl font-bold">{work.data.title}</h2>
-              <p class="mb-3 text-sm text-gray-600">{work.data.excerpt}</p>
+              <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">{work.data.excerpt}</p>
               <div class="flex flex-wrap gap-2">
                 {work.data.tags.map((tag) => (
-                  <span class="rounded bg-gray-100 px-2 py-1 text-xs">
-                    {tag}
-                  </span>
+                  <Tag>{tag}</Tag>
                 ))}
               </div>
             </div>

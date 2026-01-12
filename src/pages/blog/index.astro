@@ -1,5 +1,7 @@
 ---
 import { getCollection } from "astro:content";
+import FilterSort from "../../components/FilterSort.astro";
+import Tag from "../../components/ui/Tag.astro";
 import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
@@ -8,6 +10,9 @@ const blogPosts = await getCollection("blog");
 const sortedPosts = blogPosts.sort(
 	(a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
+
+// すべてのタグを収集
+const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
 ---
 
 <Layout
@@ -44,12 +49,21 @@ const sortedPosts = blogPosts.sort(
       </a>
     </div>
 
-    <div class="space-y-8">
+    <!-- フィルタリング・ソート -->
+    <FilterSort tags={allTags} containerId="blog-list" />
+
+    <div id="blog-list" class="flex flex-col space-y-8">
       {
         sortedPosts.map((post) => (
-          <article class="border-b border-gray-200 pb-8">
+          <article
+            class="border-b border-gray-200 pb-8 dark:border-gray-700"
+            data-item
+            data-tags={(post.data.tags ?? []).join(",")}
+            data-date={post.data.date.toISOString()}
+            data-title={post.data.title}
+          >
             <a href={`/blog/${post.id}`} class="group block">
-              <time class="mb-2 block text-sm text-gray-600">
+              <time class="mb-2 block text-sm text-gray-600 dark:text-gray-400">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
                   <span class="ml-2 text-xs">
@@ -57,10 +71,17 @@ const sortedPosts = blogPosts.sort(
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600">
+              <h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600 dark:group-hover:text-gray-300">
                 {post.data.title}
               </h2>
-              <p class="text-gray-700">{post.data.excerpt}</p>
+              <p class="mb-3 text-gray-700 dark:text-gray-300">{post.data.excerpt}</p>
+              {post.data.tags && post.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2">
+                  {post.data.tags.map((tag) => (
+                    <Tag>{tag}</Tag>
+                  ))}
+                </div>
+              )}
             </a>
           </article>
         ))
