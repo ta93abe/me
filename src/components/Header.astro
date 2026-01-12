@@ -1,6 +1,7 @@
 ---
 // ヘッダーコンポーネント
 import Logo from "./Logo.astro";
+import SearchModal from "./SearchModal.astro";
 import ThemeToggle from "./ui/ThemeToggle.astro";
 
 const navLinks = [
@@ -39,11 +40,35 @@ const currentPath = Astro.url.pathname;
           ))
         }
       </ul>
+      <!-- 検索ボタン -->
+      <button
+        type="button"
+        id="desktop-search-button"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700"
+        aria-label="サイト内検索を開く"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <span class="hidden lg:inline">検索</span>
+        <kbd class="hidden rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-xs dark:border-gray-600 dark:bg-gray-900 lg:inline">⌘K</kbd>
+      </button>
       <ThemeToggle />
     </div>
 
-    <!-- モバイル: テーマ切り替え + ハンバーガー -->
+    <!-- モバイル: 検索 + テーマ切り替え + ハンバーガー -->
     <div class="flex items-center gap-2 md:hidden">
+      <!-- モバイル検索ボタン -->
+      <button
+        type="button"
+        id="mobile-search-button"
+        class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+        aria-label="サイト内検索を開く"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </button>
       <ThemeToggle />
       <button
         type="button"
@@ -109,6 +134,9 @@ const currentPath = Astro.url.pathname;
   </div>
 </header>
 
+<!-- 検索モーダル -->
+<SearchModal />
+
 <style>
   [aria-current="page"] {
     font-weight: 600;
@@ -155,4 +183,17 @@ const currentPath = Astro.url.pathname;
       }
     });
   }
+
+  // 検索ボタンのイベントハンドラ
+  const desktopSearchBtn = document.getElementById("desktop-search-button");
+  const mobileSearchBtn = document.getElementById("mobile-search-button");
+
+  function handleSearchClick() {
+    if (typeof (window as Window & { openGlobalSearch?: () => void }).openGlobalSearch === "function") {
+      (window as Window & { openGlobalSearch: () => void }).openGlobalSearch();
+    }
+  }
+
+  desktopSearchBtn?.addEventListener("click", handleSearchClick);
+  mobileSearchBtn?.addEventListener("click", handleSearchClick);
 </script>
