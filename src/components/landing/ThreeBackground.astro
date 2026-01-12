@@ -15,11 +15,16 @@ const { class: className = "" } = Astro.props;
 </div>
 
 <script>
-  import { ParticleScene } from "../../scripts/three/scene";
+  import type { ParticleScene } from "../../scripts/three/scene";
 
   let scene: ParticleScene | null = null;
+  let isInitialized = false;
 
-  function initThree() {
+  async function initThree() {
+    // Prevent double initialization
+    if (isInitialized) return;
+    isInitialized = true;
+
     const container = document.getElementById("three-canvas-container");
     if (!container) {
       console.error(
@@ -29,6 +34,9 @@ const { class: className = "" } = Astro.props;
     }
 
     try {
+      // Dynamic import for better code splitting and lazy loading
+      const { ParticleScene } = await import("../../scripts/three/scene");
+
       scene = new ParticleScene({
         container,
         particleCount: 3000,
@@ -40,17 +48,30 @@ const { class: className = "" } = Astro.props;
     }
   }
 
-  // Initialize on DOMContentLoaded
+  // Lazy load Three.js after the page is interactive
+  // This improves LCP and FID by not blocking the main thread during initial render
+  function scheduleThreeInit() {
+    // Use requestIdleCallback if available, otherwise fallback to setTimeout
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => initThree(), { timeout: 2000 });
+    } else {
+      // Fallback for Safari and older browsers
+      setTimeout(initThree, 100);
+    }
+  }
+
+  // Wait for DOM to be ready, then schedule lazy initialization
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initThree);
+    document.addEventListener("DOMContentLoaded", scheduleThreeInit);
   } else {
-    initThree();
+    scheduleThreeInit();
   }
 
   // Cleanup Three.js resources before page swap to prevent memory leaks
   document.addEventListener("astro:before-swap", () => {
     scene?.destroy();
     scene = null;
+    isInitialized = false;
   });
 </script>
 
