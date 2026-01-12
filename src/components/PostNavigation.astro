@@ -1,0 +1,53 @@
+---
+interface NavPost {
+	id: string;
+	title: string;
+}
+
+interface Props {
+	prevPost?: NavPost;
+	nextPost?: NavPost;
+	basePath?: string;
+}
+
+const { prevPost, nextPost, basePath = "/blog" } = Astro.props;
+
+// 両方ない場合は何も表示しない
+if (!prevPost && !nextPost) {
+	return null;
+}
+---
+
+<nav
+  class="mt-12 border-t border-[var(--border-color)] pt-8"
+  aria-label="前後の記事"
+>
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    {
+      prevPost ? (
+        <a
+          href={`${basePath}/${prevPost.id}`}
+          class="group flex flex-col rounded-lg border border-[var(--border-color)] p-4 transition-colors hover:border-[var(--primary-color)] hover:bg-[var(--bg-secondary)]"
+        >
+          <span class="mb-1 text-sm text-[var(--text-muted)]">← 前の記事</span>
+          <span class="font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary-color)]">
+            {prevPost.title}
+          </span>
+        </a>
+      ) : null
+    }
+    {
+      nextPost ? (
+        <a
+          href={`${basePath}/${nextPost.id}`}
+          class="group flex flex-col rounded-lg border border-[var(--border-color)] p-4 text-right transition-colors hover:border-[var(--primary-color)] hover:bg-[var(--bg-secondary)] sm:col-start-2"
+        >
+          <span class="mb-1 text-sm text-[var(--text-muted)]">次の記事 →</span>
+          <span class="font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary-color)]">
+            {nextPost.title}
+          </span>
+        </a>
+      ) : null
+    }
+  </div>
+</nav>
