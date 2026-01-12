@@ -1,46 +1,73 @@
-# Astro Starter Kit: Basics
+# ta93abe.com
 
-```sh
-pnpm create astro@latest -- --template basics
+個人ポートフォリオサイト。Astro + Tailwind CSS + TypeScript で構築し、Cloudflare Workers にデプロイしています。
+
+## 技術スタック
+
+- **フレームワーク**: [Astro](https://astro.build) v5
+- **スタイリング**: [Tailwind CSS](https://tailwindcss.com) v4
+- **言語**: TypeScript (strict mode)
+- **Linter/Formatter**: [Biome](https://biomejs.dev)
+- **デプロイ**: Cloudflare Workers
+
+## 開発
+
+```bash
+# 依存関係のインストール
+pnpm install
+
+# 開発サーバー起動 (localhost:4321)
+pnpm dev
+
+# 本番ビルド
+pnpm build
+
+# ビルドのプレビュー
+pnpm preview
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## コマンド一覧
 
-## 🚀 Project Structure
+| コマンド | 説明 |
+|---------|------|
+| `pnpm dev` | 開発サーバー起動 |
+| `pnpm build` | 本番ビルド (`./dist/`) |
+| `pnpm preview` | ビルドプレビュー |
+| `pnpm assist` | Biome 自動修正 + リンティング |
+| `pnpm lint` | リンティング |
+| `pnpm format` | コード整形 |
+| `pnpm test` | Vitest でユニットテスト実行 |
+| `pnpm test:e2e` | Playwright で E2E テスト実行 |
+| `pnpm deploy` | Cloudflare Workers にデプロイ |
 
-Inside of your Astro project, you'll see the following folders and files:
+## プロジェクト構造
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```
+src/
+├── assets/          # 画像・静的リソース
+├── components/      # Astro コンポーネント
+│   ├── landing/     # ランディングページ用
+│   └── blog/        # ブログ用
+├── content/         # コンテンツコレクション
+│   ├── about/       # About ページ用
+│   ├── blog/        # ブログ記事
+│   ├── books/       # 読書記録
+│   ├── talks/       # 登壇情報
+│   └── works/       # 作品・プロジェクト
+├── layouts/         # ページレイアウト
+├── pages/           # ファイルベースルーティング
+├── styles/          # グローバルスタイル
+└── utils/           # ユーティリティ関数
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## デプロイ
 
-## 🧞 Commands
+Cloudflare Workers へのデプロイ:
 
-All commands are run from the root of the project, from a terminal:
+```bash
+pnpm deploy
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+## ライセンス
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+MIT
