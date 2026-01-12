@@ -1,8 +1,8 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import Layout from "../../layouts/Layout.astro";
 import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
 
 const works = await getCollection("works");
 const sortedWorks = works.sort(
