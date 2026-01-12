@@ -8,6 +8,8 @@ const navLinks = [
 	{ href: "/blog", text: "Blog" },
 	{ href: "/slides", text: "Slides" },
 ];
+
+const currentPath = Astro.url.pathname;
 ---
 
 <header
@@ -18,16 +20,132 @@ const navLinks = [
     aria-label="メインナビゲーション"
   >
     <Logo />
-    <ul class="flex gap-6">
+
+    <!-- デスクトップナビゲーション -->
+    <ul class="hidden gap-6 md:flex">
       {
         navLinks.map((link) => (
           <li>
-            <a href={link.href} class="hover:opacity-70">
+            <a
+              href={link.href}
+              class="hover:opacity-70"
+              aria-current={(link.href === "/" ? currentPath === "/" : currentPath.startsWith(link.href)) ? "page" : undefined}
+            >
               {link.text}
             </a>
           </li>
         ))
       }
     </ul>
+
+    <!-- モバイルハンバーガーボタン -->
+    <button
+      type="button"
+      id="mobile-menu-button"
+      class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 md:hidden"
+      aria-label="メニューを開く"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg
+        id="menu-icon-open"
+        class="h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      <svg
+        id="menu-icon-close"
+        class="hidden h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
   </nav>
+
+  <!-- モバイルメニュー -->
+  <div
+    id="mobile-menu"
+    class="hidden border-t border-gray-200 bg-white md:hidden"
+    aria-hidden="true"
+  >
+    <ul class="space-y-1 px-6 py-4">
+      {
+        navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="block rounded-lg px-4 py-3 text-lg hover:bg-gray-100"
+              aria-current={(link.href === "/" ? currentPath === "/" : currentPath.startsWith(link.href)) ? "page" : undefined}
+            >
+              {link.text}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </header>
+
+<style>
+  [aria-current="page"] {
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+</style>
+
+<script>
+  const menuButton = document.getElementById("mobile-menu-button");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const iconOpen = document.getElementById("menu-icon-open");
+  const iconClose = document.getElementById("menu-icon-close");
+
+  if (!menuButton || !mobileMenu || !iconOpen || !iconClose) {
+    console.error("Mobile menu elements not found.");
+  } else {
+    let isOpen = false;
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+    function toggleMenu() {
+      isOpen = !isOpen;
+      mobileMenu.classList.toggle("hidden", !isOpen);
+      mobileMenu.setAttribute("aria-hidden", String(!isOpen));
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "メニューを閉じる" : "メニューを開く");
+      iconOpen.classList.toggle("hidden", isOpen);
+      iconClose.classList.toggle("hidden", !isOpen);
+    }
+
+    menuButton.addEventListener("click", toggleMenu);
+
+    // Escキーでメニューを閉じる
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen) {
+        toggleMenu();
+        menuButton.focus();
+      }
+    });
+
+    // 画面リサイズ時にメニューを閉じる (matchMediaを使用)
+    window.addEventListener("resize", () => {
+      if (mediaQuery.matches && isOpen) {
+        toggleMenu();
+      }
+    });
+  }
+</script>
