@@ -3,9 +3,40 @@
 @import "@fontsource/shippori-mincho/500.css";
 @import "@fontsource/shippori-mincho/700.css";
 
-/* プライマリカラー */
+/* テーマカラー - ライトモード */
 :root {
 	--primary-color: #4f46e5;
+	--bg-primary: #ffffff;
+	--bg-secondary: #f8fafc;
+	--bg-tertiary: #f1f5f9;
+	--text-primary: #1a1a1a;
+	--text-secondary: #4b5563;
+	--text-muted: #9ca3af;
+	--border-color: #e2e8f0;
+	--link-color: #2563eb;
+	--link-hover-color: #1d4ed8;
+	--blockquote-bg: #eff6ff;
+	--blockquote-border: #3b82f6;
+	--code-bg: #f1f5f9;
+	--code-text: #1e293b;
+}
+
+/* テーマカラー - ダークモード */
+:root.dark {
+	--primary-color: #818cf8;
+	--bg-primary: #0f172a;
+	--bg-secondary: #1e293b;
+	--bg-tertiary: #334155;
+	--text-primary: #f1f5f9;
+	--text-secondary: #cbd5e1;
+	--text-muted: #64748b;
+	--border-color: #334155;
+	--link-color: #60a5fa;
+	--link-hover-color: #93c5fd;
+	--blockquote-bg: #1e3a5f;
+	--blockquote-border: #3b82f6;
+	--code-bg: #1e293b;
+	--code-text: #e2e8f0;
 }
 
 /* フォーカス表示の強化 */
@@ -67,12 +98,12 @@
 
 /* Inline code */
 .prose :not(pre) > code {
-	background: #f1f5f9;
+	background: var(--code-bg);
 	padding: 0.125rem 0.375rem;
 	border-radius: 0.25rem;
 	font-size: 0.875em;
 	font-weight: 500;
-	color: #1e293b;
+	color: var(--code-text);
 }
 
 /* Better heading anchors */
@@ -84,8 +115,8 @@
 
 /* Blockquote styling */
 .prose blockquote {
-	border-left-color: #3b82f6;
-	background: #eff6ff;
+	border-left-color: var(--blockquote-border);
+	background: var(--blockquote-bg);
 	padding: 1rem;
 	border-radius: 0 0.5rem 0.5rem 0;
 	font-style: normal;
@@ -102,18 +133,18 @@
 }
 
 .prose th {
-	background: #f8fafc;
+	background: var(--bg-secondary);
 	font-weight: 600;
 }
 
 .prose th,
 .prose td {
-	border: 1px solid #e2e8f0;
+	border: 1px solid var(--border-color);
 	padding: 0.75rem;
 }
 
 .prose tr:hover {
-	background: #f8fafc;
+	background: var(--bg-secondary);
 }
 
 /* Task list styling */
@@ -141,11 +172,11 @@
 
 /* Link styling */
 .prose a {
-	color: #2563eb;
+	color: var(--link-color);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 }
 
 .prose a:hover {
-	color: #1d4ed8;
+	color: var(--link-hover-color);
 }
