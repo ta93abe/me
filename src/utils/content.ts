@@ -23,6 +23,7 @@ export const createStaticPaths = <T extends CollectionKey>(collection: T) => {
 
 /**
  * Sort content items by date (newest first)
+ * Safely handles missing or invalid date fields
  * @param items - Array of content items with date field
  * @param dateField - The field name containing the date
  * @returns Sorted array
@@ -32,9 +33,12 @@ export const sortByDate = <T extends { data: Record<string, unknown> }>(
 	dateField = "date",
 ): T[] => {
 	return [...items].sort((a, b) => {
-		const dateA = a.data[dateField] as Date;
-		const dateB = b.data[dateField] as Date;
-		return dateB.getTime() - dateA.getTime();
+		const dateA = a.data[dateField];
+		const dateB = b.data[dateField];
+		// Safely get timestamp, treating missing/invalid dates as 0
+		const timeA = dateA instanceof Date ? dateA.getTime() : 0;
+		const timeB = dateB instanceof Date ? dateB.getTime() : 0;
+		return timeB - timeA;
 	});
 };
 
