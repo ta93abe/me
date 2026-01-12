@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import FilterSort from "../../components/FilterSort.astro";
 import Badge from "../../components/ui/Badge.astro";
 import Tag from "../../components/ui/Tag.astro";
 import { SITE } from "../../config/site";
@@ -14,6 +15,19 @@ const sortedBooks = [...books].sort((a, b) => {
 	const bTime = b.data.finishedDate?.getTime() ?? 0;
 	return bTime - aTime;
 });
+
+// すべてのタグを収集（カテゴリ + タグ）
+const allTags = books.flatMap((book) => [
+	...(book.data.category ? [book.data.category] : []),
+	...book.data.tags,
+]);
+
+// ステータスに基づくソートオプション
+const sortOptions = [
+	{ value: "date-desc", label: "読了日（新しい順）" },
+	{ value: "date-asc", label: "読了日（古い順）" },
+	{ value: "title", label: "タイトル順" },
+];
 ---
 
 <Layout
@@ -23,12 +37,24 @@ const sortedBooks = [...books].sort((a, b) => {
   <main class="mx-auto max-w-6xl px-6 py-12">
     <h1 class="mb-12 text-4xl font-bold">Bookshelf</h1>
 
-    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- フィルタリング・ソート -->
+    <FilterSort tags={allTags} sortOptions={sortOptions} containerId="bookshelf-list" />
+
+    <div id="bookshelf-list" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {
-        sortedBooks.map((book) => (
+        sortedBooks.map((book) => {
+          const bookTags = [
+            ...(book.data.category ? [book.data.category] : []),
+            ...book.data.tags,
+          ];
+          return (
           <a
             href={`/bookshelf/${book.id}`}
-            class="group block overflow-hidden rounded-lg border border-gray-200 transition-shadow hover:shadow-lg"
+            class="group block overflow-hidden rounded-lg border border-gray-200 transition-shadow hover:shadow-lg dark:border-gray-700"
+            data-item
+            data-tags={bookTags.join(",")}
+            data-date={book.data.finishedDate?.toISOString() ?? ""}
+            data-title={book.data.title}
           >
             <div class="aspect-[3/4] overflow-hidden bg-gray-100">
               <Image
@@ -60,7 +86,7 @@ const sortedBooks = [...books].sort((a, b) => {
               )}
             </div>
           </a>
-        ))
+        );})
       }
     </div>
   </main>
