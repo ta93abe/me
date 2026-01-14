@@ -29,12 +29,12 @@ import ThreeBackground from "./ThreeBackground.astro";
 <style>
   .hero-section {
     position: relative;
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
+    background: #fafafa;
   }
 
   .hero-content {
@@ -51,7 +51,6 @@ import ThreeBackground from "./ThreeBackground.astro";
   .hero-greeting span {
     display: inline-block;
     font-size: 0.875rem;
-    letter-spacing: 0.3em;
     text-transform: uppercase;
     color: #666;
   }
@@ -66,10 +65,7 @@ import ThreeBackground from "./ThreeBackground.astro";
 
   .hero-name {
     display: inline-block;
-    background: linear-gradient(135deg, #1a1a1a 0%, #555 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #1a1a1a;
   }
 
   .hero-description {
@@ -92,7 +88,7 @@ import ThreeBackground from "./ThreeBackground.astro";
     font-weight: 500;
     text-decoration: none;
     border-radius: 9999px;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out, color 0.2s ease-out;
   }
 
   .btn-primary {
@@ -125,6 +121,17 @@ import ThreeBackground from "./ThreeBackground.astro";
 
     .btn {
       padding: 0.875rem 2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
+
+    .btn-primary:hover,
+    .btn-secondary:hover {
+      transform: none;
     }
   }
 </style>

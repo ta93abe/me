@@ -119,12 +119,18 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		font-weight: 600;
 		border-radius: 0 0 0.5rem 0.5rem;
 		text-decoration: none;
-		z-index: 100;
-		transition: top 0.2s;
+		z-index: 50;
+		transition: top 0.2s ease-out;
 	}
 
 	.skip-link:focus-visible {
 		top: 0;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.skip-link {
+			transition: none;
+		}
 	}
 
 	/* Lenis smooth scroll styles */

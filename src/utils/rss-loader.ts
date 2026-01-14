@@ -32,13 +32,24 @@ export const createRSSLoader = (
 			}
 
 			return feed.items
-				.filter((item) => item.title && item.link && item.pubDate)
+				.filter(
+					(
+						item,
+					): item is typeof item & {
+						title: string;
+						link: string;
+						pubDate: string;
+					} =>
+						typeof item.title === "string" &&
+						typeof item.link === "string" &&
+						typeof item.pubDate === "string",
+				)
 				.map((item, index) => ({
-					id: item.guid || `${idPrefix}-${index}`,
-					title: item.title!,
-					url: item.link!,
-					publishedAt: new Date(item.pubDate!),
-					excerpt: item.contentSnippet || item.content || "",
+					id: item.guid ?? `${idPrefix}-${index}`,
+					title: item.title,
+					url: item.link,
+					publishedAt: new Date(item.pubDate),
+					excerpt: item.contentSnippet ?? item.content ?? "",
 					source,
 				}));
 		} catch (error) {
