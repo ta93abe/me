@@ -5,7 +5,7 @@
 
 <div
   id="search-modal-overlay"
-  class="fixed inset-0 z-[100] hidden bg-black/50 backdrop-blur-sm"
+  class="fixed inset-0 z-50 hidden bg-black/60"
   aria-hidden="true"
 >
   <div
@@ -106,7 +106,7 @@
     border-radius: 0.5rem;
     border: 1px solid #e5e7eb;
     padding: 0.75rem;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
   }
 
   #global-pagefind-search .pagefind-ui__result:hover {
@@ -193,6 +193,17 @@
 
   :root.dark #global-pagefind-search .pagefind-ui__button:hover {
     background-color: #374151;
+  }
+
+  /* prefers-reduced-motion対応 */
+  @media (prefers-reduced-motion: reduce) {
+    #global-pagefind-search .pagefind-ui__result {
+      transition: none;
+    }
+
+    #global-pagefind-search .pagefind-ui__button {
+      transition: none;
+    }
   }
 </style>
 

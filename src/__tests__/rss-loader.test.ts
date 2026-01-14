@@ -22,14 +22,17 @@ describe("RSS Loaders", () => {
 			}
 
 			const entries = feed.items
-				.filter((item) => item.title && item.link)
+				.filter(
+					(item): item is typeof item & { title: string; link: string } =>
+						typeof item.title === "string" && typeof item.link === "string",
+				)
 				.map((item, index) => ({
-					id: item.guid || `zenn-${index}`,
+					id: item.guid ?? `zenn-${index}`,
 					data: {
-						title: item.title!,
-						url: item.link!,
+						title: item.title,
+						url: item.link,
 						publishedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
-						excerpt: item.contentSnippet || item.content || "",
+						excerpt: item.contentSnippet ?? item.content ?? "",
 						source: "Zenn" as const,
 					},
 				}));
