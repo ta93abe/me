@@ -1,0 +1,83 @@
+---
+import { tv } from "tailwind-variants";
+
+const input = tv({
+	base: "w-full rounded-lg border px-4 py-2.5 text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1",
+	variants: {
+		error: {
+			true: "border-red-500 bg-red-50 text-gray-900 focus:border-red-500 focus:ring-red-500 dark:bg-red-900/20 dark:text-white",
+			false:
+				"border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500",
+		},
+		disabled: {
+			true: "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-700",
+			false: "",
+		},
+	},
+	defaultVariants: {
+		error: false,
+		disabled: false,
+	},
+});
+
+interface Props {
+	type?: "text" | "email" | "search" | "password";
+	name: string;
+	id: string;
+	label?: string;
+	placeholder?: string;
+	error?: string;
+	disabled?: boolean;
+	required?: boolean;
+	value?: string;
+	class?: string;
+}
+
+const {
+	type = "text",
+	name,
+	id,
+	label,
+	placeholder,
+	error,
+	disabled = false,
+	required = false,
+	value,
+	class: className = "",
+} = Astro.props;
+
+const classes = input({ error: !!error, disabled, class: className });
+---
+
+<div class="flex flex-col gap-1.5">
+	{
+		label && (
+			<label
+				for={id}
+				class="text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				{label}
+				{required && <span class="text-red-500">*</span>}
+			</label>
+		)
+	}
+	<input
+		type={type}
+		name={name}
+		id={id}
+		placeholder={placeholder}
+		disabled={disabled}
+		required={required}
+		value={value}
+		aria-invalid={error ? "true" : undefined}
+		aria-describedby={error ? `${id}-error` : undefined}
+		class={classes}
+	/>
+	{
+		error && (
+			<p id={`${id}-error`} class="text-sm text-red-500" role="alert">
+				{error}
+			</p>
+		)
+	}
+</div>

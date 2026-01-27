@@ -1,5 +1,6 @@
 ---
 // ヒーローセクション - Three.js背景付き
+import Button from "../ui/Button.astro";
 import ThreeBackground from "./ThreeBackground.astro";
 ---
 
@@ -20,8 +21,8 @@ import ThreeBackground from "./ThreeBackground.astro";
     </p>
 
     <div class="hero-cta" data-animate="fade-up">
-      <a href="/works" class="btn btn-primary">View Works</a>
-      <a href="/links" class="btn btn-secondary">Links</a>
+      <Button href="/works" variant="primary" size="lg">View Works</Button>
+      <Button href="/links" variant="secondary" size="lg">Links</Button>
     </div>
   </div>
 </section>
@@ -82,56 +83,9 @@ import ThreeBackground from "./ThreeBackground.astro";
     flex-wrap: wrap;
   }
 
-  .btn {
-    padding: 1rem 2.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    text-decoration: none;
-    border-radius: 9999px;
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out, color 0.2s ease-out;
-  }
-
-  .btn-primary {
-    background: #1a1a1a;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #333;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  }
-
-  .btn-secondary {
-    background: transparent;
-    color: #1a1a1a;
-    border: 2px solid #1a1a1a;
-  }
-
-  .btn-secondary:hover {
-    background: #1a1a1a;
-    color: white;
-    transform: translateY(-2px);
-  }
-
   @media (max-width: 768px) {
     .hero-section {
       min-height: 100svh;
-    }
-
-    .btn {
-      padding: 0.875rem 2rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .btn {
-      transition: none;
-    }
-
-    .btn-primary:hover,
-    .btn-secondary:hover {
-      transform: none;
     }
   }
 </style>

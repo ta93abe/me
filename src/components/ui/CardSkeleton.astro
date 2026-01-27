@@ -1,0 +1,76 @@
+---
+import { tv } from "tailwind-variants";
+import Skeleton from "./Skeleton.astro";
+
+const cardSkeleton = tv({
+	base: "animate-pulse",
+	variants: {
+		variant: {
+			blog: "border-b border-gray-200 pb-8 dark:border-gray-700",
+			work: "overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700",
+			book: "overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700",
+		},
+	},
+	defaultVariants: {
+		variant: "blog",
+	},
+});
+
+interface Props {
+	variant?: "blog" | "work" | "book";
+	class?: string;
+}
+
+const { variant = "blog", class: className = "" } = Astro.props;
+
+const classes = cardSkeleton({ variant, class: className });
+---
+
+<div class={classes} aria-hidden="true">
+	{
+		variant === "blog" && (
+			<div class="space-y-3">
+				<Skeleton variant="text" size="sm" width="120px" />
+				<Skeleton variant="text" size="lg" width="80%" />
+				<Skeleton variant="text" size="md" width="100%" />
+				<Skeleton variant="text" size="md" width="60%" />
+				<div class="flex gap-2 pt-2">
+					<Skeleton variant="text" size="sm" width="60px" class="rounded-full" />
+					<Skeleton variant="text" size="sm" width="80px" class="rounded-full" />
+				</div>
+			</div>
+		)
+	}
+
+	{
+		variant === "work" && (
+			<>
+				<Skeleton variant="rectangle" size="md" class="aspect-video" />
+				<div class="space-y-3 p-4">
+					<Skeleton variant="text" size="lg" width="70%" />
+					<Skeleton variant="text" size="md" width="100%" />
+					<div class="flex gap-2 pt-1">
+						<Skeleton variant="text" size="sm" width="50px" class="rounded-full" />
+						<Skeleton variant="text" size="sm" width="70px" class="rounded-full" />
+						<Skeleton variant="text" size="sm" width="60px" class="rounded-full" />
+					</div>
+				</div>
+			</>
+		)
+	}
+
+	{
+		variant === "book" && (
+			<div class="flex gap-4 p-4">
+				<Skeleton variant="rectangle" size="sm" width="80px" height="120px" class="shrink-0" />
+				<div class="flex-1 space-y-3">
+					<Skeleton variant="text" size="lg" width="80%" />
+					<Skeleton variant="text" size="sm" width="40%" />
+					<Skeleton variant="text" size="md" width="100%" />
+					<Skeleton variant="text" size="md" width="70%" />
+				</div>
+			</div>
+		)
+	}
+</div>
+

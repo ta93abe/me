@@ -1,0 +1,62 @@
+---
+import { tv } from "tailwind-variants";
+
+const skeleton = tv({
+	base: "animate-pulse bg-gray-200 dark:bg-gray-700",
+	variants: {
+		variant: {
+			text: "h-4 rounded",
+			circle: "rounded-full",
+			rectangle: "rounded-lg",
+		},
+		size: {
+			sm: "",
+			md: "",
+			lg: "",
+		},
+	},
+	compoundVariants: [
+		{ variant: "text", size: "sm", class: "h-3 w-24" },
+		{ variant: "text", size: "md", class: "h-4 w-32" },
+		{ variant: "text", size: "lg", class: "h-5 w-48" },
+		{ variant: "circle", size: "sm", class: "h-8 w-8" },
+		{ variant: "circle", size: "md", class: "h-12 w-12" },
+		{ variant: "circle", size: "lg", class: "h-16 w-16" },
+		{ variant: "rectangle", size: "sm", class: "h-20 w-full" },
+		{ variant: "rectangle", size: "md", class: "h-32 w-full" },
+		{ variant: "rectangle", size: "lg", class: "h-48 w-full" },
+	],
+	defaultVariants: {
+		variant: "text",
+		size: "md",
+	},
+});
+
+interface Props {
+	variant?: "text" | "circle" | "rectangle";
+	size?: "sm" | "md" | "lg";
+	width?: string;
+	height?: string;
+	class?: string;
+}
+
+const {
+	variant = "text",
+	size = "md",
+	width,
+	height,
+	class: className = "",
+} = Astro.props;
+
+const classes = skeleton({ variant, size, class: className });
+
+const inlineStyles = [width && `width: ${width}`, height && `height: ${height}`]
+	.filter(Boolean)
+	.join("; ");
+---
+
+<div
+	class={classes}
+	style={inlineStyles || undefined}
+	aria-hidden="true"
+/>

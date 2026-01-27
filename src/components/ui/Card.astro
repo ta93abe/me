@@ -1,0 +1,57 @@
+---
+import { tv } from "tailwind-variants";
+
+const card = tv({
+	base: "rounded-xl p-6 transition-all duration-200",
+	variants: {
+		variant: {
+			default: "bg-white shadow-sm dark:bg-gray-800",
+			outline: "bg-transparent border border-gray-200 dark:border-gray-700",
+			elevated: "bg-white shadow-lg dark:bg-gray-800",
+		},
+		clickable: {
+			true: "hover:shadow-md hover:translate-y-[-2px] cursor-pointer",
+			false: "",
+		},
+	},
+	defaultVariants: {
+		variant: "default",
+		clickable: false,
+	},
+});
+
+interface Props {
+	variant?: "default" | "outline" | "elevated";
+	href?: string;
+	class?: string;
+}
+
+const { variant = "default", href, class: className = "" } = Astro.props;
+
+const classes = card({ variant, clickable: !!href, class: className });
+---
+
+{
+	href ? (
+		<a href={href} class={classes}>
+			<slot />
+		</a>
+	) : (
+		<div class={classes}>
+			<slot />
+		</div>
+	)
+}
+
+<style>
+	@media (prefers-reduced-motion: reduce) {
+		a,
+		div {
+			transition: none;
+		}
+
+		a:hover {
+			transform: none;
+		}
+	}
+</style>
