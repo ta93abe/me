@@ -26,7 +26,7 @@ const { variant = "blog", class: className = "" } = Astro.props;
 const classes = cardSkeleton({ variant, class: className });
 ---
 
-<div class={classes} aria-hidden="true" role="presentation">
+<div class={classes} aria-hidden="true">
 	{
 		variant === "blog" && (
 			<div class="space-y-3">
@@ -74,10 +74,3 @@ const classes = cardSkeleton({ variant, class: className });
 	}
 </div>
 
-<style>
-	@media (prefers-reduced-motion: reduce) {
-		div {
-			animation: none;
-		}
-	}
-</style>
