@@ -3,9 +3,8 @@
 import { NAV_LINKS } from "../config/navigation";
 import Logo from "./Logo.astro";
 import SearchModal from "./SearchModal.astro";
+import NavLink from "./ui/NavLink.astro";
 import ThemeToggle from "./ui/ThemeToggle.astro";
-
-const currentPath = Astro.url.pathname;
 ---
 
 <header
@@ -23,13 +22,9 @@ const currentPath = Astro.url.pathname;
         {
           NAV_LINKS.map((link) => (
             <li>
-              <a
-                href={link.href}
-                class="hover:opacity-70 dark:text-gray-200"
-                aria-current={(link.href === "/" ? currentPath === "/" : currentPath.startsWith(link.href)) ? "page" : undefined}
-              >
+              <NavLink href={link.href}>
                 {link.text}
-              </a>
+              </NavLink>
             </li>
           ))
         }
@@ -114,13 +109,12 @@ const currentPath = Astro.url.pathname;
       {
         NAV_LINKS.map((link) => (
           <li>
-            <a
+            <NavLink
               href={link.href}
-              class="block rounded-lg px-4 py-3 text-lg hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
-              aria-current={(link.href === "/" ? currentPath === "/" : currentPath.startsWith(link.href)) ? "page" : undefined}
+              class="block rounded-lg px-4 py-3 text-lg hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               {link.text}
-            </a>
+            </NavLink>
           </li>
         ))
       }
@@ -131,12 +125,6 @@ const currentPath = Astro.url.pathname;
 <!-- 検索モーダル -->
 <SearchModal />
 
-<style>
-  [aria-current="page"] {
-    font-weight: 600;
-    color: var(--primary-color);
-  }
-</style>
 
 <script>
   const menuButton = document.getElementById("mobile-menu-button");

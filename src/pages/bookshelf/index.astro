@@ -50,7 +50,7 @@ const sortOptions = [
           return (
           <a
             href={`/bookshelf/${book.id}`}
-            class="group block overflow-hidden rounded-lg border border-gray-200 transition-shadow hover:shadow-lg dark:border-gray-700"
+            class="group block overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)] dark:border-gray-700"
             data-item
             data-tags={bookTags.join(",")}
             data-date={book.data.finishedDate?.toISOString() ?? ""}

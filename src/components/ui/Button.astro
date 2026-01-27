@@ -1,0 +1,77 @@
+---
+import { tv } from "tailwind-variants";
+
+const button = tv({
+	base: "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
+	variants: {
+		variant: {
+			primary:
+				"bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100",
+			secondary:
+				"bg-transparent text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:text-white dark:text-white dark:border-white dark:hover:bg-white dark:hover:text-gray-900",
+			ghost:
+				"bg-transparent text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800",
+		},
+		size: {
+			sm: "px-4 py-2 text-sm",
+			md: "px-6 py-2.5 text-base",
+			lg: "px-8 py-3 text-lg",
+		},
+		disabled: {
+			true: "opacity-50 cursor-not-allowed",
+			false: "hover:translate-y-[-2px] hover:shadow-lg",
+		},
+	},
+	defaultVariants: {
+		variant: "primary",
+		size: "md",
+		disabled: false,
+	},
+});
+
+interface Props {
+	variant?: "primary" | "secondary" | "ghost";
+	size?: "sm" | "md" | "lg";
+	href?: string;
+	disabled?: boolean;
+	class?: string;
+	type?: "button" | "submit" | "reset";
+}
+
+const {
+	variant = "primary",
+	size = "md",
+	href,
+	disabled = false,
+	class: className = "",
+	type = "button",
+} = Astro.props;
+
+const classes = button({ variant, size, disabled, class: className });
+---
+
+{
+	href && !disabled ? (
+		<a href={href} class={classes}>
+			<slot />
+		</a>
+	) : (
+		<button type={type} disabled={disabled} class={classes}>
+			<slot />
+		</button>
+	)
+}
+
+<style>
+	@media (prefers-reduced-motion: reduce) {
+		a,
+		button {
+			transition: none;
+		}
+
+		a:hover,
+		button:hover {
+			transform: none;
+		}
+	}
+</style>

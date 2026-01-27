@@ -1,0 +1,54 @@
+---
+import { tv } from "tailwind-variants";
+
+const spinner = tv({
+	base: "animate-spin rounded-full border-2 border-current border-t-transparent",
+	variants: {
+		size: {
+			sm: "h-4 w-4",
+			md: "h-6 w-6",
+			lg: "h-8 w-8",
+			xl: "h-12 w-12",
+		},
+		color: {
+			primary: "text-[var(--primary-color)]",
+			current: "text-current",
+			gray: "text-gray-400 dark:text-gray-500",
+		},
+	},
+	defaultVariants: {
+		size: "md",
+		color: "primary",
+	},
+});
+
+interface Props {
+	size?: "sm" | "md" | "lg" | "xl";
+	color?: "primary" | "current" | "gray";
+	label?: string;
+	class?: string;
+}
+
+const {
+	size = "md",
+	color = "primary",
+	label = "読み込み中",
+	class: className = "",
+} = Astro.props;
+
+const classes = spinner({ size, color, class: className });
+---
+
+<div class="inline-flex items-center gap-2" role="status" aria-live="polite">
+	<div class={classes} aria-hidden="true" />
+	<span class="sr-only">{label}</span>
+</div>
+
+<style>
+	@media (prefers-reduced-motion: reduce) {
+		div[aria-hidden="true"] {
+			animation: none;
+			border-style: dotted;
+		}
+	}
+</style>

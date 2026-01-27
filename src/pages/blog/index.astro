@@ -62,7 +62,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="group block">
+            <a href={`/blog/${post.id}`} class="group block rounded-lg p-4 -m-4 transition-colors duration-200 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)] dark:hover:bg-gray-800/50">
               <time class="mb-2 block text-sm text-gray-600 dark:text-gray-400">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (

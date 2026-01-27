@@ -1,0 +1,44 @@
+---
+import { tv } from "tailwind-variants";
+
+const navLink = tv({
+	base: "transition-colors duration-200 hover:opacity-70 dark:text-gray-200",
+	variants: {
+		active: {
+			true: "font-semibold text-[var(--primary-color)]",
+			false: "",
+		},
+	},
+	defaultVariants: {
+		active: false,
+	},
+});
+
+interface Props {
+	href: string;
+	active?: boolean;
+	class?: string;
+}
+
+const { href, active, class: className = "" } = Astro.props;
+
+const currentPath = Astro.url.pathname;
+
+// 自動でアクティブ状態を検出（propsで明示的に指定されていない場合）
+const isActive =
+	active !== undefined
+		? active
+		: href === "/"
+			? currentPath === "/"
+			: currentPath.startsWith(href);
+
+const classes = navLink({ active: isActive, class: className });
+---
+
+<a
+	href={href}
+	class={classes}
+	aria-current={isActive ? "page" : undefined}
+>
+	<slot />
+</a>
