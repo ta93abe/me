@@ -11,7 +11,7 @@ const { items } = Astro.props;
 
 <nav aria-label="パンくずリスト" class="mb-6">
   <ol
-    class="flex flex-wrap items-center gap-2 text-sm text-gray-600"
+    class="flex flex-wrap items-center gap-2 text-sm text-neutral-600"
     itemscope
     itemtype="https://schema.org/BreadcrumbList"
   >
@@ -27,18 +27,18 @@ const { items } = Astro.props;
             <a
               href={item.href}
               itemprop="item"
-              class="hover:text-gray-900 hover:underline"
+              class="hover:text-neutral-900 hover:underline"
             >
               <span itemprop="name">{item.label}</span>
             </a>
           ) : (
-            <span itemprop="name" class="font-semibold text-gray-900">
+            <span itemprop="name" class="font-semibold text-neutral-900">
               {item.label}
             </span>
           )}
           <meta itemprop="position" content={String(index + 1)} />
           {index < items.length - 1 && (
-            <span aria-hidden="true" class="text-gray-400">
+            <span aria-hidden="true" class="text-neutral-400">
               /
             </span>
           )}

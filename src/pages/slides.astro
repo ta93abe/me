@@ -34,13 +34,13 @@ try {
 >
   <main class="mx-auto max-w-4xl px-6 py-12">
     <h1 class="mb-4 text-4xl font-bold">Slides</h1>
-    <p class="mb-12 text-gray-600">登壇やLTで使用したスライドの一覧です。</p>
+    <p class="mb-12 text-neutral-600">登壇やLTで使用したスライドの一覧です。</p>
 
     {
       error ? (
-        <p class="text-gray-600">{error}</p>
+        <p class="text-neutral-600">{error}</p>
       ) : slides.length === 0 ? (
-        <p class="text-gray-600">スライドがありません。</p>
+        <p class="text-neutral-600">スライドがありません。</p>
       ) : (
         <div class="space-y-6">
           {slides.map((slide) => (
@@ -48,9 +48,9 @@ try {
               href={`${SITE.slidesUrl}${slide.url}`}
               target="_blank"
               rel="noopener noreferrer"
-              class="group block rounded-lg border border-gray-200 p-6 transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"
+              class="group block rounded-lg border border-neutral-200 p-6 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-sm"
             >
-              <div class="mb-2 flex items-center gap-2 text-sm text-gray-500">
+              <div class="mb-2 flex items-center gap-2 text-sm text-neutral-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -65,12 +65,12 @@ try {
                 </svg>
                 <time>{formatDate(slide.date)}</time>
               </div>
-              <h2 class="mb-2 text-xl font-bold group-hover:text-gray-600">
+              <h2 class="mb-2 text-xl font-bold group-hover:text-neutral-600">
                 {slide.title}
-                <span class="ml-2 text-sm text-gray-400">→</span>
+                <span class="ml-2 text-sm text-neutral-400">→</span>
               </h2>
               {slide.description && (
-                <p class="text-gray-600">{slide.description}</p>
+                <p class="text-neutral-600">{slide.description}</p>
               )}
             </a>
           ))}

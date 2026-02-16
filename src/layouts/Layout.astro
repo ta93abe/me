@@ -14,7 +14,6 @@ interface Props {
 	ogType?: "website" | "article" | "book";
 	noHeader?: boolean;
 	noFooter?: boolean;
-	enableSmoothScroll?: boolean;
 }
 
 const {
@@ -26,7 +25,6 @@ const {
 	ogType = "website",
 	noHeader = false,
 	noFooter = false,
-	enableSmoothScroll = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -34,24 +32,13 @@ const ogImageURL = new URL(ogImage, Astro.site);
 ---
 
 <!doctype html>
-<html lang="ja" class:list={[{ lenis: enableSmoothScroll }]}>
+<html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="color-scheme" content="light dark" />
-
-		<!-- Prevent flash of wrong theme -->
-		<script is:inline>
-			(function() {
-				const theme = localStorage.getItem("theme");
-				const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-				if (theme === "dark" || (!theme && prefersDark)) {
-					document.documentElement.classList.add("dark");
-				}
-			})();
-		</script>
+		<meta name="color-scheme" content="light" />
 
 		<!-- Primary Meta Tags -->
 		<title>{title}</title>
@@ -85,7 +72,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		></script>
 		<slot name="head" />
 	</head>
-	<body class="bg-white text-gray-900 transition-colors dark:bg-gray-900 dark:text-gray-100">
+	<body class="bg-white text-neutral-900 transition-colors">
 		<!-- スキップリンク -->
 		<a href="#main-content" class="skip-link">
 			コンテンツにスキップ
@@ -95,6 +82,9 @@ const ogImageURL = new URL(ogImage, Astro.site);
 			<slot />
 		</div>
 		{!noFooter && <Footer />}
+		<script>
+			import "../scripts/animations/observer.ts";
+		</script>
 	</body>
 </html>
 
@@ -133,25 +123,4 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		}
 	}
 
-	/* Lenis smooth scroll styles */
-	html.lenis,
-	html.lenis body {
-		height: auto;
-	}
-
-	.lenis.lenis-smooth {
-		scroll-behavior: auto !important;
-	}
-
-	.lenis.lenis-smooth [data-lenis-prevent] {
-		overscroll-behavior: contain;
-	}
-
-	.lenis.lenis-stopped {
-		overflow: hidden;
-	}
-
-	.lenis.lenis-scrolling iframe {
-		pointer-events: none;
-	}
 </style>

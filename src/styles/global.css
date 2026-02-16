@@ -21,24 +21,6 @@
 	--code-text: #1e293b;
 }
 
-/* テーマカラー - ダークモード */
-:root.dark {
-	--primary-color: #818cf8;
-	--bg-primary: #0f172a;
-	--bg-secondary: #1e293b;
-	--bg-tertiary: #334155;
-	--text-primary: #f1f5f9;
-	--text-secondary: #cbd5e1;
-	--text-muted: #64748b;
-	--border-color: #334155;
-	--link-color: #60a5fa;
-	--link-hover-color: #93c5fd;
-	--blockquote-bg: #1e3a5f;
-	--blockquote-border: #3b82f6;
-	--code-bg: #1e293b;
-	--code-text: #e2e8f0;
-}
-
 /* フォーカス表示の強化 */
 :focus-visible {
 	outline: 2px solid var(--primary-color);
@@ -181,8 +163,28 @@
 	color: var(--link-hover-color);
 }
 
+/* Scroll-triggered fade-in animation */
+[data-animate] {
+	opacity: 0;
+	transform: translateY(20px);
+	transition:
+		opacity 0.6s ease,
+		transform 0.6s ease;
+}
+
+[data-animate].is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+	[data-animate] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+
 	*,
 	*::before,
 	*::after {
