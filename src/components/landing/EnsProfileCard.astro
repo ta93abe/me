@@ -1,0 +1,401 @@
+---
+// ENS Profile Card - 3Dインタラクティブカード（ホログラフィックシャイン効果付き）
+import type { EnsProfile } from "../../utils/ens";
+
+interface Props {
+	profile: EnsProfile;
+}
+
+const { profile } = Astro.props;
+
+function truncateAddress(address: string): string {
+	if (address.length <= 10) return address;
+	return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+---
+
+<div class="ens-card-wrapper">
+  <div class="ens-card" data-ens-card>
+    <div class="ens-card-shine" data-ens-shine></div>
+    <div class="ens-card-content">
+      <div class="ens-avatar">
+        {
+          profile.avatar ? (
+            <img
+              src={profile.avatar}
+              alt={`${profile.ensName} avatar`}
+              class="ens-avatar-img"
+              width="80"
+              height="80"
+              loading="lazy"
+            />
+          ) : (
+            <div class="ens-avatar-fallback" aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+          )
+        }
+      </div>
+
+      <h3 class="ens-name">{profile.ensName}</h3>
+
+      <p class="ens-address" title={profile.address}>
+        {truncateAddress(profile.address)}
+      </p>
+
+      {profile.description && (
+        <p class="ens-description">{profile.description}</p>
+      )}
+
+      {(profile.twitter || profile.github || profile.url) && (
+        <div class="ens-socials">
+          {profile.twitter && (
+            <a
+              href={`https://x.com/${profile.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ens-social-link"
+              aria-label={`${profile.ensName} on X (Twitter)`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+          )}
+
+          {profile.github && (
+            <a
+              href={`https://github.com/${profile.github}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ens-social-link"
+              aria-label={`${profile.ensName} on GitHub`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+              </svg>
+            </a>
+          )}
+
+          {profile.url && (
+            <a
+              href={profile.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ens-social-link"
+              aria-label={`${profile.ensName} website`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+              </svg>
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  .ens-card-wrapper {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .ens-card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+    border-radius: 1.25rem;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    will-change: transform;
+  }
+
+  .ens-card-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 219, 112, 0.2) 45%,
+      rgba(132, 50, 255, 0.1) 50%,
+      transparent 54%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    mix-blend-mode: screen;
+  }
+
+  .ens-card:hover .ens-card-shine {
+    opacity: 1;
+  }
+
+  .ens-card-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+  }
+
+  .ens-avatar {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .ens-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .ens-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ens-avatar-fallback svg {
+    width: 36px;
+    height: 36px;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .ens-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin: 0 0 0.375rem;
+    line-height: 1.2;
+  }
+
+  .ens-address {
+    font-size: 0.8125rem;
+    font-family: "SF Mono", Menlo, Monaco, "Courier New", monospace;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0 0 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .ens-description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 1.25rem;
+    max-width: 280px;
+  }
+
+  .ens-socials {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+  }
+
+  .ens-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .ens-social-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .ens-social-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .ens-card-wrapper {
+      max-width: 320px;
+    }
+
+    .ens-card-content {
+      padding: 2rem 1.5rem 1.75rem;
+    }
+
+    .ens-name {
+      font-size: 1.25rem;
+    }
+  }
+</style>
+
+<script>
+  function initEnsCard() {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
+    if (prefersReducedMotion.matches) return;
+
+    const card = document.querySelector<HTMLElement>("[data-ens-card]");
+    const shine = document.querySelector<HTMLElement>("[data-ens-shine]");
+    if (!card || !shine) return;
+
+    const MAX_ROTATION = 15;
+
+    function handleMouseMove(e: MouseEvent) {
+      const rect = card!.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const mouseX = e.clientX - centerX;
+      const mouseY = e.clientY - centerY;
+
+      const rotateY = (mouseX / (rect.width / 2)) * MAX_ROTATION;
+      const rotateX = -(mouseY / (rect.height / 2)) * MAX_ROTATION;
+
+      card!.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+      const shineX = ((e.clientX - rect.left) / rect.width) * 100;
+      const shineY = ((e.clientY - rect.top) / rect.height) * 100;
+      shine!.style.background = `radial-gradient(
+        circle at ${shineX}% ${shineY}%,
+        rgba(255, 219, 112, 0.25) 0%,
+        rgba(132, 50, 255, 0.12) 30%,
+        transparent 60%
+      )`;
+      shine!.style.opacity = "1";
+    }
+
+    function handleMouseLeave() {
+      card!.style.transition = "transform 0.5s ease-out";
+      card!.style.transform = "rotateX(0deg) rotateY(0deg)";
+      shine!.style.opacity = "0";
+
+      setTimeout(() => {
+        card!.style.transition = "transform 0.1s ease-out";
+      }, 500);
+    }
+
+    card.addEventListener("mousemove", handleMouseMove);
+    card.addEventListener("mouseleave", handleMouseLeave);
+
+    // Mobile: DeviceOrientation for gyro-based tilt
+    function handleOrientation(e: DeviceOrientationEvent) {
+      if (e.gamma === null || e.beta === null) return;
+
+      // gamma: left-right tilt (-90 to 90)
+      // beta: front-back tilt (-180 to 180)
+      const rotateY = (e.gamma / 90) * MAX_ROTATION;
+      const rotateX = Math.max(
+        -MAX_ROTATION,
+        Math.min(MAX_ROTATION, ((e.beta - 45) / 45) * MAX_ROTATION),
+      );
+
+      card!.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      shine!.style.opacity = "0.6";
+    }
+
+    // Only add gyro on touch devices
+    if ("ontouchstart" in window) {
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof (DeviceOrientationEvent as any).requestPermission === "function"
+      ) {
+        // iOS 13+ requires permission
+        card.addEventListener(
+          "click",
+          () => {
+            (DeviceOrientationEvent as any)
+              .requestPermission()
+              .then((response: string) => {
+                if (response === "granted") {
+                  window.addEventListener(
+                    "deviceorientation",
+                    handleOrientation,
+                  );
+                }
+              })
+              .catch(() => {
+                // Permission denied - ignore
+              });
+          },
+          { once: true },
+        );
+      } else if (typeof DeviceOrientationEvent !== "undefined") {
+        window.addEventListener("deviceorientation", handleOrientation);
+      }
+    }
+
+    // Listen for reduced motion changes
+    prefersReducedMotion.addEventListener("change", (e) => {
+      if (e.matches) {
+        card!.style.transform = "";
+        shine!.style.opacity = "0";
+        card.removeEventListener("mousemove", handleMouseMove);
+        card.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("deviceorientation", handleOrientation);
+      }
+    });
+  }
+
+  document.addEventListener("astro:page-load", initEnsCard);
+  initEnsCard();
+</script>
