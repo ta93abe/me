@@ -302,6 +302,8 @@ function truncateAddress(address: string): string {
     if (!shine) return;
 
     const MAX_ROTATION = 15;
+    const NEUTRAL_BETA = 45;
+    const BETA_SENSITIVITY_RANGE = 45;
 
     function handleMouseMove(e: MouseEvent) {
       const rect = card!.getBoundingClientRect();
@@ -347,7 +349,10 @@ function truncateAddress(address: string): string {
       const rotateY = (e.gamma / 90) * MAX_ROTATION;
       const rotateX = Math.max(
         -MAX_ROTATION,
-        Math.min(MAX_ROTATION, ((e.beta - 45) / 45) * MAX_ROTATION),
+        Math.min(
+          MAX_ROTATION,
+          ((e.beta - NEUTRAL_BETA) / BETA_SENSITIVITY_RANGE) * MAX_ROTATION,
+        ),
       );
 
       card!.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
