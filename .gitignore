@@ -29,6 +29,8 @@ pnpm-debug.log*
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.playwright-mcp/
+screenshots/
 
 # Claude Code
 .claude/settings.local.json
