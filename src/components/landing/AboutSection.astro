@@ -1,5 +1,10 @@
 ---
 // Aboutセクション - スクロールアニメーション付き
+import { SITE } from "../../config/site";
+import { getEnsProfile } from "../../utils/ens";
+import EnsProfileCard from "./EnsProfileCard.astro";
+
+const ensProfile = await getEnsProfile(SITE.ensName);
 ---
 
 <section id="about" class="about-section">
@@ -34,6 +39,12 @@
         </div>
       </div>
     </div>
+
+    {ensProfile && (
+      <div class="ens-section" data-animate="fade-up">
+        <EnsProfileCard profile={ensProfile} />
+      </div>
+    )}
   </div>
 </section>
 
@@ -113,6 +124,12 @@
     margin-top: 0.5rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  .ens-section {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
   }
 
   @media (max-width: 768px) {
