@@ -49,19 +49,21 @@ const uniqueTags = [...new Set(tags)].sort();
     )}
 
     <!-- ソート -->
-    <div class="flex items-center gap-2">
-      <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-600">
-        並び替え:
-      </label>
-      <select
-        id={`sort-${containerId}`}
-        class="sort-select rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1"
-      >
-        {sortOptions.map((option) => (
-          <option value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    </div>
+    {sortOptions.length > 0 && (
+      <div class="flex items-center gap-2">
+        <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-600">
+          並び替え:
+        </label>
+        <select
+          id={`sort-${containerId}`}
+          class="sort-select rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1"
+        >
+          {sortOptions.map((option) => (
+            <option value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+    )}
   </div>
 
   <!-- アクティブフィルター表示エリア -->

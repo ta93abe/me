@@ -7,19 +7,9 @@ import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
 
 const works = await getCollection("works");
-const sortedWorks = works.sort(
-	(a, b) => b.data.startDate.getTime() - a.data.startDate.getTime(),
-);
 
 // すべてのタグを収集
 const allTags = works.flatMap((work) => work.data.tags);
-
-// ソートオプション
-const sortOptions = [
-	{ value: "date-desc", label: "開始日（新しい順）" },
-	{ value: "date-asc", label: "開始日（古い順）" },
-	{ value: "title", label: "タイトル順" },
-];
 ---
 
 <Layout
@@ -30,17 +20,16 @@ const sortOptions = [
     <h1 class="mb-12 text-4xl font-bold">Works</h1>
 
     <!-- フィルタリング・ソート -->
-    <FilterSort tags={allTags} sortOptions={sortOptions} containerId="works-list" />
+    <FilterSort tags={allTags} sortOptions={[]} containerId="works-list" />
 
     <div id="works-list" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
       {
-        sortedWorks.map((work) => (
+        works.map((work) => (
           <a
             href={`/works/${work.id}`}
             class="group block overflow-hidden rounded-lg border border-neutral-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
             data-item
             data-tags={work.data.tags.join(",")}
-            data-date={work.data.startDate.toISOString()}
             data-title={work.data.title}
           >
             <div class="aspect-video overflow-hidden bg-neutral-100">
