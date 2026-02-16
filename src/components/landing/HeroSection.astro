@@ -1,26 +1,23 @@
 ---
-// ヒーローセクション - Three.js背景付き
+// ヒーローセクション
 import Button from "../ui/Button.astro";
-import ThreeBackground from "./ThreeBackground.astro";
 ---
 
 <section id="hero" class="hero-section">
-  <ThreeBackground />
-
   <div class="hero-content">
-    <div class="hero-greeting" data-animate="fade-up">
+    <div class="hero-greeting">
       <span>Welcome to my portfolio</span>
     </div>
 
-    <h1 class="hero-title" data-animate="fade-up">
+    <h1 class="hero-title">
       <span class="hero-name">ta93abe</span>
     </h1>
 
-    <p class="hero-description" data-animate="fade-up">
+    <p class="hero-description">
       Software Engineer & Creative Developer
     </p>
 
-    <div class="hero-cta" data-animate="fade-up">
+    <div class="hero-cta">
       <Button href="/works" variant="primary" size="lg">View Works</Button>
       <Button href="/links" variant="secondary" size="lg">Links</Button>
     </div>
@@ -35,7 +32,7 @@ import ThreeBackground from "./ThreeBackground.astro";
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: #fafafa;
+    background: var(--bg-primary);
   }
 
   .hero-content {
@@ -53,25 +50,25 @@ import ThreeBackground from "./ThreeBackground.astro";
     display: inline-block;
     font-size: 0.875rem;
     text-transform: uppercase;
-    color: #666;
+    color: var(--text-muted);
   }
 
   .hero-title {
-    font-size: clamp(4rem, 18vw, 12rem);
+    font-size: clamp(3rem, 10vw, 7rem);
     font-weight: 700;
     line-height: 1;
     margin: 0;
-    color: #1a1a1a;
+    color: var(--text-primary);
   }
 
   .hero-name {
     display: inline-block;
-    color: #1a1a1a;
+    color: var(--text-primary);
   }
 
   .hero-description {
     font-size: clamp(1.125rem, 2.5vw, 1.5rem);
-    color: #555;
+    color: var(--text-secondary);
     margin: 1.5rem 0 2.5rem;
     font-weight: 400;
   }

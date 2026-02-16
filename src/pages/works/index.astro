@@ -37,13 +37,13 @@ const sortOptions = [
         sortedWorks.map((work) => (
           <a
             href={`/works/${work.id}`}
-            class="group block overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)] dark:border-gray-700"
+            class="group block overflow-hidden rounded-lg border border-neutral-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
             data-item
             data-tags={work.data.tags.join(",")}
             data-date={work.data.startDate.toISOString()}
             data-title={work.data.title}
           >
-            <div class="aspect-video overflow-hidden bg-gray-100">
+            <div class="aspect-video overflow-hidden bg-neutral-100">
               <Image
                 src={work.data.coverImage}
                 alt={work.data.title}
@@ -52,7 +52,7 @@ const sortOptions = [
             </div>
             <div class="p-4">
               <h2 class="mb-2 text-xl font-bold">{work.data.title}</h2>
-              <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">{work.data.excerpt}</p>
+              <p class="mb-3 text-sm text-neutral-600">{work.data.excerpt}</p>
               <div class="flex flex-wrap gap-2">
                 {work.data.tags.map((tag) => (
                   <Tag>{tag}</Tag>

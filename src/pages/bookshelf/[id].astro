@@ -72,12 +72,12 @@ const siteUrl = Astro.site?.href || SITE.url;
     <div class="mb-8">
       <a
         href="/bookshelf"
-        class="mb-4 inline-block text-sm text-gray-600 hover:text-gray-900"
+        class="mb-4 inline-block text-sm text-neutral-600 hover:text-neutral-900"
       >
         ← Bookshelf一覧へ戻る
       </a>
       <h1 class="mb-2 text-4xl font-bold">{book.data.title}</h1>
-      <p class="mb-4 text-lg text-gray-700">{book.data.author}</p>
+      <p class="mb-4 text-lg text-neutral-700">{book.data.author}</p>
       <div class="mb-4 flex flex-wrap items-center gap-2">
         <Badge variant={book.data.status} />
         {
@@ -87,14 +87,14 @@ const siteUrl = Astro.site?.href || SITE.url;
         }
         {
           book.data.finishedDate && (
-            <span class="text-sm text-gray-600">
+            <span class="text-sm text-neutral-600">
               読了日: {formatDate(book.data.finishedDate)}
             </span>
           )
         }
         {
           book.data.rating && (
-            <span class="text-sm text-gray-600">
+            <span class="text-sm text-neutral-600">
               評価: {book.data.rating} / 5
             </span>
           )

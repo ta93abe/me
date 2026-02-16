@@ -16,18 +16,6 @@ const excerptSchema = z.string();
 // Content Collections
 // =============================================================================
 
-// Aboutコレクション
-const about = defineCollection({
-	loader: glob({ pattern: "**/*.md", base: "./src/content/about" }),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			summary: z.array(z.string()),
-			image: image().optional(),
-			heading: z.string().optional(),
-		}),
-});
-
 // Worksコレクション（ポートフォリオ作品）
 const works = defineCollection({
 	loader: glob({ pattern: "**/*.md", base: "./src/content/works" }),
@@ -119,7 +107,6 @@ const podcast = defineCollection({
 });
 
 export const collections = {
-	about,
 	works,
 	books,
 	blog,

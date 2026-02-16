@@ -56,14 +56,14 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       {
         sortedPosts.map((post) => (
           <article
-            class="border-b border-gray-200 pb-8 dark:border-gray-700"
+            class="border-b border-neutral-200 pb-8"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="group block rounded-lg p-4 -m-4 transition-colors duration-200 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)] dark:hover:bg-gray-800/50">
-              <time class="mb-2 block text-sm text-gray-600 dark:text-gray-400">
+            <a href={`/blog/${post.id}`} class="group block rounded-lg p-4 -m-4 transition-colors duration-200 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
+              <time class="mb-2 block text-sm text-neutral-600">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
                   <span class="ml-2 text-xs">
@@ -71,10 +71,10 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600 dark:group-hover:text-gray-300">
+              <h2 class="mb-3 text-2xl font-bold group-hover:text-neutral-600">
                 {post.data.title}
               </h2>
-              <p class="mb-3 text-gray-700 dark:text-gray-300">{post.data.excerpt}</p>
+              <p class="mb-3 text-neutral-700">{post.data.excerpt}</p>
               {post.data.tags && post.data.tags.length > 0 && (
                 <div class="flex flex-wrap gap-2">
                   {post.data.tags.map((tag) => (

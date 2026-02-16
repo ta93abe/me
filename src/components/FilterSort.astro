@@ -28,7 +28,7 @@ const uniqueTags = [...new Set(tags)].sort();
     <!-- フィルター -->
     {uniqueTags.length > 0 && (
       <div class="flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium text-gray-600 dark:text-gray-400">タグ:</span>
+        <span class="text-sm font-medium text-neutral-600">タグ:</span>
         <button
           type="button"
           class="filter-chip active"
@@ -50,12 +50,12 @@ const uniqueTags = [...new Set(tags)].sort();
 
     <!-- ソート -->
     <div class="flex items-center gap-2">
-      <label for={`sort-${containerId}`} class="text-sm font-medium text-gray-600 dark:text-gray-400">
+      <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-600">
         並び替え:
       </label>
       <select
         id={`sort-${containerId}`}
-        class="sort-select rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+        class="sort-select rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1"
       >
         {sortOptions.map((option) => (
           <option value={option.value}>{option.label}</option>
@@ -66,24 +66,24 @@ const uniqueTags = [...new Set(tags)].sort();
 
   <!-- アクティブフィルター表示エリア -->
   <div class="active-filter-area hidden items-center gap-2">
-    <span class="text-sm text-gray-500 dark:text-gray-400">選択中:</span>
-    <span class="active-filter-tag inline-flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-3 py-1 text-sm font-medium text-white dark:text-gray-900"></span>
+    <span class="text-sm text-neutral-500">選択中:</span>
+    <span class="active-filter-tag inline-flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-3 py-1 text-sm font-medium text-white"></span>
     <button
       type="button"
-      class="reset-filter-btn ml-2 text-sm text-gray-500 underline transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+      class="reset-filter-btn ml-2 text-sm text-neutral-500 underline transition-colors hover:text-neutral-700"
     >
       リセット
     </button>
   </div>
 
   <!-- 結果数表示 -->
-  <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+  <div class="flex items-center justify-between text-sm text-neutral-500">
     <span class="result-count"></span>
   </div>
 
   <!-- 空の検索結果状態 -->
   <div class="empty-state hidden py-12 text-center" role="status" aria-live="polite">
-    <div class="mb-4 text-gray-400 dark:text-gray-500">
+    <div class="mb-4 text-neutral-400">
       <svg
         class="mx-auto h-12 w-12"
         fill="none"
@@ -99,15 +99,15 @@ const uniqueTags = [...new Set(tags)].sort();
         ></path>
       </svg>
     </div>
-    <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+    <h3 class="mb-2 text-lg font-medium text-neutral-900">
       該当する項目がありません
     </h3>
-    <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+    <p class="mb-4 text-sm text-neutral-500">
       条件を変更して再度お試しください
     </p>
     <button
       type="button"
-      class="reset-all-btn rounded-full border border-[var(--primary-color)] px-4 py-2 text-sm font-medium text-[var(--primary-color)] transition-colors hover:bg-[var(--primary-color)] hover:text-white dark:hover:text-gray-900"
+      class="reset-all-btn rounded-full border border-[var(--primary-color)] px-4 py-2 text-sm font-medium text-[var(--primary-color)] transition-colors hover:bg-[var(--primary-color)] hover:text-white"
     >
       フィルターをリセット
     </button>
@@ -143,10 +143,6 @@ const uniqueTags = [...new Set(tags)].sort();
     border-color: var(--primary-color);
     background-color: var(--primary-color);
     color: white;
-  }
-
-  :root.dark .filter-chip.active {
-    color: #1f2937;
   }
 
   /* Smooth filter transition */

@@ -2,13 +2,11 @@
 // ヘッダーコンポーネント
 import { NAV_LINKS } from "../config/navigation";
 import Logo from "./Logo.astro";
-import SearchModal from "./SearchModal.astro";
 import NavLink from "./ui/NavLink.astro";
-import ThemeToggle from "./ui/ThemeToggle.astro";
 ---
 
 <header
-  class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
+  class="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-sm"
 >
   <nav
     class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"
@@ -29,40 +27,14 @@ import ThemeToggle from "./ui/ThemeToggle.astro";
           ))
         }
       </ul>
-      <!-- 検索ボタン -->
-      <button
-        type="button"
-        id="desktop-search-button"
-        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700"
-        aria-label="サイト内検索を開く"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-        <span class="hidden lg:inline">検索</span>
-        <kbd class="hidden rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-xs dark:border-gray-600 dark:bg-gray-900 lg:inline">⌘K</kbd>
-      </button>
-      <ThemeToggle />
     </div>
 
-    <!-- モバイル: 検索 + テーマ切り替え + ハンバーガー -->
+    <!-- モバイル: ハンバーガー -->
     <div class="flex items-center gap-2 md:hidden">
-      <!-- モバイル検索ボタン -->
-      <button
-        type="button"
-        id="mobile-search-button"
-        class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-        aria-label="サイト内検索を開く"
-      >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </button>
-      <ThemeToggle />
       <button
         type="button"
         id="mobile-menu-button"
-        class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+        class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-neutral-100"
         aria-label="メニューを開く"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -102,7 +74,7 @@ import ThemeToggle from "./ui/ThemeToggle.astro";
   <!-- モバイルメニュー -->
   <div
     id="mobile-menu"
-    class="hidden border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 md:hidden"
+    class="hidden border-t border-neutral-200 bg-white md:hidden"
     aria-hidden="true"
   >
     <ul class="space-y-1 px-6 py-4">
@@ -111,7 +83,7 @@ import ThemeToggle from "./ui/ThemeToggle.astro";
           <li>
             <NavLink
               href={link.href}
-              class="block rounded-lg px-4 py-3 text-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              class="block rounded-lg px-4 py-3 text-lg hover:bg-neutral-100"
             >
               {link.text}
             </NavLink>
@@ -121,10 +93,6 @@ import ThemeToggle from "./ui/ThemeToggle.astro";
     </ul>
   </div>
 </header>
-
-<!-- 検索モーダル -->
-<SearchModal />
-
 
 <script>
   const menuButton = document.getElementById("mobile-menu-button");
@@ -165,17 +133,4 @@ import ThemeToggle from "./ui/ThemeToggle.astro";
       }
     });
   }
-
-  // 検索ボタンのイベントハンドラ
-  const desktopSearchBtn = document.getElementById("desktop-search-button");
-  const mobileSearchBtn = document.getElementById("mobile-search-button");
-
-  function handleSearchClick() {
-    if (typeof (window as Window & { openGlobalSearch?: () => void }).openGlobalSearch === "function") {
-      (window as Window & { openGlobalSearch: () => void }).openGlobalSearch();
-    }
-  }
-
-  desktopSearchBtn?.addEventListener("click", handleSearchClick);
-  mobileSearchBtn?.addEventListener("click", handleSearchClick);
 </script>
