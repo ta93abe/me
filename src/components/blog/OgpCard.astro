@@ -1,0 +1,53 @@
+---
+import { fetchOgpData } from "../../utils/ogp";
+
+interface Props {
+	url: string;
+}
+
+const { url } = Astro.props;
+const ogp = await fetchOgpData(url);
+---
+
+<a
+  href={ogp.url}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="my-6 flex rounded-lg border border-neutral-200 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-sm no-underline overflow-hidden"
+>
+  <div class="flex-1 min-w-0 p-4">
+    <div class="font-semibold text-neutral-900 truncate text-sm">
+      {ogp.title}
+    </div>
+    {
+      ogp.description && (
+        <div class="mt-1 text-xs text-neutral-600 line-clamp-2">
+          {ogp.description}
+        </div>
+      )
+    }
+    <div class="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
+      <img
+        src={ogp.favicon}
+        alt=""
+        width="14"
+        height="14"
+        class="rounded-sm !my-0 !shadow-none"
+        loading="lazy"
+      />
+      <span>{ogp.domain}</span>
+    </div>
+  </div>
+  {
+    ogp.image && (
+      <div class="flex-shrink-0 w-[120px] sm:w-[200px]">
+        <img
+          src={ogp.image}
+          alt=""
+          class="w-full h-full object-cover !my-0 !rounded-none !shadow-none"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
+</a>

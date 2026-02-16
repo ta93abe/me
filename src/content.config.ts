@@ -18,14 +18,12 @@ const excerptSchema = z.string();
 
 // Worksコレクション（ポートフォリオ作品）
 const works = defineCollection({
-	loader: glob({ pattern: "**/*.md", base: "./src/content/works" }),
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/works" }),
 	schema: ({ image }) =>
 		z.object({
 			title: z.string(),
 			coverImage: image(),
 			tags: z.array(z.string()),
-			startDate: z.coerce.date(),
-			endDate: z.coerce.date().optional(),
 			excerpt: excerptSchema,
 		}),
 });

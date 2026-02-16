@@ -1,0 +1,37 @@
+---
+title: "dbt-jobs"
+coverImage: "../../../public/dbt-jobs.png"
+tags: ["GitHub Actions", "dbt", "CI/CD", "Snowflake"]
+excerpt: "dbt の CI/CD パイプラインを GitHub Actions で実行するための composite action。"
+---
+
+import OgpCard from "../../components/blog/OgpCard.astro";
+
+<OgpCard url="https://github.com/ta93abe/dbt-jobs" />
+
+GitHub Actions の composite action で、dbt プロジェクトの CI/CD パイプラインを構築します。現在は Snowflake アダプターに対応しており、アダプターの追加が容易な設計です。
+
+## 主な機能
+
+- **3つのジョブタイプ**: `ci`（PR チェック）、`merge`（マージ後ビルド）、`deploy`（本番デプロイ）を用途に応じて使い分け
+- **Slim CI 対応**: 本番マニフェストとの差分ビルド（`state:modified+`）でCI実行時間を短縮
+- **PR コメント**: ビルド結果を自動で PR にコメントとして投稿
+- **バージョン自動解決**: `pyproject.toml`、`requirements.txt` などから dbt-core バージョンを自動検出
+- **フラグ自動注入**: `--profiles-dir` や `--defer --state` などのフラグをコマンドに自動付与
+
+## 使い方
+
+```yaml
+- uses: ta93abe/dbt-jobs@v1
+  with:
+    type: ci
+    adapter: snowflake
+    command: |
+      dbt build --select state:modified+
+    deferral: main
+    post-pr-comment: true
+```
+
+## 技術的なポイント
+
+各ジョブタイプで異なるシェルオプションを採用しています。`ci` では `set +e` で全てのコマンドを実行してから結果を集約し、`merge`/`deploy` では `set -e` で即座に失敗を検知します。マニフェストのアーティファクト管理と組み合わせることで、堅牢な dbt CI/CD を少ない設定で実現します。
