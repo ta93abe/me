@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "1619c2e93989",
+  "strategy": "manual-commit",
+  "branch": "refactor/minimal-clean-redesign",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".claude/settings.json",
+    ".gitignore",
+    "src/components/FilterSort.astro",
+    "src/components/Header.astro",
+    "src/components/Logo.astro",
+    "src/components/SearchModal.astro",
+    "src/components/landing/AboutSection.astro",
+    "src/components/landing/EnsProfileCard.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/content.config.ts",
+    "src/layouts/Layout.astro",
+    "src/scripts/animations/observer.ts",
+    "src/styles/global.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/16/19c2e93989/0/metadata.json",
+      "transcript": "/16/19c2e93989/0/full.jsonl",
+      "context": "/16/19c2e93989/0/context.md",
+      "content_hash": "/16/19c2e93989/0/content_hash.txt",
+      "prompt": "/16/19c2e93989/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 183,
+    "cache_creation_tokens": 381499,
+    "cache_read_tokens": 16922195,
+    "output_tokens": 15033,
+    "api_call_count": 157
+  }
+}
