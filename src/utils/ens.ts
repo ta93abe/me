@@ -43,7 +43,8 @@ export async function getEnsProfile(
 			github,
 			url,
 		};
-	} catch {
+	} catch (error) {
+		console.error(`[ENS] Failed to fetch profile for ${ensName}:`, error);
 		return null;
 	}
 }
