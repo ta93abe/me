@@ -48,9 +48,7 @@ export const sortByDate = <T extends { data: Record<string, unknown> }>(
  * @param tag - Tag to filter by
  * @returns Filtered array
  */
-export const filterByTag = <
-	T extends { data: { tags?: string[] } },
->(
+export const filterByTag = <T extends { data: { tags?: string[] } }>(
 	items: T[],
 	tag: string,
 ): T[] => {

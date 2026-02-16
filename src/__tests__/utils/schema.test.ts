@@ -23,10 +23,7 @@ describe("generateBreadcrumbSchema", () => {
 	});
 
 	it("should set correct position for each item", () => {
-		const items = [
-			{ label: "Home", href: "/" },
-			{ label: "Blog" },
-		];
+		const items = [{ label: "Home", href: "/" }, { label: "Blog" }];
 
 		const schema = generateBreadcrumbSchema(items, siteUrl);
 
@@ -35,10 +32,7 @@ describe("generateBreadcrumbSchema", () => {
 	});
 
 	it("should include item URL only when href is provided", () => {
-		const items = [
-			{ label: "Home", href: "/" },
-			{ label: "Current Page" },
-		];
+		const items = [{ label: "Home", href: "/" }, { label: "Current Page" }];
 
 		const schema = generateBreadcrumbSchema(items, siteUrl);
 
@@ -83,7 +77,9 @@ describe("generateWebSiteSchema", () => {
 	});
 
 	it("should exclude search action when disabled", () => {
-		const schema = generateWebSiteSchema(siteUrl, { includeSearchAction: false });
+		const schema = generateWebSiteSchema(siteUrl, {
+			includeSearchAction: false,
+		});
 
 		expect(schema.potentialAction).toBeUndefined();
 	});

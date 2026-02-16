@@ -22,7 +22,8 @@ describe("getReadingTime", () => {
 	});
 
 	it("should remove code blocks from calculation", () => {
-		const content = "本文テキスト```javascript\nconst x = 1;\n```続きのテキスト";
+		const content =
+			"本文テキスト```javascript\nconst x = 1;\n```続きのテキスト";
 		const result = getReadingTime(content);
 		expect(result).toBe(1);
 	});
