@@ -289,14 +289,17 @@ function truncateAddress(address: string): string {
 
 <script>
   function initEnsCard() {
+    const card = document.querySelector<HTMLElement>("[data-ens-card]");
+    if (!card || card.dataset.ensCardInitialized) return;
+    card.dataset.ensCardInitialized = "true";
+
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     );
     if (prefersReducedMotion.matches) return;
 
-    const card = document.querySelector<HTMLElement>("[data-ens-card]");
     const shine = document.querySelector<HTMLElement>("[data-ens-shine]");
-    if (!card || !shine) return;
+    if (!shine) return;
 
     const MAX_ROTATION = 15;
 
@@ -341,8 +344,6 @@ function truncateAddress(address: string): string {
     function handleOrientation(e: DeviceOrientationEvent) {
       if (e.gamma === null || e.beta === null) return;
 
-      // gamma: left-right tilt (-90 to 90)
-      // beta: front-back tilt (-180 to 180)
       const rotateY = (e.gamma / 90) * MAX_ROTATION;
       const rotateX = Math.max(
         -MAX_ROTATION,
@@ -359,7 +360,6 @@ function truncateAddress(address: string): string {
         typeof DeviceOrientationEvent !== "undefined" &&
         typeof (DeviceOrientationEvent as any).requestPermission === "function"
       ) {
-        // iOS 13+ requires permission
         card.addEventListener(
           "click",
           () => {
@@ -373,9 +373,7 @@ function truncateAddress(address: string): string {
                   );
                 }
               })
-              .catch(() => {
-                // Permission denied - ignore
-              });
+              .catch(() => {});
           },
           { once: true },
         );
@@ -385,17 +383,36 @@ function truncateAddress(address: string): string {
     }
 
     // Listen for reduced motion changes
-    prefersReducedMotion.addEventListener("change", (e) => {
+    const handleReducedMotionChange = (e: MediaQueryListEvent) => {
       if (e.matches) {
         card!.style.transform = "";
         shine!.style.opacity = "0";
-        card.removeEventListener("mousemove", handleMouseMove);
-        card.removeEventListener("mouseleave", handleMouseLeave);
+        card!.removeEventListener("mousemove", handleMouseMove);
+        card!.removeEventListener("mouseleave", handleMouseLeave);
         window.removeEventListener("deviceorientation", handleOrientation);
+        prefersReducedMotion.removeEventListener(
+          "change",
+          handleReducedMotionChange,
+        );
       }
-    });
+    };
+    prefersReducedMotion.addEventListener("change", handleReducedMotionChange);
+
+    // Cleanup on Astro page swap to prevent memory leaks
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        card!.removeEventListener("mousemove", handleMouseMove);
+        card!.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("deviceorientation", handleOrientation);
+        prefersReducedMotion.removeEventListener(
+          "change",
+          handleReducedMotionChange,
+        );
+      },
+      { once: true },
+    );
   }
 
   document.addEventListener("astro:page-load", initEnsCard);
-  initEnsCard();
 </script>
