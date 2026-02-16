@@ -6,6 +6,7 @@ export const SITE = {
 	slidesUrl: "https://slides.ta93abe.com",
 	locale: "ja_JP",
 	lang: "ja",
+	ensName: "ta93abe.eth",
 } as const;
 
 export type SiteConfig = typeof SITE;
