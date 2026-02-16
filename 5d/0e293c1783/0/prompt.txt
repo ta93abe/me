@@ -1,0 +1,494 @@
+Implement the following plan:
+
+# Works に dbt-jobs を追加 & startDate 概念を削除
+
+## Context
+
+works セクションに `ta93abe/dbt-jobs`（GitHub Actions composite action for dbt CI/CD）を追加する。同時に works コレクションから「開始日/終了日」の概念を削除する。カバー画像は `public/dbt-jobs.png` に配置済み。
+
+---
+
+## Task 1: works スキーマから startDate/endDate を削除
+
+**ファイル:** `src/content.config.ts`
+
+- `startDate: z.coerce.date()` を削除
+- `endDate: z.coerce.date().optional()` を削除
+
+---
+
+## Task 2: works 一覧ページから日付関連を削除
+
+**ファイル:** `src/pages/works/index.astro`
+
+- `startDate` によるソートを削除（配列順のまま表示）
+- `data-date` 属性を削除
+- ソートオプションから日付関連（`date-desc`, `date-asc`）を削除
+
+---
+
+## Task 3: works 詳細ページから日付表示を削除
+
+**ファイル:** `src/pages/works/[id].astro`
+
+- `createdTime` / `modifiedTime` 変数を削除
+- `article:published_time` / `article:modified_time` meta タグを削除
+- `formatDate(work.data.startDate)` の表示を削除
+- 構造化データ `workSchema` から `dateCreated` / `dateModified` を削除
+
+---
+
+## Task 4: サンプルプロジェクトの frontmatter を更新
+
+**ファイル:** `src/content/works/sample-project.md`
+
+- `startDate` と `endDate` を削除
+
+---
+
+## Task 5: dbt-jobs の works エントリを作成
+
+**ファイル:** `src/content/works/dbt-jobs.md` (新規)
+
+frontmatter + README ベースのポートフォリオ向け説明文。
+
+---
+
+## Task 6: ビルド・検証
+
+```bash
+pnpm build
+pnpm assist
+```
+
+---
+
+## 変更ファイルまとめ
+
+| アクション | ファイル |
+|---|---|
+| **変更** | `src/content.config.ts` |
+| **変更** | `src/pages/works/index.astro` |
+| **変更** | `src/pages/works/[id].astro` |
+| **変更** | `src/content/works/sample-project.md` |
+| **新規** | `src/content/works/dbt-jobs.md` |
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/ta93abe/.claude/projects/-Users-ta93abe-Developer-github-com-ta93abe-me/e9167529-9a26-4ca3-9c4c-a93639c3f2e4.jsonl
+
+---
+
+Base directory for this skill: /Users/ta93abe/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.0/skills/executing-plans
+
+# Executing Plans
+
+## Overview
+
+Load plan, review critically, execute tasks in batches, report for review between batches.
+
+**Core principle:** Batch execution with checkpoints for architect review.
+
+**Announce at start:** "I'm using the executing-plans skill to implement this plan."
+
+## The Process
+
+### Step 1: Load and Review Plan
+1. Read plan file
+2. Review critically - identify any questions or concerns about the plan
+3. If concerns: Raise them with your human partner before starting
+4. If no concerns: Create TodoWrite and proceed
+
+### Step 2: Execute Batch
+**Default: First 3 tasks**
+
+For each task:
+1. Mark as in_progress
+2. Follow each step exactly (plan has bite-sized steps)
+3. Run verifications as specified
+4. Mark as completed
+
+### Step 3: Report
+When batch complete:
+- Show what was implemented
+- Show verification output
+- Say: "Ready for feedback."
+
+### Step 4: Continue
+Based on feedback:
+- Apply changes if needed
+- Execute next batch
+- Repeat until complete
+
+### Step 5: Complete Development
+
+After all tasks complete and verified:
+- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
+- **REQUIRED SUB-SKILL:** Use superpowers:finishing-a-development-branch
+- Follow that skill to verify tests, present options, execute choice
+
+## When to Stop and Ask for Help
+
+**STOP executing immediately when:**
+- Hit a blocker mid-batch (missing dependency, test fails, instruction unclear)
+- Plan has critical gaps preventing starting
+- You don't understand an instruction
+- Verification fails repeatedly
+
+**Ask for clarification rather than guessing.**
+
+## When to Revisit Earlier Steps
+
+**Return to Review (Step 1) when:**
+- Partner updates the plan based on your feedback
+- Fundamental approach needs rethinking
+
+**Don't force through blockers** - stop and ask.
+
+## Remember
+- Review plan critically first
+- Follow plan steps exactly
+- Don't skip verifications
+- Reference skills when plan says to
+- Between batches: just report and wait
+- Stop when blocked, don't guess
+- Never start implementation on main/master branch without explicit user consent
+
+## Integration
+
+**Required workflow skills:**
+- **superpowers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **superpowers:writing-plans** - Creates the plan this skill executes
+- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+
+---
+
+Base directory for this skill: /Users/ta93abe/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.0/skills/finishing-a-development-branch
+
+# Finishing a Development Branch
+
+## Overview
+
+Guide completion of development work by presenting clear options and handling chosen workflow.
+
+**Core principle:** Verify tests → Present options → Execute choice → Clean up.
+
+**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
+
+## The Process
+
+### Step 1: Verify Tests
+
+**Before presenting options, verify tests pass:**
+
+```bash
+# Run project's test suite
+npm test / cargo test / pytest / go test ./...
+```
+
+**If tests fail:**
+```
+Tests failing (<N> failures). Must fix before completing:
+
+[Show failures]
+
+Cannot proceed with merge/PR until tests pass.
+```
+
+Stop. Don't proceed to Step 2.
+
+**If tests pass:** Continue to Step 2.
+
+### Step 2: Determine Base Branch
+
+```bash
+# Try common base branches
+git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
+```
+
+Or ask: "This branch split from main - is that correct?"
+
+### Step 3: Present Options
+
+Present exactly these 4 options:
+
+```
+Implementation complete. What would you like to do?
+
+1. Merge back to <base-branch> locally
+2. Push and create a Pull Request
+3. Keep the branch as-is (I'll handle it later)
+4. Discard this work
+
+Which option?
+```
+
+**Don't add explanation** - keep options concise.
+
+### Step 4: Execute Choice
+
+#### Option 1: Merge Locally
+
+```bash
+# Switch to base branch
+git checkout <base-branch>
+
+# Pull latest
+git pull
+
+# Merge feature branch
+git merge <feature-branch>
+
+# Verify tests on merged result
+<test command>
+
+# If tests pass
+git branch -d <feature-branch>
+```
+
+Then: Cleanup worktree (Step 5)
+
+#### Option 2: Push and Create PR
+
+```bash
+# Push branch
+git push -u origin <feature-branch>
+
+# Create PR
+gh pr create --title "<title>" --body "$(cat <<'EOF'
+## Summary
+<2-3 bullets of what changed>
+
+## Test Plan
+- [ ] <verification steps>
+EOF
+)"
+```
+
+Then: Cleanup worktree (Step 5)
+
+#### Option 3: Keep As-Is
+
+Report: "Keeping branch <name>. Worktree preserved at <path>."
+
+**Don't cleanup worktree.**
+
+#### Option 4: Discard
+
+**Confirm first:**
+```
+This will permanently delete:
+- Branch <name>
+- All commits: <commit-list>
+- Worktree at <path>
+
+Type 'discard' to confirm.
+```
+
+Wait for exact confirmation.
+
+If confirmed:
+```bash
+git checkout <base-branch>
+git branch -D <feature-branch>
+```
+
+Then: Cleanup worktree (Step 5)
+
+### Step 5: Cleanup Worktree
+
+**For Options 1, 2, 4:**
+
+Check if in worktree:
+```bash
+git worktree list | grep $(git branch --show-current)
+```
+
+If yes:
+```bash
+git worktree remove <worktree-path>
+```
+
+**For Option 3:** Keep worktree.
+
+## Quick Reference
+
+| Option | Merge | Push | Keep Worktree | Cleanup Branch |
+|--------|-------|------|---------------|----------------|
+| 1. Merge locally | ✓ | - | - | ✓ |
+| 2. Create PR | - | ✓ | ✓ | - |
+| 3. Keep as-is | - | - | ✓ | - |
+| 4. Discard | - | - | - | ✓ (force) |
+
+## Common Mistakes
+
+**Skipping test verification**
+- **Problem:** Merge broken code, create failing PR
+- **Fix:** Always verify tests before offering options
+
+**Open-ended questions**
+- **Problem:** "What should I do next?" → ambiguous
+- **Fix:** Present exactly 4 structured options
+
+**Automatic worktree cleanup**
+- **Problem:** Remove worktree when might need it (Option 2, 3)
+- **Fix:** Only cleanup for Options 1 and 4
+
+**No confirmation for discard**
+- **Problem:** Accidentally delete work
+- **Fix:** Require typed "discard" confirmation
+
+## Red Flags
+
+**Never:**
+- Proceed with failing tests
+- Merge without verifying tests on result
+- Delete work without confirmation
+- Force-push without explicit request
+
+**Always:**
+- Verify tests before offering options
+- Present exactly 4 options
+- Get typed confirmation for Option 4
+- Clean up worktree for Options 1 & 4 only
+
+## Integration
+
+**Called by:**
+- **subagent-driven-development** (Step 7) - After all tasks complete
+- **executing-plans** (Step 5) - After all batches complete
+
+**Pairs with:**
+- **using-git-worktrees** - Cleans up worktree created by that skill
+
+---
+
+sample-project は削除して。
+
+---
+
+マークダウンをもう少しきれいにしたい。tailwind になかったっけ？
+
+---
+
+詳細ページに dbt-jobs が2回登場する。
+
+---
+
+main で作業しないで
+
+---
+
+[Request interrupted by user]
+
+---
+
+ページが無くなった。
+
+---
+
+並び替えのselect はいらない。
+
+---
+
+変わっていない。playwright mcpで確認して
+
+---
+
+<task-notification>
+<task-id>b056ea0</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b056ea0.output</output-file>
+<status>completed</status>
+<summary>Background command "dev サーバーをバックグラウンドで起動" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b056ea0.output
+
+---
+
+<task-notification>
+<task-id>b5338bd</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b5338bd.output</output-file>
+<status>completed</status>
+<summary>Background command "dev サーバーを再起動" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b5338bd.output
+
+---
+
+バックスラッシュが表示されているね。
+
+---
+
+<task-notification>
+<task-id>ba98a58</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/ba98a58.output</output-file>
+<status>completed</status>
+<summary>Background command "dev サーバー起動" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/ba98a58.output
+
+---
+
+playwright mcp でスクリーンショットを取るときはscreenshots フォルダを作ってそこに入れて。gitignroe もして。
+
+---
+
+<task-notification>
+<task-id>b9d8921</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b9d8921.output</output-file>
+<status>completed</status>
+<summary>Background command "dev サーバー起動" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b9d8921.output
+
+---
+
+pyproject.tomlとかrequirements.txt
+
+---
+
+<task-notification>
+<task-id>bf5bea3</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/bf5bea3.output</output-file>
+<status>completed</status>
+<summary>Background command "dev サーバー起動" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/bf5bea3.output
+
+---
+
+https://zenn.dev/ta93abe/articles/hosting-dbt-docs-on-cloudflare-pages
+playwright mcp でデザインを解析して、コンテンツのスタイルをZennの記事に合わせたい。
+
+---
+
+<task-notification>
+<task-id>b9d177c</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b9d177c.output</output-file>
+<status>completed</status>
+<summary>Background command "dev サーバー起動" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/b9d177c.output
+
+---
+
+コンテンツの中にリンクを張りたい。
+
+---
+
+[Request interrupted by user]
+
+---
+
+githubのレポジトリのね
+
+---
+
+さっきのZennの記事を見てリンクもいい感じに見せたい。
+
+---
+
+OGPも取ってきたい。
+
+---
+
+[Request interrupted by user for tool use]

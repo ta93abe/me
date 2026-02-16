@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "5d0e293c1783",
+  "session_id": "82cde45b-3bca-495b-bb57-17b06231c807",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-16T15:58:47.242767Z",
+  "checkpoints_count": 19,
+  "files_touched": [
+    ".claude/settings.json",
+    "astro.config.mjs",
+    "dbt-jobs-check.png",
+    "dbt-jobs-page.png",
+    "public/dbt-jobs.png",
+    "src/components/FilterSort.astro",
+    "src/content.config.ts",
+    "src/content/works/dbt-jobs.md",
+    "src/content/works/sample-project.md",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro",
+    "src/styles/global.css"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 186,
+    "cache_creation_tokens": 132088,
+    "cache_read_tokens": 13882242,
+    "output_tokens": 9736,
+    "api_call_count": 138
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-16T15:58:46.700961Z",
+    "agent_lines": 146,
+    "human_added": 379,
+    "human_modified": 69,
+    "human_removed": 0,
+    "total_committed": 594,
+    "agent_percentage": 24.579124579124578
+  },
+  "transcript_path": ".claude/projects/-Users-ta93abe-Developer-github-com-ta93abe-me/82cde45b-3bca-495b-bb57-17b06231c807.jsonl"
+}
