@@ -71,6 +71,14 @@ const ogImageURL = new URL(ogImage, Astro.site);
 			set:html={stringifySchema(generateWebSiteSchema(Astro.site?.href || SITE.url))}
 		></script>
 		<slot name="head" />
+		<noscript>
+			<style>
+				[data-animate] {
+					opacity: 1 !important;
+					transform: none !important;
+				}
+			</style>
+		</noscript>
 	</head>
 	<body class="bg-white text-neutral-900 transition-colors">
 		<!-- スキップリンク -->
