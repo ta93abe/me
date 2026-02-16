@@ -29,6 +29,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.17.2",
     "astro-pagefind": "^1.8.5",
+    "node-html-parser": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "rss-parser": "^3.13.0",
     "satori": "^0.19.2",

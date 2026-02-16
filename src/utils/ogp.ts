@@ -1,3 +1,6 @@
+import { parse } from "node-html-parser";
+import type { HTMLElement } from "node-html-parser";
+
 export interface OgpData {
 	title: string;
 	description: string;
@@ -7,26 +10,15 @@ export interface OgpData {
 	domain: string;
 }
 
-function extractMetaContent(html: string, property: string): string {
-	const regex = new RegExp(
-		`<meta[^>]+(?:property|name)=["']${property}["'][^>]+content=["']([^"']*)["']`,
-		"i",
+function extractMetaContent(root: HTMLElement, property: string): string {
+	const element = root.querySelector(
+		`meta[property="${property}"], meta[name="${property}"]`,
 	);
-	const match = html.match(regex);
-	if (match) return match[1];
-
-	// content が property より前にあるパターン
-	const regexReverse = new RegExp(
-		`<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${property}["']`,
-		"i",
-	);
-	const matchReverse = html.match(regexReverse);
-	return matchReverse?.[1] ?? "";
+	return element?.getAttribute("content") ?? "";
 }
 
-function extractTitle(html: string): string {
-	const match = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-	return match?.[1] ?? "";
+function extractTitle(root: HTMLElement): string {
+	return root.querySelector("title")?.textContent ?? "";
 }
 
 export async function fetchOgpData(url: string): Promise<OgpData> {
@@ -39,13 +31,20 @@ export async function fetchOgpData(url: string): Promise<OgpData> {
 				"User-Agent": "bot",
 			},
 		});
-		const html = await response.text();
 
-		const ogTitle = extractMetaContent(html, "og:title") || extractTitle(html);
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status} ${response.statusText}`);
+		}
+
+		const html = await response.text();
+		const root = parse(html);
+
+		const ogTitle =
+			extractMetaContent(root, "og:title") || extractTitle(root);
 		const ogDescription =
-			extractMetaContent(html, "og:description") ||
-			extractMetaContent(html, "description");
-		const ogImage = extractMetaContent(html, "og:image");
+			extractMetaContent(root, "og:description") ||
+			extractMetaContent(root, "description");
+		const ogImage = extractMetaContent(root, "og:image");
 
 		return {
 			title: ogTitle || domain,
@@ -55,7 +54,8 @@ export async function fetchOgpData(url: string): Promise<OgpData> {
 			url,
 			domain,
 		};
-	} catch {
+	} catch (error) {
+		console.error(`[OGP] Failed to fetch ${url}:`, error);
 		return {
 			title: domain,
 			description: "",
