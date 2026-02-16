@@ -1,0 +1,12 @@
+---
+import AboutSection from "../components/landing/AboutSection.astro";
+import { SITE } from "../config/site";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+	title={`About | ${SITE.name}`}
+	description="ソフトウェアエンジニア ta93abe について。"
+>
+	<AboutSection />
+</Layout>
