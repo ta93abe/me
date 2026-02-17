@@ -1,0 +1,29 @@
+---
+title: "ta93abe.me"
+coverImage: "../../../public/dbt-jobs.png"
+tags: ["Astro", "Tailwind CSS", "Cloudflare Workers", "TypeScript"]
+excerpt: "Astro + Tailwind CSS で構築した個人ポートフォリオサイト。Cloudflare Workers でエッジ配信。"
+---
+
+import OgpCard from "../../components/blog/OgpCard.astro";
+
+<OgpCard url="https://github.com/ta93abe/me" />
+
+個人のポートフォリオ・ブログサイトです。Works、Blog、読書記録、登壇情報などをまとめています。
+
+## 技術スタック
+
+- **Astro**: コンテンツファーストなスタティックサイトジェネレータ
+- **Tailwind CSS v4**: ユーティリティファースト CSS
+- **TypeScript**: 型安全なコンテンツ管理
+- **Cloudflare Workers**: エッジ配信
+- **Biome**: リンター・フォーマッター統合
+- **Graphite**: スタック型 PR ワークフロー
+
+## 特徴
+
+- **コンテンツコレクション**: Zod スキーマで型安全な Markdown / MDX 管理
+- **OGP リンクカード**: URL だけでリッチなリンクカードを表示
+- **RSS 統合**: Zenn / Note / Podcast の外部記事を自動取得
+- **自動 OG 画像生成**: ブログ記事ごとに動的に OG 画像を生成
+- **Claude Code Review**: PR 作成時に AI が自動レビュー

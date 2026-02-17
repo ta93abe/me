@@ -17,7 +17,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
-    "deploy": "pnpm build && wrangler deploy"
+    "deploy": "pnpm build && wrangler deploy",
+    "textlint": "textlint 'src/content/**/*.{md,mdx}'",
+    "textlint:fix": "textlint --fix 'src/content/**/*.{md,mdx}'"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
@@ -46,6 +48,9 @@
     "@vitest/ui": "^4.0.18",
     "happy-dom": "^20.6.1",
     "pagefind": "^1.4.0",
+    "textlint": "^15.5.1",
+    "textlint-rule-preset-ja-technical-writing": "^12.0.2",
+    "textlint-rule-preset-jtf-style": "^3.0.3",
     "vitest": "^4.0.18",
     "wrangler": "^4.65.0"
   }
