@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "e54ab1ccb043",
+  "session_id": "14f851c3-7b79-44ac-b57a-fa47adc2ffe2",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-23T16:56:54.446966Z",
+  "branch": "02-17-feat_add_blog_posts_portfolio_works_entry_and_textlint_entire-checkpoint_5d0e293c1783",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".serena/project.yml"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 190,
+    "cache_creation_tokens": 533997,
+    "cache_read_tokens": 9151036,
+    "output_tokens": 11627,
+    "api_call_count": 105
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-23T16:56:54.228502Z",
+    "agent_lines": 4,
+    "human_added": 4287,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 4291,
+    "agent_percentage": 0.0932183640177115
+  },
+  "transcript_path": ".claude/projects/-Users-ta93abe-Developer-github-com-ta93abe-me/14f851c3-7b79-44ac-b57a-fa47adc2ffe2.jsonl"
+}

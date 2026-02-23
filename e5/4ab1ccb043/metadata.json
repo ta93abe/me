@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "e54ab1ccb043",
+  "strategy": "manual-commit",
+  "branch": "02-17-feat_add_blog_posts_portfolio_works_entry_and_textlint_entire-checkpoint_5d0e293c1783",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".serena/project.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e5/4ab1ccb043/0/metadata.json",
+      "transcript": "/e5/4ab1ccb043/0/full.jsonl",
+      "context": "/e5/4ab1ccb043/0/context.md",
+      "content_hash": "/e5/4ab1ccb043/0/content_hash.txt",
+      "prompt": "/e5/4ab1ccb043/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 190,
+    "cache_creation_tokens": 533997,
+    "cache_read_tokens": 9151036,
+    "output_tokens": 11627,
+    "api_call_count": 105
+  }
+}
