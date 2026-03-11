@@ -1,0 +1,176 @@
+---
+title: "GitHub Actions の Composite Action を作る"
+date: 2026-02-17
+excerpt: "再利用可能な GitHub Actions を composite action で作る方法を、実際の CI/CD パイプライン構築を例に解説します。"
+tags: ["GitHub Actions", "CI/CD"]
+---
+
+import OgpCard from "../../components/blog/OgpCard.astro";
+
+GitHub Actions でワークフローを共通化したいとき、**composite action** が便利です。この記事では、composite action の作り方を実際のプロジェクト（dbt の CI/CD パイプライン）を例に解説します。
+
+## Composite Action とは
+
+Composite action は、複数のステップをひとつのアクションにまとめて再利用可能にする仕組みです。Docker コンテナや JavaScript を使わず、**シェルコマンドと既存のアクションの組み合わせ**だけで作れるのが特徴です。
+
+通常のワークフローと比べたメリット:
+
+- **再利用**: 複数のリポジトリから `uses:` で呼び出せる
+- **バージョン管理**: タグ（`@v1`）で安定版を提供できる
+- **カプセル化**: 入力（`inputs`）と出力（`outputs`）のインターフェースが明確
+
+## ディレクトリ構成
+
+composite action に必要なのは `action.yml` だけです。
+
+```
+my-action/
+├── action.yml          # アクション定義（必須）
+├── scripts/            # 補助スクリプト（任意）
+│   └── setup.sh
+└── README.md
+```
+
+## action.yml の基本構造
+
+```yaml
+name: "My Composite Action"
+description: "何をするアクションか"
+
+inputs:
+  type:
+    description: "ジョブタイプ（ci, merge, deploy）"
+    required: true
+  adapter:
+    description: "使用するアダプター"
+    required: true
+    default: "snowflake"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      shell: bash
+      run: pip install dbt-${{ inputs.adapter }}
+
+    - name: Run dbt
+      shell: bash
+      run: dbt build
+```
+
+ポイント:
+
+- `runs.using` は `"composite"` を指定
+- 各ステップに `shell` を明示する（省略不可）
+- `${{ inputs.xxx }}` で入力値を参照
+
+## inputs の設計
+
+inputs はアクションの API です。必要十分な粒度で設計します。
+
+```yaml
+inputs:
+  type:
+    description: "ジョブタイプ"
+    required: true
+  command:
+    description: "実行する dbt コマンド"
+    required: true
+  deferral:
+    description: "差分ビルドの基準ブランチ"
+    required: false
+    default: ""
+  post-pr-comment:
+    description: "PR にコメントを投稿するか"
+    required: false
+    default: "false"
+```
+
+**設計のコツ:**
+- `required: true` は本当に必須なものだけに
+- デフォルト値で「よくある使い方」をゼロ設定にする
+- boolean 系は文字列 `"true"` / `"false"` で受け取る
+
+## シェルオプションの使い分け
+
+composite action のステップでは、`shell` の設定が重要です。
+
+```yaml
+# CI: 全コマンドを実行してから結果を集約
+- name: Run CI
+  shell: bash
+  run: |
+    set +e
+    dbt build --select state:modified+
+    result=$?
+    dbt test
+    test_result=$?
+    exit $((result + test_result))
+
+# Deploy: 失敗したら即停止
+- name: Run Deploy
+  shell: bash
+  run: |
+    set -e
+    dbt run
+    dbt test
+```
+
+`set +e` で全ステップを実行して結果を集約するパターンは、CI でテスト結果を一覧で見たいときに有効です。
+
+## 呼び出し側のワークフロー
+
+作成したアクションは `uses:` で呼び出します。
+
+```yaml
+name: dbt CI
+on:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ta93abe/dbt-jobs@v1
+        with:
+          type: ci
+          adapter: snowflake
+          command: dbt build --select state:modified+
+          deferral: main
+          post-pr-comment: true
+```
+
+## バージョニング
+
+リリース時にタグを打つことで、利用者はバージョンを固定できます。
+
+```bash
+git tag -a v1.0.0 -m "v1.0.0"
+git push origin v1.0.0
+
+# メジャーバージョンタグも更新
+git tag -f v1
+git push -f origin v1
+```
+
+`@v1` のようなメジャーバージョンタグを提供すると、利用者はパッチ更新を自動的に受け取れます。
+
+## 実例
+
+この記事の内容を実際に適用したプロジェクトがこちらです。
+
+<OgpCard url="https://github.com/ta93abe/dbt-jobs" />
+
+## まとめ
+
+- Composite action は `action.yml` ひとつで作れる
+- `inputs` で明確な API を設計する
+- シェルオプション（`set -e` / `set +e`）を用途に応じて使い分ける
+- メジャーバージョンタグで安定した利用体験を提供する

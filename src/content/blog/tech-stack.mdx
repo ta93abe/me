@@ -1,0 +1,115 @@
+---
+title: "このサイトの技術スタック"
+date: 2026-02-17
+excerpt: "ポートフォリオサイトを Astro + Tailwind CSS + Cloudflare Workers で構築した技術選定と設計について。"
+tags: ["Astro", "Tailwind CSS", "Cloudflare Workers"]
+---
+
+import OgpCard from "../../components/blog/OgpCard.astro";
+
+このサイトの技術スタックと、なぜそれを選んだかを紹介します。
+
+## 全体構成
+
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | Astro |
+| スタイリング | Tailwind CSS v4 |
+| コード品質 | Biome |
+| ホスティング | Cloudflare Workers |
+| パッケージマネージャー | pnpm |
+| PR 管理 | Graphite |
+| Issue 管理 | Linear |
+
+## Astro を選んだ理由
+
+ポートフォリオサイトに必要なのは**コンテンツのデリバリー速度**です。SPA フレームワーク（Next.js, Nuxt）も検討しましたが、Astro を選びました。
+
+- **ゼロ JS がデフォルト**: クライアント JavaScript を一切送らないページを簡単に作れる
+- **コンテンツコレクション**: Markdown / MDX をスキーマ付きで管理できる
+- **Island Architecture**: インタラクティブが必要な箇所だけ React/Vue を読み込める
+
+実際にこのサイトでは、ほとんどのページが静的 HTML として配信されています。
+
+## Tailwind CSS v4
+
+Tailwind CSS v4 では設定ファイルが不要になり、CSS ファイルに直接 `@import "tailwindcss"` と書くだけで使えます。
+
+```css
+@import "tailwindcss";
+```
+
+`@tailwindcss/typography` プラグインで、Markdown からレンダリングされた記事本文のタイポグラフィを整えています。
+
+## Cloudflare Workers
+
+静的サイトのホスティング先として Cloudflare Workers（+ Workers Static Assets）を採用しました。
+
+- **エッジ配信**: 世界中のデータセンターからレスポンス
+- **無料枠が充実**: 個人サイトなら十分
+- **Wrangler**: CLI から `npx wrangler deploy` でデプロイ
+
+```jsonc
+// wrangler.jsonc
+{
+  "name": "me",
+  "assets": { "directory": "./dist" },
+  "compatibility_date": "2026-01-01"
+}
+```
+
+## Biome
+
+リンターとフォーマッターを Biome に統一しています。ESLint + Prettier の組み合わせと比べて：
+
+- **設定がシンプル**: 1ファイル（`biome.json`）で完結
+- **高速**: Rust 製で、大きなプロジェクトでも一瞬
+- **一貫性**: リンティングとフォーマッティングのルールが衝突しない
+
+## 開発ワークフロー
+
+PR は **Graphite** で管理しています。スタック型 PR ワークフローで、依存関係のある変更を段階的にレビュー・マージできます。
+
+```bash
+# ブランチ作成 + コミット
+gt create -m "feat: 新機能"
+
+# PR 提出
+gt submit --no-interactive
+```
+
+Issue 管理は **Linear** を使っています。GitHub Issues ではなく Linear を選んだのは、プロジェクト管理のビューが充実しているためです。
+
+## コンテンツ管理
+
+ブログ記事や Works は Astro のコンテンツコレクションで管理しています。
+
+```typescript
+const blog = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    excerpt: z.string(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+```
+
+MDX を使うことで、記事内に Astro コンポーネントを埋め込めます。例えば OGP リンクカードを URL だけで表示できます。
+
+## CI/CD
+
+GitHub Actions で自動化しています。
+
+- **Claude Code Review**: PR 作成時に AI がコードレビュー
+- **Playwright**: E2E テスト
+- **Cloudflare Workers**: main マージ時にデプロイ
+
+## ソースコード
+
+<OgpCard url="https://github.com/ta93abe/me" />
+
+## まとめ
+
+個人サイトだからこそ、好きな技術を試せます。Astro のコンテンツファーストなアプローチと Cloudflare のエッジ配信の組み合わせは、ポートフォリオサイトに最適でした。
