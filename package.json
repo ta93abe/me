@@ -20,33 +20,33 @@
     "deploy": "pnpm build && wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.13",
-    "@astrojs/rss": "^4.0.15",
-    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/mdx": "^5.0.0",
+    "@astrojs/rss": "^4.0.17",
+    "@astrojs/sitemap": "^3.7.1",
     "@fontsource/shippori-mincho": "^5.2.8",
     "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.17.2",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^6.0.2",
     "astro-pagefind": "^1.8.5",
-    "node-html-parser": "^7.0.2",
+    "node-html-parser": "^7.1.0",
     "remark-gfm": "^4.0.1",
     "rss-parser": "^3.13.0",
-    "satori": "^0.19.2",
+    "satori": "^0.25.0",
     "sharp": "^0.34.5",
-    "tailwind-merge": "^3.4.1",
+    "tailwind-merge": "^3.5.0",
     "tailwind-variants": "^3.2.2",
-    "tailwindcss": "^4.1.18",
-    "viem": "^2.46.1"
+    "tailwindcss": "^4.2.1",
+    "viem": "^2.47.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.0",
+    "@biomejs/biome": "2.4.6",
     "@playwright/test": "^1.58.2",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.4.0",
     "@vitest/ui": "^4.0.18",
-    "happy-dom": "^20.6.1",
+    "happy-dom": "^20.8.3",
     "pagefind": "^1.4.0",
     "vitest": "^4.0.18",
-    "wrangler": "^4.65.0"
+    "wrangler": "^4.72.0"
   }
 }
