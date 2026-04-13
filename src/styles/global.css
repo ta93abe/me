@@ -1,8 +1,8 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 @import "@fontsource/shippori-mincho/400.css";
 @import "@fontsource/shippori-mincho/500.css";
 @import "@fontsource/shippori-mincho/700.css";
+@plugin "@tailwindcss/typography";
 
 /* テーマカラー - ライトモード */
 :root {
