@@ -1,5 +1,5 @@
-import { parse } from "node-html-parser";
 import type { HTMLElement } from "node-html-parser";
+import { parse } from "node-html-parser";
 
 export interface OgpData {
 	title: string;
@@ -39,8 +39,7 @@ export async function fetchOgpData(url: string): Promise<OgpData> {
 		const html = await response.text();
 		const root = parse(html);
 
-		const ogTitle =
-			extractMetaContent(root, "og:title") || extractTitle(root);
+		const ogTitle = extractMetaContent(root, "og:title") || extractTitle(root);
 		const ogDescription =
 			extractMetaContent(root, "og:description") ||
 			extractMetaContent(root, "description");
