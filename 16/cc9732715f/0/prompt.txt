@@ -1,0 +1,35 @@
+slidesページってどう作られている？
+
+---
+
+https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/
+
+---
+
+1
+../slidesがそのレポジトリなんだけどできそう？これはCloudflare Workersでホスティングしている。
+
+---
+
+cron で一日一回実行したい。
+
+---
+
+https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/#rebuild-on-a-schedule
+
+---
+
+同居しちゃだめな理由は？
+
+---
+
+honoで書くのは？
+
+---
+
+環境変数は登録した。
+Slackからトリガーするかも
+
+---
+
+一旦シンプルなcron実行だけ実装して。
