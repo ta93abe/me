@@ -2,11 +2,15 @@ packages:
   - .
 
 allowBuilds:
+  '@parcel/watcher': true
   esbuild: true
+  msgpackr-extract: true
   sharp: true
   workerd: true
 
 onlyBuiltDependencies:
+  - '@parcel/watcher'
   - esbuild
+  - msgpackr-extract
   - sharp
   - workerd
