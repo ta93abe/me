@@ -111,12 +111,12 @@ const siteUrl = Astro.site?.href || SITE.url;
     <div class="mb-8">
       <a
         href="/blog"
-        class="mb-4 inline-block text-sm text-gray-600 hover:text-gray-900"
+        class="mb-4 inline-block text-sm text-neutral-400 hover:text-neutral-100"
       >
         ← Blog一覧へ戻る
       </a>
       <h1 class="mb-4 text-4xl font-bold">{post.data.title}</h1>
-      <div class="flex flex-wrap items-center gap-4 text-gray-600">
+      <div class="flex flex-wrap items-center gap-4 text-neutral-400">
         <time>
           {formatDate(post.data.date)}
           {
@@ -140,11 +140,11 @@ const siteUrl = Astro.site?.href || SITE.url;
       </div>
     </div>
 
-    <article class="prose prose-lg max-w-none">
+    <article class="prose prose-invert prose-lg max-w-none">
       <Content />
     </article>
 
-    <div class="mt-12 border-t border-gray-200 pt-8">
+    <div class="mt-12 border-t border-neutral-800 pt-8">
       <ShareButtons url={canonicalURL.href} title={post.data.title} />
     </div>
 

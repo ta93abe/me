@@ -75,7 +75,7 @@
   }
 
   .logo-path {
-    stroke: #1a1a1a;
+    stroke: #f5f5f5;
     fill: none;
     /* 900 = approximate total length of the main SVG path for stroke animation */
     stroke-dasharray: 900;
@@ -84,7 +84,7 @@
   }
 
   .logo-path-cross {
-    stroke: #1a1a1a;
+    stroke: #f5f5f5;
     fill: none;
     /* 15 = approximate length of the t-cross line (M 1 16 L 10 16 ≈ 9px) */
     stroke-dasharray: 15;
@@ -102,12 +102,6 @@
     to {
       stroke-dashoffset: 0;
     }
-  }
-
-  /* ダークモード対応 */
-  :global(.dark) .logo-path,
-  :global(.dark) .logo-path-cross {
-    stroke: #f5f5f5;
   }
 
   /* アクセシビリティ: モーション軽減設定 */
@@ -133,11 +127,6 @@
   /* ホバーエフェクト */
   .logo-link:hover .logo-path,
   .logo-link:hover .logo-path-cross {
-    stroke: #555;
-  }
-
-  :global(.dark) .logo-link:hover .logo-path,
-  :global(.dark) .logo-link:hover .logo-path-cross {
     stroke: #bbb;
   }
 </style>

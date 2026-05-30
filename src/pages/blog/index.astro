@@ -31,7 +31,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       <h1 class="text-4xl font-bold">Blog</h1>
       <a
         href="/rss.xml"
-        class="flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-100"
+        class="flex items-center gap-2 rounded-lg bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-400 transition-colors hover:bg-orange-500/20"
         aria-label="RSS Feed"
       >
         <svg
@@ -56,14 +56,14 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       {
         sortedPosts.map((post) => (
           <article
-            class="border-b border-gray-200 pb-8 dark:border-gray-700"
+            class="border-b border-neutral-800 pb-8"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
             <a href={`/blog/${post.id}`} class="group block">
-              <time class="mb-2 block text-sm text-gray-600 dark:text-gray-400">
+              <time class="mb-2 block text-sm text-neutral-400">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
                   <span class="ml-2 text-xs">
@@ -71,10 +71,10 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold group-hover:text-gray-600 dark:group-hover:text-gray-300">
+              <h2 class="mb-3 text-2xl font-bold transition-colors group-hover:text-indigo-400">
                 {post.data.title}
               </h2>
-              <p class="mb-3 text-gray-700 dark:text-gray-300">{post.data.excerpt}</p>
+              <p class="mb-3 text-neutral-300">{post.data.excerpt}</p>
               {post.data.tags && post.data.tags.length > 0 && (
                 <div class="flex flex-wrap gap-2">
                   {post.data.tags.map((tag) => (

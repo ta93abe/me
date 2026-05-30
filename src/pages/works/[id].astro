@@ -77,19 +77,19 @@ const siteUrl = Astro.site?.href || SITE.url;
     <div class="mb-8">
       <a
         href="/works"
-        class="mb-4 inline-block text-sm text-gray-600 hover:text-gray-900"
+        class="mb-4 inline-block text-sm text-neutral-400 hover:text-neutral-100"
       >
         ← Works一覧へ戻る
       </a>
       <h1 class="mb-4 text-4xl font-bold">{work.data.title}</h1>
-      <p class="mb-4 text-gray-600">
+      <p class="mb-4 text-neutral-400">
         {formatDate(work.data.startDate)}
         {work.data.endDate && ` - ${formatDate(work.data.endDate)}`}
       </p>
       <div class="mb-6 flex flex-wrap gap-2">
         {
           work.data.tags.map((tag) => (
-            <span class="rounded-full bg-gray-100 px-4 py-2 text-sm">
+            <span class="rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300">
               {tag}
             </span>
           ))
@@ -105,7 +105,7 @@ const siteUrl = Astro.site?.href || SITE.url;
       />
     </div>
 
-    <article class="prose prose-lg max-w-none">
+    <article class="prose prose-invert prose-lg max-w-none">
       <Content />
     </article>
   </main>

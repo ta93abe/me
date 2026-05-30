@@ -23,7 +23,7 @@ export class ParticleScene {
 			"(prefers-reduced-motion: reduce)",
 		).matches;
 
-		const { container, particleCount = 3000, color = 0x1a1a1a } = options;
+		const { container, particleCount = 3000, color = 0xa3a3a3 } = options;
 
 		// Reduce particles on mobile for better performance
 		// Mobile devices typically have less GPU power and smaller screens

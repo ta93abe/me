@@ -26,10 +26,10 @@ const uniqueTags = [...new Set(tags)].sort();
   <!-- フィルター -->
   {uniqueTags.length > 0 && (
     <div class="flex flex-wrap items-center gap-2">
-      <span class="text-sm font-medium text-gray-600 dark:text-gray-400">タグ:</span>
+      <span class="text-sm font-medium text-neutral-400">タグ:</span>
       <button
         type="button"
-        class="filter-tag active rounded-full border border-gray-300 px-3 py-1 text-sm transition-colors hover:border-blue-500 hover:text-blue-600 dark:border-gray-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
+        class="filter-tag active rounded-full border border-neutral-700 px-3 py-1 text-sm transition-colors hover:border-indigo-400 hover:text-indigo-400"
         data-tag="all"
       >
         すべて
@@ -37,7 +37,7 @@ const uniqueTags = [...new Set(tags)].sort();
       {uniqueTags.map((tag) => (
         <button
           type="button"
-          class="filter-tag rounded-full border border-gray-300 px-3 py-1 text-sm transition-colors hover:border-blue-500 hover:text-blue-600 dark:border-gray-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
+          class="filter-tag rounded-full border border-neutral-700 px-3 py-1 text-sm transition-colors hover:border-indigo-400 hover:text-indigo-400"
           data-tag={tag}
         >
           {tag}
@@ -48,12 +48,12 @@ const uniqueTags = [...new Set(tags)].sort();
 
   <!-- ソート -->
   <div class="flex items-center gap-2">
-    <label for={`sort-${containerId}`} class="text-sm font-medium text-gray-600 dark:text-gray-400">
+    <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-400">
       並び替え:
     </label>
     <select
       id={`sort-${containerId}`}
-      class="sort-select rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+      class="sort-select rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm text-neutral-100 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
     >
       {sortOptions.map((option) => (
         <option value={option.value}>{option.label}</option>
@@ -62,22 +62,16 @@ const uniqueTags = [...new Set(tags)].sort();
   </div>
 
   <!-- 結果数表示 -->
-  <div class="text-sm text-gray-500 dark:text-gray-400">
+  <div class="text-sm text-neutral-400">
     <span class="result-count"></span>
   </div>
 </div>
 
 <style is:global>
   .filter-tag.active {
-    border-color: #3b82f6;
-    background-color: #3b82f6;
-    color: white;
-  }
-
-  :root.dark .filter-tag.active {
-    border-color: #60a5fa;
-    background-color: #60a5fa;
-    color: #1f2937;
+    border-color: #818cf8;
+    background-color: #818cf8;
+    color: #0a0a0a;
   }
 
   /* Smooth filter transition */

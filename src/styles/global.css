@@ -3,40 +3,22 @@
 @import "@fontsource/shippori-mincho/500.css";
 @import "@fontsource/shippori-mincho/700.css";
 
-/* テーマカラー - ライトモード */
+/* テーマカラー - 黒基調 (neutral) */
 :root {
-	--primary-color: #4f46e5;
-	--bg-primary: #ffffff;
-	--bg-secondary: #f8fafc;
-	--bg-tertiary: #f1f5f9;
-	--text-primary: #1a1a1a;
-	--text-secondary: #4b5563;
-	--text-muted: #9ca3af;
-	--border-color: #e2e8f0;
-	--link-color: #2563eb;
-	--link-hover-color: #1d4ed8;
-	--blockquote-bg: #eff6ff;
-	--blockquote-border: #3b82f6;
-	--code-bg: #f1f5f9;
-	--code-text: #1e293b;
-}
-
-/* テーマカラー - ダークモード */
-:root.dark {
 	--primary-color: #818cf8;
-	--bg-primary: #0f172a;
-	--bg-secondary: #1e293b;
-	--bg-tertiary: #334155;
-	--text-primary: #f1f5f9;
-	--text-secondary: #cbd5e1;
-	--text-muted: #64748b;
-	--border-color: #334155;
-	--link-color: #60a5fa;
-	--link-hover-color: #93c5fd;
-	--blockquote-bg: #1e3a5f;
-	--blockquote-border: #3b82f6;
-	--code-bg: #1e293b;
-	--code-text: #e2e8f0;
+	--bg-primary: #0a0a0a;
+	--bg-secondary: #171717;
+	--bg-tertiary: #262626;
+	--text-primary: #f5f5f5;
+	--text-secondary: #a3a3a3;
+	--text-muted: #737373;
+	--border-color: #262626;
+	--link-color: #818cf8;
+	--link-hover-color: #a5b4fc;
+	--blockquote-bg: #171717;
+	--blockquote-border: #818cf8;
+	--code-bg: #171717;
+	--code-text: #e5e5e5;
 }
 
 /* フォーカス表示の強化 */

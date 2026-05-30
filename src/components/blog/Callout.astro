@@ -8,24 +8,24 @@ const { type = "info", title } = Astro.props;
 
 const styles = {
 	info: {
-		container: "border-blue-500 bg-blue-50",
-		icon: "text-blue-500",
-		title: "text-blue-800",
+		container: "border-blue-500 bg-blue-500/10",
+		icon: "text-blue-400",
+		title: "text-blue-300",
 	},
 	warning: {
-		container: "border-yellow-500 bg-yellow-50",
-		icon: "text-yellow-500",
-		title: "text-yellow-800",
+		container: "border-yellow-500 bg-yellow-500/10",
+		icon: "text-yellow-400",
+		title: "text-yellow-300",
 	},
 	danger: {
-		container: "border-red-500 bg-red-50",
-		icon: "text-red-500",
-		title: "text-red-800",
+		container: "border-red-500 bg-red-500/10",
+		icon: "text-red-400",
+		title: "text-red-300",
 	},
 	tip: {
-		container: "border-green-500 bg-green-50",
-		icon: "text-green-500",
-		title: "text-green-800",
+		container: "border-green-500 bg-green-500/10",
+		icon: "text-green-400",
+		title: "text-green-300",
 	},
 };
 
@@ -53,7 +53,7 @@ const displayTitle = title ?? defaultTitles[type];
     <span class={style.icon} set:html={icon} />
     <span class={`font-semibold ${style.title}`}>{displayTitle}</span>
   </div>
-  <div class="text-gray-700 [&>p]:m-0">
+  <div class="text-neutral-300 [&>p]:m-0">
     <slot />
   </div>
 </aside>
