@@ -10,7 +10,7 @@ import * as Effect from "effect/Effect";
 
 export default Alchemy.Stack(
 	"me",
-	{ providers: Cloudflare.providers(), state: Cloudflare.state() },
+	{ providers: Cloudflare.providers(), state: Alchemy.localState() },
 	Effect.gen(function* () {
 		const site = yield* Cloudflare.StaticSite("me", {
 			// astro build で dist/ を生成し、その中身を Worker の静的アセットとして配信

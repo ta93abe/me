@@ -82,8 +82,8 @@ importers:
         specifier: ^4.1.7
         version: 4.1.7(vitest@4.1.7)
       alchemy:
-        specifier: 2.0.0-beta.44
-        version: 2.0.0-beta.44(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(@types/node@25.9.1)(effect@4.0.0-beta.74)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(vitest@4.1.7)(workerd@1.20260526.1)(ws@8.21.0)
+        specifier: 2.0.0-beta.45
+        version: 2.0.0-beta.45(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(@types/node@25.9.1)(effect@4.0.0-beta.74)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(vitest@4.1.7)(workerd@1.20260526.1)(ws@8.21.0)
       effect:
         specifier: 4.0.0-beta.74
         version: 4.0.0-beta.74
@@ -377,28 +377,28 @@ packages:
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
 
-  '@distilled.cloud/aws@0.21.6':
-    resolution: {integrity: sha512-w4whmVxf1k55KyHb94CpUF7HY+bzUg2RQybitn2u3DnBkqLISHU1nopF5G94a0Nva9+BpC2B9gpKjS7Ejrm5fA==}
+  '@distilled.cloud/aws@0.22.1':
+    resolution: {integrity: sha512-X8eEbQSXTZMGqVdW+fUae28nqeRCnbjDcjFHb8/yF1Ts0VSKX6mIq7i9jRc2O/SVpt3YpsYnSSzeWmt6oNbRxg==}
     peerDependencies:
       effect: '>=4.0.0-beta.66 || >=4.0.0'
 
-  '@distilled.cloud/axiom@0.21.6':
-    resolution: {integrity: sha512-Gsi+3CKgYBlFVmOpMvxi2lnzQw9EdsXOwp81lvOfscKDAnFFyQlWmKbtYcglSYdj/h7gAfHMVsI54X/w4Jz3Hw==}
+  '@distilled.cloud/axiom@0.22.1':
+    resolution: {integrity: sha512-kHghu3w1iOhwEZvQQuQaqXcRju+fMaDbdpO4VpxAZw7yr7A/iuKieMfbGvD45i32Bt/3LFR56UYJCfoC7Xh7kA==}
     peerDependencies:
       effect: '>=4.0.0-beta.66 || >=4.0.0'
 
-  '@distilled.cloud/cloudflare-rolldown-plugin@0.6.3':
-    resolution: {integrity: sha512-0if16N00GZcCBY+CLl6KbxRHHOjneuX5ZRCrKdt1l6c4UgRs3wcStSoqsdNUmZRlEzgGHgBEJSvgMSLCCM61wA==}
+  '@distilled.cloud/cloudflare-rolldown-plugin@0.10.1':
+    resolution: {integrity: sha512-nEmEmUgbVkr9AH95/rq3cnWXbovBhXRAKW5/Ae1GwFndXBcdNy2Mx7w+AWUGuA3NSkDg6Q4W4EylPtJ3sduPqg==}
     peerDependencies:
       rolldown: ^1.0.1
     peerDependenciesMeta:
       rolldown:
         optional: true
 
-  '@distilled.cloud/cloudflare-runtime@0.6.3':
-    resolution: {integrity: sha512-3vBGqhIpO9qp9tktv3eJ48gAD+IVPeXryFSUnyIeggBcKJDMsJxPkZqkqX+qV7oe0TD2DBKyOtNiIBKtCL8z+g==}
+  '@distilled.cloud/cloudflare-runtime@0.10.1':
+    resolution: {integrity: sha512-KxVqZo8Kld4krux9yf4doSIwBlNdgCLY2ivIKBXv7vo3pY3pH3fcmCXE/+rGjD2iGqPU7eyEp4DdmKcAJAqhNw==}
     peerDependencies:
-      '@distilled.cloud/cloudflare': ^0.21.5
+      '@distilled.cloud/cloudflare': ^0.22.0
       '@effect/platform-bun': '>=4.0.0-beta.66 || >=4.0.0'
       '@effect/platform-node': '>=4.0.0-beta.66 || >=4.0.0'
       effect: '>=4.0.0-beta.66 || >=4.0.0'
@@ -408,11 +408,11 @@ packages:
       '@effect/platform-node':
         optional: true
 
-  '@distilled.cloud/cloudflare-vite-plugin@0.6.3':
-    resolution: {integrity: sha512-m41tU2uK9rSPrtoXGXXCnAJQaahEk8ZnhALsaD28p4+pSHkYxJhnwsdQD79hZ+4YsetxOAA6DXM4TjoJogFznQ==}
+  '@distilled.cloud/cloudflare-vite-plugin@0.10.1':
+    resolution: {integrity: sha512-g0F/BoxUy8fg4U/IkeHyauXSQ8YU9N6aBOhybn0WvtLBeOUrqHT7R3+jMQsdt2PGKhkHPT3TlxN9FPaAUn0YSg==}
     peerDependencies:
-      '@distilled.cloud/cloudflare': ^0.21.5
-      '@distilled.cloud/cloudflare-runtime': 0.6.3
+      '@distilled.cloud/cloudflare': ^0.22.0
+      '@distilled.cloud/cloudflare-runtime': 0.10.1
       '@effect/platform-bun': '>=4.0.0-beta.66 || >=4.0.0'
       '@effect/platform-node': '>=4.0.0-beta.66 || >=4.0.0'
       effect: '>=4.0.0-beta.66 || >=4.0.0'
@@ -423,23 +423,23 @@ packages:
       '@effect/platform-node':
         optional: true
 
-  '@distilled.cloud/cloudflare@0.21.6':
-    resolution: {integrity: sha512-zWlZn1V50NtW91oJsv7cgu/VtDlCdSLDKI880kHaVP019rZBGYQ/imiwwXlrYq5p7imJzRcwtvEx6PH3mjcjEA==}
+  '@distilled.cloud/cloudflare@0.22.1':
+    resolution: {integrity: sha512-XQ0WfswXAhJrTSWcHpHPNNZBFRd67WlcsV2AddGPeWFEZCXutNDaYM7qZepAZpbLeeEBEdzHnxwrOeA/AEJjBQ==}
     peerDependencies:
       effect: '>=4.0.0-beta.66 || >=4.0.0'
 
-  '@distilled.cloud/core@0.21.6':
-    resolution: {integrity: sha512-pbC+2qpEBiSqb1xgwb0A981oWkfBILr2YI0DuDhjsSWtzQn5zTFCtaV6lad7ZQdZq1HoSPIe78Ci5MKANzxIOg==}
+  '@distilled.cloud/core@0.22.1':
+    resolution: {integrity: sha512-h8FSkB+Cyb+KpD2Rn84Vk26fNr3QzMrsmt54KC0LzGjAhEI+HdHSTAKURKOin+15QCBk+7NDbY4byffxH7SFvQ==}
     peerDependencies:
       effect: '>=4.0.0-beta.66 || >=4.0.0'
 
-  '@distilled.cloud/neon@0.21.6':
-    resolution: {integrity: sha512-b5W0OKn59PIF08Rtt7pTBoJ1W/g6IwDYT3v+GxuqD+jsNjqJGpGagevv3hqPmWn9q8w1b8/vx9y4SZDb/GHrsQ==}
+  '@distilled.cloud/neon@0.22.1':
+    resolution: {integrity: sha512-mHLZzqoN7mUB03YwkfCYuV0oqaHV3TNNT64OnJF9OzJIL7B+jLpz697kKqOeIDepVtjm2sAtg2sSs3M/qEL/Sw==}
     peerDependencies:
       effect: '>=4.0.0-beta.66 || >=4.0.0'
 
-  '@distilled.cloud/planetscale@0.21.6':
-    resolution: {integrity: sha512-RFVdJoQGHQduthfJfPnNwdXwqzGc2AFjejl6fGImTobE6InYmF6tjNZ8gMGPOKL0WZIZdCY+X+lwOTlgU5/l+g==}
+  '@distilled.cloud/planetscale@0.22.1':
+    resolution: {integrity: sha512-2n4gpx9k75p9SNnBLvp+8NHCWCqDRcIDC7IXE9BeVkpjST3nHOiNkH8Z0I4llt4O3LTHxLNf+dET+A5RT8dGcA==}
     peerDependencies:
       effect: '>=4.0.0-beta.66 || >=4.0.0'
 
@@ -1829,16 +1829,16 @@ packages:
     resolution: {integrity: sha512-d0tFFG538l3Y4CElRKtticzrMr/OGohs32/nf3Ewn8rbTMBYwkVNe8mPdXWrDnMlz+ZVUFQjsTmsBD5zCtU4wg==}
     engines: {node: '>=14'}
 
-  alchemy@2.0.0-beta.44:
-    resolution: {integrity: sha512-KIp3fs4HbyIWetzzwpKLkRyALbPP5JFyfmy0Zq30uWfqpevNZk6gp9fDk1xE0zrrDwyyGN3EbsrQRUzOO023xw==}
+  alchemy@2.0.0-beta.45:
+    resolution: {integrity: sha512-6TS7lZfZo9WGrUgRqxQD2sfEr2XxcA7Et0KUlShoXbMQiUbG+T/X7puVsDYHVPNGv8NaBgdn8Qsd/nSMxI54lA==}
     hasBin: true
     peerDependencies:
-      '@effect/platform-bun': '>=4.0.0-beta.66 || >=4.0.0'
-      '@effect/platform-node': '>=4.0.0-beta.66 || >=4.0.0'
-      '@effect/sql-pg': '>=4.0.0-beta.66 || >=4.0.0'
+      '@effect/platform-bun': '>=4.0.0-beta.74 || >=4.0.0'
+      '@effect/platform-node': '>=4.0.0-beta.74 || >=4.0.0'
+      '@effect/sql-pg': '>=4.0.0-beta.74 || >=4.0.0'
       drizzle-kit: '>=1.0.0-rc.1'
       drizzle-orm: '>=1.0.0-rc.1'
-      effect: '>=4.0.0-beta.66 || >=4.0.0'
+      effect: '>=4.0.0-beta.74 || >=4.0.0'
       vite: ^8.0.7
       ws: ^8.20.0
     peerDependenciesMeta:
@@ -4195,13 +4195,13 @@ snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 
-  '@distilled.cloud/aws@0.21.6(effect@4.0.0-beta.74)':
+  '@distilled.cloud/aws@0.22.1(effect@4.0.0-beta.74)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@aws-crypto/util': 5.2.0
       '@aws-sdk/credential-providers': 3.1056.0
       '@aws-sdk/types': 3.973.9
-      '@distilled.cloud/core': 0.21.6(effect@4.0.0-beta.74)
+      '@distilled.cloud/core': 0.22.1(effect@4.0.0-beta.74)
       '@smithy/shared-ini-file-loader': 4.5.5
       '@smithy/types': 4.14.2
       '@smithy/util-base64': 4.4.5
@@ -4209,12 +4209,12 @@ snapshots:
       effect: 4.0.0-beta.74
       fast-xml-parser: 5.8.0
 
-  '@distilled.cloud/axiom@0.21.6(effect@4.0.0-beta.74)':
+  '@distilled.cloud/axiom@0.22.1(effect@4.0.0-beta.74)':
     dependencies:
-      '@distilled.cloud/core': 0.21.6(effect@4.0.0-beta.74)
+      '@distilled.cloud/core': 0.22.1(effect@4.0.0-beta.74)
       effect: 4.0.0-beta.74
 
-  '@distilled.cloud/cloudflare-rolldown-plugin@0.6.3(rolldown@1.0.1)(workerd@1.20260526.1)':
+  '@distilled.cloud/cloudflare-rolldown-plugin@0.10.1(rolldown@1.0.1)(workerd@1.20260526.1)':
     dependencies:
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260526.1)
       magic-string: 0.30.21
@@ -4224,9 +4224,10 @@ snapshots:
     transitivePeerDependencies:
       - workerd
 
-  '@distilled.cloud/cloudflare-runtime@0.6.3(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)':
+  '@distilled.cloud/cloudflare-runtime@0.10.1(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)':
     dependencies:
-      '@distilled.cloud/cloudflare': 0.21.6(effect@4.0.0-beta.74)
+      '@alchemy.run/node-utils': 0.0.4
+      '@distilled.cloud/cloudflare': 0.22.1(effect@4.0.0-beta.74)
       capnweb: 0.7.0
       chokidar: 4.0.3
       effect: 4.0.0-beta.74
@@ -4236,11 +4237,11 @@ snapshots:
       '@effect/platform-bun': 4.0.0-beta.74(effect@4.0.0-beta.74)
       '@effect/platform-node': 4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0)
 
-  '@distilled.cloud/cloudflare-vite-plugin@0.6.3(@distilled.cloud/cloudflare-runtime@0.6.3(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74))(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)(rolldown@1.0.1)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260526.1)':
+  '@distilled.cloud/cloudflare-vite-plugin@0.10.1(@distilled.cloud/cloudflare-runtime@0.10.1(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74))(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)(rolldown@1.0.1)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260526.1)':
     dependencies:
-      '@distilled.cloud/cloudflare': 0.21.6(effect@4.0.0-beta.74)
-      '@distilled.cloud/cloudflare-rolldown-plugin': 0.6.3(rolldown@1.0.1)(workerd@1.20260526.1)
-      '@distilled.cloud/cloudflare-runtime': 0.6.3(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)
+      '@distilled.cloud/cloudflare': 0.22.1(effect@4.0.0-beta.74)
+      '@distilled.cloud/cloudflare-rolldown-plugin': 0.10.1(rolldown@1.0.1)(workerd@1.20260526.1)
+      '@distilled.cloud/cloudflare-runtime': 0.10.1(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)
       effect: 4.0.0-beta.74
       vite: 7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
     optionalDependencies:
@@ -4250,23 +4251,23 @@ snapshots:
       - rolldown
       - workerd
 
-  '@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74)':
+  '@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74)':
     dependencies:
-      '@distilled.cloud/core': 0.21.6(effect@4.0.0-beta.74)
+      '@distilled.cloud/core': 0.22.1(effect@4.0.0-beta.74)
       effect: 4.0.0-beta.74
 
-  '@distilled.cloud/core@0.21.6(effect@4.0.0-beta.74)':
+  '@distilled.cloud/core@0.22.1(effect@4.0.0-beta.74)':
     dependencies:
       effect: 4.0.0-beta.74
 
-  '@distilled.cloud/neon@0.21.6(effect@4.0.0-beta.74)':
+  '@distilled.cloud/neon@0.22.1(effect@4.0.0-beta.74)':
     dependencies:
-      '@distilled.cloud/core': 0.21.6(effect@4.0.0-beta.74)
+      '@distilled.cloud/core': 0.22.1(effect@4.0.0-beta.74)
       effect: 4.0.0-beta.74
 
-  '@distilled.cloud/planetscale@0.21.6(effect@4.0.0-beta.74)':
+  '@distilled.cloud/planetscale@0.22.1(effect@4.0.0-beta.74)':
     dependencies:
-      '@distilled.cloud/core': 0.21.6(effect@4.0.0-beta.74)
+      '@distilled.cloud/core': 0.22.1(effect@4.0.0-beta.74)
       effect: 4.0.0-beta.74
 
   '@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74)':
@@ -5346,20 +5347,20 @@ snapshots:
 
   adequate-little-templates@1.0.2: {}
 
-  alchemy@2.0.0-beta.44(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(@types/node@25.9.1)(effect@4.0.0-beta.74)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(vitest@4.1.7)(workerd@1.20260526.1)(ws@8.21.0):
+  alchemy@2.0.0-beta.45(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(@types/node@25.9.1)(effect@4.0.0-beta.74)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(vitest@4.1.7)(workerd@1.20260526.1)(ws@8.21.0):
     dependencies:
       '@alchemy.run/node-utils': 0.0.4
       '@aws-sdk/credential-providers': 3.1056.0
       '@clack/prompts': 0.11.0
-      '@distilled.cloud/aws': 0.21.6(effect@4.0.0-beta.74)
-      '@distilled.cloud/axiom': 0.21.6(effect@4.0.0-beta.74)
-      '@distilled.cloud/cloudflare': 0.21.6(effect@4.0.0-beta.74)
-      '@distilled.cloud/cloudflare-rolldown-plugin': 0.6.3(rolldown@1.0.1)(workerd@1.20260526.1)
-      '@distilled.cloud/cloudflare-runtime': 0.6.3(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)
-      '@distilled.cloud/cloudflare-vite-plugin': 0.6.3(@distilled.cloud/cloudflare-runtime@0.6.3(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74))(@distilled.cloud/cloudflare@0.21.6(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)(rolldown@1.0.1)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260526.1)
-      '@distilled.cloud/core': 0.21.6(effect@4.0.0-beta.74)
-      '@distilled.cloud/neon': 0.21.6(effect@4.0.0-beta.74)
-      '@distilled.cloud/planetscale': 0.21.6(effect@4.0.0-beta.74)
+      '@distilled.cloud/aws': 0.22.1(effect@4.0.0-beta.74)
+      '@distilled.cloud/axiom': 0.22.1(effect@4.0.0-beta.74)
+      '@distilled.cloud/cloudflare': 0.22.1(effect@4.0.0-beta.74)
+      '@distilled.cloud/cloudflare-rolldown-plugin': 0.10.1(rolldown@1.0.1)(workerd@1.20260526.1)
+      '@distilled.cloud/cloudflare-runtime': 0.10.1(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)
+      '@distilled.cloud/cloudflare-vite-plugin': 0.10.1(@distilled.cloud/cloudflare-runtime@0.10.1(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74))(@distilled.cloud/cloudflare@0.22.1(effect@4.0.0-beta.74))(@effect/platform-bun@4.0.0-beta.74(effect@4.0.0-beta.74))(@effect/platform-node@4.0.0-beta.74(effect@4.0.0-beta.74)(ioredis@5.11.0))(effect@4.0.0-beta.74)(rolldown@1.0.1)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260526.1)
+      '@distilled.cloud/core': 0.22.1(effect@4.0.0-beta.74)
+      '@distilled.cloud/neon': 0.22.1(effect@4.0.0-beta.74)
+      '@distilled.cloud/planetscale': 0.22.1(effect@4.0.0-beta.74)
       '@effect/vitest': 4.0.0-beta.74(effect@4.0.0-beta.74)(vitest@4.1.7)
       '@libsql/client': 0.17.3
       '@octokit/rest': 22.0.1
