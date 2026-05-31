@@ -17,6 +17,10 @@ export default Alchemy.Stack(
 			command: "pnpm build",
 			outdir: "dist",
 			main: "./worker.ts",
+			// 既存の wrangler デプロイ済み Worker 名に合わせる（adopt は --adopt フラグで対応）
+			name: "me",
+			// 本番カスタムドメインを保持（指定しないと Alchemy が削除しようとする）
+			domain: "ta93abe.com",
 			assetsConfig: {
 				// wrangler.jsonc の html_handling / not_found_handling と同じ
 				htmlHandling: "auto-trailing-slash",
