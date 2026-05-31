@@ -910,7 +910,6 @@ const categories: Category[] = [
 	},
 ];
 
-const enablePagefind = !import.meta.env.DEV;
 ---
 
 <Layout
@@ -936,20 +935,6 @@ const enablePagefind = !import.meta.env.DEV;
 				</a>
 				で管理されています（Nix + Home Manager）
 			</p>
-		</div>
-
-		<!-- 検索 -->
-		<div class="mb-12 rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-			<h2 class="mb-2 text-xl font-bold">Search</h2>
-			<p class="mb-4 text-sm text-neutral-400">
-				ツール名・説明から検索できます。
-			</p>
-			<div id="pagefind-search" class="pagefind-search"></div>
-			{!enablePagefind && (
-				<p class="mt-3 text-xs text-neutral-500">
-					検索はビルド後に有効になります。
-				</p>
-			)}
 		</div>
 
 		<!-- 統計情報 -->
@@ -991,7 +976,6 @@ const enablePagefind = !import.meta.env.DEV;
 								return (
 									<article
 										id={toolId}
-										data-pagefind-body
 										class="group rounded-lg border border-neutral-800 p-4 transition-colors hover:border-indigo-400"
 									>
 										<a
@@ -1000,23 +984,14 @@ const enablePagefind = !import.meta.env.DEV;
 											rel="noopener noreferrer"
 											class="block"
 										>
-											<h3
-												class="mb-2 font-mono text-lg font-semibold text-indigo-400 group-hover:text-indigo-300"
-												data-pagefind-meta="title"
-											>
+											<h3 class="mb-2 font-mono text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">
 												{tool.name}
 												<span class="ml-1 text-sm text-neutral-600">↗</span>
 											</h3>
-											<p
-												class="text-sm text-neutral-400"
-												data-pagefind-meta="description"
-											>
+											<p class="text-sm text-neutral-400">
 												{tool.description}
 											</p>
 											<p class="mt-2 truncate text-xs text-neutral-600">{tool.url}</p>
-											<span class="sr-only" data-pagefind-meta="category">
-												{category.title}
-											</span>
 										</a>
 									</article>
 								);
@@ -1057,32 +1032,4 @@ const enablePagefind = !import.meta.env.DEV;
 		</div>
 	</main>
 
-	{
-		enablePagefind && (
-			<script type="module">
-				try {
-					const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
-					const searchElement = document.getElementById("pagefind-search");
-					if (searchElement) {
-						new PagefindUI({
-							element: searchElement,
-							showSubResults: true,
-							translations: {
-								placeholder: "ツールを検索...",
-								clear_search: "クリア",
-								load_more: "さらに読み込む",
-								search_label: "このサイトを検索",
-								filters_label: "フィルター",
-								zero_results: "[SEARCH_TERM]の検索結果が見つかりませんでした",
-								many_results: "[SEARCH_TERM]の検索結果: [COUNT]件",
-								one_result: "[SEARCH_TERM]の検索結果: [COUNT]件",
-							},
-						});
-					}
-				} catch (e) {
-					console.error("Pagefind UIの読み込みに失敗しました", e);
-				}
-			</script>
-		)
-	}
 </Layout>
