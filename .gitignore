@@ -1,6 +1,9 @@
 # build output
 dist/
 
+# Alchemy state (local deploy state, not committed)
+.alchemy/
+
 # generated types
 .astro/
 
