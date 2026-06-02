@@ -1,0 +1,96 @@
+{
+  "status": "updated",
+  "fqn": "Api",
+  "logicalId": "Api",
+  "instanceId": "6c92ce99267b297dcc61e23bcbbbd8cd",
+  "resourceType": "Cloudflare.Worker",
+  "props": {
+    "name": "alchemy-state-store",
+    "main": "/Users/takumi.abe/Developer/github.com/ta93abe/me/node_modules/.pnpm/alchemy@2.0.0-beta.45_@effect+platform-bun@4.0.0-beta.74_effect@4.0.0-beta.74__@effect+_0c764d8177e8b472a33572e2c8900f53/node_modules/alchemy/lib/Cloudflare/StateStore/Api.js",
+    "url": true,
+    "compatibility": {
+      "flags": [
+        "nodejs_compat"
+      ],
+      "date": "2026-03-17"
+    },
+    "env": {},
+    "exports": {
+      "Store": {
+        "kind": "durableObject",
+        "constructor": {},
+        "services": {
+          "mapUnsafe": {},
+          "mutable": false
+        }
+      },
+      "default": {}
+    }
+  },
+  "attr": {
+    "workerId": "alchemy-state-store",
+    "workerName": "alchemy-state-store",
+    "logpush": false,
+    "url": "https://alchemy-state-store.ta93abe.workers.dev",
+    "tags": [
+      "alchemy:stack:CloudflareStateStore",
+      "alchemy:stage:alchemy-state-store",
+      "alchemy:id:Api",
+      "alchemy:do:Store:Store"
+    ],
+    "durableObjectNamespaces": {
+      "Store": "585c43070536439a95443e13dcb1bc62"
+    },
+    "accountId": "b0047256d1afc1be1df08289ee3be552",
+    "domains": [
+      "https://alchemy-state-store.ta93abe.workers.dev"
+    ],
+    "crons": [],
+    "hash": {
+      "bundle": "dcb4b10671c2957e18c9d29bc1cdddbcbedd2a152ffacce5009f1ca5c1aef9eb"
+    }
+  },
+  "bindings": [
+    {
+      "sid": "AlchemyStateStoreToken",
+      "data": {
+        "bindings": [
+          {
+            "type": "secrets_store_secret",
+            "name": "AlchemyStateStoreToken",
+            "secretName": "AlchemyStateStoreToken",
+            "storeId": "16dbae494da74139a51c1b15d7a7e6d1"
+          }
+        ]
+      }
+    },
+    {
+      "sid": "Store",
+      "data": {
+        "bindings": [
+          {
+            "type": "durable_object_namespace",
+            "name": "Store",
+            "className": "Store"
+          }
+        ]
+      }
+    },
+    {
+      "sid": "StateStoreEncryptionKey",
+      "data": {
+        "bindings": [
+          {
+            "type": "secrets_store_secret",
+            "name": "StateStoreEncryptionKey",
+            "secretName": "AlchemyStateStoreEncryptionKey",
+            "storeId": "16dbae494da74139a51c1b15d7a7e6d1"
+          }
+        ]
+      }
+    }
+  ],
+  "providerVersion": 0,
+  "downstream": [],
+  "removalPolicy": "destroy"
+}

@@ -28,7 +28,7 @@ const uniqueTags = [...new Set(tags)].sort();
     <!-- フィルター -->
     {uniqueTags.length > 0 && (
       <div class="flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium text-neutral-600">タグ:</span>
+        <span class="text-sm font-medium text-neutral-400">タグ:</span>
         <button
           type="button"
           class="filter-chip active"
@@ -51,12 +51,12 @@ const uniqueTags = [...new Set(tags)].sort();
     <!-- ソート -->
     {sortOptions.length > 0 && (
       <div class="flex items-center gap-2">
-        <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-600">
+        <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-400">
           並び替え:
         </label>
         <select
           id={`sort-${containerId}`}
-          class="sort-select rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1"
+          class="sort-select rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1"
         >
           {sortOptions.map((option) => (
             <option value={option.value}>{option.label}</option>
@@ -72,7 +72,7 @@ const uniqueTags = [...new Set(tags)].sort();
     <span class="active-filter-tag inline-flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-3 py-1 text-sm font-medium text-white"></span>
     <button
       type="button"
-      class="reset-filter-btn ml-2 text-sm text-neutral-500 underline transition-colors hover:text-neutral-700"
+      class="reset-filter-btn ml-2 text-sm text-neutral-500 underline transition-colors hover:text-neutral-300"
     >
       リセット
     </button>
@@ -85,7 +85,7 @@ const uniqueTags = [...new Set(tags)].sort();
 
   <!-- 空の検索結果状態 -->
   <div class="empty-state hidden py-12 text-center" role="status" aria-live="polite">
-    <div class="mb-4 text-neutral-400">
+    <div class="mb-4 text-neutral-500">
       <svg
         class="mx-auto h-12 w-12"
         fill="none"
@@ -101,7 +101,7 @@ const uniqueTags = [...new Set(tags)].sort();
         ></path>
       </svg>
     </div>
-    <h3 class="mb-2 text-lg font-medium text-neutral-900">
+    <h3 class="mb-2 text-lg font-medium text-neutral-100">
       該当する項目がありません
     </h3>
     <p class="mb-4 text-sm text-neutral-500">

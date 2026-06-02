@@ -1,0 +1,34 @@
+{
+  "status": "created",
+  "fqn": "AlchemyStateStoreToken",
+  "logicalId": "AlchemyStateStoreToken",
+  "instanceId": "84caeee0af59f3db482c7860a9ebeb6c",
+  "resourceType": "Cloudflare.SecretsStore.Secret",
+  "props": {
+    "name": "AlchemyStateStoreToken",
+    "store": {
+      "storeId": "16dbae494da74139a51c1b15d7a7e6d1",
+      "storeName": "default_secrets_store",
+      "accountId": "b0047256d1afc1be1df08289ee3be552"
+    },
+    "value": {
+      "__redacted__": "39fd76caccd11c5090e4aeed7d8d13273301cac86c19eb1ef74afb1075d81c3e"
+    }
+  },
+  "attr": {
+    "secretId": "0e2e89d5e54249f0a1830a9780bdb708",
+    "secretName": "AlchemyStateStoreToken",
+    "storeId": "16dbae494da74139a51c1b15d7a7e6d1",
+    "accountId": "b0047256d1afc1be1df08289ee3be552",
+    "status": "pending",
+    "scopes": [
+      "workers"
+    ]
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [
+    "Api"
+  ],
+  "removalPolicy": "destroy"
+}

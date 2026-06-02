@@ -31,7 +31,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       <h1 class="text-4xl font-bold">Blog</h1>
       <a
         href="/rss.xml"
-        class="flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-100"
+        class="flex items-center gap-2 rounded-lg bg-orange-950/30 px-4 py-2 text-sm font-medium text-orange-400 transition-colors hover:bg-orange-950/50"
         aria-label="RSS Feed"
       >
         <svg
@@ -56,14 +56,14 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       {
         sortedPosts.map((post) => (
           <article
-            class="border-b border-neutral-200 pb-8"
+            class="border-b border-neutral-800 pb-8"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="group block rounded-lg p-4 -m-4 transition-colors duration-200 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
-              <time class="mb-2 block text-sm text-neutral-600">
+            <a href={`/blog/${post.id}`} class="group block rounded-lg p-4 -m-4 transition-colors duration-200 hover:bg-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
+              <time class="mb-2 block text-sm text-neutral-400">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
                   <span class="ml-2 text-xs">
@@ -71,10 +71,10 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold group-hover:text-neutral-600">
+              <h2 class="mb-3 text-2xl font-bold group-hover:text-neutral-400">
                 {post.data.title}
               </h2>
-              <p class="mb-3 text-neutral-700">{post.data.excerpt}</p>
+              <p class="mb-3 text-neutral-300">{post.data.excerpt}</p>
               {post.data.tags && post.data.tags.length > 0 && (
                 <div class="flex flex-wrap gap-2">
                   {post.data.tags.map((tag) => (
