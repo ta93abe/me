@@ -1,0 +1,1 @@
+var e={fetch(e,t){return t.ASSETS.fetch(e)}};export{e as default};

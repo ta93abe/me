@@ -4,22 +4,22 @@
 @import "@fontsource/shippori-mincho/700.css";
 @plugin "@tailwindcss/typography";
 
-/* テーマカラー - ライトモード */
+/* テーマカラー - 黒基調 (neutral) */
 :root {
-	--primary-color: #4f46e5;
-	--bg-primary: #ffffff;
-	--bg-secondary: #f8fafc;
-	--bg-tertiary: #f1f5f9;
-	--text-primary: #1a1a1a;
-	--text-secondary: #4b5563;
-	--text-muted: #9ca3af;
-	--border-color: #e2e8f0;
-	--link-color: #2563eb;
-	--link-hover-color: #1d4ed8;
-	--blockquote-bg: #eff6ff;
-	--blockquote-border: #3b82f6;
-	--code-bg: #f1f5f9;
-	--code-text: #1e293b;
+	--primary-color: #818cf8;
+	--bg-primary: #0a0a0a;
+	--bg-secondary: #171717;
+	--bg-tertiary: #262626;
+	--text-primary: #f5f5f5;
+	--text-secondary: #a3a3a3;
+	--text-muted: #737373;
+	--border-color: #262626;
+	--link-color: #818cf8;
+	--link-hover-color: #a5b4fc;
+	--blockquote-bg: #171717;
+	--blockquote-border: #818cf8;
+	--code-bg: #171717;
+	--code-text: #e5e5e5;
 }
 
 /* フォーカス表示の強化 */
@@ -37,7 +37,7 @@
 .prose {
 	font-size: 1rem;
 	line-height: 1.9;
-	color: rgba(0, 0, 0, 0.82);
+	color: rgba(245, 245, 245, 0.88);
 }
 
 /* Code block styles */
@@ -88,12 +88,12 @@
 
 /* Inline code */
 .prose :not(pre) > code {
-	background: #edf2f7;
+	background: #262626;
 	padding: 0.17rem 0.34rem;
 	border-radius: 0.25rem;
 	font-size: 0.85em;
 	font-weight: 400;
-	color: rgba(0, 0, 0, 0.82);
+	color: #e5e5e5;
 }
 
 .prose :not(pre) > code::before,
@@ -106,7 +106,7 @@
 	font-size: 1.5rem;
 	line-height: 1.5;
 	padding-bottom: 0.45rem;
-	border-bottom: 1px solid #d6e3ed;
+	border-bottom: 1px solid #262626;
 	margin-top: 2.5em;
 	margin-bottom: 1.1em;
 	scroll-margin-top: 4rem;

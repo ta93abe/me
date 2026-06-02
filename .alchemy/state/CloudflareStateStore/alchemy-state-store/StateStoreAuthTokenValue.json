@@ -1,0 +1,18 @@
+{
+  "status": "created",
+  "fqn": "StateStoreAuthTokenValue",
+  "logicalId": "StateStoreAuthTokenValue",
+  "instanceId": "a8943311fd2ea5a3423b8a941015c97b",
+  "resourceType": "Alchemy.Random",
+  "attr": {
+    "text": {
+      "__redacted__": "39fd76caccd11c5090e4aeed7d8d13273301cac86c19eb1ef74afb1075d81c3e"
+    }
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [
+    "AlchemyStateStoreToken"
+  ],
+  "removalPolicy": "destroy"
+}

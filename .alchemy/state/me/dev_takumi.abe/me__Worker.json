@@ -1,0 +1,60 @@
+{
+  "status": "updated",
+  "fqn": "me/Worker",
+  "logicalId": "Worker",
+  "instanceId": "e364f910605f2c1fa79b1657af1d0d38",
+  "resourceType": "Cloudflare.Worker",
+  "props": {
+    "command": "pnpm build",
+    "outdir": "dist",
+    "main": "./worker.ts",
+    "name": "me",
+    "domain": [
+      "ta93abe.com",
+      "www.ta93abe.com"
+    ],
+    "assetsConfig": {
+      "htmlHandling": "auto-trailing-slash",
+      "notFoundHandling": "404-page"
+    },
+    "assets": {
+      "path": "/Users/takumi.abe/Developer/github.com/ta93abe/me/dist",
+      "hash": "3d52f58da07290b5ad68b4c78c9a653dcb195c23453f7ddb8303d5e4f556dbbd",
+      "config": {
+        "htmlHandling": "auto-trailing-slash",
+        "notFoundHandling": "404-page"
+      }
+    },
+    "isExternal": true
+  },
+  "attr": {
+    "workerId": "me",
+    "workerName": "me",
+    "logpush": false,
+    "url": "https://ta93abe.com",
+    "tags": [
+      "alchemy:stack:me",
+      "alchemy:stage:dev_takumi.abe",
+      "alchemy:id:Worker"
+    ],
+    "durableObjectNamespaces": {},
+    "accountId": "b0047256d1afc1be1df08289ee3be552",
+    "domains": [
+      "https://ta93abe.com",
+      "https://www.ta93abe.com",
+      "https://me.ta93abe.workers.dev"
+    ],
+    "crons": [],
+    "hash": {
+      "assets": "3d52f58da07290b5ad68b4c78c9a653dcb195c23453f7ddb8303d5e4f556dbbd",
+      "bundle": "780a2ec6ae3d45af61fced5b7c8dbd4c3163a13bea43cdc7802af8eed833ed00"
+    }
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [],
+  "removalPolicy": "destroy",
+  "namespace": {
+    "Id": "me"
+  }
+}
