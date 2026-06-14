@@ -5,10 +5,20 @@
 ## 1. 現状スコア
 
 - **スキャン日**: 2026-06-14
-- **現在のレベル**: Level 1 — Basic Web Presence
-- **次のレベル**: Level 2 — Bot-Aware（Content-Signal の実装が必要）
+- **現在のレベル**: Level 5 — Agent-Native（isitagentready.com の最高レベル）
+- **スキャン URL**: https://isitagentready.com/?url=https://ta93abe.com/
 
-現在のデプロイ済みバージョンでは、Worker 経由で提供すべき発見用エンドポイント（`/.well-known/api-catalog`、`/.well-known/mcp/server-card.json`、`/.well-known/agent-skills/index.json`、`/auth.md` など）が **500 Internal Server Error** を返しています。これは `wrangler.jsonc` に `run_worker_first: true` と `ASSETS` バインディングが未設定だったため、Worker がリクエストを横取りできなかったことが原因です。
+デプロイ後のスキャン結果:
+
+| カテゴリ | pass | fail | neutral |
+|----------|------|------|---------|
+| Discoverability | 3 | 1 (dnsAid) | 0 |
+| Content Accessibility | 1 | 0 | 0 |
+| Bot Access Control | 2 | 0 | 1 |
+| Discovery | 5 | 3 (OAuth 系) | 0 |
+| Commerce | 0 | 0 | 5 |
+
+主要な発見用エンドポイント（`/.well-known/api-catalog`、`/.well-known/mcp/server-card.json`、`/.well-known/agent-skills/index.json`、`/llms.txt`、`/auth.md`、`/.well-known/agent-card.json`）はすべて正常に動作しています。
 
 ## 2. 今回実装した対策
 
@@ -64,12 +74,12 @@
 
 - pnpm v11 の新しい `allowBuilds` 形式に修正（`esbuild` / `sharp` / `workerd` を `true` に設定）
 
-## 3. デプロイ後に期待されるスコア変化
+## 3. 実際のデプロイ後スコア
 
-上記変更をデプロイすると、以下のチェックが pass する見込みです。
+2026-06-14 にデプロイした結果、**Level 5 — Agent-Native** に到達しました。
 
-| カテゴリ | チェック | デプロイ後の見通し |
-|----------|----------|-------------------|
+| カテゴリ | チェック | 結果 |
+|----------|----------|------|
 | Discoverability | robots.txt | pass |
 | Discoverability | sitemap | pass |
 | Discoverability | linkHeaders | pass |
@@ -77,16 +87,16 @@
 | Content Accessibility | markdownNegotiation | pass |
 | Bot Access Control | robotsTxtAiRules | pass |
 | Bot Access Control | contentSignals | pass |
-| Bot Access Control | webBotAuth | **neutral/404**（実装不要） |
+| Bot Access Control | webBotAuth | neutral |
 | Discovery | apiCatalog | pass |
-| Discovery | oauthDiscovery | **neutral/404**（コンテンツサイトのため不要） |
-| Discovery | oauthProtectedResource | **neutral/404**（コンテンツサイトのため不要） |
-| Discovery | authMd | pass |
+| Discovery | oauthDiscovery | **fail**（コンテンツサイトのため不要） |
+| Discovery | oauthProtectedResource | **fail**（コンテンツサイトのため不要） |
+| Discovery | authMd | **fail**（OAuth Protected Resource Metadata がない） |
 | Discovery | mcpServerCard | pass |
 | Discovery | a2aAgentCard | pass |
 | Discovery | agentSkills | pass |
-| Discovery | webMcp | **pass**（ブラウザ対応により） |
-| Commerce | x402 / mpp / ucp / acp | **neutral**（コマースサイトではない） |
+| Discovery | webMcp | pass |
+| Commerce | x402 / mpp / ucp / acp / ap2 | neutral |
 
 ## 4. 追加で検討すべき対策
 
@@ -136,10 +146,12 @@ pnpm deploy
 
 ## 6. 完了の定義
 
-- [ ] `pnpm build` と `wrangler deploy --dry-run` が成功する
-- [ ] https://isitagentready.com/?url=https://ta93abe.com/ で Level 2 以上に到達する
-- [ ] 主要な Discovery エンドポイント（`/.well-known/api-catalog`、`/.well-known/mcp/server-card.json`、`/.well-known/agent-skills/index.json`、`/llms.txt`、`/auth.md`）が 200 を返す
-- [ ] 未実装の OAuth / Web Bot Auth エンドポイントが 500 ではなく 404 を返す
+- [x] `pnpm build` と `wrangler deploy --dry-run` が成功する
+- [x] https://isitagentready.com/?url=https://ta93abe.com/ で Level 5（Agent-Native）に到達する
+- [x] 主要な Discovery エンドポイント（`/.well-known/api-catalog`、`/.well-known/mcp/server-card.json`、`/.well-known/agent-skills/index.json`、`/llms.txt`、`/auth.md`、`/.well-known/agent-card.json`）が 200 を返す
+- [x] 未実装の OAuth / Web Bot Auth エンドポイントが 500 ではなく 404 を返す
+- [ ] DNS-AID レコードを追加する（オプション）
+- [ ] OAuth Discovery / Protected Resource Metadata を実装する（オプション、コンテンツサイトでは不要）
 
 ---
 
