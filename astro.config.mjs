@@ -4,13 +4,12 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
-import pagefind from "astro-pagefind";
 import remarkGfm from "remark-gfm";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://ta93abe.com",
-  integrations: [sitemap(), pagefind(), mdx()],
+  integrations: [sitemap(), mdx()],
   build: {
     inlineStylesheets: "auto",
   },
