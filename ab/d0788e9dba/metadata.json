@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "abd0788e9dba",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 5,
+  "files_touched": [
+    ".serena/project.yml",
+    "astro.config.mjs",
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ab/d0788e9dba/0/metadata.json",
+      "transcript": "/ab/d0788e9dba/0/full.jsonl",
+      "content_hash": "/ab/d0788e9dba/0/content_hash.txt",
+      "prompt": "/ab/d0788e9dba/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 43385,
+    "cache_creation_tokens": 267131,
+    "cache_read_tokens": 1459697,
+    "output_tokens": 264295,
+    "api_call_count": 19
+  }
+}

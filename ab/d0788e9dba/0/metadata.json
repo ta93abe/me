@@ -1,0 +1,130 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "abd0788e9dba",
+  "session_id": "c2fdc3c3-13e3-4ae9-a55f-a9e6fb3367ce",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-14T08:19:48.058995Z",
+  "branch": "main",
+  "checkpoints_count": 5,
+  "files_touched": [
+    ".serena/project.yml",
+    "astro.config.mjs",
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "5f376c2fc1dc",
+  "token_usage": {
+    "input_tokens": 43385,
+    "cache_creation_tokens": 267131,
+    "cache_read_tokens": 1459697,
+    "output_tokens": 264295,
+    "api_call_count": 19
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01JP4oHQP8KwsRwqvPCt6JFk",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "commit"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "5f376c2fc1dc",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 22,
+        "end": 23,
+        "entry_ids": [
+          "32a4f5ad-8795-4bb1-a2cd-b7edb1b2cfd7"
+        ],
+        "tool_use_id": "toolu_01JP4oHQP8KwsRwqvPCt6JFk"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01JP4oHQP8KwsRwqvPCt6JFk"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: commit",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 5
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-14T08:19:48.02736Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 687,
+    "total_committed": 0,
+    "total_lines_changed": 687,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 969,
+      "user_lines_removed": 687,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".serena/project.yml": 67,
+        "astro.config.mjs": 1,
+        "package.json": 18,
+        "pnpm-lock.yaml": 883
+      },
+      "user_removed_per_file": {
+        ".serena/project.yml": 56,
+        "astro.config.mjs": 2,
+        "package.json": 20,
+        "pnpm-lock.yaml": 609
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 969,
+      "agent_lines_removed": 687
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 969,
+      "agent_lines_removed": 687
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 969,
+      "agent_lines_removed": 687
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 969,
+      "agent_lines_removed": 687
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 969,
+      "agent_lines_removed": 687
+    }
+  ]
+}
