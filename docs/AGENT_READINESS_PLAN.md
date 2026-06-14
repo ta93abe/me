@@ -14,11 +14,9 @@
 |----------|------|------|---------|
 | Discoverability | 3 | 1 (dnsAid) | 0 |
 | Content Accessibility | 1 | 0 | 0 |
-| Bot Access Control | 2 | 0 | 1 |
-| Discovery | 5 | 3 (OAuth 系) | 0 |
+| Bot Access Control | 2 | 0 | 1 (webBotAuth) |
+| Discovery | 7 | 1 (authMd) | 0 |
 | Commerce | 0 | 0 | 5 |
-
-主要な発見用エンドポイント（`/.well-known/api-catalog`、`/.well-known/mcp/server-card.json`、`/.well-known/agent-skills/index.json`、`/llms.txt`、`/auth.md`、`/.well-known/agent-card.json`）はすべて正常に動作しています。
 
 ## 2. 今回実装した対策
 
@@ -41,8 +39,10 @@
 - `/.well-known/agent-skills/index.json`
 - `/.well-known/agent-skills/site-overview/SKILL.md`
 - `/mcp`（JSON-RPC 2.0 の最小実装）
-- **追加**: `/.well-known/agent-card.json`（A2A Agent Card）
-- **追加**: 未実装の OAuth / Web Bot Auth / Commerce エンドポイントに対して **500 ではなく 404** を返す
+- `/.well-known/agent-card.json`（A2A Agent Card）
+- `/.well-known/oauth-authorization-server`（OAuth 認可サーバー metadata）
+- `/.well-known/oauth-protected-resource`（OAuth 保護リソース metadata）
+- 未実装の Web Bot Auth / Commerce エンドポイントに対して **500 ではなく 404** を返す
 
 ### 2.3 ホームページの発見ヘッダー
 
@@ -89,9 +89,9 @@
 | Bot Access Control | contentSignals | pass |
 | Bot Access Control | webBotAuth | neutral |
 | Discovery | apiCatalog | pass |
-| Discovery | oauthDiscovery | **fail**（コンテンツサイトのため不要） |
-| Discovery | oauthProtectedResource | **fail**（コンテンツサイトのため不要） |
-| Discovery | authMd | **fail**（OAuth Protected Resource Metadata がない） |
+| Discovery | oauthDiscovery | pass |
+| Discovery | oauthProtectedResource | pass |
+| Discovery | authMd | **fail**（スキャナーが期待する `agent_auth` メタデータの形式が不明） |
 | Discovery | mcpServerCard | pass |
 | Discovery | a2aAgentCard | pass |
 | Discovery | agentSkills | pass |
@@ -119,13 +119,27 @@ HTTPS _a2a._agents.ta93abe.com 1 ta93abe.com. alpn=h2,h3 path=/.well-known/agent
 
 > 注意: DNS レコードはコードではなく Cloudflare ダッシュボード / API で管理する必要があります。
 
-### 4.2 Web Bot Auth
+### 4.2 auth.md の agent_auth メタデータ
 
-このサイトは公開コンテンツのみ提供するため、Web Bot Auth は不要です。スキャナーは 404 を期待しない可能性がありますが、500 よりは安全で適切な応答です。
+以下の形式を `auth.md` と `/.well-known/oauth-authorization-server` の両方に実装済みですが、isitagentready.com のスキャナーはまだ「agent_auth metadata was not found」と報告しています。
 
-### 4.3 OAuth Discovery
+```json
+{
+  "agent_auth": {
+    "register_uri": "https://ta93abe.com/auth.md",
+    "supported_identity_types": ["anonymous"],
+    "supported_credential_types": ["none"],
+    "claim_uri": null,
+    "revocation_uri": null
+  }
+}
+```
 
-保護されたリソースや認可サーバーを持たないコンテンツサイトのため、OAuth Discovery は不要です。404 を返すことで、エージェントに「認証は不要」という情報を明示できます。
+スキャナーの実装が非公開のため、正確な形式は不明です。試行錯誤を続けるか、現状の Level 5 を維持するかの判断が必要です。
+
+### 4.3 Web Bot Auth
+
+このサイトは公開コンテンツのみ提供するため、Web Bot Auth は不要です。スキャナーは neutral（情報提供のみ）として扱っています。
 
 ## 5. デプロイ手順
 
@@ -146,12 +160,12 @@ pnpm deploy
 
 ## 6. 完了の定義
 
-- [x] `pnpm build` と `wrangler deploy --dry-run` が成功する
+- [x] `pnpm build` と `wrangler deploy` が成功する
 - [x] https://isitagentready.com/?url=https://ta93abe.com/ で Level 5（Agent-Native）に到達する
-- [x] 主要な Discovery エンドポイント（`/.well-known/api-catalog`、`/.well-known/mcp/server-card.json`、`/.well-known/agent-skills/index.json`、`/llms.txt`、`/auth.md`、`/.well-known/agent-card.json`）が 200 を返す
-- [x] 未実装の OAuth / Web Bot Auth エンドポイントが 500 ではなく 404 を返す
-- [ ] DNS-AID レコードを追加する（オプション）
-- [ ] OAuth Discovery / Protected Resource Metadata を実装する（オプション、コンテンツサイトでは不要）
+- [x] 主要な Discovery エンドポイントが 200 を返す
+- [x] 未実装の Web Bot Auth / Commerce エンドポイントが 500 ではなく 404 を返す
+- [ ] DNS-AID レコードを追加する（オプション、Cloudflare DNS 操作が必要）
+- [ ] auth.md の agent_auth メタデータをスキャナーが認識する形式に調整する（実装非公開のため要判断）
 
 ---
 

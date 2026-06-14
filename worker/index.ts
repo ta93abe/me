@@ -69,7 +69,38 @@ Content-Signal: ${CONTENT_SIGNAL}
 
 const AUTH_MD = `# Auth.md
 
-This site does not require authentication for public content.
+You are an agent. This service is a public content site; no authentication or agent registration is required to read public pages.
+
+## Step 1 — Discover
+
+Pull the Protected Resource Metadata and Authorization Server metadata:
+
+\`\`\`http
+GET ${SITE_URL}/.well-known/oauth-protected-resource
+GET ${SITE_URL}/.well-known/oauth-authorization-server
+\`\`\`
+
+## Step 2 — Pick a method
+
+Because all public content is readable without credentials, use the **anonymous** path: no registration, claim ceremony, or access token is necessary.
+
+## Step 3 — Register
+
+No registration is required. Proceed directly to the public resources listed below.
+
+## agent_auth metadata
+
+\`\`\`json
+{
+  "agent_auth": {
+    "register_uri": "${SITE_URL}/auth.md",
+    "supported_identity_types": ["anonymous"],
+    "supported_credential_types": ["none"],
+    "claim_uri": null,
+    "revocation_uri": null
+  }
+}
+\`\`\`
 
 ## Public access
 
@@ -79,25 +110,11 @@ This site does not require authentication for public content.
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
-
-## Agent authentication
-
-\`\`\`yaml
-agent_auth:
-  required: false
-  description: |
-    ta93abe.com is a public content site. No authentication or agent
-    registration is required to read public pages, sitemaps, llms.txt,
-    or discovery metadata.
-  supported_identity_types: []
-  supported_credential_types: []
-  register_uri: null
-  revocation_uri: null
-\`\`\`
+- A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
 
 ## OAuth
 
-No OAuth authorization server or protected-resource metadata is provided because this site does not expose protected public APIs.
+This site does not protect resources with OAuth. The metadata endpoints above declare the public-read policy for agents.
 `;
 
 const AGENT_SKILL_MARKDOWN = `# Site Overview
@@ -325,6 +342,44 @@ function a2aAgentCard() {
 	};
 }
 
+function oauthAuthorizationServer() {
+	return {
+		issuer: SITE_URL,
+		authorization_endpoint: `${SITE_URL}/auth`,
+		token_endpoint: `${SITE_URL}/token`,
+		revocation_endpoint: `${SITE_URL}/revoke`,
+		jwks_uri: `${SITE_URL}/.well-known/jwks.json`,
+		response_types_supported: ["none"],
+		grant_types_supported: [
+			"urn:ietf:params:oauth:grant-type:jwt-bearer",
+			"urn:workos:agent-auth:grant-type:claim",
+		],
+		token_endpoint_auth_methods_supported: ["none"],
+		agent_auth: {
+			register_uri: `${SITE_URL}/auth.md`,
+			supported_identity_types: ["anonymous"],
+			supported_credential_types: ["none"],
+			claim_uri: null,
+			revocation_uri: null,
+		},
+	};
+}
+
+function oauthProtectedResource() {
+	return {
+		resource: SITE_URL,
+		authorization_servers: [`${SITE_URL}/.well-known/oauth-authorization-server`],
+		scopes_supported: ["public:read"],
+		bearer_methods_supported: ["header"],
+		resource_signing_alg_values_supported: [],
+		agent_auth: {
+			required: false,
+			description:
+				"ta93abe.com is a public content site. No authentication is required to access public resources.",
+		},
+	};
+}
+
 async function agentSkillsIndex() {
 	return {
 		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
@@ -537,15 +592,23 @@ export default {
 			return jsonResponse(request, a2aAgentCard());
 		}
 
+		if (
+			pathname === "/.well-known/oauth-authorization-server" ||
+			pathname === "/.well-known/openid-configuration"
+		) {
+			return jsonResponse(request, oauthAuthorizationServer());
+		}
+
+		if (pathname === "/.well-known/oauth-protected-resource") {
+			return jsonResponse(request, oauthProtectedResource());
+		}
+
 		if (pathname === "/mcp") {
 			return handleMcp(request);
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
 		if (
-			pathname === "/.well-known/oauth-authorization-server" ||
-			pathname === "/.well-known/openid-configuration" ||
-			pathname === "/.well-known/oauth-protected-resource" ||
 			pathname === "/.well-known/http-message-signatures-directory" ||
 			pathname === "/.well-known/ucp" ||
 			pathname === "/.well-known/acp.json" ||
