@@ -2,9 +2,6 @@
 @import "@fontsource/shippori-mincho/400.css";
 @import "@fontsource/shippori-mincho/500.css";
 @import "@fontsource/shippori-mincho/700.css";
-@import "@fontsource/noto-sans-jp/400.css";
-@import "@fontsource/noto-sans-jp/500.css";
-@import "@fontsource/noto-sans-jp/700.css";
 @import "@fontsource/noto-serif-jp/400.css";
 @import "@fontsource/noto-serif-jp/700.css";
 @plugin "@tailwindcss/typography";
@@ -43,17 +40,13 @@
 	font-family: "Shippori Mincho", "Noto Serif JP", serif;
 }
 
-.font-body {
-	font-family: "Noto Sans JP", sans-serif;
-}
-
 /* Editorial article body */
 .prose {
-	font-family: "Noto Sans JP", sans-serif;
+	font-family: "Shippori Mincho", "Noto Serif JP", serif;
 	font-size: 1.0625rem;
 	line-height: 2;
 	color: #1f2937;
-	letter-spacing: 0.01em;
+	letter-spacing: 0.02em;
 }
 
 .prose > * + * {
@@ -112,7 +105,6 @@
 
 /* Lead paragraph */
 .prose > p:first-of-type {
-	font-family: "Noto Sans JP", sans-serif;
 	font-size: 1.1875rem;
 	line-height: 1.9;
 	color: #374151;

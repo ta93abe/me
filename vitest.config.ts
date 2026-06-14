@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     include: ["**/*.test.ts", "**/*.spec.ts"],
+    exclude: ["node_modules/", "dist/", ".astro/", "tests/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
