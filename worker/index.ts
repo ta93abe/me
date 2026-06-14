@@ -1,15 +1,545 @@
 interface Env {
+	ASSETS: Fetcher;
 	DEPLOY_HOOK_URL: string;
 }
 
+const SITE_URL = "https://ta93abe.com";
+const SITE_HOST = "ta93abe.com";
+const SITE_TITLE = "Takumi Abe / ta93abe";
+const SITE_DESCRIPTION =
+	"Personal portfolio site for Takumi Abe (ta93abe), including works, blog posts, slides, books, tools, and social links.";
+const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
+const MCP_ENDPOINT = `${SITE_URL}/mcp`;
+const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
+
+const DISCOVERY_LINKS = [
+	`</llms.txt>; rel="describedby"; type="text/plain"`,
+	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
+	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
+	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
+	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
+	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
+].join(", ");
+
+const SECURITY_HEADERS = {
+	"X-Frame-Options": "DENY",
+	"X-Content-Type-Options": "nosniff",
+	"Referrer-Policy": "strict-origin-when-cross-origin",
+	"Permissions-Policy":
+		"accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+	"Content-Security-Policy":
+		"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;",
+} as const;
+
+const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
+
+${SITE_DESCRIPTION}
+
+## Primary sections
+
+- Works: ${SITE_URL}/works/
+- Blog: ${SITE_URL}/blog/
+- Slides: ${SITE_URL}/slides/
+- Bookshelf: ${SITE_URL}/bookshelf/
+- Tools: ${SITE_URL}/tools/
+- Links: ${SITE_URL}/links/
+
+## Machine-readable resources
+
+- llms.txt: ${SITE_URL}/llms.txt
+- Full agent notes: ${SITE_URL}/llms-full.txt
+- API catalog: ${SITE_URL}/.well-known/api-catalog
+- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
+- Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
+- Authentication notes: ${SITE_URL}/auth.md
+`;
+
+const LLMS_FULL_TEXT = `${SITE_OVERVIEW_MARKDOWN}
+## Agent guidance
+
+- This is a public content site. No authentication is required to read the public pages.
+- Prefer canonical URLs on ${SITE_HOST}.
+- Use the sitemap at ${SITE_URL}/sitemap-index.xml for crawl discovery.
+- Respect robots.txt and Content-Signal directives.
+
+## Content usage preference
+
+Content-Signal: ${CONTENT_SIGNAL}
+`;
+
+const AUTH_MD = `# Auth.md
+
+This site does not require authentication for public content.
+
+## Public access
+
+- Homepage: ${SITE_URL}/
+- Sitemap: ${SITE_URL}/sitemap-index.xml
+- llms.txt: ${SITE_URL}/llms.txt
+- API catalog: ${SITE_URL}/.well-known/api-catalog
+
+## OAuth
+
+No OAuth authorization server or protected-resource metadata is provided because this site does not expose protected public APIs.
+`;
+
+const AGENT_SKILL_MARKDOWN = `# Site Overview
+
+Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
+
+## What this site contains
+
+- Portfolio works and project notes.
+- Technical blog posts.
+- Public slide links.
+- Bookshelf notes.
+- Tool and social-link directories.
+
+## How to use
+
+1. Start with ${SITE_URL}/llms.txt for a concise overview.
+2. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
+3. Respect robots.txt and Content-Signal preferences.
+`;
+
+function isHead(request: Request): boolean {
+	return request.method.toUpperCase() === "HEAD";
+}
+
+function acceptsMarkdown(request: Request): boolean {
+	return (
+		request.headers.get("Accept")?.toLowerCase().includes("text/markdown") ??
+		false
+	);
+}
+
+function appendHeaderToken(value: string | null, token: string): string {
+	if (!value) {
+		return token;
+	}
+
+	const tokens = value
+		.split(",")
+		.map((part) => part.trim().toLowerCase())
+		.filter(Boolean);
+
+	return tokens.includes(token.toLowerCase()) ? value : `${value}, ${token}`;
+}
+
+function setGeneratedHeaders(headers: Headers): void {
+	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+		headers.set(name, value);
+	}
+	headers.set("Content-Signal", CONTENT_SIGNAL);
+}
+
+function textResponse(
+	request: Request,
+	body: string,
+	contentType: string,
+	init: ResponseInit = {},
+): Response {
+	const headers = new Headers(init.headers);
+	headers.set("Content-Type", contentType);
+	setGeneratedHeaders(headers);
+
+	return new Response(isHead(request) ? null : body, {
+		...init,
+		headers,
+	});
+}
+
+function jsonResponse(
+	request: Request,
+	value: unknown,
+	init: ResponseInit = {},
+): Response {
+	return textResponse(
+		request,
+		JSON.stringify(value, null, 2),
+		"application/json; charset=utf-8",
+		init,
+	);
+}
+
+function notFoundResponse(request: Request): Response {
+	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
+		status: 404,
+	});
+}
+
+function addHomepageDiscoveryHeaders(
+	request: Request,
+	response: Response,
+): Response {
+	const url = new URL(request.url);
+	if (url.pathname !== "/" && url.pathname !== "/index.html") {
+		return response;
+	}
+
+	const headers = new Headers(response.headers);
+	headers.set(
+		"Link",
+		headers.get("Link")
+			? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
+			: DISCOVERY_LINKS,
+	);
+	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
+	headers.set("Content-Signal", CONTENT_SIGNAL);
+
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	});
+}
+
+async function sha256Digest(value: string): Promise<string> {
+	const bytes = new TextEncoder().encode(value);
+	const digest = await crypto.subtle.digest("SHA-256", bytes);
+	return `sha256:${[...new Uint8Array(digest)]
+		.map((byte) => byte.toString(16).padStart(2, "0"))
+		.join("")}`;
+}
+
+function apiCatalog() {
+	return {
+		linkset: [
+			{
+				anchor: SITE_URL,
+				"service-doc": [
+					{
+						href: `${SITE_URL}/llms.txt`,
+						type: "text/plain",
+					},
+					{
+						href: `${SITE_URL}/llms-full.txt`,
+						type: "text/plain",
+					},
+				],
+				"service-desc": [
+					{
+						href: `${SITE_URL}/.well-known/mcp/server-card.json`,
+						type: "application/json",
+					},
+					{
+						href: `${SITE_URL}/.well-known/agent-card.json`,
+						type: "application/json",
+					},
+				],
+				describedby: [
+					{
+						href: `${SITE_URL}/.well-known/agent-skills/index.json`,
+						type: "application/json",
+					},
+				],
+				status: [
+					{
+						href: SITE_URL,
+					},
+				],
+			},
+		],
+	};
+}
+
+function mcpServerCard() {
+	return {
+		serverInfo: {
+			name: `${SITE_HOST} site discovery`,
+			version: "1.0.0",
+		},
+		description:
+			"Read-only discovery endpoint for the public ta93abe.com portfolio site.",
+		url: MCP_ENDPOINT,
+		transport: {
+			type: "streamable-http",
+		},
+		capabilities: {
+			tools: true,
+			resources: true,
+		},
+		resources: [
+			{
+				name: "site_overview",
+				uri: `${SITE_URL}/llms.txt`,
+				mimeType: "text/plain",
+				description: "Concise overview of the public site.",
+			},
+		],
+	};
+}
+
+function a2aAgentCard() {
+	return {
+		name: SITE_TITLE,
+		description: SITE_DESCRIPTION,
+		url: SITE_URL,
+		version: "1.0.0",
+		capabilities: {
+			streaming: false,
+			pushNotifications: false,
+			stateTransitionHistory: false,
+		},
+		authentication: null,
+		defaultInputModes: ["text"],
+		defaultOutputModes: ["text"],
+		skills: [
+			{
+				id: "site-overview",
+				name: "Site Overview",
+				description:
+					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
+				tags: ["portfolio", "blog", "discovery"],
+				examples: [
+					"What is ta93abe.com?",
+					"List the public sections of this site.",
+				],
+			},
+		],
+	};
+}
+
+async function agentSkillsIndex() {
+	return {
+		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+		skills: [
+			{
+				name: "site-overview",
+				type: "skill-md",
+				description:
+					"Understand the public content, discovery files, and crawl preferences for ta93abe.com.",
+				url: AGENT_SKILL_PATH,
+				digest: await sha256Digest(AGENT_SKILL_MARKDOWN),
+			},
+		],
+	};
+}
+
+function mcpToolList() {
+	return [
+		{
+			name: "get_site_overview",
+			description:
+				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
+			inputSchema: {
+				type: "object",
+				properties: {},
+				additionalProperties: false,
+			},
+		},
+	];
+}
+
+async function handleMcp(request: Request): Promise<Response> {
+	if (request.method.toUpperCase() !== "POST") {
+		return jsonResponse(
+			request,
+			{
+				name: `${SITE_HOST} MCP endpoint`,
+				description: "Send JSON-RPC 2.0 POST requests to use read-only tools.",
+			},
+			{
+				headers: {
+					Allow: "POST",
+				},
+			},
+		);
+	}
+
+	let payload: {
+		id?: string | number | null;
+		method?: string;
+		params?: Record<string, unknown>;
+		jsonrpc?: string;
+	};
+
+	try {
+		payload = await request.json();
+	} catch {
+		return jsonResponse(
+			request,
+			{
+				jsonrpc: "2.0",
+				id: null,
+				error: {
+					code: -32700,
+					message: "Parse error",
+				},
+			},
+			{ status: 400 },
+		);
+	}
+
+	const id = payload.id ?? null;
+
+	if (payload.method === "initialize") {
+		return jsonResponse(request, {
+			jsonrpc: "2.0",
+			id,
+			result: {
+				protocolVersion: "2025-06-18",
+				capabilities: {
+					tools: {},
+					resources: {},
+				},
+				serverInfo: mcpServerCard().serverInfo,
+			},
+		});
+	}
+
+	if (payload.method === "tools/list") {
+		return jsonResponse(request, {
+			jsonrpc: "2.0",
+			id,
+			result: {
+				tools: mcpToolList(),
+			},
+		});
+	}
+
+	if (payload.method === "tools/call") {
+		const toolName = payload.params?.name;
+		if (toolName !== "get_site_overview") {
+			return jsonResponse(request, {
+				jsonrpc: "2.0",
+				id,
+				error: {
+					code: -32602,
+					message: "Unknown tool",
+				},
+			});
+		}
+
+		return jsonResponse(request, {
+			jsonrpc: "2.0",
+			id,
+			result: {
+				content: [
+					{
+						type: "text",
+						text: SITE_OVERVIEW_MARKDOWN,
+					},
+				],
+			},
+		});
+	}
+
+	return jsonResponse(request, {
+		jsonrpc: "2.0",
+		id,
+		error: {
+			code: -32601,
+			message: "Method not found",
+		},
+	});
+}
+
 export default {
+	async fetch(request, env): Promise<Response> {
+		const url = new URL(request.url);
+		const pathname = url.pathname.replace(/\/+$/, "") || "/";
+
+		if (
+			request.method !== "GET" &&
+			request.method !== "HEAD" &&
+			pathname !== "/mcp"
+		) {
+			return env.ASSETS.fetch(request);
+		}
+
+		if (pathname === "/" && acceptsMarkdown(request)) {
+			return textResponse(
+				request,
+				SITE_OVERVIEW_MARKDOWN,
+				"text/markdown; charset=utf-8",
+				{
+					headers: {
+						Link: DISCOVERY_LINKS,
+						Vary: "Accept",
+						"X-Markdown-Tokens": String(
+							SITE_OVERVIEW_MARKDOWN.split(/\s+/).filter(Boolean).length,
+						),
+					},
+				},
+			);
+		}
+
+		if (pathname === "/llms.txt") {
+			return textResponse(
+				request,
+				SITE_OVERVIEW_MARKDOWN,
+				"text/plain; charset=utf-8",
+			);
+		}
+
+		if (pathname === "/llms-full.txt") {
+			return textResponse(request, LLMS_FULL_TEXT, "text/plain; charset=utf-8");
+		}
+
+		if (pathname === "/auth.md") {
+			return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
+		}
+
+		if (pathname === "/.well-known/api-catalog") {
+			return textResponse(
+				request,
+				JSON.stringify(apiCatalog(), null, 2),
+				"application/linkset+json; charset=utf-8",
+			);
+		}
+
+		if (
+			pathname === "/.well-known/mcp/server-card.json" ||
+			pathname === "/.well-known/mcp.json"
+		) {
+			return jsonResponse(request, mcpServerCard());
+		}
+
+		if (pathname === "/.well-known/agent-skills/index.json") {
+			return jsonResponse(request, await agentSkillsIndex());
+		}
+
+		if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
+			return textResponse(
+				request,
+				AGENT_SKILL_MARKDOWN,
+				"text/markdown; charset=utf-8",
+			);
+		}
+
+		if (pathname === "/.well-known/agent-card.json") {
+			return jsonResponse(request, a2aAgentCard());
+		}
+
+		if (pathname === "/mcp") {
+			return handleMcp(request);
+		}
+
+		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+		if (
+			pathname === "/.well-known/oauth-authorization-server" ||
+			pathname === "/.well-known/openid-configuration" ||
+			pathname === "/.well-known/oauth-protected-resource" ||
+			pathname === "/.well-known/http-message-signatures-directory" ||
+			pathname === "/.well-known/ucp" ||
+			pathname === "/.well-known/acp.json" ||
+			pathname === "/openapi.json" ||
+			pathname === "/api/v1" ||
+			pathname === "/api"
+		) {
+			return notFoundResponse(request);
+		}
+
+		const response = await env.ASSETS.fetch(request);
+		return addHomepageDiscoveryHeaders(request, response);
+	},
+
 	async scheduled(_event, env): Promise<void> {
 		try {
 			const res = await fetch(env.DEPLOY_HOOK_URL, { method: "POST" });
 			if (!res.ok) {
-				console.error(
-					`deploy hook failed: ${res.status} ${await res.text()}`,
-				);
+				console.error(`deploy hook failed: ${res.status} ${await res.text()}`);
 			}
 		} catch (error) {
 			console.error("deploy hook request failed", error);

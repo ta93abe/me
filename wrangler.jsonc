@@ -1,9 +1,11 @@
 {
   "name": "me",
   "main": "worker/index.ts",
-  "compatibility_date": "2026-01-01",
+  "compatibility_date": "2026-06-14",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
   },
