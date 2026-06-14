@@ -77,6 +77,23 @@ This site does not require authentication for public content.
 - Sitemap: ${SITE_URL}/sitemap-index.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
+- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
+- Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
+
+## Agent authentication
+
+\`\`\`yaml
+agent_auth:
+  required: false
+  description: |
+    ta93abe.com is a public content site. No authentication or agent
+    registration is required to read public pages, sitemaps, llms.txt,
+    or discovery metadata.
+  supported_identity_types: []
+  supported_credential_types: []
+  register_uri: null
+  revocation_uri: null
+\`\`\`
 
 ## OAuth
 
@@ -281,9 +298,17 @@ function a2aAgentCard() {
 			pushNotifications: false,
 			stateTransitionHistory: false,
 		},
-		authentication: null,
+		authentication: {
+			schemes: ["none"],
+		},
 		defaultInputModes: ["text"],
 		defaultOutputModes: ["text"],
+		supportedInterfaces: [
+			{
+				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
+				url: `${SITE_URL}/mcp`,
+			},
+		],
 		skills: [
 			{
 				id: "site-overview",
