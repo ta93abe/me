@@ -5,6 +5,7 @@ import Breadcrumb from "../../components/Breadcrumb.astro";
 import ShareButtons from "../../components/blog/ShareButtons.astro";
 import PostNavigation from "../../components/PostNavigation.astro";
 import RelatedPosts from "../../components/RelatedPosts.astro";
+import TableOfContents from "../../components/blog/TableOfContents.astro";
 import BackToTop from "../../components/ui/BackToTop.astro";
 import Tag from "../../components/ui/Tag.astro";
 import { SITE } from "../../config/site";
@@ -49,7 +50,7 @@ export async function getStaticPaths() {
 }
 
 const { post, prevPost, nextPost, relatedPosts } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const readingTime = getReadingTime(post.body || "");
 const readingTimeText = formatReadingTime(readingTime);
@@ -106,28 +107,36 @@ const siteUrl = Astro.site?.href || SITE.url;
       set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
     />
   </Fragment>
-  <main class="mx-auto max-w-4xl px-6 py-12">
+  <main class="mx-auto max-w-6xl px-6 py-12">
     <Breadcrumb items={breadcrumbItems} />
-    <div class="mb-8">
+
+    <div class="mx-auto max-w-3xl">
       <a
         href="/blog"
-        class="mb-4 inline-block text-sm text-neutral-600 hover:text-neutral-900"
+        class="mb-6 inline-block text-sm tracking-wide text-neutral-500 hover:text-neutral-900"
       >
-        ← Blog一覧へ戻る
+        ← Blog 一覧へ戻る
       </a>
-      <h1 class="mb-4 text-4xl font-bold">{post.data.title}</h1>
-      <div class="flex flex-wrap items-center gap-4 text-neutral-600">
-        <time>
-          {formatDate(post.data.date)}
+
+      <header class="mb-12 border-b border-neutral-200 pb-10">
+        <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-neutral-500">
+          <time class="font-medium">
+            {formatDate(post.data.date)}
+          </time>
           {
             post.data.updatedDate && (
-              <span class="ml-2 text-sm">
-                (更新: {formatDate(post.data.updatedDate)})
-              </span>
+              <span class="text-neutral-400">|</span>
+              <span>更新: {formatDate(post.data.updatedDate)}</span>
             )
           }
-        </time>
-        <span class="text-sm">{readingTimeText}</span>
+          <span class="text-neutral-400">|</span>
+          <span>{readingTimeText}</span>
+        </div>
+
+        <h1 class="font-display mb-6 text-3xl font-bold leading-tight tracking-tight text-neutral-900 sm:text-4xl">
+          {post.data.title}
+        </h1>
+
         {
           post.data.tags && post.data.tags.length > 0 && (
             <div class="flex flex-wrap gap-2">
@@ -137,20 +146,28 @@ const siteUrl = Astro.site?.href || SITE.url;
             </div>
           )
         }
-      </div>
+      </header>
     </div>
 
-    <article class="prose prose-lg max-w-none">
-      <Content />
-    </article>
+    <div class="flex items-start justify-center gap-16">
+      <article class="prose prose-lg min-w-0 max-w-3xl">
+        <Content />
+      </article>
 
-    <div class="mt-12 border-t border-neutral-200 pt-8">
+      <TableOfContents headings={headings} />
+    </div>
+
+    <div class="mx-auto mt-16 max-w-3xl border-t border-neutral-200 pt-8">
       <ShareButtons url={canonicalURL.href} title={post.data.title} />
     </div>
 
-    <PostNavigation prevPost={prevPost} nextPost={nextPost} />
+    <div class="mx-auto max-w-3xl">
+      <PostNavigation prevPost={prevPost} nextPost={nextPost} />
+    </div>
 
-    <RelatedPosts posts={relatedPosts} />
+    <div class="mx-auto max-w-3xl">
+      <RelatedPosts posts={relatedPosts} />
+    </div>
   </main>
   <BackToTop />
 </Layout>

@@ -2,6 +2,11 @@
 @import "@fontsource/shippori-mincho/400.css";
 @import "@fontsource/shippori-mincho/500.css";
 @import "@fontsource/shippori-mincho/700.css";
+@import "@fontsource/noto-sans-jp/400.css";
+@import "@fontsource/noto-sans-jp/500.css";
+@import "@fontsource/noto-sans-jp/700.css";
+@import "@fontsource/noto-serif-jp/400.css";
+@import "@fontsource/noto-serif-jp/700.css";
 @plugin "@tailwindcss/typography";
 
 /* テーマカラー - ライトモード */
@@ -33,11 +38,30 @@
 	outline: none;
 }
 
-/* Zenn-like article body */
+/* Font utilities */
+.font-display {
+	font-family: "Shippori Mincho", "Noto Serif JP", serif;
+}
+
+.font-body {
+	font-family: "Noto Sans JP", sans-serif;
+}
+
+/* Editorial article body */
 .prose {
-	font-size: 1rem;
-	line-height: 1.9;
-	color: rgba(0, 0, 0, 0.82);
+	font-family: "Noto Sans JP", sans-serif;
+	font-size: 1.0625rem;
+	line-height: 2;
+	color: #1f2937;
+	letter-spacing: 0.01em;
+}
+
+.prose > * + * {
+	margin-top: 1.75em;
+}
+
+.prose > *:first-child {
+	margin-top: 0;
 }
 
 /* Code block styles */
@@ -86,14 +110,22 @@
 	color: #48bb78;
 }
 
+/* Lead paragraph */
+.prose > p:first-of-type {
+	font-family: "Noto Sans JP", sans-serif;
+	font-size: 1.1875rem;
+	line-height: 1.9;
+	color: #374151;
+}
+
 /* Inline code */
 .prose :not(pre) > code {
-	background: #edf2f7;
+	background: #f3f4f6;
 	padding: 0.17rem 0.34rem;
 	border-radius: 0.25rem;
 	font-size: 0.85em;
-	font-weight: 400;
-	color: rgba(0, 0, 0, 0.82);
+	font-weight: 500;
+	color: #1f2937;
 }
 
 .prose :not(pre) > code::before,
@@ -101,32 +133,58 @@
 	content: none;
 }
 
-/* Heading styles */
+/* Heading styles — editorial */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+	font-family: "Shippori Mincho", "Noto Serif JP", serif;
+	font-weight: 700;
+	line-height: 1.4;
+	color: #111827;
+	scroll-margin-top: 5rem;
+}
+
 .prose h2 {
-	font-size: 1.5rem;
-	line-height: 1.5;
-	padding-bottom: 0.45rem;
-	border-bottom: 1px solid #d6e3ed;
-	margin-top: 2.5em;
-	margin-bottom: 1.1em;
-	scroll-margin-top: 4rem;
+	font-size: 1.75rem;
+	margin-top: 3em;
+	margin-bottom: 1em;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid #e5e7eb;
+	letter-spacing: 0.02em;
 }
 
 .prose h3 {
-	font-size: 1.3rem;
-	line-height: 1.5;
+	font-size: 1.375rem;
 	margin-top: 2.5em;
-	margin-bottom: 0.65em;
-	scroll-margin-top: 4rem;
+	margin-bottom: 0.75em;
+	letter-spacing: 0.02em;
 }
 
 .prose h4 {
-	scroll-margin-top: 4rem;
+	font-size: 1.125rem;
+	margin-top: 2em;
+	margin-bottom: 0.5em;
 }
 
 /* List styling */
 .prose li {
-	line-height: 1.7;
+	line-height: 1.85;
+	margin-top: 0.35em;
+	margin-bottom: 0.35em;
+}
+
+.prose ul,
+.prose ol {
+	padding-left: 1.5em;
+}
+
+.prose ul {
+	list-style-type: disc;
+}
+
+.prose ul ul {
+	list-style-type: circle;
 }
 
 /* Blockquote styling */
@@ -188,13 +246,22 @@
 
 /* Link styling */
 .prose a {
-	color: var(--link-color);
+	color: #2563eb;
 	text-decoration: underline;
-	text-underline-offset: 2px;
+	text-underline-offset: 3px;
+	text-decoration-thickness: 1px;
+	transition: color 0.2s;
 }
 
 .prose a:hover {
-	color: var(--link-hover-color);
+	color: #1d4ed8;
+	text-decoration-thickness: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.prose a {
+		transition: none;
+	}
 }
 
 /* Scroll-triggered fade-in animation */
