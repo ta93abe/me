@@ -1,0 +1,19 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "80990ee87ac8",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "src/components/blog/TableOfContents.astro",
+    "src/pages/blog/[id].astro"
+  ],
+  "sessions": [
+    {
+      "metadata": "/80/990ee87ac8/0/metadata.json",
+      "transcript": "/80/990ee87ac8/0/full.jsonl",
+      "content_hash": "/80/990ee87ac8/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
