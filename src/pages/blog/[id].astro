@@ -110,63 +110,59 @@ const siteUrl = Astro.site?.href || SITE.url;
   <main class="mx-auto max-w-6xl px-6 py-12">
     <Breadcrumb items={breadcrumbItems} />
 
-    <div class="mx-auto max-w-3xl">
-      <a
-        href="/blog"
-        class="mb-6 inline-block text-sm tracking-wide text-neutral-500 hover:text-neutral-900"
-      >
-        ← Blog 一覧へ戻る
-      </a>
+    <div class="flex items-start justify-center gap-16">
+      <div class="min-w-0 max-w-3xl">
+        <a
+          href="/blog"
+          class="mb-6 inline-block text-sm tracking-wide text-neutral-500 hover:text-neutral-900"
+        >
+          ← Blog 一覧へ戻る
+        </a>
 
-      <header class="mb-12 border-b border-neutral-200 pb-10">
-        <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-neutral-500">
-          <time class="font-medium">
-            {formatDate(post.data.date)}
-          </time>
+        <header class="mb-12 border-b border-neutral-200 pb-10">
+          <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-neutral-500">
+            <time class="font-medium">
+              {formatDate(post.data.date)}
+            </time>
+            {
+              post.data.updatedDate && (
+                <span class="text-neutral-400">|</span>
+                <span>更新: {formatDate(post.data.updatedDate)}</span>
+              )
+            }
+            <span class="text-neutral-400">|</span>
+            <span>{readingTimeText}</span>
+          </div>
+
+          <h1 class="font-display mb-6 text-3xl font-bold leading-tight tracking-tight text-neutral-900 sm:text-4xl">
+            {post.data.title}
+          </h1>
+
           {
-            post.data.updatedDate && (
-              <span class="text-neutral-400">|</span>
-              <span>更新: {formatDate(post.data.updatedDate)}</span>
+            post.data.tags && post.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2">
+                {post.data.tags.map((tag: string) => (
+                  <Tag>{tag}</Tag>
+                ))}
+              </div>
             )
           }
-          <span class="text-neutral-400">|</span>
-          <span>{readingTimeText}</span>
+        </header>
+
+        <article class="prose prose-lg">
+          <Content />
+        </article>
+
+        <div class="mt-16 border-t border-neutral-200 pt-8">
+          <ShareButtons url={canonicalURL.href} title={post.data.title} />
         </div>
 
-        <h1 class="font-display mb-6 text-3xl font-bold leading-tight tracking-tight text-neutral-900 sm:text-4xl">
-          {post.data.title}
-        </h1>
+        <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 
-        {
-          post.data.tags && post.data.tags.length > 0 && (
-            <div class="flex flex-wrap gap-2">
-              {post.data.tags.map((tag: string) => (
-                <Tag>{tag}</Tag>
-              ))}
-            </div>
-          )
-        }
-      </header>
-    </div>
-
-    <div class="flex items-start justify-center gap-16">
-      <article class="prose prose-lg min-w-0 max-w-3xl">
-        <Content />
-      </article>
+        <RelatedPosts posts={relatedPosts} />
+      </div>
 
       <TableOfContents headings={headings} />
-    </div>
-
-    <div class="mx-auto mt-16 max-w-3xl border-t border-neutral-200 pt-8">
-      <ShareButtons url={canonicalURL.href} title={post.data.title} />
-    </div>
-
-    <div class="mx-auto max-w-3xl">
-      <PostNavigation prevPost={prevPost} nextPost={nextPost} />
-    </div>
-
-    <div class="mx-auto max-w-3xl">
-      <RelatedPosts posts={relatedPosts} />
     </div>
   </main>
   <BackToTop />
