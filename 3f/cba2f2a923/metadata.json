@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.7.7",
+  "checkpoint_id": "3fcba2f2a923",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 16,
+  "files_touched": [
+    ".env.example",
+    "posthog-setup-report.md",
+    "src/components/posthog.astro"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3f/cba2f2a923/0/metadata.json",
+      "transcript": "/3f/cba2f2a923/0/full.jsonl",
+      "content_hash": "/3f/cba2f2a923/0/content_hash.txt",
+      "prompt": "/3f/cba2f2a923/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 7499,
+    "cache_creation_tokens": 66567,
+    "cache_read_tokens": 6909499,
+    "output_tokens": 52780,
+    "api_call_count": 44
+  }
+}
