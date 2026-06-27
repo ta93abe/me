@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.7.7",
+  "checkpoint_id": "e91d11776855",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "src/components/SnsLinks.astro",
+    "src/components/blog/ShareButtons.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/layouts/Layout.astro",
+    "src/pages/blog/[id].astro",
+    "src/pages/blog/index.astro",
+    "src/pages/bookshelf/index.astro",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e9/1d11776855/0/metadata.json",
+      "transcript": "/e9/1d11776855/0/full.jsonl",
+      "content_hash": "/e9/1d11776855/0/content_hash.txt",
+      "prompt": "/e9/1d11776855/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 49854,
+    "cache_creation_tokens": 115689,
+    "cache_read_tokens": 1764433,
+    "output_tokens": 14006,
+    "api_call_count": 19
+  }
+}

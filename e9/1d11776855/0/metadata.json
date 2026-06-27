@@ -1,0 +1,104 @@
+{
+  "cli_version": "0.7.7",
+  "checkpoint_id": "e91d11776855",
+  "session_id": "4a64de1f-3b64-4825-92e6-1e6717689c16",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-27T06:07:37.404539Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "src/components/SnsLinks.astro",
+    "src/components/blog/ShareButtons.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/layouts/Layout.astro",
+    "src/pages/blog/[id].astro",
+    "src/pages/blog/index.astro",
+    "src/pages/bookshelf/index.astro",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "519a775da399",
+  "token_usage": {
+    "input_tokens": 49854,
+    "cache_creation_tokens": 115689,
+    "cache_read_tokens": 1764433,
+    "output_tokens": 14006,
+    "api_call_count": 19
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-27T06:07:37.394783Z",
+    "agent_lines": 0,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 28,
+    "total_committed": 0,
+    "total_lines_changed": 29,
+    "agent_percentage": 3.4482758620689653,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4847,
+      "user_lines_removed": 28,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/skills/integration-astro-static/SKILL.md": 54,
+        ".claude/skills/integration-astro-static/references/1-begin.md": 56,
+        ".claude/skills/integration-astro-static/references/2-edit.md": 36,
+        ".claude/skills/integration-astro-static/references/3-revise.md": 22,
+        ".claude/skills/integration-astro-static/references/4-conclude.md": 57,
+        ".claude/skills/integration-astro-static/references/EXAMPLE.md": 720,
+        ".claude/skills/integration-astro-static/references/astro.md": 165,
+        ".claude/skills/integration-astro-static/references/identify-users.md": 272,
+        ".claude/skills/tools-and-features-hogql/SKILL.md": 76,
+        ".claude/skills/tools-and-features-hogql/references/aggregations.md": 193,
+        ".claude/skills/tools-and-features-hogql/references/clickhouse-functions.md": 671,
+        ".claude/skills/tools-and-features-hogql/references/data-access.md": 123,
+        ".claude/skills/tools-and-features-hogql/references/expressions.md": 140,
+        ".claude/skills/tools-and-features-hogql/references/posthog.md": 694,
+        ".claude/skills/tools-and-features-hogql/references/sessions.md": 205,
+        ".claude/skills/tools-and-features-hogql/references/useful-functions.md": 334,
+        ".claude/skills/tools-and-features-hogql/references/variables.md": 58,
+        "package.json": 3,
+        "pnpm-lock.yaml": 772,
+        "pnpm-workspace.yaml": 1,
+        "posthog-setup-report.md": 40,
+        "src/components/SnsLinks.astro": 31,
+        "src/components/blog/ShareButtons.astro": 26,
+        "src/components/landing/HeroSection.astro": 11,
+        "src/components/landing/LinksSection.astro": 12,
+        "src/components/posthog.astro": 11,
+        "src/layouts/Layout.astro": 2,
+        "src/pages/blog/[id].astro": 17,
+        "src/pages/blog/index.astro": 16,
+        "src/pages/bookshelf/index.astro": 11,
+        "src/pages/works/[id].astro": 7,
+        "src/pages/works/index.astro": 11
+      },
+      "user_removed_per_file": {
+        "pnpm-lock.yaml": 27,
+        "src/components/blog/ShareButtons.astro": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4827,
+      "agent_lines_removed": 29
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+both modified のファイルをコンフリクト解消して
+
+---
+
+both modified のファイルをコンフリクト解消して
