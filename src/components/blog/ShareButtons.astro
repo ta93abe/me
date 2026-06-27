@@ -39,8 +39,11 @@ const shareLinks = [
 			href={link.href}
 			target="_blank"
 			rel="noopener noreferrer"
-			class="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-200"
+			class="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-200 share-link"
 			title={link.label}
+			data-platform={link.name}
+			data-url={url}
+			data-title={title}
 		>
 			<span set:html={link.icon} />
 			<span class="hidden sm:inline">{link.name}</span>
@@ -76,4 +79,26 @@ const shareLinks = [
 			}
 		});
 	}
+</script>
+
+<script is:inline>
+	document.getElementById("copy-url-btn")?.addEventListener("click", function() {
+		var url = this.dataset.url;
+		if (url) {
+			window.posthog?.capture("blog_post_url_copied", {
+				post_url: url,
+				post_title: document.title,
+			});
+		}
+	});
+
+	document.querySelectorAll(".share-link").forEach(function(link) {
+		link.addEventListener("click", function() {
+			window.posthog?.capture("blog_post_shared", {
+				platform: link.dataset.platform,
+				post_url: link.dataset.url,
+				post_title: link.dataset.title,
+			});
+		});
+	});
 </script>

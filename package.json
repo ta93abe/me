@@ -20,6 +20,7 @@
     "deploy": "pnpm build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.9",
     "@astrojs/mdx": "^6.0.3",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.3",
@@ -30,6 +31,7 @@
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^6.4.6",
     "node-html-parser": "^7.1.0",
+    "posthog-js": "^1.393.5",
     "remark-gfm": "^4.0.1",
     "rss-parser": "^3.13.0",
     "satori": "^0.26.0",
@@ -37,6 +39,7 @@
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3",
     "viem": "^2.52.2"
   },
   "devDependencies": {

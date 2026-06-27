@@ -31,6 +31,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       <h1 class="font-display text-4xl font-bold tracking-tight">Blog</h1>
       <a
         href="/rss.xml"
+        id="rss-feed-link"
         class="flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-100"
         aria-label="RSS Feed"
       >
@@ -89,3 +90,18 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+  document.getElementById("rss-feed-link")?.addEventListener("click", function() {
+    window.posthog?.capture("rss_feed_clicked", { page: "blog" });
+  });
+
+  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      var tag = chip.dataset.tag;
+      if (tag && tag !== "all") {
+        window.posthog?.capture("blog_tag_filtered", { tag: tag });
+      }
+    });
+  });
+</script>

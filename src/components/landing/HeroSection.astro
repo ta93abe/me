@@ -86,3 +86,14 @@ import Button from "../ui/Button.astro";
     }
   }
 </style>
+
+<script is:inline>
+  document.querySelectorAll(".hero-cta a").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      window.posthog?.capture("hero_cta_clicked", {
+        cta_label: btn.textContent?.trim(),
+        cta_href: btn.getAttribute("href"),
+      });
+    });
+  });
+</script>

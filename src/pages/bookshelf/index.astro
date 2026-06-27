@@ -91,3 +91,14 @@ const sortOptions = [
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      var tag = chip.dataset.tag;
+      if (tag && tag !== "all") {
+        window.posthog?.capture("bookshelf_tag_filtered", { tag: tag });
+      }
+    });
+  });
+</script>

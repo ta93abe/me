@@ -461,7 +461,7 @@ const snsLinks: SnsLink[] = [
 ];
 ---
 
-<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+<div class="sns-links grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
   {
     snsLinks.map((link) => (
       <a
@@ -534,3 +534,13 @@ const snsLinks: SnsLink[] = [
     ))
   }
 </div>
+<script is:inline>
+	document.querySelectorAll(".sns-links a[href]").forEach(function(link) {
+		link.addEventListener("click", function() {
+			window.posthog?.capture("sns_link_clicked", {
+				platform: link.getAttribute("aria-label"),
+				url: link.getAttribute("href"),
+			});
+		});
+	});
+</script>

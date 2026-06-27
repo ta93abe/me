@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import PostHog from "../components/posthog.astro";
 import { SITE } from "../config/site";
 import { generateWebSiteSchema, stringifySchema } from "../utils/schema";
 
@@ -71,6 +72,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 			set:html={stringifySchema(generateWebSiteSchema(Astro.site?.href || SITE.url))}
 		></script>
 		<slot name="head" />
+		<PostHog />
 		<noscript>
 			<style>
 				[data-animate] {

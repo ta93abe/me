@@ -54,3 +54,14 @@ const allTags = works.flatMap((work) => work.data.tags);
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      var tag = chip.dataset.tag;
+      if (tag && tag !== "all") {
+        window.posthog?.capture("works_tag_filtered", { tag: tag });
+      }
+    });
+  });
+</script>

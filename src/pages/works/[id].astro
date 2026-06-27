@@ -117,3 +117,10 @@ const siteUrl = Astro.site?.href || SITE.url;
     pre.appendChild(button);
   });
 </script>
+
+<script is:inline>
+  window.posthog?.capture("work_viewed", {
+    work_title: document.title,
+    work_url: window.location.href,
+  });
+</script>

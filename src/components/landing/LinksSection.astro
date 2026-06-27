@@ -218,3 +218,15 @@ const links = [
     }
   }
 </style>
+
+<script is:inline>
+  document.querySelectorAll(".link-card").forEach(function(card) {
+    card.addEventListener("click", function() {
+      var titleEl = card.querySelector(".link-title");
+      window.posthog?.capture("landing_section_clicked", {
+        section_title: titleEl ? titleEl.textContent?.trim() : null,
+        section_href: card.getAttribute("href"),
+      });
+    });
+  });
+</script>
