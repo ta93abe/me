@@ -1,11 +1,19 @@
 ---
+import { SITE } from "../config/site";
+
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="border-t border-neutral-800 bg-neutral-900" role="contentinfo">
-  <div class="mx-auto max-w-7xl px-6 py-8">
-    <div class="flex flex-col items-center">
-      <p class="text-sm text-neutral-400">
+<footer class="border-t border-white/5 bg-[var(--bg-secondary)]" role="contentinfo">
+  <div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="flex flex-col items-center gap-4">
+      <a
+        href="/"
+        class="text-lg font-bold tracking-tight text-[var(--text-primary)] transition-opacity hover:opacity-70"
+      >
+        {SITE.author}
+      </a>
+      <p class="text-sm text-[var(--text-muted)]">
         &copy; {currentYear} ta93abe. All rights reserved.
       </p>
     </div>

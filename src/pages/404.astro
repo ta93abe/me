@@ -12,7 +12,7 @@ import Layout from "../layouts/Layout.astro";
       <!-- 404 大きな数字 -->
       <div class="mb-8">
         <h1
-          class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-6xl font-bold text-transparent sm:text-8xl md:text-9xl"
+          class="bg-gradient-to-r from-[var(--primary-color)] to-[var(--accent-color)] bg-clip-text text-6xl font-bold text-transparent sm:text-8xl md:text-9xl"
         >
           404
         </h1>
@@ -20,10 +20,10 @@ import Layout from "../layouts/Layout.astro";
 
       <!-- エラーメッセージ -->
       <div class="mb-8">
-        <h2 class="mb-4 text-3xl font-bold text-neutral-200">
+        <h2 class="mb-4 text-3xl font-bold text-[var(--text-primary)]">
           ページが見つかりません
         </h2>
-        <p class="mx-auto max-w-md text-neutral-400">
+        <p class="mx-auto max-w-md text-[var(--text-secondary)]">
           お探しのページは存在しないか、移動または削除された可能性があります。
         </p>
       </div>
@@ -32,14 +32,14 @@ import Layout from "../layouts/Layout.astro";
       <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
         <a
           href="/"
-          class="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          class="rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--accent-color)] px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--primary-color)]/25"
         >
           ホームに戻る
         </a>
         <button
           type="button"
           id="history-back-button"
-          class="rounded-lg border-2 border-neutral-700 px-6 py-3 font-semibold text-neutral-300 transition-all hover:border-neutral-600 hover:bg-neutral-900"
+          class="rounded-full border-2 border-[var(--border-color)] px-6 py-3 font-semibold text-[var(--text-secondary)] transition-all hover:border-[var(--primary-color)]/50 hover:bg-[var(--bg-tertiary)]"
           aria-label="前のページに戻る"
         >
           前のページへ
@@ -47,7 +47,7 @@ import Layout from "../layouts/Layout.astro";
       </div>
 
       <!-- 装飾的な要素 -->
-      <div class="mt-16 text-6xl opacity-20" aria-hidden="true">🔍</div>
+      <div class="mt-16 text-6xl text-[var(--text-muted)] opacity-50" aria-hidden="true">🔍</div>
     </div>
   </main>
 </Layout>

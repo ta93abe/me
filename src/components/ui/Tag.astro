@@ -1,9 +1,9 @@
 ---
 const variantStyles = {
-	default: "bg-neutral-800 text-neutral-300",
-	success: "bg-green-950/40 text-green-300",
-	warning: "bg-yellow-950/40 text-yellow-300",
-	info: "bg-blue-950/40 text-blue-300",
+	default: "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-color)]",
+	success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+	warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+	info: "bg-blue-500/10 text-blue-400 border-blue-500/20",
 };
 
 interface Props {
@@ -16,7 +16,7 @@ const { variant = "default", class: className = "" } = Astro.props;
 
 <span
   class:list={[
-    "rounded-full px-3 py-1 text-xs",
+    "rounded-full border px-3 py-1 text-xs",
     variantStyles[variant],
     className,
   ]}

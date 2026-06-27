@@ -2,10 +2,10 @@
 import { tv } from "tailwind-variants";
 
 const navLink = tv({
-	base: "transition-colors duration-200 hover:opacity-70",
+	base: "relative font-medium transition-colors duration-200 hover:text-[var(--text-primary)] text-[var(--text-secondary)]",
 	variants: {
 		active: {
-			true: "font-semibold text-[var(--primary-color)]",
+			true: "text-[var(--text-primary)]",
 			false: "",
 		},
 	},
@@ -41,4 +41,5 @@ const classes = navLink({ active: isActive, class: className });
 	aria-current={isActive ? "page" : undefined}
 >
 	<slot />
+	{isActive && <span class="absolute -bottom-1 left-0 h-0.5 w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--accent-color)]" aria-hidden="true" />}
 </a>

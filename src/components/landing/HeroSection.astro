@@ -4,22 +4,36 @@ import Button from "../ui/Button.astro";
 ---
 
 <section id="hero" class="hero-section">
+  <!-- Animated background orbs -->
+  <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-3" aria-hidden="true"></div>
+
+  <!-- Grid pattern overlay -->
+  <div class="hero-grid" aria-hidden="true"></div>
+
   <div class="hero-content">
-    <div class="hero-greeting">
-      <span>Welcome to my portfolio</span>
+    <div class="hero-badge" data-animate>
+      <span class="hero-badge-dot"></span>
+      <span>Software Engineer & Creative Developer</span>
     </div>
 
-    <h1 class="hero-title">
+    <h1 class="hero-title" data-animate>
       <span class="hero-name">ta93abe</span>
     </h1>
 
-    <p class="hero-description">
-      Software Engineer & Creative Developer
+    <p class="hero-description" data-animate>
+      コードとデザインの間で、<br class="sm:hidden" />面白いものを作っています。
     </p>
 
-    <div class="hero-cta">
+    <div class="hero-cta" data-animate="stagger">
       <Button href="/works" variant="primary" size="lg">View Works</Button>
       <Button href="/links" variant="secondary" size="lg">Links</Button>
+    </div>
+
+    <div class="hero-scroll" data-animate>
+      <span class="hero-scroll-text">Scroll</span>
+      <span class="hero-scroll-line"></span>
     </div>
   </div>
 </section>
@@ -32,7 +46,70 @@ import Button from "../ui/Button.astro";
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: var(--bg-primary);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(129, 140, 248, 0.12) 0%, transparent 50%),
+      var(--bg-primary);
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .hero-orb-1 {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    top: -150px;
+    right: -100px;
+    animation: float 12s ease-in-out infinite;
+  }
+
+  .hero-orb-2 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #60a5fa, #818cf8);
+    bottom: -100px;
+    left: -100px;
+    animation: float 14s ease-in-out infinite reverse;
+  }
+
+  .hero-orb-3 {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #c084fc, #f472b6);
+    top: 40%;
+    left: 30%;
+    opacity: 0.25;
+    animation: float 16s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -40px) scale(1.05);
+    }
+    66% {
+      transform: translate(-20px, 30px) scale(0.95);
+    }
   }
 
   .hero-content {
@@ -40,37 +117,60 @@ import Button from "../ui/Button.astro";
     z-index: 10;
     text-align: center;
     padding: 2rem;
+    max-width: 900px;
   }
 
-  .hero-greeting {
-    margin-bottom: 1rem;
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    backdrop-filter: blur(8px);
   }
 
-  .hero-greeting span {
-    display: inline-block;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    color: var(--text-muted);
+  .hero-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
   .hero-title {
-    font-size: clamp(3rem, 10vw, 7rem);
+    font-size: clamp(4rem, 15vw, 10rem);
     font-weight: 700;
-    line-height: 1;
+    line-height: 0.9;
     margin: 0;
-    color: var(--text-primary);
+    letter-spacing: -0.04em;
   }
 
   .hero-name {
     display: inline-block;
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 40px rgba(129, 140, 248, 0.3));
   }
 
   .hero-description {
     font-size: clamp(1.125rem, 2.5vw, 1.5rem);
     color: var(--text-secondary);
-    margin: 1.5rem 0 2.5rem;
+    margin: 2rem 0 2.5rem;
     font-weight: 400;
+    line-height: 1.7;
   }
 
   .hero-cta {
@@ -80,9 +180,65 @@ import Button from "../ui/Button.astro";
     flex-wrap: wrap;
   }
 
+  .hero-scroll {
+    position: absolute;
+    bottom: -6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .hero-scroll-line {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--primary-color), transparent);
+    animation: scroll-line 2s ease-in-out infinite;
+  }
+
+  @keyframes scroll-line {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
   @media (max-width: 768px) {
     .hero-section {
       min-height: 100svh;
+    }
+
+    .hero-orb-1 {
+      width: 300px;
+      height: 300px;
+    }
+
+    .hero-orb-2 {
+      width: 250px;
+      height: 250px;
+    }
+
+    .hero-orb-3 {
+      width: 200px;
+      height: 200px;
+    }
+
+    .hero-scroll {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-orb,
+    .hero-badge-dot,
+    .hero-scroll-line {
+      animation: none;
     }
   }
 </style>

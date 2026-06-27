@@ -5,7 +5,7 @@ export const statusLabels = {
 };
 
 export const statusStyles = {
-	read: "bg-emerald-100 text-emerald-800",
-	reading: "bg-blue-100 text-blue-800",
-	stacked: "bg-amber-100 text-amber-800",
+	read: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20",
+	reading: "bg-blue-500/15 text-blue-400 border border-blue-500/20",
+	stacked: "bg-amber-500/15 text-amber-400 border border-amber-500/20",
 };

@@ -507,11 +507,11 @@ const categories = [...new Set(snsLinks.map((link) => link.category))];
 		categories.map((category) => (
 			<section data-animate>
 				<div class="mb-5 flex items-center gap-4">
-					<div class="h-px flex-1 bg-neutral-200" />
-					<h2 class="font-display text-sm font-bold uppercase tracking-widest text-neutral-400">
+					<div class="h-px flex-1 bg-[var(--border-color)]" />
+					<h2 class="font-display text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
 						{category}
 					</h2>
-					<div class="h-px flex-1 bg-neutral-200" />
+					<div class="h-px flex-1 bg-[var(--border-color)]" />
 				</div>
 
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -522,10 +522,10 @@ const categories = [...new Set(snsLinks.map((link) => link.category))];
 								href={link.url}
 								target="_blank"
 								rel="noopener noreferrer"
-								class={`group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-neutral-200 bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)] ${link.hoverBg}`}
+								class="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:bg-[var(--bg-elevated)] hover:shadow-xl hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
 								aria-label={link.name}
 							>
-								<div class="relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-neutral-50 transition-colors duration-300 group-hover:bg-white">
+								<div class="relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--bg-secondary)] transition-colors duration-300 group-hover:bg-[var(--bg-elevated)]">
 									<svg
 										viewBox={link.viewBox || "0 0 24 24"}
 										class="h-6 w-6"
@@ -587,16 +587,16 @@ const categories = [...new Set(snsLinks.map((link) => link.category))];
 								</div>
 
 								<div class="min-w-0 flex-1">
-									<div class="text-base font-bold text-neutral-900 transition-colors group-hover:text-[var(--primary-color)]">
+									<div class="text-base font-bold text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary-color)]">
 										{link.name}
 									</div>
-									<div class="truncate text-xs text-neutral-500">
+									<div class="truncate text-xs text-[var(--text-muted)]">
 										{link.url.replace(/^https:\/\//, "")}
 									</div>
 								</div>
 
 								<svg
-									class="h-4 w-4 flex-shrink-0 text-neutral-300 transition-all duration-300 group-hover:translate-x-1 group-hover:text-neutral-500"
+									class="h-4 w-4 flex-shrink-0 text-[var(--text-muted)] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[var(--primary-color)]"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"

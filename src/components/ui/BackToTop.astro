@@ -9,8 +9,8 @@ const { class: className = "" } = Astro.props;
 <button
 	id="back-to-top"
 	class:list={[
-		"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full bg-neutral-800 text-white shadow-lg transition-opacity duration-200 ease-out hover:bg-neutral-700 motion-reduce:transition-none",
-		"opacity-0 pointer-events-none",
+		"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-lg transition-all duration-200 ease-out hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] motion-reduce:transition-none",
+		"opacity-0 pointer-events-none translate-y-4",
 		className,
 	]}
 	aria-label="ページトップへ戻る"
@@ -37,11 +37,11 @@ const { class: className = "" } = Astro.props;
 
 		const toggleVisibility = () => {
 			if (window.scrollY > showThreshold) {
-				backToTopBtn.classList.remove("opacity-0", "pointer-events-none");
-				backToTopBtn.classList.add("opacity-100", "pointer-events-auto");
+				backToTopBtn.classList.remove("opacity-0", "pointer-events-none", "translate-y-4");
+				backToTopBtn.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
 			} else {
-				backToTopBtn.classList.add("opacity-0", "pointer-events-none");
-				backToTopBtn.classList.remove("opacity-100", "pointer-events-auto");
+				backToTopBtn.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
+				backToTopBtn.classList.remove("opacity-100", "pointer-events-auto", "translate-y-0");
 			}
 		};
 

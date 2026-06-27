@@ -2,15 +2,15 @@
 import { tv } from "tailwind-variants";
 
 const button = tv({
-	base: "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
+	base: "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]",
 	variants: {
 		variant: {
 			primary:
-				"bg-neutral-100 text-neutral-900 hover:bg-neutral-200",
+				"relative overflow-hidden bg-[var(--text-primary)] text-[var(--bg-primary)] hover:shadow-[0_0_30px_-5px_rgba(129,140,248,0.4)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-[var(--primary-color)] before:to-[var(--accent-color)] before:opacity-0 before:transition-opacity hover:before:opacity-100",
 			secondary:
-				"bg-transparent text-neutral-100 border-2 border-neutral-100 hover:bg-neutral-100 hover:text-neutral-900",
+				"bg-transparent text-[var(--text-primary)] border border-white/20 hover:border-[var(--primary-color)]/50 hover:bg-white/5",
 			ghost:
-				"bg-transparent text-neutral-100 hover:bg-neutral-800",
+				"bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5",
 		},
 		size: {
 			sm: "px-4 py-2 text-sm",
@@ -19,7 +19,7 @@ const button = tv({
 		},
 		disabled: {
 			true: "opacity-50 cursor-not-allowed",
-			false: "hover:translate-y-[-2px] hover:shadow-lg",
+			false: "hover:translate-y-[-2px]",
 		},
 	},
 	defaultVariants: {
@@ -53,11 +53,11 @@ const classes = button({ variant, size, disabled, class: className });
 {
 	href && !disabled ? (
 		<a href={href} class={classes}>
-			<slot />
+			<span class="relative z-10"><slot /></span>
 		</a>
 	) : (
 		<button type={type} disabled={disabled} class={classes}>
-			<slot />
+			<span class="relative z-10"><slot /></span>
 		</button>
 	)
 }

@@ -6,7 +6,7 @@ import NavLink from "./ui/NavLink.astro";
 ---
 
 <header
-  class="sticky top-0 z-50 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm"
+  class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[var(--bg-primary)]/70 backdrop-blur-xl"
 >
   <nav
     class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"
@@ -16,11 +16,11 @@ import NavLink from "./ui/NavLink.astro";
 
     <!-- デスクトップナビゲーション -->
     <div class="hidden items-center gap-6 md:flex">
-      <ul class="flex gap-6">
+      <ul class="flex gap-1">
         {
           NAV_LINKS.map((link) => (
             <li>
-              <NavLink href={link.href}>
+              <NavLink href={link.href} class="rounded-lg px-4 py-2">
                 {link.text}
               </NavLink>
             </li>
@@ -34,14 +34,14 @@ import NavLink from "./ui/NavLink.astro";
       <button
         type="button"
         id="mobile-menu-button"
-        class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-neutral-800"
+        class="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
         aria-label="メニューを開く"
         aria-expanded="false"
         aria-controls="mobile-menu"
       >
       <svg
         id="menu-icon-open"
-        class="h-6 w-6"
+        class="h-5 w-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -55,7 +55,7 @@ import NavLink from "./ui/NavLink.astro";
       </svg>
       <svg
         id="menu-icon-close"
-        class="hidden h-6 w-6"
+        class="hidden h-5 w-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -74,7 +74,7 @@ import NavLink from "./ui/NavLink.astro";
   <!-- モバイルメニュー -->
   <div
     id="mobile-menu"
-    class="hidden border-t border-neutral-800 bg-neutral-900 md:hidden"
+    class="hidden border-t border-white/5 bg-[var(--bg-primary)]/95 backdrop-blur-xl md:hidden"
     aria-hidden="true"
   >
     <ul class="space-y-1 px-6 py-4">
@@ -83,7 +83,7 @@ import NavLink from "./ui/NavLink.astro";
           <li>
             <NavLink
               href={link.href}
-              class="block rounded-lg px-4 py-3 text-lg hover:bg-neutral-800"
+              class="block rounded-lg px-4 py-3 text-lg hover:bg-white/5"
             >
               {link.text}
             </NavLink>
