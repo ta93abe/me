@@ -13,15 +13,15 @@ const ogp = await fetchOgpData(url);
   href={ogp.url}
   target="_blank"
   rel="noopener noreferrer"
-  class="my-6 flex rounded-lg border border-neutral-200 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-sm no-underline overflow-hidden"
+  class="my-6 flex rounded-lg border border-neutral-800 transition-all hover:border-neutral-700 hover:bg-neutral-900 hover:shadow-sm no-underline overflow-hidden"
 >
   <div class="flex-1 min-w-0 p-4">
-    <div class="font-semibold text-neutral-900 truncate text-sm">
+    <div class="font-semibold text-neutral-100 truncate text-sm">
       {ogp.title}
     </div>
     {
       ogp.description && (
-        <div class="mt-1 text-xs text-neutral-600 line-clamp-2">
+        <div class="mt-1 text-xs text-neutral-400 line-clamp-2">
           {ogp.description}
         </div>
       )

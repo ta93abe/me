@@ -1,0 +1,24 @@
+{
+  "status": "updated",
+  "fqn": "me/Build",
+  "logicalId": "Build",
+  "instanceId": "a68a8dcba922193c2d5ae25b22bec7b7",
+  "resourceType": "Build.Command",
+  "props": {
+    "command": "pnpm build",
+    "outdir": "dist"
+  },
+  "attr": {
+    "outdir": "/Users/takumi.abe/Developer/github.com/ta93abe/me/dist",
+    "hash": "3d52f58da07290b5ad68b4c78c9a653dcb195c23453f7ddb8303d5e4f556dbbd"
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [
+    "me/Worker"
+  ],
+  "removalPolicy": "destroy",
+  "namespace": {
+    "Id": "me"
+  }
+}
