@@ -1,0 +1,75 @@
+{
+  "cli_version": "0.7.7",
+  "checkpoint_id": "e91d11776855",
+  "session_id": "e214dd2a-259c-46b6-8a55-2a142456659c",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-27T06:07:38.31334Z",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "save_step_count": 3,
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "posthog-setup-report.md",
+    "src/components/SnsLinks.astro",
+    "src/components/blog/ShareButtons.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/components/posthog.astro",
+    "src/layouts/Layout.astro",
+    "src/pages/blog/[id].astro",
+    "src/pages/blog/index.astro",
+    "src/pages/bookshelf/index.astro",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "2e4a7e30592e",
+  "token_usage": {
+    "input_tokens": 1113,
+    "cache_creation_tokens": 217468,
+    "cache_read_tokens": 9347847,
+    "output_tokens": 28500,
+    "api_call_count": 82
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-27T06:07:38.294374Z",
+    "agent_lines": 782,
+    "agent_removed": 28,
+    "human_added": 4025,
+    "human_modified": 170,
+    "human_removed": 0,
+    "total_committed": 4977,
+    "total_lines_changed": 5005,
+    "agent_percentage": 16.183816183816184,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

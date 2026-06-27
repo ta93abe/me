@@ -3,15 +3,17 @@
   "checkpoint_id": "e91d11776855",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 8,
+  "checkpoints_count": 12,
   "files_touched": [
     "package.json",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
+    "posthog-setup-report.md",
     "src/components/SnsLinks.astro",
     "src/components/blog/ShareButtons.astro",
     "src/components/landing/HeroSection.astro",
     "src/components/landing/LinksSection.astro",
+    "src/components/posthog.astro",
     "src/layouts/Layout.astro",
     "src/pages/blog/[id].astro",
     "src/pages/blog/index.astro",
@@ -31,13 +33,19 @@
       "transcript": "/e9/1d11776855/1/full.jsonl",
       "content_hash": "/e9/1d11776855/1/content_hash.txt",
       "prompt": "/e9/1d11776855/1/prompt.txt"
+    },
+    {
+      "metadata": "/e9/1d11776855/2/metadata.json",
+      "transcript": "/e9/1d11776855/2/full.jsonl",
+      "content_hash": "/e9/1d11776855/2/content_hash.txt",
+      "prompt": "/e9/1d11776855/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 52249,
-    "cache_creation_tokens": 360543,
-    "cache_read_tokens": 4398507,
-    "output_tokens": 175920,
-    "api_call_count": 43
+    "input_tokens": 53362,
+    "cache_creation_tokens": 578011,
+    "cache_read_tokens": 13746354,
+    "output_tokens": 204420,
+    "api_call_count": 125
   }
 }
