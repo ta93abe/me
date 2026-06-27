@@ -3,7 +3,7 @@
   "checkpoint_id": "e91d11776855",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 2,
+  "checkpoints_count": 8,
   "files_touched": [
     "package.json",
     "pnpm-lock.yaml",
@@ -25,13 +25,19 @@
       "transcript": "/e9/1d11776855/0/full.jsonl",
       "content_hash": "/e9/1d11776855/0/content_hash.txt",
       "prompt": "/e9/1d11776855/0/prompt.txt"
+    },
+    {
+      "metadata": "/e9/1d11776855/1/metadata.json",
+      "transcript": "/e9/1d11776855/1/full.jsonl",
+      "content_hash": "/e9/1d11776855/1/content_hash.txt",
+      "prompt": "/e9/1d11776855/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 49854,
-    "cache_creation_tokens": 115689,
-    "cache_read_tokens": 1764433,
-    "output_tokens": 14006,
-    "api_call_count": 19
+    "input_tokens": 52249,
+    "cache_creation_tokens": 360543,
+    "cache_read_tokens": 4398507,
+    "output_tokens": 175920,
+    "api_call_count": 43
   }
 }
