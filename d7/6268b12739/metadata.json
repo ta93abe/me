@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "d76268b12739",
+  "strategy": "manual-commit",
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoints_count": 26,
+  "files_touched": [
+    "astro.config.mjs",
+    "design.pen",
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/pages/404.astro"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d7/6268b12739/0/metadata.json",
+      "transcript": "/d7/6268b12739/0/full.jsonl",
+      "compact_transcript": "/d7/6268b12739/0/transcript.jsonl",
+      "content_hash": "/d7/6268b12739/0/content_hash.txt",
+      "prompt": "/d7/6268b12739/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 286,
+    "cache_creation_tokens": 354586,
+    "cache_read_tokens": 10466687,
+    "output_tokens": 79247,
+    "api_call_count": 72
+  }
+}

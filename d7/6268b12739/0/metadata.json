@@ -1,0 +1,193 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "d76268b12739",
+  "session_id": "1dd4a314-7632-4908-9be1-1a43cdb074a2",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-12T03:00:33.801914Z",
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoints_count": 26,
+  "save_step_count": 13,
+  "files_touched": [
+    "astro.config.mjs",
+    "design.pen",
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/pages/404.astro"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "6bac83c7fbb5",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 286,
+    "cache_creation_tokens": 354586,
+    "cache_read_tokens": 10466687,
+    "output_tokens": 79247,
+    "api_call_count": 72
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01SzJe1YfFCdajK9iJFDpXan",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "6bac83c7fbb5",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 59,
+        "end": 60,
+        "entry_ids": [
+          "db946b3c-f549-4cc3-a92c-0a9c23a82097"
+        ],
+        "tool_use_id": "toolu_01SzJe1YfFCdajK9iJFDpXan"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01SzJe1YfFCdajK9iJFDpXan"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 26
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-12T03:00:33.740055Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 7306,
+    "total_committed": 0,
+    "total_lines_changed": 7306,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 5594,
+      "user_lines_removed": 7329,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".serena/project.yml": 53,
+        "astro.config.mjs": 2,
+        "design.pen": 4256,
+        "package.json": 7,
+        "pnpm-lock.yaml": 490,
+        "src/components/NotFoundPlayground.tsx": 782,
+        "src/pages/404.astro": 4
+      },
+      "user_removed_per_file": {
+        ".serena/project.yml": 23,
+        "astro.config.mjs": 1,
+        "design.pen": 7232,
+        "pnpm-lock.yaml": 11,
+        "src/pages/404.astro": 62
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 11,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5594,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 12,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5852,
+      "agent_lines_removed": 7329
+    },
+    {
+      "checkpoint_number": 13,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5950,
+      "agent_lines_removed": 7340
+    },
+    {
+      "checkpoint_number": 14,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5982,
+      "agent_lines_removed": 7341
+    }
+  ]
+}

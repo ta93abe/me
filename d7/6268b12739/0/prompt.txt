@@ -1,0 +1,111 @@
+https://github.com/emdash-cms/emdash
+use deepwiki
+emdash ってコンテンツをGit管理できる？
+
+---
+
+https://github.com/emdash-cms/emdash
+use deepwiki
+emdash ってコンテンツをGit管理できる？
+
+---
+
+コンテンツのバージョン管理ができればいいんだけどね。ローカルのマークダウンで書いてPushして更新できるようにしたい
+
+---
+
+コンテンツのバージョン管理ができればいいんだけどね。ローカルのマークダウンで書いてPushして更新できるようにしたい
+
+---
+
+A
+画像は裏側でR2にホストしたい
+
+---
+
+A
+画像は裏側でR2にホストしたい
+
+---
+
+そう考えるとEmdashをCMSとしていれればここらへんの管理は最適化してくれるね。
+
+---
+
+そう考えるとEmdashをCMSとしていれればここらへんの管理は最適化してくれるね。
+
+---
+
+Emdashのプラグインエコシステムは？
+
+---
+
+Emdashのプラグインエコシステムは？
+
+---
+
+自分の好きなエディターとEmDashの管理画面両方からコンテンツ投入できればいいな。
+
+---
+
+自分の好きなエディターとEmDashの管理画面両方からコンテンツ投入できればいいな。
+
+---
+
+payload cms は？
+
+---
+
+payload cms は？
+
+---
+
+Git-based ってどんなのがあるの？Sveltia以外に。
+
+---
+
+Git-based ってどんなのがあるの？Sveltia以外に。
+
+---
+
+開発由来はどこ？例えばPayloadCMSはYCombinator発の製品だよね
+
+---
+
+開発由来はどこ？例えばPayloadCMSはYCombinator発の製品だよね
+
+---
+
+emdash は Cloudflareでしょ。
+
+---
+
+emdash は Cloudflareでしょ。
+
+---
+
+Sveltiaにしよう。
+https://sveltiacms.app/en/docs/intro
+use context7
+
+---
+
+Sveltiaにしよう。
+https://sveltiacms.app/en/docs/intro
+use context7
+
+---
+
+必要なものは alchemy v2 で作りたいね。
+
+---
+
+必要なものは alchemy v2 で作りたいね。
+
+---
+
+x402 対応したいね。
+
+---
+
+x402 対応したいね。
