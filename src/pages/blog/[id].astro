@@ -116,7 +116,7 @@ const siteUrl = Astro.site?.href || SITE.url;
       ← Blog 一覧へ戻る
     </a>
 
-    <header class="mb-12 border-b border-[var(--border-color)] pb-10">
+    <header class="mb-12 border-b border-(--border-color) pb-10">
       <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-[var(--text-muted)]">
         <time class="font-medium">
           {formatDate(post.data.date)}
@@ -150,7 +150,7 @@ const siteUrl = Astro.site?.href || SITE.url;
       <Content />
     </article>
 
-    <div class="mt-16 border-t border-[var(--border-color)] pt-8">
+    <div class="mt-16 border-t border-(--border-color) pt-8">
       <ShareButtons url={canonicalURL.href} title={post.data.title} />
     </div>
 

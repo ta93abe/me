@@ -32,27 +32,27 @@ const smoothEase = [0.22, 1, 0.36, 1] as const;
 const loopEase = "easeInOut" as const;
 const linearEase = "linear" as const;
 
+const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
+	event.preventDefault();
+
+	try {
+		if (
+			document.referrer &&
+			new URL(document.referrer).origin === window.location.origin
+		) {
+			window.history.back();
+			return;
+		}
+	} catch (error) {
+		console.error("Failed to inspect referrer:", error);
+	}
+
+	window.location.href = "/";
+};
+
 export default function NotFoundPlayground() {
 	const prefersReducedMotion = useReducedMotion();
 	const titleId = React.useId();
-
-	const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-
-		try {
-			if (
-				document.referrer &&
-				new URL(document.referrer).origin === window.location.origin
-			) {
-				window.history.back();
-				return;
-			}
-		} catch (error) {
-			console.error("Failed to inspect referrer:", error);
-		}
-
-		window.location.href = "/";
-	};
 
 	const entrance = prefersReducedMotion
 		? {}

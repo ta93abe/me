@@ -939,7 +939,7 @@ const enablePagefind = !import.meta.env.DEV;
 		</div>
 
 		<!-- 検索 -->
-		<div class="mb-12 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-6">
+		<div class="mb-12 rounded-2xl border border-(--border-color) bg-[var(--bg-tertiary)] p-6">
 			<h2 class="mb-2 text-xl font-bold text-[var(--text-primary)]">Search</h2>
 			<p class="mb-4 text-sm text-[var(--text-secondary)]">
 				ツール名・説明から検索できます。
@@ -954,19 +954,19 @@ const enablePagefind = !import.meta.env.DEV;
 
 		<!-- 統計情報 -->
 		<div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-			<div class="rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-6 text-center">
+			<div class="rounded-lg border border-(--border-color) bg-[var(--bg-tertiary)] p-6 text-center">
 				<div class="text-3xl font-bold text-[var(--primary-color)]">
 					{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}
 				</div>
 				<div class="text-sm text-[var(--text-secondary)]">ツール総数</div>
 			</div>
-			<div class="rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-6 text-center">
+			<div class="rounded-lg border border-(--border-color) bg-[var(--bg-tertiary)] p-6 text-center">
 				<div class="text-3xl font-bold text-emerald-400">
 					{categories.length}
 				</div>
 				<div class="text-sm text-[var(--text-secondary)]">カテゴリ数</div>
 			</div>
-			<div class="rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-6 text-center">
+			<div class="rounded-lg border border-(--border-color) bg-[var(--bg-tertiary)] p-6 text-center">
 				<div class="text-3xl font-bold text-[var(--accent-color)]">100%</div>
 				<div class="text-sm text-[var(--text-secondary)]">Nix管理率</div>
 			</div>
@@ -992,7 +992,7 @@ const enablePagefind = !import.meta.env.DEV;
 								<article
 									id={toolId}
 									data-pagefind-body
-									class="group rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 transition-all hover:border-[var(--primary-color)]/50 hover:shadow-lg hover:shadow-[var(--primary-color)]/5"
+									class="group rounded-xl border border-(--border-color) bg-[var(--bg-secondary)] p-4 transition-all hover:border-[var(--primary-color)]/50 hover:shadow-lg hover:shadow-[var(--primary-color)]/5"
 								>
 									<a
 										href={tool.url}
@@ -1028,7 +1028,7 @@ const enablePagefind = !import.meta.env.DEV;
 		</div>
 
 		<!-- フッター情報 -->
-		<div class="mt-16 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-6">
+		<div class="mt-16 rounded-2xl border border-(--border-color) bg-[var(--bg-tertiary)] p-6">
 			<h3 class="mb-3 font-bold text-[var(--text-primary)]">🔧 管理方針</h3>
 			<ul class="space-y-2 text-sm text-[var(--text-secondary)]">
 				<li>
@@ -1064,7 +1064,7 @@ const enablePagefind = !import.meta.env.DEV;
 					const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
 					const searchElement = document.getElementById("pagefind-search");
 					if (searchElement) {
-						new PagefindUI({
+						void new PagefindUI({
 							element: searchElement,
 							showSubResults: true,
 							translations: {

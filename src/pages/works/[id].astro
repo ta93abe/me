@@ -72,7 +72,7 @@ const siteUrl = Astro.site?.href || SITE.url;
       <div class="mb-6 flex flex-wrap gap-2">
         {
           work.data.tags.map((tag) => (
-            <span class="rounded-full border border-[var(--border-color)] bg-[var(--bg-tertiary)] px-4 py-2 text-sm text-[var(--text-secondary)]">
+            <span class="rounded-full border border-(--border-color) bg-[var(--bg-tertiary)] px-4 py-2 text-sm text-[var(--text-secondary)]">
               {tag}
             </span>
           ))
@@ -80,7 +80,7 @@ const siteUrl = Astro.site?.href || SITE.url;
       </div>
     </div>
 
-    <div class="mb-8 aspect-video overflow-hidden rounded-xl border border-[var(--border-color)]">
+    <div class="mb-8 aspect-video overflow-hidden rounded-xl border border-(--border-color)">
       <Image
         src={work.data.coverImage}
         alt={work.data.title}

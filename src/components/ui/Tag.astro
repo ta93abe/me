@@ -1,6 +1,8 @@
 ---
+import { cn } from "../../utils/cn";
+
 const variantStyles = {
-	default: "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-color)]",
+	default: "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-(--border-color)",
 	success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
 	warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
 	info: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -11,15 +13,12 @@ interface Props {
 	class?: string;
 }
 
-const { variant = "default", class: className = "" } = Astro.props;
+const { variant = "default", class: className = "" } = Astro.props as Props;
+const classes = cn(
+	"rounded-full border px-3 py-1 text-xs",
+	variantStyles[variant],
+	className,
+);
 ---
 
-<span
-  class:list={[
-    "rounded-full border px-3 py-1 text-xs",
-    variantStyles[variant],
-    className,
-  ]}
->
-  <slot />
-</span>
+<span class:list={[classes]}><slot /></span>
