@@ -117,27 +117,76 @@ SVCB _a2a._agents.ta93abe.com 1 ta93abe.com. alpn=h2,h3 path=/.well-known/agent-
 HTTPS _a2a._agents.ta93abe.com 1 ta93abe.com. alpn=h2,h3 path=/.well-known/agent-card.json
 ```
 
-> 注意: DNS レコードはコードではなく Cloudflare ダッシュボード / API で管理する必要があります。
+> 更新（2026-07-12）: DNS レコードは [Alchemy v2](https://v2.alchemy.run/)（TypeScript IaC）で
+> コード管理する方針にした（`docs/sveltia-migration.md` の Alchemy セクション参照）。
+> Alchemy v2 の Cloudflare DNS レコードリソースの対応状況（特に SVCB / HTTPS レコード型）は
+> 実装時に確認し、未対応なら Cloudflare API を直接呼ぶ薄いリソースで補完する。
 
 ### 4.2 auth.md の agent_auth メタデータ
 
-以下の形式を `auth.md` と `/.well-known/oauth-authorization-server` の両方に実装済みですが、isitagentready.com のスキャナーはまだ「agent_auth metadata was not found」と報告しています。
+**更新（2026-07-12）: 正式仕様が判明。** auth.md は WorkOS の公開プロトコル
+（[workos/auth.md](https://github.com/workos/auth.md)）で、`agent_auth` ブロックは
+`/.well-known/oauth-authorization-server` メタデータに置く。前回実装が fail だった原因は
+フィールド名と構造の相違と推測される：
+
+- `skill` フィールド（auth.md ドキュメントの URL）が**欠けていた** — これが発見の起点
+- `supported_identity_types` → 正しくは **`identity_types_supported`**
+- `supported_credential_types` → 正しくは **ID タイプごとにネスト**する
+  （例: `anonymous.credential_types_supported`）
+
+仕様に沿った修正版（公開読み取り専用サイトなので anonymous のみサポート）：
 
 ```json
 {
   "agent_auth": {
-    "register_uri": "https://ta93abe.com/auth.md",
-    "supported_identity_types": ["anonymous"],
-    "supported_credential_types": ["none"],
-    "claim_uri": null,
-    "revocation_uri": null
+    "skill": "https://ta93abe.com/auth.md",
+    "register_uri": "https://ta93abe.com/agent/auth",
+    "identity_types_supported": ["anonymous"],
+    "anonymous": {
+      "credential_types_supported": ["api_key"]
+    }
   }
 }
 ```
 
-スキャナーの実装が非公開のため、正確な形式は不明です。試行錯誤を続けるか、現状の Level 5 を維持するかの判断が必要です。
+あわせて `auth.md` 本文も、プロトコルが定めるステップ構成
+（Discover → Pick a method → Register → Claim ceremony → Use the credential → Errors → Revocation）
+に沿って書き直す。`register_uri` が指す `/agent/auth` は Worker に最小実装
+（anonymous 登録で API キー相当のトークンを返す、または明示的に 501 を返して
+メタデータのみ提供）を用意するか、スキャナーがメタデータの存在だけを見るかを
+デプロイ後のスキャンで検証する。
 
-### 4.3 Web Bot Auth
+### 4.3 x402 投げ銭エンドポイント（Commerce 対応）
+
+**追加（2026-07-12）**: Commerce カテゴリ（現状 neutral ×5）のうち x402 に対応する。
+方針は **Base mainnet の USDC を受け取る投げ銭（tip）エンドポイント**。
+既存コンテンツはすべて無料のままにし、Content Accessibility の pass を維持する。
+
+**フロー**（[x402 プロトコル](https://github.com/coinbase/x402)）:
+
+1. エージェントが `/tip` にリクエスト → Worker が **402 Payment Required** と
+   `PAYMENT-REQUIRED` ヘッダー（Base64 エンコードした支払い条件 JSON）を返す
+2. 支払い条件: `scheme: exact` / `network: base` / asset: USDC /
+   `payTo: <受取アドレス>`。exact スキームは固定額のため、投げ銭は
+   金額ティア（例: $0.10 / $1 / $5 の accepts 複数エントリ）で表現する
+3. エージェントが署名済み支払いペイロード付きで再リクエスト →
+   Worker が **facilitator（Coinbase CDP）** の verify / settle API を呼んで検証・決済 →
+   200 でお礼のレスポンスを返す
+
+**実装方針**: `worker/index.ts` は素の fetch ハンドラなので、Hono を導入せず
+facilitator の REST API を直接叩く薄い実装とする（サーバーは秘密鍵もチェーンも扱わない）。
+`/tip` は llms.txt / `/.well-known/api-catalog` / agent-card にも記載して発見可能にする。
+
+**ユーザー側で必要な準備**（コードでは代行できない）:
+
+1. Base ネットワークの受取ウォレットアドレス（公開情報）
+2. Coinbase CDP アカウントの作成と API キーの発行（mainnet の facilitator 利用に必要）。
+   キーは Worker のシークレット（`wrangler secret put` または Alchemy のシークレット）に設定
+
+**検証**: isitagentready.com の Commerce チェックの検出方法は非公開のため、
+デプロイ後に再スキャンして x402 が neutral → pass に変わるかを確認する。
+
+### 4.4 Web Bot Auth
 
 このサイトは公開コンテンツのみ提供するため、Web Bot Auth は不要です。スキャナーは neutral（情報提供のみ）として扱っています。
 
@@ -164,9 +213,11 @@ pnpm deploy
 - [x] https://isitagentready.com/?url=https://ta93abe.com/ で Level 5（Agent-Native）に到達する
 - [x] 主要な Discovery エンドポイントが 200 を返す
 - [x] 未実装の Web Bot Auth / Commerce エンドポイントが 500 ではなく 404 を返す
-- [ ] DNS-AID レコードを追加する（オプション、Cloudflare DNS 操作が必要）
-- [ ] auth.md の agent_auth メタデータをスキャナーが認識する形式に調整する（実装非公開のため要判断）
+- [ ] DNS-AID レコードを追加する（Alchemy v2 でコード管理、4.1 参照）
+- [ ] agent_auth メタデータを workos/auth.md 仕様に修正する（4.2 参照、正式仕様判明済み）
+- [ ] デプロイ後に再スキャンし、dnsAid / authMd が pass になることを確認する
+- [ ] x402 投げ銭エンドポイント `/tip` を実装する（4.3 参照。受取アドレスと CDP API キーが前提）
 
 ---
 
-*最終更新: 2026-06-14*
+*最終更新: 2026-07-12*
