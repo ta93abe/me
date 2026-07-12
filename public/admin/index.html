@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="robots" content="noindex" />
+		<title>Content Manager</title>
+	</head>
+	<body>
+		<!--
+			Sveltia CMS はバージョン固定 + SRI で読み込む（CDN 侵害対策）。
+			アップデート時はバージョンとハッシュを揃えて更新する:
+			curl -s https://unpkg.com/@sveltia/cms@<VERSION>/dist/sveltia-cms.js | openssl dgst -sha384 -binary | openssl base64 -A
+		-->
+		<script
+			src="https://unpkg.com/@sveltia/cms@0.170.6/dist/sveltia-cms.js"
+			integrity="sha384-vgqEybEUwmBW0HqRu+QVO0Pr356tZ13JAj2YptxMIt67e0Jv7FoBP9UwMjAcjfW7"
+			crossorigin="anonymous"
+		></script>
+	</body>
+</html>
