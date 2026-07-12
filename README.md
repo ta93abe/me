@@ -9,7 +9,7 @@ Astro + Tailwind CSS + TypeScript で構築した個人サイト。Cloudflare Wo
 | フレームワーク | Astro |
 | スタイリング | Tailwind CSS |
 | 言語 | TypeScript |
-| Lint / Format | Biome |
+| Lint / Format | Oxlint / Oxfmt |
 | アナリティクス | PostHog |
 | デプロイ | Cloudflare Workers（Workers Builds） |
 | パッケージマネージャ | pnpm |
@@ -29,7 +29,8 @@ pnpm dev               # http://localhost:4321
 | `pnpm dev` | 開発サーバー起動（localhost:4321） |
 | `pnpm build` | 本番ビルドを `./dist/` に生成 |
 | `pnpm preview` | ビルド結果をローカルでプレビュー |
-| `pnpm assist` | Biome で lint + format（src/） |
+| `pnpm lint` | Oxlint で lint + 自動修正（src/） |
+| `pnpm format` | Oxfmt でフォーマット（src/） |
 
 ## 環境変数
 

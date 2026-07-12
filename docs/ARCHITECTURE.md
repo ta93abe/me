@@ -11,7 +11,7 @@
 | ビルドツール | Vite | 開発サーバー・バンドリング |
 | 言語 | TypeScript | 型安全な開発 |
 | パッケージマネージャー | pnpm | 高速・効率的な依存管理 |
-| リンター/フォーマッター | Biome 2.3.11 | コード品質管理 |
+| リンター/フォーマッター | Oxlint / Oxfmt | コード品質管理 |
 | テスティング | Vitest + Playwright | ユニット・E2E テスト |
 | デプロイ先 | Cloudflare Workers | エッジコンピューティング |
 
@@ -61,7 +61,8 @@
 │   └── example.spec.ts
 │
 ├── astro.config.mjs           # Astro 設定
-├── biome.json                 # Biome 設定
+├── .oxlintrc.json             # Oxlint 設定
+├── .oxfmtrc.json              # Oxfmt 設定
 ├── package.json               # 依存関係・スクリプト
 ├── playwright.config.ts       # Playwright 設定
 ├── pnpm-workspace.yaml        # pnpm ワークスペース設定
@@ -205,7 +206,8 @@ astro
 └── tailwindcss             # スタイリングフレームワーク
 
 開発依存関係
-├── @biomejs/biome          # リンター・フォーマッター
+├── oxlint                  # リンター
+├── oxfmt                   # フォーマッター
 ├── vitest                  # ユニットテスト
 ├── @playwright/test        # E2E テスト
 └── wrangler                # Cloudflare Workers CLI
@@ -256,7 +258,7 @@ Cloudflare Workers
 
 - **高速 HMR**: Vite による瞬時のホットリロード
 - **TypeScript**: 型安全による開発時エラー検出
-- **Biome**: 高速なリンティング・フォーマット
+- **Oxlint / Oxfmt**: 高速なリンティング・フォーマット
 
 ## セキュリティ
 

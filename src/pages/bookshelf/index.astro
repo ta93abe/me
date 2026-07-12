@@ -10,7 +10,7 @@ import { formatDate } from "../../utils/date";
 
 const books = await getCollection("books");
 
-const sortedBooks = [...books].sort((a, b) => {
+const sortedBooks = [...books].toSorted((a, b) => {
 	const aTime = a.data.finishedDate?.getTime() ?? 0;
 	const bTime = b.data.finishedDate?.getTime() ?? 0;
 	return bTime - aTime;

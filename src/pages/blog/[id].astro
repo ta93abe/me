@@ -16,7 +16,7 @@ import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
 export async function getStaticPaths() {
 	const blogPosts = await getCollection("blog");
 	// 公開日でソート（新しい順）
-	const sortedPosts = blogPosts.sort(
+	const sortedPosts = blogPosts.toSorted(
 		(a, b) => b.data.date.getTime() - a.data.date.getTime(),
 	);
 

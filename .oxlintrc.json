@@ -1,0 +1,17 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"categories": {
+		"correctness": "error",
+		"suspicious": "warn"
+	},
+	"plugins": ["react", "typescript", "oxc", "unicorn", "import"],
+	"env": {
+		"browser": true,
+		"node": true,
+		"es2024": true
+	},
+	"rules": {
+		"import/no-unassigned-import": "off"
+	},
+	"ignorePatterns": ["src/components/posthog.astro"]
+}

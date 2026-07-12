@@ -15,19 +15,17 @@ import LinkCard from "../../components/blog/LinkCard.astro";
 重要な情報を目立たせるためのコールアウトコンポーネントです。
 
 <Callout type="info">
-  これは情報を伝えるためのコールアウトです。補足説明などに使います。
+	これは情報を伝えるためのコールアウトです。補足説明などに使います。
 </Callout>
 
 <Callout type="tip" title="便利なTips">
-  便利なヒントや推奨事項を伝えるときに使います。
+	便利なヒントや推奨事項を伝えるときに使います。
 </Callout>
 
-<Callout type="warning">
-  注意が必要な内容を伝えるときに使います。
-</Callout>
+<Callout type="warning">注意が必要な内容を伝えるときに使います。</Callout>
 
 <Callout type="danger" title="重要な警告">
-  絶対に避けるべきことや、危険な操作について警告するときに使います。
+	絶対に避けるべきことや、危険な操作について警告するときに使います。
 </Callout>
 
 ## コードブロック
@@ -36,14 +34,14 @@ import LinkCard from "../../components/blog/LinkCard.astro";
 
 ```typescript
 interface User {
-  id: string;
-  name: string;
-  email: string;
+	id: string;
+	name: string;
+	email: string;
 }
 
 async function getUser(id: string): Promise<User> {
-  const response = await fetch(`/api/users/${id}`);
-  return response.json();
+	const response = await fetch(`/api/users/${id}`);
+	return response.json();
 }
 ```
 
@@ -51,12 +49,12 @@ async function getUser(id: string): Promise<User> {
 
 ## テーブル
 
-| 機能 | 対応状況 | 備考 |
-|------|:--------:|------|
-| Markdown | ✅ | 基本的なMarkdown記法 |
-| GFM | ✅ | テーブル、タスクリスト |
-| MDX | ✅ | コンポーネント埋め込み |
-| シンタックスハイライト | ✅ | Shiki使用 |
+| 機能                   | 対応状況 | 備考                   |
+| ---------------------- | :------: | ---------------------- |
+| Markdown               |    ✅    | 基本的なMarkdown記法   |
+| GFM                    |    ✅    | テーブル、タスクリスト |
+| MDX                    |    ✅    | コンポーネント埋め込み |
+| シンタックスハイライト |    ✅    | Shiki使用              |
 
 ## タスクリスト
 
@@ -73,9 +71,9 @@ async function getUser(id: string): Promise<User> {
 ## リンクカード
 
 <LinkCard
-  href="https://docs.astro.build/ja/guides/markdown-content/"
-  title="Astro Markdownガイド"
-  description="Astroでのマークダウンとコンテンツコレクションの使い方"
+	href="https://docs.astro.build/ja/guides/markdown-content/"
+	title="Astro Markdownガイド"
+	description="Astroでのマークダウンとコンテンツコレクションの使い方"
 />
 
 ## 画像

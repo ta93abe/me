@@ -32,7 +32,7 @@ export const sortByDate = <T extends { data: Record<string, unknown> }>(
 	items: T[],
 	dateField = "date",
 ): T[] => {
-	return [...items].sort((a, b) => {
+	return [...items].toSorted((a, b) => {
 		const dateA = a.data[dateField];
 		const dateB = b.data[dateField];
 		// Safely get timestamp, treating missing/invalid dates as 0

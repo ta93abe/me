@@ -1,6 +1,6 @@
 {
 	"recommendations": [
-		"biomejs.biome",
+		"oxc.oxc-vscode",
 		"astro-build.astro-vscode",
 		"bradlc.vscode-tailwindcss"
 	]

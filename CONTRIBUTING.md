@@ -143,26 +143,23 @@ GitHub で Pull Request を作成します。
 
 ### フォーマット
 
-プロジェクトは Biome を使用してコード品質を管理しています。
+プロジェクトは Oxlint（リンター）と Oxfmt（フォーマッター）を使用してコード品質を管理しています。
 
 **設定内容:**
 
 - タブインデント
 - ダブルクォート
-- 推奨ルールセット有効
+- correctness ルールはエラー、suspicious ルールは警告（`.oxlintrc.json`）
 - Git統合有効 (.gitignoreを尊重)
-- インポート自動整理
+- インポート自動整理（`.oxfmtrc.json` の `sortImports`）
 
 **コマンド:**
 
 ```bash
-# すべてのチェック + 自動修正
-pnpm assist
-
-# リンティングのみ
+# リンティング（自動修正付き）
 pnpm lint
 
-# フォーマットのみ
+# フォーマット
 pnpm format
 ```
 

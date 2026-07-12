@@ -439,8 +439,8 @@ pre-commit hook でエラーが発生
 
 #### 解決方法
 ```bash
-# Biome でコードをフォーマット
-pnpm assist
+# コードを lint + フォーマット
+pnpm lint && pnpm format
 
 # 再度コミット
 git commit -m "feat: 新機能追加"
@@ -497,7 +497,7 @@ du -sh ~/.pnpm-store
 - [Astro Documentation](https://docs.astro.build)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-- [Biome Documentation](https://biomejs.dev)
+- [Oxc Documentation](https://oxc.rs)
 - [Vitest Documentation](https://vitest.dev)
 - [Playwright Documentation](https://playwright.dev)
 

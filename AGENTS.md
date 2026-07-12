@@ -14,7 +14,7 @@
 | スタイリング | Tailwind CSS | ^4.1.18 |
 | ビルドツール | Vite | (Astroに内包) |
 | パッケージマネージャー | pnpm | Latest |
-| リンター/フォーマッター | Biome | 2.3.11 |
+| リンター/フォーマッター | Oxlint / Oxfmt | - |
 | デプロイ | Cloudflare Workers | Wrangler |
 | 言語 | TypeScript | (Astro strict設定) |
 | Issue管理 | Linear | ta93abe team / me project |
@@ -51,7 +51,8 @@
 │   └── styles/
 │       └── global.css         # グローバルスタイル(Tailwind import)
 ├── astro.config.mjs           # Astro設定
-├── biome.json                 # Biome設定(linting/formatting)
+├── .oxlintrc.json             # Oxlint設定(linting)
+├── .oxfmtrc.json              # Oxfmt設定(formatting)
 ├── package.json               # 依存関係・スクリプト
 ├── pnpm-workspace.yaml        # pnpmワークスペース設定
 ├── tsconfig.json              # TypeScript設定
@@ -69,11 +70,11 @@
 #### 設定ファイル
 
 - **`package.json`** - プロジェクトメタデータ、依存関係、npm scripts
-- **`biome.json`** - コード品質設定
+- **`.oxlintrc.json` / `.oxfmtrc.json`** - コード品質設定
   - インデント: タブ
   - クォート: ダブルクォート
-  - Git統合有効
-  - インポート自動整理
+  - Git統合有効（.gitignoreを尊重）
+  - インポート自動整理（Oxfmt の `sortImports`）
 - **`wrangler.jsonc`** - Cloudflare Workers設定
   - ワーカー名: "me"
   - アセットディレクトリ: "./dist"
@@ -112,9 +113,8 @@ pnpm dev
 | `pnpm build` | 本番ビルドを ./dist/ に生成 |
 | `pnpm preview` | ビルド済みサイトをローカルでプレビュー |
 | `pnpm astro` | Astro CLIコマンドを直接実行 |
-| `pnpm assist` | Biome自動修正 + リンティング (src/) |
-| `pnpm lint` | Biomeリンターを自動修正付きで実行 (src/) |
-| `pnpm format` | Biomeでコード整形 (src/) |
+| `pnpm lint` | Oxlint を自動修正付きで実行 (src/) |
+| `pnpm format` | Oxfmt でコード整形 (src/) |
 
 ## ビルド
 
@@ -155,27 +155,24 @@ npx wrangler deploy
 
 ## コード品質
 
-### Biome
+### Oxlint / Oxfmt
 
-プロジェクトはBiome (v2.3.11) を使用してコード品質を管理しています。
+プロジェクトは Oxlint（リンター）と Oxfmt（フォーマッター）を使用してコード品質を管理しています。
 
 **設定内容**:
 - タブインデント
 - ダブルクォート
-- 推奨ルールセット有効
+- correctness ルールはエラー、suspicious ルールは警告
 - Git統合有効 (.gitignoreを尊重)
-- インポート自動整理
+- インポート自動整理（`sortImports`）
 
 **使用方法**:
 
 ```bash
-# すべてのチェック + 自動修正
-pnpm assist
-
-# リンティングのみ
+# リンティング（自動修正付き）
 pnpm lint
 
-# フォーマットのみ
+# フォーマット
 pnpm format
 ```
 
@@ -300,7 +297,7 @@ Conventional Commits に従う:
 
 - タブでインデント
 - ダブルクォート使用
-- コミット前に `pnpm assist` を実行
+- コミット前に `pnpm lint && pnpm format` を実行
 - TypeScript strict mode有効
 
 ### ブランチ戦略
@@ -314,7 +311,7 @@ Conventional Commits に従う:
 
 - [Astro Documentation](https://docs.astro.build)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Biome Documentation](https://biomejs.dev)
+- [Oxc Documentation](https://oxc.rs)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
 
 ## プロジェクトステータス
