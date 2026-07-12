@@ -1,0 +1,88 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "f115ce7ad487",
+  "session_id": "1dd4a314-7632-4908-9be1-1a43cdb074a2",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-12T03:04:03.618914Z",
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".github/workflows/claude-code-review.yml",
+    ".github/workflows/claude.yml"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "cddaea146a15",
+  "checkpoint_transcript_start": 529,
+  "transcript_lines_at_start": 529,
+  "compact_transcript_start": 96,
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 817,
+    "cache_read_tokens": 451430,
+    "output_tokens": 958,
+    "api_call_count": 2
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01SzJe1YfFCdajK9iJFDpXan",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "cddaea146a15",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 59,
+        "end": 60,
+        "entry_ids": [
+          "db946b3c-f549-4cc3-a92c-0a9c23a82097"
+        ],
+        "tool_use_id": "toolu_01SzJe1YfFCdajK9iJFDpXan"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01SzJe1YfFCdajK9iJFDpXan"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 28
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-12T03:04:03.560291Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 106,
+    "total_committed": 0,
+    "total_lines_changed": 106,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 106,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_removed_per_file": {
+        ".github/workflows/claude-code-review.yml": 56,
+        ".github/workflows/claude.yml": 50
+      }
+    }
+  ]
+}
