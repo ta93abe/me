@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "4ac67b9b3296",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 9,
+  "files_touched": [
+    ".zed/settings.json",
+    "src/__tests__/utils/cn.test.ts",
+    "src/components/NotFoundPlayground.tsx",
+    "src/components/PostNavigation.astro",
+    "src/components/RelatedPosts.astro",
+    "src/components/Skeleton.astro",
+    "src/components/SnsLinks.astro",
+    "src/components/blog/ShareButtons.astro",
+    "src/components/ui/BackToTop.astro",
+    "src/components/ui/Badge.astro",
+    "src/components/ui/Tag.astro",
+    "src/pages/blog/[id].astro",
+    "src/pages/blog/index.astro",
+    "src/pages/bookshelf/[id].astro",
+    "src/pages/bookshelf/index.astro",
+    "src/pages/links.astro",
+    "src/pages/slides.astro",
+    "src/pages/tools.astro",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro",
+    "src/utils/cn.ts",
+    "tsconfig.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/4a/c67b9b3296/0/metadata.json",
+      "transcript": "/4a/c67b9b3296/0/full.jsonl",
+      "compact_transcript": "/4a/c67b9b3296/0/transcript.jsonl",
+      "content_hash": "/4a/c67b9b3296/0/content_hash.txt",
+      "prompt": "/4a/c67b9b3296/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 100256,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 3710464,
+    "output_tokens": 11159,
+    "api_call_count": 46
+  }
+}
