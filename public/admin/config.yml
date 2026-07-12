@@ -1,0 +1,57 @@
+# Sveltia CMS 設定
+# https://sveltiacms.app/en/docs/intro
+#
+# フィールドは src/content.config.ts の blog スキーマと 1:1 対応させること。
+
+backend:
+  name: github
+  repo: ta93abe/me
+  branch: main
+  # OAuth プロキシ（sveltia-cms-auth）。infra/alchemy.run.ts で管理。
+  base_url: https://sveltia-auth.ta93abe.com
+
+# 内部メディア（R2 を使わない場合のフォールバック先）
+media_folder: public/uploads
+public_folder: /uploads
+
+# 画像アップロード先を R2 に
+# https://sveltiacms.app/en/docs/media/cloudflare-r2
+media_libraries:
+  cloudflare_r2:
+    # R2 API トークン（Object Read & Write / me-images スコープ）の Access Key ID。
+    # 公開されて良い値。Secret Access Key は初回利用時に CMS の UI で入力する。
+    # TODO: R2 API トークン発行後に置き換える
+    access_key_id: REPLACE_WITH_R2_ACCESS_KEY_ID
+    account_id: b0047256d1afc1be1df08289ee3be552
+    bucket: me-images
+    public_url: https://images.ta93abe.com
+    prefix: blog/
+
+collections:
+  - name: blog
+    label: Blog
+    folder: src/content/blog
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    slug: "{{slug}}"
+    fields:
+      - { name: title, label: タイトル }
+      - {
+          name: date,
+          label: 公開日,
+          widget: datetime,
+          format: YYYY-MM-DD,
+          time_format: false,
+        }
+      - {
+          name: updatedDate,
+          label: 更新日,
+          widget: datetime,
+          format: YYYY-MM-DD,
+          time_format: false,
+          required: false,
+        }
+      - { name: excerpt, label: 概要 }
+      - { name: tags, label: タグ, widget: list, required: false }
+      - { name: body, label: 本文, widget: markdown }
