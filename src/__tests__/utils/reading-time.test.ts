@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { formatReadingTime, getReadingTime } from "../../utils/reading-time";
 
 describe("getReadingTime", () => {

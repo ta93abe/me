@@ -27,7 +27,7 @@ const allTags = works.flatMap((work) => work.data.tags);
         works.map((work) => (
           <a
             href={`/works/${work.id}`}
-            class="group block overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:shadow-lg hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
+            class="group block overflow-hidden rounded-xl border border-(--border-color) bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:shadow-lg hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
             data-item
             data-tags={work.data.tags.join(",")}
             data-title={work.data.title}

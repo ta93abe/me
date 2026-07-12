@@ -408,27 +408,25 @@ element.style.position = "relative";
 // HACK: 一時的な回避策、後で修正が必要
 ```
 
-## Biome 設定
+## Oxlint / Oxfmt 設定
 
-プロジェクトは Biome を使用してコードスタイルを統一しています。
+プロジェクトは Oxlint（リンター）と Oxfmt（フォーマッター）を使用してコードスタイルを統一しています。
 
-### 設定内容（biome.json）
+### 設定内容（.oxlintrc.json / .oxfmtrc.json）
 
 - インデント: タブ
 - クォート: ダブルクォート
-- 行幅: 120 文字
-- インポート自動整理
+- 行幅: 80 文字
+- インポート自動整理（`sortImports`）
+- correctness ルールはエラー、suspicious ルールは警告
 
 ### 使用方法
 
 ```bash
-# すべてのチェック + 自動修正
-pnpm assist
-
-# リンティングのみ
+# リンティング（自動修正付き）
 pnpm lint
 
-# フォーマットのみ
+# フォーマット
 pnpm format
 ```
 
@@ -438,11 +436,10 @@ VSCode を使用する場合、`.vscode/settings.json` に以下を追加:
 
 ```json
 {
-	"editor.defaultFormatter": "biomejs.biome",
+	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
-		"quickfix.biome": "explicit",
-		"source.organizeImports.biome": "explicit"
+		"source.fixAll.oxc": "explicit"
 	}
 }
 ```
@@ -497,4 +494,4 @@ VSCode を使用する場合、`.vscode/settings.json` に以下を追加:
 - [TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
 - [Tailwind CSS Best Practices](https://tailwindcss.com/docs/reusing-styles)
 - [Astro Style Guide](https://docs.astro.build/en/guides/styling/)
-- [Biome Documentation](https://biomejs.dev/)
+- [Oxc Documentation](https://oxc.rs/)

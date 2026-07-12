@@ -1,18 +1,21 @@
 ---
+import { cn } from "../../utils/cn";
+
 interface Props {
 	class?: string;
 }
 
-const { class: className = "" } = Astro.props;
+const { class: className = "" } = Astro.props as Props;
+const classes = cn(
+	"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full border border-(--border-color) bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-lg transition-all duration-200 ease-out hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] motion-reduce:transition-none",
+	"pointer-events-none translate-y-4 opacity-0",
+	className,
+);
 ---
 
 <button
 	id="back-to-top"
-	class:list={[
-		"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-lg transition-all duration-200 ease-out hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] motion-reduce:transition-none",
-		"opacity-0 pointer-events-none translate-y-4",
-		className,
-	]}
+	class={classes}
 	aria-label="ページトップへ戻る"
 >
 	<svg

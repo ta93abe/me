@@ -1,20 +1,18 @@
 ---
 import { statusLabels, statusStyles } from "../../utils/books";
+import { cn } from "../../utils/cn";
 
 interface Props {
-	variant?: keyof typeof statusLabels;
-	class?: string;
+  variant?: keyof typeof statusLabels;
+  class?: string;
 }
 
-const { variant = "reading", class: className = "" } = Astro.props;
+const { variant = "reading", class: className = "" } = Astro.props as Props;
+const classes = cn(
+  "rounded-full px-3 py-1 text-xs font-semibold",
+  statusStyles[variant],
+  className,
+);
 ---
 
-<span
-  class:list={[
-    "rounded-full px-3 py-1 text-xs font-semibold",
-    statusStyles[variant],
-    className,
-  ]}
->
-  {statusLabels[variant]}
-</span>
+<span class:list={[classes]}>{statusLabels[variant]}</span>

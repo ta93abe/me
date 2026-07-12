@@ -19,7 +19,7 @@ const {
 } = Astro.props;
 
 // 重複を排除してソート
-const uniqueTags = [...new Set(tags)].sort();
+const uniqueTags = [...new Set(tags)].toSorted();
 ---
 
 <div class="mb-8 space-y-4" data-filter-sort data-container={containerId}>

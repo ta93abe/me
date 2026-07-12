@@ -1,5 +1,6 @@
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
+
 import { SITE } from "../../config/site";
 
 // OG Image dimensions (1200x630 is the standard)

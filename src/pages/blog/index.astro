@@ -7,7 +7,7 @@ import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils/date";
 
 const blogPosts = await getCollection("blog");
-const sortedPosts = blogPosts.sort(
+const sortedPosts = blogPosts.toSorted(
 	(a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
@@ -60,13 +60,13 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       {
         sortedPosts.map((post) => (
           <article
-            class="group border-b border-[var(--border-color)] pb-8"
+            class="group border-b border-(--border-color) pb-8"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="block rounded-2xl border border-transparent p-5 -m-5 transition-all duration-200 hover:border-[var(--border-color)] hover:bg-[var(--bg-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
+            <a href={`/blog/${post.id}`} class="block rounded-2xl border border-transparent p-5 -m-5 transition-all duration-200 hover:border-(--border-color) hover:bg-[var(--bg-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
               <time class="mb-2 block text-sm text-[var(--text-muted)]">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (

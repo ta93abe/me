@@ -10,7 +10,7 @@ import { formatDate } from "../../utils/date";
 
 const books = await getCollection("books");
 
-const sortedBooks = [...books].sort((a, b) => {
+const sortedBooks = [...books].toSorted((a, b) => {
 	const aTime = a.data.finishedDate?.getTime() ?? 0;
 	const bTime = b.data.finishedDate?.getTime() ?? 0;
 	return bTime - aTime;
@@ -50,7 +50,7 @@ const sortOptions = [
           return (
           <a
             href={`/bookshelf/${book.id}`}
-            class="group block overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:shadow-lg hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
+            class="group block overflow-hidden rounded-xl border border-(--border-color) bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:shadow-lg hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
             data-item
             data-tags={bookTags.join(",")}
             data-date={book.data.finishedDate?.toISOString() ?? ""}

@@ -1,4 +1,6 @@
 ---
+import { cn } from "../utils/cn";
+
 export interface Props {
 	variant?: "text" | "title" | "card" | "image" | "circle";
 	className?: string;
@@ -6,7 +8,7 @@ export interface Props {
 	height?: string;
 }
 
-const { variant = "text", className = "", width, height } = Astro.props;
+const { variant = "text", className = "", width, height } = Astro.props as Props;
 
 const variantClasses = {
 	text: "h-4 rounded",
@@ -17,6 +19,7 @@ const variantClasses = {
 };
 
 const variantClass = variantClasses[variant];
+const classes = cn("animate-pulse bg-neutral-700", variantClass, className);
 
 let style = "";
 if (width) {
@@ -28,7 +31,7 @@ if (height) {
 ---
 
 <div
-  class={`animate-pulse bg-neutral-700 ${variantClass} ${className}`}
+  class={classes}
   style={style}
   role="status"
   aria-label="読み込み中"
