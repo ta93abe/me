@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "6b4129a82def",
+  "strategy": "manual-commit",
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoints_count": 26,
+  "files_touched": [
+    "docs/AGENT_READINESS_PLAN.md",
+    "docs/sveltia-migration.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6b/4129a82def/0/metadata.json",
+      "transcript": "/6b/4129a82def/0/full.jsonl",
+      "compact_transcript": "/6b/4129a82def/0/transcript.jsonl",
+      "content_hash": "/6b/4129a82def/0/content_hash.txt",
+      "prompt": "/6b/4129a82def/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 289,
+    "cache_creation_tokens": 355921,
+    "cache_read_tokens": 10908966,
+    "output_tokens": 80086,
+    "api_call_count": 74
+  }
+}
