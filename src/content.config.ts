@@ -29,6 +29,33 @@ const works = defineCollection({
 		}),
 });
 
+// Atelierコレクション（作業中・練習作品）
+const atelier = defineCollection({
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/atelier" }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			coverImage: image(),
+			tags: tagsSchema,
+			excerpt: excerptSchema,
+			status: z.enum(["wip", "practice", "sketch"]).default("wip"),
+			date: z.coerce.date().optional(),
+		}),
+});
+
+// Galleryコレクション（完成作品）
+const gallery = defineCollection({
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery" }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			coverImage: image(),
+			tags: tagsSchema,
+			excerpt: excerptSchema,
+			completedDate: z.coerce.date().optional(),
+		}),
+});
+
 // Booksコレクション（読書記録）
 const books = defineCollection({
 	loader: glob({ pattern: "**/*.md", base: "./src/content/books" }),
@@ -107,6 +134,8 @@ const podcast = defineCollection({
 
 export const collections = {
 	works,
+	atelier,
+	gallery,
 	books,
 	blog,
 	talks,

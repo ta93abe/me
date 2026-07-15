@@ -1,0 +1,219 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, render } from "astro:content";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
+import { formatDate } from "../../utils/date";
+import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
+
+export async function getStaticPaths() {
+	const pieces = await getCollection("atelier");
+	return pieces.map((piece) => ({
+		params: { id: piece.id },
+		props: { piece },
+	}));
+}
+
+const { piece } = Astro.props;
+const { Content } = await render(piece);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(piece.data.coverImage.src, Astro.site);
+
+const statusLabel: Record<string, string> = {
+	wip: "作業中",
+	practice: "練習",
+	sketch: "スケッチ",
+};
+
+const pieceSchema = {
+	"@context": "https://schema.org",
+	"@type": "CreativeWork",
+	name: piece.data.title,
+	description: piece.data.excerpt,
+	image: ogImageURL.href,
+	keywords: piece.data.tags?.join(", "),
+	author: {
+		"@type": "Person",
+		name: SITE.author,
+		url: Astro.site?.href,
+	},
+	url: canonicalURL.href,
+	inLanguage: SITE.lang,
+	creativeWorkStatus: piece.data.status,
+};
+
+const breadcrumbItems = [
+	{ label: "ホーム", href: "/" },
+	{ label: "アトリエ", href: "/atelier" },
+	{ label: piece.data.title },
+];
+const siteUrl = Astro.site?.href || SITE.url;
+---
+
+<Layout
+	title={`${piece.data.title} | Atelier | ${SITE.name}`}
+	description={piece.data.excerpt}
+	ogType="article"
+	ogImage={ogImageURL.href}
+	ogImageAlt={piece.data.title}
+>
+	<Fragment slot="head">
+		<meta property="article:author" content={SITE.author} />
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(pieceSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
+		/>
+	</Fragment>
+	<main class="atelier-detail">
+		<Breadcrumb items={breadcrumbItems} />
+		<a href="/atelier" class="atelier-back">← アトリエへ戻る</a>
+
+		<header class="atelier-detail-header">
+			<div class="atelier-detail-meta">
+				<span class={`atelier-status atelier-status--${piece.data.status}`}>
+					{statusLabel[piece.data.status] ?? piece.data.status}
+				</span>
+				{
+					piece.data.date && (
+						<time datetime={piece.data.date.toISOString()}>
+							{formatDate(piece.data.date)}
+						</time>
+					)
+				}
+			</div>
+			<h1 class="atelier-detail-title font-display">{piece.data.title}</h1>
+			<p class="atelier-detail-excerpt">{piece.data.excerpt}</p>
+			{
+				piece.data.tags && piece.data.tags.length > 0 && (
+					<ul class="atelier-tags">
+						{piece.data.tags.map((tag) => (
+							<li>{tag}</li>
+						))}
+					</ul>
+				)
+			}
+		</header>
+
+		<div class="atelier-detail-media">
+			<Image
+				src={piece.data.coverImage}
+				alt={piece.data.title}
+				class="atelier-detail-image"
+			/>
+		</div>
+
+		<article class="prose prose-lg max-w-none">
+			<Content />
+		</article>
+	</main>
+</Layout>
+
+<style>
+	.atelier-detail {
+		max-width: 48rem;
+		margin: 0 auto;
+		padding: 6.5rem 1.5rem 4rem;
+	}
+
+	.atelier-back {
+		display: inline-block;
+		margin: 1rem 0 1.5rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	.atelier-back:hover {
+		color: var(--text-primary);
+	}
+
+	.atelier-detail-header {
+		margin-bottom: 2rem;
+	}
+
+	.atelier-detail-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+
+	.atelier-status {
+		display: inline-block;
+		padding: 0.15rem 0.45rem;
+		border: 1px dashed currentColor;
+	}
+
+	.atelier-status--wip {
+		color: #d4a574;
+	}
+
+	.atelier-status--practice {
+		color: #8fb3a0;
+	}
+
+	.atelier-status--sketch {
+		color: #9aa7b8;
+	}
+
+	.atelier-detail-title {
+		margin: 0 0 0.75rem;
+		font-size: clamp(2rem, 5vw, 2.75rem);
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--text-primary);
+	}
+
+	.atelier-detail-excerpt {
+		margin: 0 0 1rem;
+		font-size: 1rem;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.atelier-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.atelier-tags li {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+		padding: 0.2rem 0.55rem;
+		border: 1px solid var(--border-color);
+	}
+
+	.atelier-detail-media {
+		margin-bottom: 2.5rem;
+		overflow: hidden;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		background: var(--bg-secondary);
+		aspect-ratio: 16 / 10;
+		transform: rotate(-0.4deg);
+	}
+
+	.atelier-detail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+</style>
+
+<script is:inline>
+	window.posthog?.capture("atelier_piece_viewed", {
+		piece_title: document.title,
+		piece_url: window.location.href,
+	});
+</script>

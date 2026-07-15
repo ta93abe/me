@@ -1,0 +1,189 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, render } from "astro:content";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
+import { formatDate } from "../../utils/date";
+import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
+
+export async function getStaticPaths() {
+	const pieces = await getCollection("gallery");
+	return pieces.map((piece) => ({
+		params: { id: piece.id },
+		props: { piece },
+	}));
+}
+
+const { piece } = Astro.props;
+const { Content } = await render(piece);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(piece.data.coverImage.src, Astro.site);
+
+const pieceSchema = {
+	"@context": "https://schema.org",
+	"@type": "CreativeWork",
+	name: piece.data.title,
+	description: piece.data.excerpt,
+	image: ogImageURL.href,
+	keywords: piece.data.tags?.join(", "),
+	author: {
+		"@type": "Person",
+		name: SITE.author,
+		url: Astro.site?.href,
+	},
+	url: canonicalURL.href,
+	inLanguage: SITE.lang,
+	dateCreated: piece.data.completedDate?.toISOString(),
+};
+
+const breadcrumbItems = [
+	{ label: "ホーム", href: "/" },
+	{ label: "ギャラリー", href: "/gallery" },
+	{ label: piece.data.title },
+];
+const siteUrl = Astro.site?.href || SITE.url;
+---
+
+<Layout
+	title={`${piece.data.title} | Gallery | ${SITE.name}`}
+	description={piece.data.excerpt}
+	ogType="article"
+	ogImage={ogImageURL.href}
+	ogImageAlt={piece.data.title}
+>
+	<Fragment slot="head">
+		<meta property="article:author" content={SITE.author} />
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(pieceSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
+		/>
+	</Fragment>
+	<main class="gallery-detail">
+		<div class="gallery-detail-nav">
+			<Breadcrumb items={breadcrumbItems} />
+			<a href="/gallery" class="gallery-back">← ギャラリーへ戻る</a>
+		</div>
+
+		<figure class="gallery-detail-figure">
+			<div class="gallery-detail-media">
+				<Image
+					src={piece.data.coverImage}
+					alt={piece.data.title}
+					class="gallery-detail-image"
+				/>
+			</div>
+			<figcaption class="gallery-detail-caption">
+				{
+					piece.data.completedDate && (
+						<time datetime={piece.data.completedDate.toISOString()}>
+							{formatDate(piece.data.completedDate)}
+						</time>
+					)
+				}
+				<h1 class="gallery-detail-title font-display">{piece.data.title}</h1>
+				<p class="gallery-detail-excerpt">{piece.data.excerpt}</p>
+			</figcaption>
+		</figure>
+
+		<article class="gallery-detail-body prose prose-lg max-w-none">
+			<Content />
+		</article>
+	</main>
+</Layout>
+
+<style>
+	.gallery-detail {
+		padding: 6.5rem 0 5rem;
+	}
+
+	.gallery-detail-nav {
+		max-width: 56rem;
+		margin: 0 auto;
+		padding: 0 1.5rem 2rem;
+	}
+
+	.gallery-back {
+		display: inline-block;
+		margin-top: 1rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	.gallery-back:hover {
+		color: var(--text-primary);
+	}
+
+	.gallery-detail-figure {
+		margin: 0 0 3.5rem;
+	}
+
+	.gallery-detail-media {
+		width: 100%;
+		background: #050506;
+		aspect-ratio: 21 / 9;
+		overflow: hidden;
+	}
+
+	@media (max-width: 768px) {
+		.gallery-detail-media {
+			aspect-ratio: 4 / 3;
+		}
+	}
+
+	.gallery-detail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.gallery-detail-caption {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: 2.5rem 1.5rem 0;
+		text-align: center;
+	}
+
+	.gallery-detail-caption time {
+		display: block;
+		margin-bottom: 1rem;
+		font-size: 0.75rem;
+		letter-spacing: 0.16em;
+		color: var(--text-muted);
+	}
+
+	.gallery-detail-title {
+		margin: 0 0 1rem;
+		font-size: clamp(2rem, 6vw, 3.25rem);
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		line-height: 1.15;
+		color: var(--text-primary);
+	}
+
+	.gallery-detail-excerpt {
+		margin: 0;
+		font-size: 1rem;
+		line-height: 1.9;
+		color: var(--text-secondary);
+	}
+
+	.gallery-detail-body {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+	}
+</style>
+
+<script is:inline>
+	window.posthog?.capture("gallery_piece_viewed", {
+		piece_title: document.title,
+		piece_url: window.location.href,
+	});
+</script>

@@ -11,7 +11,12 @@ import type { CollectionEntry } from "astro:content";
 
 export type BlogPost = CollectionEntry<"blog">;
 export type Work = CollectionEntry<"works">;
+export type AtelierPiece = CollectionEntry<"atelier">;
+export type GalleryPiece = CollectionEntry<"gallery">;
 export type Book = CollectionEntry<"books">;
+
+/** Atelier piece status */
+export type AtelierStatus = "wip" | "practice" | "sketch";
 export type About = CollectionEntry<"about">;
 export type Talk = CollectionEntry<"talks">;
 export type ZennArticle = CollectionEntry<"zenn">;

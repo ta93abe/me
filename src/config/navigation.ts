@@ -14,6 +14,8 @@ export interface NavLink {
  */
 export const NAV_LINKS: readonly NavLink[] = [
 	{ href: "/works", text: "Works" },
+	{ href: "/atelier", text: "Atelier" },
+	{ href: "/gallery", text: "Gallery" },
 	{ href: "/links", text: "Links" },
 	{ href: "/blog", text: "Blog" },
 	{ href: "/slides", text: "Slides" },
@@ -26,5 +28,7 @@ export const NAV_LINKS: readonly NavLink[] = [
 export const FOOTER_LINKS: readonly NavLink[] = [
 	{ href: "/", text: "Home" },
 	{ href: "/works", text: "Works" },
+	{ href: "/atelier", text: "Atelier" },
+	{ href: "/gallery", text: "Gallery" },
 	{ href: "/blog", text: "Blog" },
 ];

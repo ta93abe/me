@@ -1,0 +1,305 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import EmptyState from "../../components/ui/EmptyState.astro";
+import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
+import { formatDate } from "../../utils/date";
+
+const pieces = await getCollection("atelier");
+
+const sorted = [...pieces].toSorted((a, b) => {
+	const aTime = a.data.date?.getTime() ?? 0;
+	const bTime = b.data.date?.getTime() ?? 0;
+	return bTime - aTime;
+});
+
+const statusLabel: Record<string, string> = {
+	wip: "作業中",
+	practice: "練習",
+	sketch: "スケッチ",
+};
+---
+
+<Layout
+	title={`Atelier | ${SITE.name}`}
+	description="作業中や練習したものを雑多に置くアトリエ。未完成のメモや習作を置いています。"
+>
+	<main class="atelier-page">
+		<header class="atelier-header" data-animate>
+			<p class="atelier-eyebrow">Workspace</p>
+			<h1 class="atelier-title font-display">アトリエ</h1>
+			<p class="atelier-lead">
+				作業机の上みたいに、練習や途中経過を雑多に置いています。
+			</p>
+		</header>
+
+		{
+			sorted.length === 0 ? (
+				<EmptyState
+					title="まだ何も置いていません"
+					description="習作や作業メモが増えたら、ここに散らばっていきます。"
+				/>
+			) : (
+				<div class="atelier-board">
+					{sorted.map((piece, index) => (
+						<a
+							href={`/atelier/${piece.id}`}
+							class={`atelier-scrap atelier-scrap--${(index % 3) + 1}`}
+							data-animate
+							style={`--delay: ${index * 60}ms`}
+						>
+							<div class="atelier-scrap-media">
+								<Image
+									src={piece.data.coverImage}
+									alt={piece.data.title}
+									class="atelier-scrap-image"
+								/>
+							</div>
+							<div class="atelier-scrap-meta">
+								<span class={`atelier-status atelier-status--${piece.data.status}`}>
+									{statusLabel[piece.data.status] ?? piece.data.status}
+								</span>
+								{piece.data.date && (
+									<time datetime={piece.data.date.toISOString()}>
+										{formatDate(piece.data.date)}
+									</time>
+								)}
+							</div>
+							<h2 class="atelier-scrap-title">{piece.data.title}</h2>
+							<p class="atelier-scrap-excerpt">{piece.data.excerpt}</p>
+						</a>
+					))}
+				</div>
+			)
+		}
+	</main>
+</Layout>
+
+<style>
+	.atelier-page {
+		position: relative;
+		min-height: 100dvh;
+		padding: 7rem 1.25rem 5rem;
+		overflow: hidden;
+		background:
+			radial-gradient(ellipse at 12% 8%, rgba(180, 140, 90, 0.08), transparent 42%),
+			radial-gradient(ellipse at 88% 18%, rgba(90, 120, 140, 0.07), transparent 40%),
+			linear-gradient(180deg, #12110f 0%, var(--bg-primary) 55%);
+	}
+
+	.atelier-page::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0.35;
+		background-image:
+			linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+		background-size: 28px 28px;
+		mask-image: radial-gradient(ellipse at center, black 30%, transparent 85%);
+	}
+
+	.atelier-header {
+		position: relative;
+		z-index: 1;
+		max-width: 40rem;
+		margin: 0 auto 3.5rem;
+	}
+
+	.atelier-eyebrow {
+		margin: 0 0 0.75rem;
+		font-size: 0.75rem;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.atelier-title {
+		margin: 0 0 1rem;
+		font-size: clamp(2.5rem, 8vw, 4rem);
+		font-weight: 700;
+		line-height: 1.1;
+		color: var(--text-primary);
+	}
+
+	.atelier-lead {
+		margin: 0;
+		max-width: 28rem;
+		font-size: 1rem;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.atelier-board {
+		position: relative;
+		z-index: 1;
+		column-count: 1;
+		column-gap: 1.25rem;
+		max-width: 72rem;
+		margin: 0 auto;
+	}
+
+	@media (min-width: 640px) {
+		.atelier-board {
+			column-count: 2;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.atelier-board {
+			column-count: 3;
+		}
+	}
+
+	.atelier-scrap {
+		display: block;
+		break-inside: avoid;
+		margin-bottom: 1.25rem;
+		padding: 0.85rem;
+		text-decoration: none;
+		color: inherit;
+		background: rgba(255, 248, 235, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 0.25rem;
+		transition:
+			transform 0.35s ease,
+			background 0.35s ease,
+			border-color 0.35s ease;
+		animation: scrap-in 0.6s ease both;
+		animation-delay: var(--delay, 0ms);
+	}
+
+	.atelier-scrap--1 {
+		transform: rotate(-1.2deg);
+	}
+
+	.atelier-scrap--2 {
+		transform: rotate(0.8deg);
+	}
+
+	.atelier-scrap--3 {
+		transform: rotate(-0.4deg);
+	}
+
+	.atelier-scrap:hover {
+		background: rgba(255, 248, 235, 0.06);
+		border-color: rgba(255, 255, 255, 0.14);
+		transform: rotate(0deg) translateY(-4px);
+	}
+
+	.atelier-scrap:focus-visible {
+		outline: 2px solid var(--primary-color);
+		outline-offset: 3px;
+	}
+
+	.atelier-scrap-media {
+		margin-bottom: 0.75rem;
+		overflow: hidden;
+		background: var(--bg-secondary);
+		aspect-ratio: 4 / 3;
+	}
+
+	.atelier-scrap--2 .atelier-scrap-media {
+		aspect-ratio: 3 / 4;
+	}
+
+	.atelier-scrap--3 .atelier-scrap-media {
+		aspect-ratio: 1 / 1;
+	}
+
+	.atelier-scrap-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		filter: saturate(0.85) contrast(1.05);
+		transition: transform 0.5s ease, filter 0.5s ease;
+	}
+
+	.atelier-scrap:hover .atelier-scrap-image {
+		transform: scale(1.03);
+		filter: saturate(1) contrast(1);
+	}
+
+	.atelier-scrap-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 0.75rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.7rem;
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+	}
+
+	.atelier-status {
+		display: inline-block;
+		padding: 0.15rem 0.45rem;
+		border: 1px dashed currentColor;
+		opacity: 0.9;
+	}
+
+	.atelier-status--wip {
+		color: #d4a574;
+	}
+
+	.atelier-status--practice {
+		color: #8fb3a0;
+	}
+
+	.atelier-status--sketch {
+		color: #9aa7b8;
+	}
+
+	.atelier-scrap-title {
+		margin: 0 0 0.4rem;
+		font-family: "Shippori Mincho", "Noto Serif JP", serif;
+		font-size: 1.125rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--text-primary);
+	}
+
+	.atelier-scrap-excerpt {
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.7;
+		color: var(--text-secondary);
+	}
+
+	@keyframes scrap-in {
+		from {
+			opacity: 0;
+			transform: translateY(12px) rotate(0deg);
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.atelier-scrap,
+		.atelier-scrap-image {
+			animation: none;
+			transition: none;
+		}
+
+		.atelier-scrap--1,
+		.atelier-scrap--2,
+		.atelier-scrap--3 {
+			transform: none;
+		}
+	}
+</style>
+
+<script is:inline>
+	document.querySelectorAll(".atelier-scrap").forEach(function (scrap) {
+		scrap.addEventListener("click", function () {
+			window.posthog?.capture("atelier_piece_clicked", {
+				piece_title: scrap.querySelector(".atelier-scrap-title")?.textContent?.trim(),
+				piece_href: scrap.getAttribute("href"),
+			});
+		});
+	});
+</script>
