@@ -1,5 +1,6 @@
 ---
 title: "夜の粒子"
+mediaType: "drawing"
 coverImage: "../../../public/dbt-jobs.png"
 tags: ["texture", "atmosphere"]
 excerpt: "暗い画面の中に、わずかな粒子感を残した完成作。"

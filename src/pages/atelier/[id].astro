@@ -1,9 +1,11 @@
 ---
-import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
+import PieceMedia from "../../components/creative/PieceMedia.astro";
 import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
+import type { MediaType } from "../../utils/creative-media";
 import { formatDate } from "../../utils/date";
 import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
 
@@ -18,7 +20,9 @@ export async function getStaticPaths() {
 const { piece } = Astro.props;
 const { Content } = await render(piece);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL = new URL(piece.data.coverImage.src, Astro.site);
+const ogImageURL = piece.data.coverImage
+	? new URL(piece.data.coverImage.src, Astro.site)
+	: new URL("/og-image.png", Astro.site);
 
 const statusLabel: Record<string, string> = {
 	wip: "作業中",
@@ -26,12 +30,20 @@ const statusLabel: Record<string, string> = {
 	sketch: "スケッチ",
 };
 
+const schemaType =
+	piece.data.mediaType === "music"
+		? "MusicComposition"
+		: piece.data.mediaType === "photo"
+			? "Photograph"
+			: "VisualArtwork";
+
 const pieceSchema = {
 	"@context": "https://schema.org",
-	"@type": "CreativeWork",
+	"@type": schemaType,
 	name: piece.data.title,
 	description: piece.data.excerpt,
 	image: ogImageURL.href,
+	...(piece.data.audio ? { audio: new URL(piece.data.audio, Astro.site).href } : {}),
 	keywords: piece.data.tags?.join(", "),
 	author: {
 		"@type": "Person",
@@ -75,6 +87,7 @@ const siteUrl = Astro.site?.href || SITE.url;
 
 		<header class="atelier-detail-header">
 			<div class="atelier-detail-meta">
+				<MediaTypeBadge mediaType={piece.data.mediaType as MediaType} />
 				<span class={`atelier-status atelier-status--${piece.data.status}`}>
 					{statusLabel[piece.data.status] ?? piece.data.status}
 				</span>
@@ -99,11 +112,13 @@ const siteUrl = Astro.site?.href || SITE.url;
 			}
 		</header>
 
-		<div class="atelier-detail-media">
-			<Image
-				src={piece.data.coverImage}
-				alt={piece.data.title}
-				class="atelier-detail-image"
+		<div class:list={["atelier-detail-media", `is-${piece.data.mediaType}`]}>
+			<PieceMedia
+				mediaType={piece.data.mediaType as MediaType}
+				title={piece.data.title}
+				coverImage={piece.data.coverImage}
+				audio={piece.data.audio}
+				variant="detail"
 			/>
 		</div>
 
@@ -204,10 +219,8 @@ const siteUrl = Astro.site?.href || SITE.url;
 		transform: rotate(-0.4deg);
 	}
 
-	.atelier-detail-image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+	.atelier-detail-media.is-music {
+		aspect-ratio: 16 / 9;
 	}
 </style>
 

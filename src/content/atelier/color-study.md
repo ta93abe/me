@@ -1,5 +1,6 @@
 ---
 title: "色の重ね実験"
+mediaType: "drawing"
 coverImage: "../../../public/favicon.svg"
 tags: ["color", "study"]
 excerpt: "背景と前景のコントラストを探るための色面スケッチ。"

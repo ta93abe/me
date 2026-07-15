@@ -1,5 +1,6 @@
 ---
 title: "余白のラフ"
+mediaType: "drawing"
 coverImage: "../../../public/favicon.svg"
 tags: ["layout", "typography"]
 excerpt: "見出しと本文のあいだの余白を、紙に近い感覚で試したメモ。"

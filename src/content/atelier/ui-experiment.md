@@ -1,5 +1,6 @@
 ---
 title: "ホバーの手触り"
+mediaType: "drawing"
 coverImage: "../../../public/dbt-jobs.png"
 tags: ["interaction", "ui"]
 excerpt: "カードではなく、画像そのものが少し動く感じを試した作業メモ。"

@@ -1,5 +1,6 @@
 ---
 title: "静かな枠"
+mediaType: "drawing"
 coverImage: "../../../public/dbt-jobs.png"
 tags: ["composition"]
 excerpt: "余白と一枚の画像だけで成立する展示の試作。"

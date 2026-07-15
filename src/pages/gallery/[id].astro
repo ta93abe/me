@@ -1,9 +1,11 @@
 ---
-import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
+import PieceMedia from "../../components/creative/PieceMedia.astro";
 import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
+import type { MediaType } from "../../utils/creative-media";
 import { formatDate } from "../../utils/date";
 import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
 
@@ -18,14 +20,24 @@ export async function getStaticPaths() {
 const { piece } = Astro.props;
 const { Content } = await render(piece);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL = new URL(piece.data.coverImage.src, Astro.site);
+const ogImageURL = piece.data.coverImage
+	? new URL(piece.data.coverImage.src, Astro.site)
+	: new URL("/og-image.png", Astro.site);
+
+const schemaType =
+	piece.data.mediaType === "music"
+		? "MusicComposition"
+		: piece.data.mediaType === "photo"
+			? "Photograph"
+			: "VisualArtwork";
 
 const pieceSchema = {
 	"@context": "https://schema.org",
-	"@type": "CreativeWork",
+	"@type": schemaType,
 	name: piece.data.title,
 	description: piece.data.excerpt,
 	image: ogImageURL.href,
+	...(piece.data.audio ? { audio: new URL(piece.data.audio, Astro.site).href } : {}),
 	keywords: piece.data.tags?.join(", "),
 	author: {
 		"@type": "Person",
@@ -70,21 +82,26 @@ const siteUrl = Astro.site?.href || SITE.url;
 		</div>
 
 		<figure class="gallery-detail-figure">
-			<div class="gallery-detail-media">
-				<Image
-					src={piece.data.coverImage}
-					alt={piece.data.title}
-					class="gallery-detail-image"
+			<div class:list={["gallery-detail-media", `is-${piece.data.mediaType}`]}>
+				<PieceMedia
+					mediaType={piece.data.mediaType as MediaType}
+					title={piece.data.title}
+					coverImage={piece.data.coverImage}
+					audio={piece.data.audio}
+					variant="gallery"
 				/>
 			</div>
 			<figcaption class="gallery-detail-caption">
-				{
-					piece.data.completedDate && (
-						<time datetime={piece.data.completedDate.toISOString()}>
-							{formatDate(piece.data.completedDate)}
-						</time>
-					)
-				}
+				<div class="gallery-detail-meta">
+					<MediaTypeBadge mediaType={piece.data.mediaType as MediaType} />
+					{
+						piece.data.completedDate && (
+							<time datetime={piece.data.completedDate.toISOString()}>
+								{formatDate(piece.data.completedDate)}
+							</time>
+						)
+					}
+				</div>
 				<h1 class="gallery-detail-title font-display">{piece.data.title}</h1>
 				<p class="gallery-detail-excerpt">{piece.data.excerpt}</p>
 			</figcaption>
@@ -131,16 +148,14 @@ const siteUrl = Astro.site?.href || SITE.url;
 		overflow: hidden;
 	}
 
+	.gallery-detail-media.is-music {
+		aspect-ratio: 16 / 9;
+	}
+
 	@media (max-width: 768px) {
 		.gallery-detail-media {
 			aspect-ratio: 4 / 3;
 		}
-	}
-
-	.gallery-detail-image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
 	}
 
 	.gallery-detail-caption {
@@ -150,11 +165,14 @@ const siteUrl = Astro.site?.href || SITE.url;
 		text-align: center;
 	}
 
-	.gallery-detail-caption time {
-		display: block;
+	.gallery-detail-meta {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.85rem;
 		margin-bottom: 1rem;
 		font-size: 0.75rem;
-		letter-spacing: 0.16em;
+		letter-spacing: 0.12em;
 		color: var(--text-muted);
 	}
 

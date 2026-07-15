@@ -17,6 +17,9 @@ export type Book = CollectionEntry<"books">;
 
 /** Atelier piece status */
 export type AtelierStatus = "wip" | "practice" | "sketch";
+
+/** Creative media type for Atelier / Gallery */
+export type { MediaType as CreativeMediaType } from "../utils/creative-media";
 export type About = CollectionEntry<"about">;
 export type Talk = CollectionEntry<"talks">;
 export type ZennArticle = CollectionEntry<"zenn">;

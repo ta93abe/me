@@ -1,9 +1,15 @@
 ---
-import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
+import PieceMedia from "../../components/creative/PieceMedia.astro";
 import EmptyState from "../../components/ui/EmptyState.astro";
 import { SITE } from "../../config/site";
 import Layout from "../../layouts/Layout.astro";
+import {
+	MEDIA_TYPE_LABELS,
+	MEDIA_TYPES,
+	type MediaType,
+} from "../../utils/creative-media";
 import { formatDate } from "../../utils/date";
 
 const pieces = await getCollection("atelier");
@@ -19,18 +25,22 @@ const statusLabel: Record<string, string> = {
 	practice: "練習",
 	sketch: "スケッチ",
 };
+
+const usedMediaTypes = MEDIA_TYPES.filter((type) =>
+	sorted.some((piece) => piece.data.mediaType === type),
+);
 ---
 
 <Layout
 	title={`Atelier | ${SITE.name}`}
-	description="作業中や練習したものを雑多に置くアトリエ。未完成のメモや習作を置いています。"
+	description="絵・写真・音楽の作業中や練習を雑多に置くアトリエ。"
 >
 	<main class="atelier-page">
 		<header class="atelier-header" data-animate>
 			<p class="atelier-eyebrow">Workspace</p>
 			<h1 class="atelier-title font-display">アトリエ</h1>
 			<p class="atelier-lead">
-				作業机の上みたいに、練習や途中経過を雑多に置いています。
+				絵・写真・音楽の練習や途中経過を、作業机の上みたいに雑多に置いています。
 			</p>
 		</header>
 
@@ -41,36 +51,56 @@ const statusLabel: Record<string, string> = {
 					description="習作や作業メモが増えたら、ここに散らばっていきます。"
 				/>
 			) : (
-				<div class="atelier-board">
-					{sorted.map((piece, index) => (
-						<a
-							href={`/atelier/${piece.id}`}
-							class={`atelier-scrap atelier-scrap--${(index % 3) + 1}`}
-							data-animate
-							style={`--delay: ${index * 60}ms`}
-						>
-							<div class="atelier-scrap-media">
-								<Image
-									src={piece.data.coverImage}
-									alt={piece.data.title}
-									class="atelier-scrap-image"
-								/>
-							</div>
-							<div class="atelier-scrap-meta">
-								<span class={`atelier-status atelier-status--${piece.data.status}`}>
-									{statusLabel[piece.data.status] ?? piece.data.status}
-								</span>
-								{piece.data.date && (
-									<time datetime={piece.data.date.toISOString()}>
-										{formatDate(piece.data.date)}
-									</time>
-								)}
-							</div>
-							<h2 class="atelier-scrap-title">{piece.data.title}</h2>
-							<p class="atelier-scrap-excerpt">{piece.data.excerpt}</p>
-						</a>
-					))}
-				</div>
+				<>
+					{usedMediaTypes.length > 1 && (
+						<div class="atelier-filters" data-media-filter role="group" aria-label="メディア種別で絞り込み">
+							<button type="button" class="atelier-filter is-active" data-media="all">
+								すべて
+							</button>
+							{usedMediaTypes.map((type) => (
+								<button type="button" class="atelier-filter" data-media={type}>
+									{MEDIA_TYPE_LABELS[type]}
+								</button>
+							))}
+						</div>
+					)}
+
+					<div class="atelier-board">
+						{sorted.map((piece, index) => (
+							<a
+								href={`/atelier/${piece.id}`}
+								class={`atelier-scrap atelier-scrap--${(index % 3) + 1}`}
+								data-animate
+								data-item
+								data-media-type={piece.data.mediaType}
+								style={`--delay: ${index * 60}ms`}
+							>
+								<div class="atelier-scrap-media">
+									<PieceMedia
+										mediaType={piece.data.mediaType as MediaType}
+										title={piece.data.title}
+										coverImage={piece.data.coverImage}
+										audio={piece.data.audio}
+										variant="card"
+									/>
+								</div>
+								<div class="atelier-scrap-meta">
+									<MediaTypeBadge mediaType={piece.data.mediaType as MediaType} />
+									<span class={`atelier-status atelier-status--${piece.data.status}`}>
+										{statusLabel[piece.data.status] ?? piece.data.status}
+									</span>
+									{piece.data.date && (
+										<time datetime={piece.data.date.toISOString()}>
+											{formatDate(piece.data.date)}
+										</time>
+									)}
+								</div>
+								<h2 class="atelier-scrap-title">{piece.data.title}</h2>
+								<p class="atelier-scrap-excerpt">{piece.data.excerpt}</p>
+							</a>
+						))}
+					</div>
+				</>
 			)
 		}
 	</main>
@@ -105,7 +135,7 @@ const statusLabel: Record<string, string> = {
 		position: relative;
 		z-index: 1;
 		max-width: 40rem;
-		margin: 0 auto 3.5rem;
+		margin: 0 auto 2.5rem;
 	}
 
 	.atelier-eyebrow {
@@ -126,10 +156,41 @@ const statusLabel: Record<string, string> = {
 
 	.atelier-lead {
 		margin: 0;
-		max-width: 28rem;
+		max-width: 30rem;
 		font-size: 1rem;
 		line-height: 1.8;
 		color: var(--text-secondary);
+	}
+
+	.atelier-filters {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		max-width: 72rem;
+		margin: 0 auto 1.75rem;
+	}
+
+	.atelier-filter {
+		padding: 0.35rem 0.75rem;
+		font-size: 0.75rem;
+		letter-spacing: 0.06em;
+		color: var(--text-muted);
+		background: transparent;
+		border: 1px dashed rgba(255, 255, 255, 0.18);
+		cursor: pointer;
+		transition:
+			color 0.2s ease,
+			border-color 0.2s ease,
+			background 0.2s ease;
+	}
+
+	.atelier-filter:hover,
+	.atelier-filter.is-active {
+		color: var(--text-primary);
+		border-color: rgba(255, 255, 255, 0.35);
+		background: rgba(255, 255, 255, 0.04);
 	}
 
 	.atelier-board {
@@ -171,6 +232,10 @@ const statusLabel: Record<string, string> = {
 		animation-delay: var(--delay, 0ms);
 	}
 
+	.atelier-scrap.is-hidden {
+		display: none;
+	}
+
 	.atelier-scrap--1 {
 		transform: rotate(-1.2deg);
 	}
@@ -209,15 +274,13 @@ const statusLabel: Record<string, string> = {
 		aspect-ratio: 1 / 1;
 	}
 
-	.atelier-scrap-image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		filter: saturate(0.85) contrast(1.05);
-		transition: transform 0.5s ease, filter 0.5s ease;
+	.atelier-scrap :global(.piece-media-image) {
+		transition:
+			transform 0.5s ease,
+			filter 0.5s ease;
 	}
 
-	.atelier-scrap:hover .atelier-scrap-image {
+	.atelier-scrap:hover :global(.piece-media-image) {
 		transform: scale(1.03);
 		filter: saturate(1) contrast(1);
 	}
@@ -280,7 +343,7 @@ const statusLabel: Record<string, string> = {
 
 	@media (prefers-reduced-motion: reduce) {
 		.atelier-scrap,
-		.atelier-scrap-image {
+		.atelier-scrap :global(.piece-media-image) {
 			animation: none;
 			transition: none;
 		}
@@ -299,7 +362,32 @@ const statusLabel: Record<string, string> = {
 			window.posthog?.capture("atelier_piece_clicked", {
 				piece_title: scrap.querySelector(".atelier-scrap-title")?.textContent?.trim(),
 				piece_href: scrap.getAttribute("href"),
+				media_type: scrap.getAttribute("data-media-type"),
 			});
 		});
 	});
+
+	(function () {
+		var filterRoot = document.querySelector("[data-media-filter]");
+		if (!filterRoot) return;
+
+		var buttons = filterRoot.querySelectorAll(".atelier-filter");
+		var items = document.querySelectorAll(".atelier-scrap[data-media-type]");
+
+		buttons.forEach(function (button) {
+			button.addEventListener("click", function () {
+				var media = button.getAttribute("data-media") || "all";
+				buttons.forEach(function (b) {
+					b.classList.toggle("is-active", b === button);
+				});
+				items.forEach(function (item) {
+					var type = item.getAttribute("data-media-type");
+					item.classList.toggle("is-hidden", media !== "all" && type !== media);
+				});
+				if (media !== "all") {
+					window.posthog?.capture("atelier_media_filtered", { media_type: media });
+				}
+			});
+		});
+	})();
 </script>
