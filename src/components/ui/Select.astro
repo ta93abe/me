@@ -2,11 +2,10 @@
 import { tv } from "tailwind-variants";
 
 const select = tv({
-	base: "rounded-lg border bg-[var(--bg-elevated)] px-3 py-1.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1",
+	base: "rounded-lg bg-[var(--bg-elevated)] px-3 py-1.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1",
 	variants: {
 		variant: {
-			default:
-				"border-(--border-color) focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]",
+			default: "focus:ring-[var(--primary-color)]",
 		},
 		size: {
 			sm: "px-2 py-1 text-xs",

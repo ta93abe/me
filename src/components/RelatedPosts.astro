@@ -15,14 +15,14 @@ if (posts.length === 0) {
 }
 ---
 
-<aside class="mt-12 border-t border-(--border-color) pt-8">
+<aside class="mt-12 pt-8">
   <h2 class="mb-6 text-xl font-bold text-[var(--text-primary)]">関連記事</h2>
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {
       posts.map((post) => (
         <a
           href={`${basePath}/${post.id}`}
-          class="group flex flex-col rounded-lg border border-(--border-color) p-4 transition-colors hover:border-[var(--primary-color)] hover:bg-[var(--bg-secondary)]"
+          class="group flex flex-col rounded-lg bg-[var(--bg-secondary)] p-4 transition-colors hover:bg-[var(--bg-elevated)]"
         >
           <span class="mb-2 text-sm text-[var(--text-muted)]">
             {formatDate(post.data.date)}

@@ -7,7 +7,7 @@ interface Props {
 
 const { class: className = "" } = Astro.props as Props;
 const classes = cn(
-	"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full border border-(--border-color) bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-lg transition-all duration-200 ease-out hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] motion-reduce:transition-none",
+	"fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-lg transition-all duration-200 ease-out hover:bg-[var(--bg-tertiary)] hover:text-[var(--primary-color)] motion-reduce:transition-none",
 	"pointer-events-none translate-y-4 opacity-0",
 	className,
 );

@@ -2,12 +2,12 @@
 import { tv } from "tailwind-variants";
 
 const input = tv({
-	base: "w-full rounded-lg border px-4 py-2.5 text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1",
+	base: "w-full rounded-lg px-4 py-2.5 text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1",
 	variants: {
 		error: {
-			true: "border-red-600 bg-red-50 text-[var(--text-primary)] focus:border-red-600 focus:ring-red-500",
+			true: "bg-red-50 text-[var(--text-primary)] ring-1 ring-red-600 focus:ring-red-500",
 			false:
-				"border-(--border-color) bg-[var(--bg-elevated)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]",
+				"bg-[var(--bg-elevated)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:ring-[var(--primary-color)]",
 		},
 		disabled: {
 			true: "opacity-50 cursor-not-allowed bg-[var(--bg-tertiary)]",

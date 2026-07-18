@@ -164,7 +164,8 @@ const siteUrl = Astro.site?.href || SITE.url;
 	.atelier-status {
 		display: inline-block;
 		padding: 0.15rem 0.45rem;
-		border: 1px dashed currentColor;
+		border-radius: 9999px;
+		background: color-mix(in srgb, currentColor 14%, transparent);
 	}
 
 	.atelier-status--wip {
@@ -207,13 +208,13 @@ const siteUrl = Astro.site?.href || SITE.url;
 		font-size: 0.75rem;
 		color: var(--text-muted);
 		padding: 0.2rem 0.55rem;
-		border: 1px solid var(--border-color);
+		border-radius: 9999px;
+		background: var(--bg-tertiary);
 	}
 
 	.atelier-detail-media {
 		margin-bottom: 2.5rem;
 		overflow: hidden;
-		border: 1px solid rgba(255, 255, 255, 0.06);
 		background: var(--bg-secondary);
 		aspect-ratio: 16 / 10;
 		transform: rotate(-0.4deg);

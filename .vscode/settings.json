@@ -26,6 +26,10 @@
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
+	// Tailwind v4 の @plugin / @theme 等は標準 CSS ではないため、
+	// 組み込み CSS リンターの unknownAtRules 警告を抑止する
+	"css.lint.unknownAtRules": "ignore",
+	"scss.lint.unknownAtRules": "ignore",
 	"tailwindCSS.experimental.classRegex": [
 		["class:\\s*?[\"'`]([^\"'`]*).*?[\"'`]", "[\"'`]([^\"'`]*).*?[\"'`]"]
 	]
