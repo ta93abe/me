@@ -1,7 +1,6 @@
 ---
 title: 最初のブログ投稿
 date: 2026-07-18
-updatedDate: ''
 excerpt: ブログを始めました。
 ---
 
