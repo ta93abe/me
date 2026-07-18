@@ -181,12 +181,6 @@
 			"category": "デザイン"
 		},
 		{
-			"name": "CodePen",
-			"url": "https://codepen.io/ta93abe",
-			"icon": "codepen",
-			"category": "開発"
-		},
-		{
 			"name": "Stack Overflow",
 			"url": "https://stackoverflow.com/users/ta93abe",
 			"icon": "stackoverflow",
