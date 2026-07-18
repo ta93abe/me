@@ -1,0 +1,46 @@
+# Sveltia CMS 用インフラ（infra/alchemy.run.ts）の自動デプロイ
+#
+# 必要な Secrets:
+# - CLOUDFLARE_API_TOKEN: Workers Scripts Write / Workers R2 Storage Write /
+#   Secrets Store Write（Alchemy のステートストア読み書きに必須）/
+#   Zone > Workers Routes・DNS Write（カスタムドメイン接続用）を持つトークン
+# - CLOUDFLARE_ACCOUNT_ID: b0047256d1afc1be1df08289ee3be552
+# - SVELTIA_GITHUB_CLIENT_ID / SVELTIA_GITHUB_CLIENT_SECRET:
+#   GitHub OAuth App の認証情報（Secrets 名は GITHUB_ プレフィックスが
+#   予約済みのため SVELTIA_ を付けている）
+name: Deploy Infra
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-infra
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Deploy infra
+        run: pnpm infra:deploy --yes
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_CLIENT_ID: ${{ secrets.SVELTIA_GITHUB_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.SVELTIA_GITHUB_CLIENT_SECRET }}
