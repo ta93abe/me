@@ -6,19 +6,31 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers } from "astro/config";
 
-/** @type {import('astro').CspResourceEntry[]} */
+/**
+ * Astro の CspResourceEntry 相当。
+ * `import('astro').CspResourceEntry` は公開エントリから export されないためローカルで定義する。
+ *
+ * @typedef {{ resource: string; kind: "element" | "attribute" | "default" }} CspResourceObject
+ * @typedef {string | CspResourceObject} CspResourceEntry
+ */
+
+/** @type {CspResourceEntry[]} */
 const cspStyleResources = [
 	{ resource: "'self'", kind: "element" },
 	{ resource: "'unsafe-inline'", kind: "attribute" },
 ];
 
-/** @type {import('astro').CspResourceEntry[]} */
+/** @type {CspResourceEntry[]} */
 const cspScriptResources = [{ resource: "'self'", kind: "element" }];
 
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
 	integrations: [sitemap(), mdx(), react()],
+	redirects: {
+		"/works": "/gallery",
+		"/works/[id]": "/gallery/[id]",
+	},
 	build: {
 		inlineStylesheets: "auto",
 	},

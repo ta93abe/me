@@ -1,16 +1,15 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getCollection, render } from "astro:content";
-import Breadcrumb from "../../components/Breadcrumb.astro";
-import PostNavigation from "../../components/PostNavigation.astro";
-import RelatedPosts from "../../components/RelatedPosts.astro";
-import BackToTop from "../../components/ui/BackToTop.astro";
-import Tag from "../../components/ui/Tag.astro";
-import { SITE } from "../../config/site";
-import Layout from "../../layouts/Layout.astro";
-import { formatDate } from "../../utils/date";
-import { formatReadingTime, getReadingTime } from "../../utils/reading-time";
-import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
+import PostNavigation from "@/components/PostNavigation.astro";
+import RelatedPosts from "@/components/RelatedPosts.astro";
+import BackToTop from "@/components/ui/BackToTop.astro";
+import Tag from "@/components/ui/Tag.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/utils/date";
+import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
+import { stringifySchema } from "@/utils/schema";
 
 export async function getStaticPaths() {
 	const blogPosts = await getCollection("blog");
@@ -57,6 +56,7 @@ const modifiedTime = post.data.updatedDate
 	? post.data.updatedDate.toISOString()
 	: publishedTime;
 const ogImageURL = new URL(`/og/blog/${post.id}.png`, Astro.site);
+const tags = post.data.tags ?? [];
 const blogSchema = {
 	"@context": "https://schema.org",
 	"@type": "BlogPosting",
@@ -72,13 +72,8 @@ const blogSchema = {
 	image: ogImageURL.href,
 	mainEntityOfPage: canonicalURL.href,
 	inLanguage: SITE.lang,
+	...(tags.length > 0 ? { keywords: tags.join(", ") } : {}),
 };
-const breadcrumbItems = [
-	{ label: "ホーム", href: "/" },
-	{ label: "ブログ", href: "/blog" },
-	{ label: post.data.title },
-];
-const siteUrl = Astro.site?.href || SITE.url;
 ---
 
 <Layout
@@ -96,41 +91,36 @@ const siteUrl = Astro.site?.href || SITE.url;
         <meta property="article:modified_time" content={modifiedTime} />
       )
     }
+    {tags.map((tag) => <meta property="article:tag" content={tag} />)}
     <script
       type="application/ld+json"
       set:html={stringifySchema(blogSchema)}
     />
-    <script
-      type="application/ld+json"
-      set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
-    />
   </Fragment>
   <main class="mx-auto max-w-3xl px-6 py-12">
-    <Breadcrumb items={breadcrumbItems} />
-
     <a
       href="/blog"
-      class="mb-6 inline-block text-sm tracking-wide text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+      class="mb-6 inline-block text-sm tracking-wide text-(--text-muted) hover:text-(--text-primary)"
     >
       ← Blog 一覧へ戻る
     </a>
 
     <header class="mb-12 pb-10">
-      <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-[var(--text-muted)]">
+      <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
         <time class="font-medium">
           {formatDate(post.data.date)}
         </time>
         {
           post.data.updatedDate && (
-            <span class="text-[var(--text-muted)]">|</span>
+            <span class="text-(--text-muted)">|</span>
             <span>更新: {formatDate(post.data.updatedDate)}</span>
           )
         }
-        <span class="text-[var(--text-muted)]">|</span>
+        <span class="text-(--text-muted)">|</span>
         <span>{readingTimeText}</span>
       </div>
 
-      <h1 class="font-display mb-6 text-3xl font-bold leading-tight tracking-tight text-[var(--text-primary)] sm:text-4xl">
+      <h1 class="font-display mb-6 text-3xl font-bold leading-tight tracking-tight text-(--text-primary) sm:text-4xl">
         {post.data.title}
       </h1>
 

@@ -1,0 +1,132 @@
+name: Performance (Lighthouse + Browser Run CWV)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # 本番 CWV を毎日計測（Browser Run）
+    - cron: "17 15 * * *"
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Override base URL for Browser Run CWV (production synthetic)"
+        required: false
+        default: "https://ta93abe.com"
+
+concurrency:
+  group: perf-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse-preview:
+    name: Lighthouse (preview build)
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Build site
+        run: pnpm build
+
+      - name: Start preview server
+        run: |
+          pnpm exec astro preview --host 127.0.0.1 --port 4321 &
+          echo $! > preview.pid
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:4321/ >/dev/null; then
+              echo "preview ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "preview failed to start"
+          exit 1
+
+      - name: Run Lighthouse budgets
+        env:
+          PERF_BASE_URL: http://127.0.0.1:4321
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+        run: pnpm perf:lighthouse
+
+      - name: Upload Lighthouse reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: perf-results/
+          retention-days: 30
+
+      - name: Stop preview
+        if: always()
+        run: |
+          if [ -f preview.pid ]; then kill "$(cat preview.pid)" || true; fi
+
+  browser-run-cwv:
+    name: Browser Run CWV (production)
+    # fork PR ではシークレットが無いのでジョブ自体は動かし、中でスキップする
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check Cloudflare secrets
+        id: secrets
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          if [ -n "$CF_ACCOUNT_ID" ] && [ -n "$CF_API_TOKEN" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::CF_ACCOUNT_ID / CF_API_TOKEN 未設定のため Browser Run CWV をスキップします。Dashboard で Browser Rendering - Edit 権限の API Token を secrets に登録してください。"
+          fi
+
+      - name: Run Browser Run Core Web Vitals
+        if: steps.secrets.outputs.present == 'true'
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          PERF_BASE_URL: ${{ inputs.base_url || 'https://ta93abe.com' }}
+        run: pnpm perf:cwv
+
+      - name: Upload Browser Run reports
+        if: ${{ !cancelled() && steps.secrets.outputs.present == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-run-cwv
+          path: perf-results/
+          retention-days: 30

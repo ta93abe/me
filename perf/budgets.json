@@ -1,0 +1,16 @@
+{
+	"urls": ["/", "/gallery/", "/blog/", "/links/"],
+	"budgets": {
+		"performanceScore": 0.9,
+		"lcp": 2500,
+		"fcp": 1800,
+		"cls": 0.1,
+		"tbt": 200,
+		"ttfb": 800,
+		"si": 3000
+	},
+	"browserRun": {
+		"settleMs": 5000,
+		"navigationTimeoutMs": 45000
+	}
+}

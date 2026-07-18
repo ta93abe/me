@@ -1,10 +1,10 @@
 ---
 import "../styles/global.css";
-import Footer from "../components/Footer.astro";
-import Header from "../components/Header.astro";
-import PostHog from "../components/posthog.astro";
-import { SITE } from "../config/site";
-import { generateWebSiteSchema, stringifySchema } from "../utils/schema";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import PostHog from "@/components/posthog.astro";
+import { SITE } from "@/config/site";
+import { generateWebSiteSchema, stringifySchema } from "@/utils/schema";
 
 interface Props {
 	title?: string;
@@ -13,6 +13,10 @@ interface Props {
 	ogImageAlt?: string;
 	ogSiteName?: string;
 	ogType?: "website" | "article" | "book";
+	/** 明示的な canonical。未指定時は現在の pathname */
+	canonicalURL?: string | URL;
+	/** true のとき検索エンジンにインデックスさせない */
+	noindex?: boolean;
 	noHeader?: boolean;
 	noFooter?: boolean;
 }
@@ -20,16 +24,21 @@ interface Props {
 const {
 	title = SITE.name,
 	description = SITE.description,
-	ogImage = "/og-image.png",
+	ogImage = "/og/default.png",
 	ogImageAlt = title,
 	ogSiteName = SITE.name,
 	ogType = "website",
+	canonicalURL: canonicalOverride,
+	noindex = false,
 	noHeader = false,
 	noFooter = false,
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const canonicalURL = canonicalOverride
+	? new URL(canonicalOverride, Astro.site)
+	: new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(ogImage, Astro.site);
+const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 ---
 
 <!doctype html>
@@ -47,6 +56,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<meta name="title" content={title} />
 		<meta name="description" content={description} />
 		<meta name="author" content={SITE.author} />
+		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
 
 		<!-- Open Graph / Facebook -->
@@ -61,6 +71,8 @@ const ogImageURL = new URL(ogImage, Astro.site);
 
 		<!-- Twitter -->
 		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content={SITE.twitter} />
+		<meta name="twitter:creator" content={SITE.twitter} />
 		<meta name="twitter:url" content={canonicalURL} />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
@@ -70,7 +82,9 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<!-- 構造化データ (JSON-LD) -->
 		<script
 			type="application/ld+json"
-			set:html={stringifySchema(generateWebSiteSchema(Astro.site?.href || SITE.url))}
+			set:html={stringifySchema(
+				generateWebSiteSchema(Astro.site?.href || SITE.url),
+			)}
 		></script>
 		<slot name="head" />
 		<PostHog />
@@ -113,9 +127,8 @@ const ogImageURL = new URL(ogImage, Astro.site);
 					execute: async () => ({
 						site: "https://ta93abe.com/",
 						sections: [
-							"https://ta93abe.com/works/",
-							"https://ta93abe.com/atelier/",
 							"https://ta93abe.com/gallery/",
+							"https://ta93abe.com/atelier/",
 							"https://ta93abe.com/blog/",
 							"https://ta93abe.com/slides/",
 							"https://ta93abe.com/bookshelf/",
@@ -180,5 +193,4 @@ const ogImageURL = new URL(ogImage, Astro.site);
 			transition: none;
 		}
 	}
-
 </style>

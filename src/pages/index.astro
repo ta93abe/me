@@ -1,11 +1,12 @@
 ---
-import HeroSection from "../components/landing/HeroSection.astro";
-import Layout from "../layouts/Layout.astro";
+import HeroSection from "@/components/landing/HeroSection.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout
-  title="ta93abe | Software Engineer"
-  description="ソフトウェアエンジニア ta93abe のポートフォリオサイト。プロジェクトや作品をご覧ください。"
+  title={`${SITE.name} (ta93abe) | Software Engineer`}
+  description={SITE.description}
 >
   <main>
     <HeroSection />

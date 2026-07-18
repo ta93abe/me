@@ -374,7 +374,8 @@ body::after {
 }
 
 .prose tr + tr td {
-	box-shadow: inset 0 1px 0 color-mix(in srgb, var(--border-color) 55%, transparent);
+	box-shadow: inset 0 1px 0
+		color-mix(in srgb, var(--border-color) 55%, transparent);
 }
 
 .prose tr:hover {

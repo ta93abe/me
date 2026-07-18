@@ -13,22 +13,11 @@ export interface NavLink {
  * ヘッダーナビゲーションに表示するリンク
  */
 export const NAV_LINKS: readonly NavLink[] = [
-	{ href: "/works", text: "Works" },
-	{ href: "/atelier", text: "Atelier" },
 	{ href: "/gallery", text: "Gallery" },
+	{ href: "/atelier", text: "Atelier" },
+	{ href: "/bookshelf", text: "Bookshelf" },
+	{ href: "/blog", text: "Blog" },
 	{ href: "/links", text: "Links" },
-	{ href: "/blog", text: "Blog" },
+	{ href: "/tools", text: "Tools" },
 	{ href: "/slides", text: "Slides" },
-];
-
-/**
- * Footer navigation links (if needed in future)
- * フッターナビゲーション用（将来的に使用）
- */
-export const FOOTER_LINKS: readonly NavLink[] = [
-	{ href: "/", text: "Home" },
-	{ href: "/works", text: "Works" },
-	{ href: "/atelier", text: "Atelier" },
-	{ href: "/gallery", text: "Gallery" },
-	{ href: "/blog", text: "Blog" },
 ];

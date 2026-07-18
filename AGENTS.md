@@ -10,8 +10,8 @@
 
 | カテゴリ | 技術 | バージョン |
 |---------|------|-----------|
-| フレームワーク | Astro | ^5.16.6 |
-| スタイリング | Tailwind CSS | ^4.1.18 |
+| フレームワーク | Astro | ^7.1.1 |
+| スタイリング | Tailwind CSS | ^4.3.2 |
 | ビルドツール | Vite | (Astroに内包) |
 | パッケージマネージャー | pnpm | Latest |
 | リンター/フォーマッター | Oxlint / Oxfmt | - |
@@ -24,48 +24,33 @@
 
 ```
 /
-├── .claude/                    # Claude Code設定・ドキュメント
-│   └── CLAUDE.md              # このファイル
-├── .github/
-│   └── workflows/
-│       ├── claude.yml         # Claude Code GitHub連携
-│       ├── claude-code-review.yml  # 自動コードレビュー
-│       └── playwright.yml     # E2Eテスト
-├── docs/                       # プロジェクトドキュメント
-│   ├── ARCHITECTURE.md        # 技術アーキテクチャ
-│   ├── DEPLOYMENT.md          # デプロイ手順
-│   ├── STYLE_GUIDE.md         # コーディング規約
-│   └── TROUBLESHOOTING.md     # トラブルシューティング
-├── public/
-│   └── favicon.svg            # 静的ファイル(ルートで配信)
+├── .github/workflows/         # CI (perf / playwright / infra)
+├── docs/                      # アーキテクチャ・デプロイ・スタイルガイド
+├── infra/                     # Alchemy による Cloudflare インフラ
+├── perf/                      # Lighthouse / CWV budgets
+├── public/                    # favicon, admin (Sveltia CMS), media
 ├── src/
-│   ├── assets/                # 画像・静的リソース
-│   │   ├── astro.svg
-│   │   └── background.svg
-│   ├── components/            # 再利用可能なAstroコンポーネント
-│   │   └── Welcome.astro
-│   ├── layouts/               # ページレイアウトテンプレート
-│   │   └── Layout.astro       # メインHTMLレイアウト
+│   ├── components/            # UI / landing / blog コンポーネント
+│   ├── config/                # site / navigation
+│   ├── content/               # Content Collections (blog, gallery, atelier, books)
+│   ├── layouts/Layout.astro
 │   ├── pages/                 # ファイルベースルーティング
-│   │   └── index.astro        # ホームページ(/)
-│   └── styles/
-│       └── global.css         # グローバルスタイル(Tailwind import)
-├── astro.config.mjs           # Astro設定
-├── .oxlintrc.json             # Oxlint設定(linting)
-├── .oxfmtrc.json              # Oxfmt設定(formatting)
-├── package.json               # 依存関係・スクリプト
-├── pnpm-workspace.yaml        # pnpmワークスペース設定
-├── tsconfig.json              # TypeScript設定
-└── wrangler.jsonc             # Cloudflare Workers設定
+│   ├── styles/global.css
+│   └── utils/                 # schema / OG 生成など
+├── worker/                    # Cloudflare Worker (静的配信 + agent endpoints)
+├── astro.config.mjs
+├── package.json
+└── wrangler.jsonc
 ```
 
 ### 主要ファイルの説明
 
 #### エントリーポイント
 
-- **`src/pages/index.astro`** - ホームページ。Welcomeコンポーネントをレンダリング
-- **`src/layouts/Layout.astro`** - HTML骨格。head/bodyを定義し、グローバルスタイルをインポート
-- **`astro.config.mjs`** - Astro設定。Tailwind Viteプラグインを統合
+- **`src/pages/index.astro`** - ホームページ（Hero）
+- **`src/layouts/Layout.astro`** - HTML骨格、SEO meta、グローバルスタイル
+- **`astro.config.mjs`** - Astro設定（Tailwind、CSP、redirects など）
+- **`worker/index.ts`** - Workers ランタイム（アセット配信・Agent discovery）
 
 #### 設定ファイル
 
@@ -115,6 +100,9 @@ pnpm dev
 | `pnpm astro` | Astro CLIコマンドを直接実行 |
 | `pnpm lint` | Oxlint を自動修正付きで実行 (src/) |
 | `pnpm format` | Oxfmt でコード整形 (src/) |
+| `pnpm format:check` | フォーマット差分チェック |
+| `pnpm check` | Astro / TypeScript 型チェック |
+| `pnpm test:run` | Vitest ユニットテスト |
 
 ## ビルド
 
@@ -177,6 +165,14 @@ pnpm format
 ```
 
 ## CI/CD
+
+### Quality ゲート
+
+`.github/workflows/quality.yml` - PR / main で lint・format・unit test・`astro check` を実行
+
+### パフォーマンス
+
+`.github/workflows/perf.yml` - Lighthouse（preview）と Browser Run CWV（本番）
 
 ### Claude Code GitHub連携
 
@@ -316,16 +312,14 @@ Conventional Commits に従う:
 
 ## プロジェクトステータス
 
-現在、スターターテンプレートから開発を開始した段階です:
-- Cloudflare Workers設定完了
-- CI/CD自動化完了
-- 設定ファイルの調整完了
-- 実装中: ポートフォリオコンテンツの追加
+ポートフォリオサイトとして運用中:
+- Astro 7 + Tailwind CSS 4 + Cloudflare Workers
+- ページ: Gallery / Atelier / Bookshelf / Blog / Links / Tools / Slides
+- SEO（OG / JSON-LD / sitemap / robots）、PostHog、Sveltia CMS、perf CI まで実装済み
+- `/works` は `/gallery` へリダイレクト（互換維持）
 
 ## 次のステップ
 
-1. スターターコンテンツ(Welcome.astro)をカスタムコンテンツに置き換え
-2. 追加ページの作成 (About, Projects, Contactなど)
-3. カスタムコンポーネントの実装
-4. SEO最適化の追加
-5. アナリティクスの統合
+1. サンプルコンテンツを本番アセットに差し替え
+2. Sveltia CMS の books 対応・OAuth 本番確認
+3. Agent Readiness の残タスク（DNS-AID など）

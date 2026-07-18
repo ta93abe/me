@@ -2,7 +2,7 @@
 import {
 	getMediaTypeLabel,
 	type MediaType,
-} from "../../utils/creative-media";
+} from "@/utils/creative-media";
 
 interface Props {
 	mediaType: MediaType;
@@ -38,5 +38,9 @@ const label = getMediaTypeLabel(mediaType);
 
 	.media-type--music {
 		color: #7a6494;
+	}
+
+	.media-type--project {
+		color: #a63d2a;
 	}
 </style>

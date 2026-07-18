@@ -1,8 +1,6 @@
 import { glob } from "astro/loaders";
 import { defineCollection, z } from "astro:content";
 
-import { createRSSLoader, type RSSSource } from "./utils/rss-loader";
-
 // =============================================================================
 // Common Schema Parts - 共通スキーマパーツ
 // =============================================================================
@@ -13,34 +11,49 @@ const tagsSchema = z.array(z.string()).optional();
 /** Excerpt schema - short description */
 const excerptSchema = z.string();
 
-/** Creative media type - drawing / photo / music */
-const mediaTypeSchema = z
+/** Atelier media type - drawing / photo / music */
+const creativeMediaTypeSchema = z
 	.enum(["drawing", "photo", "music"])
+	.default("drawing");
+
+/** Gallery media type - 創作 + ポートフォリオプロジェクト */
+const galleryMediaTypeSchema = z
+	.enum(["drawing", "photo", "music", "project"])
 	.default("drawing");
 
 /**
  * Validate creative media fields:
- * - drawing / photo require coverImage
+ * - drawing / photo / project require coverImage
  * - music requires audio
  */
+type CreativeRefinementCtx = {
+	addIssue: (issue: {
+		code: "custom";
+		path: Array<string | number>;
+		message: string;
+	}) => void;
+};
+
 const refineCreativeMedia = <
 	T extends {
-		mediaType: "drawing" | "photo" | "music";
+		mediaType: "drawing" | "photo" | "music" | "project";
 		coverImage?: unknown;
 		audio?: string;
 	},
 >(
 	data: T,
-	ctx: z.RefinementCtx,
+	ctx: CreativeRefinementCtx,
 ) => {
 	if (
-		(data.mediaType === "drawing" || data.mediaType === "photo") &&
+		(data.mediaType === "drawing" ||
+			data.mediaType === "photo" ||
+			data.mediaType === "project") &&
 		!data.coverImage
 	) {
 		ctx.addIssue({
 			code: "custom",
 			path: ["coverImage"],
-			message: "coverImage is required for drawing and photo pieces",
+			message: "coverImage is required for drawing, photo, and project pieces",
 		});
 	}
 	if (data.mediaType === "music" && !data.audio) {
@@ -56,18 +69,6 @@ const refineCreativeMedia = <
 // Content Collections
 // =============================================================================
 
-// Worksコレクション（ポートフォリオ作品）
-const works = defineCollection({
-	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/works" }),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			coverImage: image(),
-			tags: z.array(z.string()),
-			excerpt: excerptSchema,
-		}),
-});
-
 // Atelierコレクション（作業中・練習作品）
 const atelier = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/atelier" }),
@@ -75,7 +76,7 @@ const atelier = defineCollection({
 		z
 			.object({
 				title: z.string(),
-				mediaType: mediaTypeSchema,
+				mediaType: creativeMediaTypeSchema,
 				coverImage: image().optional(),
 				audio: z.string().optional(),
 				tags: tagsSchema,
@@ -86,14 +87,14 @@ const atelier = defineCollection({
 			.superRefine(refineCreativeMedia),
 });
 
-// Galleryコレクション（完成作品）
+// Galleryコレクション（完成作品 + ポートフォリオプロジェクト）
 const gallery = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery" }),
 	schema: ({ image }) =>
 		z
 			.object({
 				title: z.string(),
-				mediaType: mediaTypeSchema,
+				mediaType: galleryMediaTypeSchema,
 				coverImage: image().optional(),
 				audio: z.string().optional(),
 				tags: tagsSchema,
@@ -132,61 +133,9 @@ const blog = defineCollection({
 	}),
 });
 
-// Talksコレクション（登壇情報）
-const talks = defineCollection({
-	loader: glob({ pattern: "**/*.json", base: "./src/content/talks" }),
-	schema: z.object({
-		items: z.array(
-			z.object({
-				id: z.string(),
-				url: z.string().url().optional(),
-				date: z.coerce.date(),
-				title: z.string(),
-			}),
-		),
-	}),
-});
-
-// 外部記事の共通スキーマ
-const externalArticleSchema = (source: RSSSource) =>
-	z.object({
-		title: z.string(),
-		url: z.string().url(),
-		publishedAt: z.date(),
-		excerpt: z.string(),
-		source: z.literal(source),
-	});
-
-// Zenn記事コレクション（RSS）
-const zenn = defineCollection({
-	loader: createRSSLoader("https://zenn.dev/ta93abe/feed", "Zenn", "zenn"),
-	schema: externalArticleSchema("Zenn"),
-});
-
-// Note記事コレクション（RSS）
-const note = defineCollection({
-	loader: createRSSLoader("https://note.com/ta93abe/rss", "Note", "note"),
-	schema: externalArticleSchema("Note"),
-});
-
-// ポッドキャストコレクション（RSS）
-const podcast = defineCollection({
-	loader: createRSSLoader(
-		"https://anchor.fm/s/4dd661e8/podcast/rss",
-		"Podcast",
-		"podcast",
-	),
-	schema: externalArticleSchema("Podcast"),
-});
-
 export const collections = {
-	works,
 	atelier,
 	gallery,
 	books,
 	blog,
-	talks,
-	zenn,
-	note,
-	podcast,
 };

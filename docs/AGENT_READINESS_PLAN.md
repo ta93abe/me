@@ -214,7 +214,7 @@ pnpm deploy
 - [x] 主要な Discovery エンドポイントが 200 を返す
 - [x] 未実装の Web Bot Auth / Commerce エンドポイントが 500 ではなく 404 を返す
 - [ ] DNS-AID レコードを追加する（Alchemy v2 でコード管理、4.1 参照）
-- [ ] agent_auth メタデータを workos/auth.md 仕様に修正する（4.2 参照、正式仕様判明済み）
+- [x] agent_auth メタデータを workos/auth.md 仕様に修正する（4.2 参照）+ `/agent/auth` 登録エンドポイント
 - [ ] デプロイ後に再スキャンし、dnsAid / authMd が pass になることを確認する
 - [ ] x402 投げ銭エンドポイント `/tip` を実装する（4.3 参照。受取アドレスと CDP API キーが前提）
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate } from "../../utils/date";
+import { formatDate } from "@/utils/date";
 
 describe("formatDate", () => {
 	it("should format Date object to Japanese format", () => {

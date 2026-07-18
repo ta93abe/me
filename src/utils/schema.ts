@@ -1,49 +1,4 @@
-import { SITE } from "../config/site";
-
-export interface BreadcrumbItem {
-	label: string;
-	href?: string;
-}
-
-interface BreadcrumbListItem {
-	"@type": "ListItem";
-	position: number;
-	name: string;
-	item?: string;
-}
-
-interface BreadcrumbListSchema {
-	"@context": "https://schema.org";
-	"@type": "BreadcrumbList";
-	itemListElement: BreadcrumbListItem[];
-}
-
-/**
- * Generate BreadcrumbList JSON-LD schema
- * @param items - Array of breadcrumb items with label and optional href
- * @param siteUrl - Base URL for absolute URLs
- */
-export const generateBreadcrumbSchema = (
-	items: BreadcrumbItem[],
-	siteUrl: string,
-): BreadcrumbListSchema => {
-	return {
-		"@context": "https://schema.org",
-		"@type": "BreadcrumbList",
-		itemListElement: items.map((item, index) => {
-			const listItem: BreadcrumbListItem = {
-				"@type": "ListItem",
-				position: index + 1,
-				name: item.label,
-			};
-			// Only add item URL if href is provided (not the current page)
-			if (item.href) {
-				listItem.item = new URL(item.href, siteUrl).href;
-			}
-			return listItem;
-		}),
-	};
-};
+import { SITE } from "@/config/site";
 
 interface WebSiteSchema {
 	"@context": "https://schema.org";
@@ -68,7 +23,13 @@ interface WebSiteSchema {
 }
 
 interface WebSiteSchemaOptions {
+	/**
+	 * サイト内検索が実在する場合のみ true。
+	 * 既定は false（幽霊 SearchAction を出さない）。
+	 */
 	includeSearchAction?: boolean;
+	/** SearchAction の URL テンプレート（includeSearchAction 時） */
+	searchUrlTemplate?: string;
 }
 
 /**
@@ -80,7 +41,10 @@ export const generateWebSiteSchema = (
 	siteUrl: string,
 	options: WebSiteSchemaOptions = {},
 ): WebSiteSchema => {
-	const { includeSearchAction = true } = options;
+	const {
+		includeSearchAction = false,
+		searchUrlTemplate = `${siteUrl}search?q={search_term_string}`,
+	} = options;
 
 	const schema: WebSiteSchema = {
 		"@context": "https://schema.org",
@@ -101,7 +65,7 @@ export const generateWebSiteSchema = (
 			"@type": "SearchAction",
 			target: {
 				"@type": "EntryPoint",
-				urlTemplate: `${siteUrl}tools?q={search_term_string}`,
+				urlTemplate: searchUrlTemplate,
 			},
 			"query-input": "required name=search_term_string",
 		};

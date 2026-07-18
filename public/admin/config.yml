@@ -203,7 +203,7 @@ collections:
           name: mediaType,
           label: 種別,
           widget: select,
-          options: [drawing, photo, music],
+          options: [drawing, photo, music, project],
           default: drawing,
         }
       - {
@@ -211,7 +211,7 @@ collections:
           label: カバー画像,
           widget: image,
           required: false,
-          hint: "drawing / photo では必須（リポジトリ内に保存される）",
+          hint: "drawing / photo / project では必須（リポジトリ内に保存される）",
           media_libraries: { cloudflare_r2: false },
         }
       - {
