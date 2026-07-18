@@ -1,5 +1,6 @@
 // @ts-check
 
+import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -20,7 +21,9 @@ export default defineConfig({
     defaultStrategy: "hover",
   },
   markdown: {
-    remarkPlugins: [remarkGfm],
+    processor: unified({
+      remarkPlugins: [remarkGfm],
+    }),
     shikiConfig: {
       theme: "github-dark",
       wrap: true,
