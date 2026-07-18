@@ -15,7 +15,7 @@ const domain = new URL(href).hostname.replace("www.", "");
   href={href}
   target="_blank"
   rel="noopener noreferrer"
-  class="my-6 flex items-center gap-4 rounded-lg border border-neutral-800 p-4 transition-all hover:border-neutral-700 hover:bg-neutral-900 hover:shadow-sm no-underline"
+  class="my-6 flex items-center gap-4 rounded-lg border border-(--border-color) p-4 transition-all hover:border-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:shadow-sm no-underline"
 >
   <div class="flex-1 min-w-0">
     <div class="font-semibold text-neutral-100 truncate">{title}</div>

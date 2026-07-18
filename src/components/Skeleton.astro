@@ -19,7 +19,7 @@ const variantClasses = {
 };
 
 const variantClass = variantClasses[variant];
-const classes = cn("animate-pulse bg-neutral-700", variantClass, className);
+const classes = cn("animate-pulse bg-[var(--bg-tertiary)]", variantClass, className);
 
 let style = "";
 if (width) {
