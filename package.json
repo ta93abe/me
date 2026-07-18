@@ -55,7 +55,7 @@
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
 		"@vitest/ui": "^4.1.10",
-		"alchemy": "2.0.0-beta.61",
+		"alchemy": "2.0.0-beta.63",
 		"effect": "4.0.0-beta.97",
 		"happy-dom": "^20.10.6",
 		"oxfmt": "^0.58.0",
