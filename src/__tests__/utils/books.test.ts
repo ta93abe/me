@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { statusLabels, statusStyles } from "../../utils/books";
+import { statusLabels, statusStyles } from "@/utils/books";
 
 describe("statusLabels", () => {
 	it("should have correct label for read status", () => {

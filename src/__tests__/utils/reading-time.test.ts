@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatReadingTime, getReadingTime } from "../../utils/reading-time";
+import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
 
 describe("getReadingTime", () => {
 	it("should return minimum 1 minute for short content", () => {

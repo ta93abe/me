@@ -2,15 +2,15 @@
 import { tv } from "tailwind-variants";
 
 const button = tv({
-	base: "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]",
+	base: "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)",
 	variants: {
 		variant: {
 			primary:
-				"relative overflow-hidden bg-[var(--text-primary)] text-[var(--bg-primary)] hover:shadow-[0_0_30px_-5px_rgba(166,61,42,0.35)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-[var(--primary-color)] before:to-[var(--accent-color)] before:opacity-0 before:transition-opacity hover:before:opacity-100",
+				"relative overflow-hidden bg-(--text-primary) text-(--bg-primary) hover:shadow-[0_0_30px_-5px_rgba(166,61,42,0.35)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-(--primary-color) before:to-(--accent-color) before:opacity-0 before:transition-opacity hover:before:opacity-100",
 			secondary:
-				"bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]",
+				"bg-(--bg-secondary) text-(--text-primary) hover:bg-(--bg-tertiary)",
 			ghost:
-				"bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]",
+				"bg-transparent text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-secondary)",
 		},
 		size: {
 			sm: "px-4 py-2 text-sm",

@@ -1,6 +1,6 @@
 ---
 // ヒーローセクション
-import Button from "../ui/Button.astro";
+import Button from "@/components/ui/Button.astro";
 ---
 
 <section id="hero" class="hero-section">
@@ -27,13 +27,8 @@ import Button from "../ui/Button.astro";
     </p>
 
     <div class="hero-cta" data-animate="stagger">
-      <Button href="/works" variant="primary" size="lg">View Works</Button>
+      <Button href="/gallery" variant="primary" size="lg">View Gallery</Button>
       <Button href="/links" variant="secondary" size="lg">Links</Button>
-    </div>
-
-    <div class="hero-scroll" data-animate>
-      <span class="hero-scroll-text">Scroll</span>
-      <span class="hero-scroll-line"></span>
     </div>
   </div>
 </section>
@@ -180,35 +175,6 @@ import Button from "../ui/Button.astro";
     flex-wrap: wrap;
   }
 
-  .hero-scroll {
-    position: absolute;
-    bottom: -6rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .hero-scroll-line {
-    width: 1px;
-    height: 48px;
-    background: linear-gradient(to bottom, var(--primary-color), transparent);
-    animation: scroll-line 2s ease-in-out infinite;
-  }
-
-  @keyframes scroll-line {
-    0% { transform: scaleY(0); transform-origin: top; }
-    50% { transform: scaleY(1); transform-origin: top; }
-    51% { transform-origin: bottom; }
-    100% { transform: scaleY(0); transform-origin: bottom; }
-  }
-
   @media (max-width: 768px) {
     .hero-section {
       min-height: calc(100svh - var(--header-height));
@@ -228,16 +194,11 @@ import Button from "../ui/Button.astro";
       width: 200px;
       height: 200px;
     }
-
-    .hero-scroll {
-      display: none;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .hero-orb,
-    .hero-badge-dot,
-    .hero-scroll-line {
+    .hero-badge-dot {
       animation: none;
     }
   }

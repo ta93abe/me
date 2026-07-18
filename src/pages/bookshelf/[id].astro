@@ -1,13 +1,12 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
-import Breadcrumb from "../../components/Breadcrumb.astro";
-import Badge from "../../components/ui/Badge.astro";
-import Tag from "../../components/ui/Tag.astro";
-import { SITE } from "../../config/site";
-import Layout from "../../layouts/Layout.astro";
-import { formatDate } from "../../utils/date";
-import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
+import Badge from "@/components/ui/Badge.astro";
+import Tag from "@/components/ui/Tag.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/utils/date";
+import { stringifySchema } from "@/utils/schema";
 
 export async function getStaticPaths() {
 	const books = await getCollection("books");
@@ -40,12 +39,6 @@ const bookSchema = {
 	url: canonicalURL.href,
 	inLanguage: SITE.lang,
 };
-const breadcrumbItems = [
-	{ label: "ホーム", href: "/" },
-	{ label: "Bookshelf", href: "/bookshelf" },
-	{ label: book.data.title },
-];
-const siteUrl = Astro.site?.href || SITE.url;
 ---
 
 <Layout
@@ -62,22 +55,17 @@ const siteUrl = Astro.site?.href || SITE.url;
       type="application/ld+json"
       set:html={stringifySchema(bookSchema)}
     />
-    <script
-      type="application/ld+json"
-      set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
-    />
   </Fragment>
   <main class="mx-auto max-w-4xl px-6 py-12">
-    <Breadcrumb items={breadcrumbItems} />
     <div class="mb-8">
       <a
         href="/bookshelf"
-        class="mb-4 inline-block text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+        class="mb-4 inline-block text-sm text-(--text-muted) hover:text-(--text-primary)"
       >
         ← Bookshelf一覧へ戻る
       </a>
-      <h1 class="mb-2 text-4xl font-bold text-[var(--text-primary)]">{book.data.title}</h1>
-      <p class="mb-4 text-lg text-[var(--text-secondary)]">{book.data.author}</p>
+      <h1 class="mb-2 text-4xl font-bold text-(--text-primary)">{book.data.title}</h1>
+      <p class="mb-4 text-lg text-(--text-secondary)">{book.data.author}</p>
       <div class="mb-4 flex flex-wrap items-center gap-2">
         <Badge variant={book.data.status} />
         {
@@ -87,14 +75,14 @@ const siteUrl = Astro.site?.href || SITE.url;
         }
         {
           book.data.finishedDate && (
-            <span class="text-sm text-[var(--text-muted)]">
+            <span class="text-sm text-(--text-muted)">
               読了日: {formatDate(book.data.finishedDate)}
             </span>
           )
         }
         {
           book.data.rating && (
-            <span class="text-sm text-[var(--text-muted)]">
+            <span class="text-sm text-(--text-muted)">
               評価: {book.data.rating} / 5
             </span>
           )
@@ -105,7 +93,7 @@ const siteUrl = Astro.site?.href || SITE.url;
       </div>
     </div>
 
-    <div class="mb-8 aspect-[3/4] overflow-hidden rounded-xl bg-[var(--bg-secondary)]">
+    <div class="mb-8 aspect-[3/4] overflow-hidden rounded-xl bg-(--bg-secondary)">
       <Image
         src={book.data.coverImage}
         alt={`${book.data.title} cover`}

@@ -1,10 +1,10 @@
 ---
 import { getCollection } from "astro:content";
-import FilterSort from "../../components/FilterSort.astro";
-import Tag from "../../components/ui/Tag.astro";
-import { SITE } from "../../config/site";
-import Layout from "../../layouts/Layout.astro";
-import { formatDate } from "../../utils/date";
+import FilterSort from "@/components/FilterSort.astro";
+import Tag from "@/components/ui/Tag.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/utils/date";
 
 const blogPosts = await getCollection("blog");
 const sortedPosts = blogPosts.toSorted(
@@ -29,13 +29,13 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
   <main class="mx-auto max-w-3xl px-6 py-12">
     <div class="mb-12 flex items-center justify-between">
       <div>
-        <h1 class="font-display text-4xl font-bold tracking-tight text-[var(--text-primary)]">Blog</h1>
-        <p class="mt-2 text-[var(--text-secondary)]">技術ブログ。日々の学びや開発の記録を共有しています。</p>
+        <h1 class="font-display text-4xl font-bold tracking-tight text-(--text-primary)">Blog</h1>
+        <p class="mt-2 text-(--text-secondary)">技術ブログ。日々の学びや開発の記録を共有しています。</p>
       </div>
       <a
         href="/rss.xml"
         id="rss-feed-link"
-        class="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-opacity hover:opacity-60"
+        class="inline-flex items-center gap-1.5 text-sm text-(--text-muted) transition-opacity hover:opacity-60"
         aria-label="RSS Feed"
       >
         <svg
@@ -65,8 +65,8 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="block rounded-2xl p-5 -m-5 transition-all duration-200 hover:bg-[var(--bg-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
-              <time class="mb-2 block text-sm text-[var(--text-muted)]">
+            <a href={`/blog/${post.id}`} class="block rounded-2xl p-5 -m-5 transition-all duration-200 hover:bg-(--bg-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)">
+              <time class="mb-2 block text-sm text-(--text-muted)">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
                   <span class="ml-2 text-xs">
@@ -74,10 +74,10 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold text-[var(--text-primary)] transition-opacity group-hover:opacity-70">
+              <h2 class="mb-3 text-2xl font-bold text-(--text-primary) transition-opacity group-hover:opacity-70">
                 {post.data.title}
               </h2>
-              <p class="mb-3 text-[var(--text-secondary)]">{post.data.excerpt}</p>
+              <p class="mb-3 text-(--text-secondary)">{post.data.excerpt}</p>
               {post.data.tags && post.data.tags.length > 0 && (
                 <div class="flex flex-wrap gap-2">
                   {post.data.tags.map((tag) => (

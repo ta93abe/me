@@ -1,12 +1,13 @@
 ---
-import { SITE } from "../config/site";
-import NotFoundPlayground from "../components/NotFoundPlayground";
-import Layout from "../layouts/Layout.astro";
+import { SITE } from "@/config/site";
+import NotFoundPlayground from "@/components/NotFoundPlayground";
+import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout
   title={`404 - ページが見つかりません | ${SITE.name}`}
   description="お探しのページは見つかりませんでした。"
+  noindex
   noHeader
   noFooter
 >

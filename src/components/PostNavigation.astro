@@ -27,10 +27,10 @@ if (!prevPost && !nextPost) {
       prevPost ? (
         <a
           href={`${basePath}/${prevPost.id}`}
-          class="group flex flex-col rounded-lg bg-[var(--bg-secondary)] p-4 transition-colors hover:bg-[var(--bg-elevated)]"
+          class="group flex flex-col rounded-lg bg-(--bg-secondary) p-4 transition-colors hover:bg-(--bg-elevated)"
         >
-          <span class="mb-1 text-sm text-[var(--text-muted)]">← 前の記事</span>
-          <span class="font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary-color)]">
+          <span class="mb-1 text-sm text-(--text-muted)">← 前の記事</span>
+          <span class="font-medium text-(--text-primary) transition-colors group-hover:text-(--primary-color)">
             {prevPost.title}
           </span>
         </a>
@@ -40,10 +40,10 @@ if (!prevPost && !nextPost) {
       nextPost ? (
         <a
           href={`${basePath}/${nextPost.id}`}
-          class="group flex flex-col rounded-lg bg-[var(--bg-secondary)] p-4 text-right transition-colors hover:bg-[var(--bg-elevated)] sm:col-start-2"
+          class="group flex flex-col rounded-lg bg-(--bg-secondary) p-4 text-right transition-colors hover:bg-(--bg-elevated) sm:col-start-2"
         >
-          <span class="mb-1 text-sm text-[var(--text-muted)]">次の記事 →</span>
-          <span class="font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary-color)]">
+          <span class="mb-1 text-sm text-(--text-muted)">次の記事 →</span>
+          <span class="font-medium text-(--text-primary) transition-colors group-hover:text-(--primary-color)">
             {nextPost.title}
           </span>
         </a>

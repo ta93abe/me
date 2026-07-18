@@ -6,298 +6,126 @@
 
 | カテゴリ | 技術 | 役割 |
 |---------|------|------|
-| フレームワーク | Astro 5.16.6 | スタティックサイトジェネレーション |
-| スタイリング | Tailwind CSS 4.1.18 | ユーティリティファーストCSS |
-| ビルドツール | Vite | 開発サーバー・バンドリング |
+| フレームワーク | Astro 7 | スタティックサイトジェネレーション |
+| スタイリング | Tailwind CSS 4 | ユーティリティファースト CSS |
+| ビルドツール | Vite 8 | 開発サーバー・バンドリング |
 | 言語 | TypeScript | 型安全な開発 |
 | パッケージマネージャー | pnpm | 高速・効率的な依存管理 |
 | リンター/フォーマッター | Oxlint / Oxfmt | コード品質管理 |
 | テスティング | Vitest + Playwright | ユニット・E2E テスト |
-| デプロイ先 | Cloudflare Workers | エッジコンピューティング |
+| CMS | Sveltia CMS | Git ベースのコンテンツ編集 |
+| デプロイ先 | Cloudflare Workers | エッジ配信 + Worker ロジック |
 
 ## ディレクトリ構造
 
 ```text
 /
-├── .claude/                    # Claude Code 設定・ドキュメント
-│   └── CLAUDE.md              # プロジェクト概要・開発ガイド
-│
-├── .github/
-│   └── workflows/
-│       └── pull-request.yml   # 自動 PR 作成ワークフロー
-│
-├── .serena/                   # Serena MCP サーバー設定
-│
-├── .vscode/                   # VSCode 設定
-│
-├── docs/                      # プロジェクトドキュメント
-│   ├── ARCHITECTURE.md        # このファイル
-│   ├── DEPLOYMENT.md          # デプロイ手順
-│   ├── STYLE_GUIDE.md         # スタイルガイド
-│   └── TROUBLESHOOTING.md     # トラブルシューティング
-│
-├── public/                    # 静的ファイル（ルートで配信）
-│   └── favicon.svg
-│
+├── .github/workflows/       # perf / playwright / infra
+├── docs/                    # プロジェクトドキュメント
+├── infra/                   # Alchemy による Cloudflare リソース
+├── perf/                    # Lighthouse / CWV budgets
+├── public/                  # 静的ファイル・admin CMS・media
 ├── src/
-│   ├── assets/                # 画像・静的リソース（最適化対象）
-│   │   ├── astro.svg
-│   │   └── background.svg
-│   │
-│   ├── components/            # 再利用可能な Astro コンポーネント
-│   │   ├── Breadcrumb.astro
-│   │   └── Welcome.astro
-│   │
-│   ├── layouts/               # ページレイアウトテンプレート
-│   │   └── Layout.astro       # ベース HTML レイアウト
-│   │
-│   ├── pages/                 # ファイルベースルーティング
-│   │   └── index.astro        # ホームページ (/)
-│   │
-│   └── styles/
-│       └── global.css         # グローバルスタイル（Tailwind import）
-│
-├── tests/                     # E2E テスト
-│   └── example.spec.ts
-│
-├── astro.config.mjs           # Astro 設定
-├── .oxlintrc.json             # Oxlint 設定
-├── .oxfmtrc.json              # Oxfmt 設定
-├── package.json               # 依存関係・スクリプト
-├── playwright.config.ts       # Playwright 設定
-├── pnpm-workspace.yaml        # pnpm ワークスペース設定
-├── tsconfig.json              # TypeScript 設定
-├── vitest.config.ts           # Vitest 設定
-└── wrangler.jsonc             # Cloudflare Workers 設定
+│   ├── components/          # UI / landing / blog / creative
+│   ├── config/              # site.ts / navigation.ts
+│   ├── content/             # blog / gallery / atelier / books
+│   ├── layouts/Layout.astro
+│   ├── pages/               # ファイルベースルーティング
+│   ├── styles/global.css
+│   └── utils/               # schema / OG 生成など
+├── worker/                  # Cloudflare Worker エントリ
+├── astro.config.mjs
+├── package.json
+├── vitest.config.ts
+├── playwright.config.ts
+└── wrangler.jsonc
 ```
+
+## ルーティング
+
+```text
+src/pages/
+├── index.astro              → /
+├── gallery/                 → /gallery, /gallery/:id
+├── atelier/                 → /atelier, /atelier/:id
+├── bookshelf/               → /bookshelf, /bookshelf/:id
+├── blog/                    → /blog, /blog/:id
+├── links.astro              → /links
+├── tools.astro              → /tools
+├── slides.astro             → /slides
+├── og/                      → 動的 OG 画像
+├── rss.xml.ts               → /rss.xml
+└── 404.astro
+```
+
+互換のため `/works` と `/works/:id` は `/gallery` 系へリダイレクトする（`astro.config.mjs`）。
 
 ## データフロー
 
 ### ビルドプロセス
 
 ```text
-開発時:
-┌─────────────┐
-│ src/pages/  │
-│ *.astro     │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ Astro       │
-│ Compiler    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ Vite Dev    │
-│ Server      │
-└──────┬──────┘
-       │
-       ▼
-  localhost:4321
-
-本番ビルド:
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│ src/        │ --> │ Astro       │ --> │ ./dist/     │
-│ (コンテンツ) │     │ Build       │     │ (静的HTML)   │
-└─────────────┘     └─────────────┘     └──────┬──────┘
-                                               │
-                                               ▼
-                                        ┌─────────────┐
-                                        │ Cloudflare  │
-                                        │ Workers     │
-                                        └─────────────┘
+開発時:  src/pages → Astro Compiler → Vite Dev Server → localhost:4321
+本番:    src/ → astro build → ./dist → Cloudflare Workers (worker + assets)
 ```
 
-### コンポーネントレンダリング
+### コンテンツ
 
-1. **ファイルベースルーティング**: `src/pages/` 内のファイルが URL パスにマッピング
-   - `src/pages/index.astro` → `/`
-   - `src/pages/about.astro` → `/about`
-
-2. **レイアウト適用**: ページが `src/layouts/Layout.astro` を使用
-   - HTML 骨格の提供
-   - グローバルスタイルのインポート
-   - メタデータの設定
-
-3. **コンポーネント合成**: レイアウト内でページコンポーネントをレンダリング
-
-4. **静的生成**: ビルド時に HTML に変換
+1. **Content Collections** (`src/content/` + `src/content.config.ts`) で型付きコンテンツを管理
+2. **Sveltia CMS** (`public/admin/`) から Git 経由で編集
+3. ビルド時に静的 HTML / 画像最適化 / sitemap を生成
 
 ## 主要な設計パターン
 
 ### 1. ファイルベースルーティング
 
-Astro のファイルベースルーティングを使用し、`src/pages/` 内のファイル構造が URL 構造に対応します。
+`src/pages/` の構造が URL に対応する。
 
-```text
-src/pages/
-├── index.astro          → /
-├── about.astro          → /about
-└── blog/
-    ├── index.astro      → /blog
-    └── [slug].astro     → /blog/:slug
-```
+### 2. レイアウトシステム
 
-### 2. コンポーネント駆動開発
+`src/layouts/Layout.astro` が HTML 骨格・SEO meta・Header/Footer を提供する。
 
-再利用可能なコンポーネントを `src/components/` に配置し、複数のページで使用します。
+### 3. スタイリング戦略
 
-```astro
----
-// src/components/Button.astro
-interface Props {
-	text: string;
-	onClick?: () => void;
-}
+- Tailwind CSS ユーティリティ
+- `src/styles/global.css` のデザイントークン（CSS 変数）
+- コンポーネントスコープの `<style>`
 
-const { text, onClick } = Astro.props;
----
+### 4. Worker 拡張
 
-<button class="px-4 py-2 bg-blue-500 text-white rounded" onclick={onClick}>
-	{text}
-</button>
-```
+`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）を担当する。
 
-### 3. レイアウトシステム
-
-共通の HTML 構造を `src/layouts/` に配置し、ページ間で再利用します。
-
-```astro
----
-// src/layouts/Layout.astro
-interface Props {
-	title: string;
-	description?: string;
-}
-
-const { title, description } = Astro.props;
----
-
-<!doctype html>
-<html lang="ja">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>{title}</title>
-		{description && <meta name="description" content={description} />}
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
-```
-
-### 4. スタイリング戦略
-
-- **Tailwind CSS**: ユーティリティクラスによる高速なスタイリング
-- **グローバルスタイル**: `src/styles/global.css` でベーススタイルを定義
-- **コンポーネントスコープ**: Astro の `<style>` タグでコンポーネント固有のスタイル
-
-## 依存関係グラフ
-
-### コア依存関係
-
-```text
-astro
-├── @astrojs/sitemap        # サイトマップ生成
-├── @tailwindcss/vite       # Tailwind CSS 統合
-└── tailwindcss             # スタイリングフレームワーク
-
-開発依存関係
-├── oxlint                  # リンター
-├── oxfmt                   # フォーマッター
-├── vitest                  # ユニットテスト
-├── @playwright/test        # E2E テスト
-└── wrangler                # Cloudflare Workers CLI
-```
-
-### ビルド依存関係の流れ
+## 依存関係の流れ
 
 ```text
 pnpm install
-    │
-    ▼
-Astro + Tailwind + TypeScript
-    │
-    ▼
-pnpm build (astro build)
-    │
-    ├─ TypeScript コンパイル
-    ├─ Tailwind CSS 処理
-    ├─ 画像最適化 (Sharp)
-    └─ HTML 生成
-    │
-    ▼
-./dist/ (静的ファイル)
-    │
-    ▼
-wrangler deploy
-    │
-    ▼
-Cloudflare Workers
+    → Astro + Tailwind + TypeScript
+    → pnpm build (astro build)
+    → ./dist
+    → wrangler deploy / Alchemy infra
+    → Cloudflare Workers
 ```
 
-## パフォーマンス最適化
+## パフォーマンス
 
-### 1. ビルド時最適化
-
-- **静的生成**: すべてのページをビルド時に HTML に変換
-- **画像最適化**: Sharp による自動画像最適化
-- **CSS Purging**: 未使用の Tailwind CSS クラスを削除
-- **コード分割**: Vite による自動コード分割
-
-### 2. ランタイム最適化
-
-- **ゼロ JavaScript**: デフォルトで JavaScript を送信しない
-- **部分的水和**: 必要なコンポーネントのみをインタラクティブに
-- **エッジデリバリー**: Cloudflare Workers によるグローバル配信
-
-### 3. 開発体験最適化
-
-- **高速 HMR**: Vite による瞬時のホットリロード
-- **TypeScript**: 型安全による開発時エラー検出
-- **Oxlint / Oxfmt**: 高速なリンティング・フォーマット
+- ビルド時の静的生成・画像最適化・CSS tree-shaking
+- 必要な島のみクライアント JS（React / Framer Motion）
+- Cloudflare エッジ配信
+- `perf/` + `.github/workflows/perf.yml` で Lighthouse / CWV を監視
 
 ## セキュリティ
 
-### 1. ビルド時セキュリティ
+- TypeScript strict
+- Astro CSP 設定
+- Cloudflare HTTPS / DDoS 保護
+- Worker サンドボックス
 
-- **依存関係スキャン**: pnpm による脆弱性チェック
-- **TypeScript strict mode**: 型安全性の強化
-- **静的サイト**: サーバーサイド攻撃ベクトルの排除
+## 拡張ポイント
 
-### 2. デプロイ時セキュリティ
-
-- **HTTPS**: Cloudflare による自動 HTTPS
-- **DDoS 保護**: Cloudflare による自動保護
-- **エッジセキュリティ**: Cloudflare Workers のサンドボックス環境
-
-## スケーラビリティ
-
-### 1. コンテンツスケーラビリティ
-
-- **静的生成**: ページ数に関わらず高速配信
-- **CDN キャッシング**: Cloudflare エッジネットワークによるキャッシング
-- **効率的ビルド**: インクリメンタルビルドのサポート
-
-### 2. 開発チームスケーラビリティ
-
-- **コンポーネントベース**: 並行開発可能な構造
-- **型安全**: TypeScript による大規模開発のサポート
-- **自動化**: CI/CD による効率的なワークフロー
-
-## 拡張性
-
-### 今後の拡張ポイント
-
-1. **Content Collections**: マークダウンコンテンツの管理
-2. **API ルート**: サーバーサイドロジックの追加
-3. **国際化 (i18n)**: 多言語対応
-4. **検索機能**: Pagefind 統合
-5. **RSS フィード**: ブログフィード生成
-6. **アナリティクス**: トラッキング統合
+1. 本番コンテンツの差し替え（gallery / atelier / books）
+2. CMS の books コレクション対応
+3. Agent Readiness 残タスク（DNS-AID など）
+4. x402 / tip エンドポイント（インフラ・シークレット前提）
 
 ## 参考資料
 

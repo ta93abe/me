@@ -1,16 +1,16 @@
 ---
 import { getCollection } from "astro:content";
-import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
-import PieceMedia from "../../components/creative/PieceMedia.astro";
-import EmptyState from "../../components/ui/EmptyState.astro";
-import { SITE } from "../../config/site";
-import Layout from "../../layouts/Layout.astro";
+import MediaTypeBadge from "@/components/creative/MediaTypeBadge.astro";
+import PieceMedia from "@/components/creative/PieceMedia.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
 import {
 	MEDIA_TYPE_LABELS,
 	MEDIA_TYPES,
 	type MediaType,
-} from "../../utils/creative-media";
-import { formatDate } from "../../utils/date";
+} from "@/utils/creative-media";
+import { formatDate } from "@/utils/date";
 
 const pieces = await getCollection("gallery");
 
@@ -27,14 +27,14 @@ const usedMediaTypes = MEDIA_TYPES.filter((type) =>
 
 <Layout
 	title={`Gallery | ${SITE.name}`}
-	description="絵・写真・音楽の完成作品を静かに並べたギャラリー。"
+	description="絵・写真・音楽の完成作品と、ポートフォリオプロジェクトを並べたギャラリー。"
 >
 	<main class="gallery-page">
 		<header class="gallery-header" data-animate>
 			<p class="gallery-eyebrow">Exhibition</p>
 			<h1 class="gallery-title font-display">ギャラリー</h1>
 			<p class="gallery-lead">
-				絵・写真・音楽の完成したものを、余白を残して置いています。
+				絵・写真・音楽の完成作品と、手がけたプロジェクトを余白を残して置いています。
 			</p>
 		</header>
 
@@ -244,7 +244,8 @@ const usedMediaTypes = MEDIA_TYPES.filter((type) =>
 		aspect-ratio: 16 / 10;
 	}
 
-	.gallery-piece[data-media-type="music"] .gallery-media {
+	.gallery-piece[data-media-type="music"] .gallery-media,
+	.gallery-piece[data-media-type="project"] .gallery-media {
 		aspect-ratio: 16 / 9;
 	}
 

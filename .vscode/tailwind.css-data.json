@@ -1,0 +1,49 @@
+{
+	"version": 1.1,
+	"atDirectives": [
+		{
+			"name": "@tailwind",
+			"description": "Use the `@tailwind` directive to insert Tailwind's `base`, `components`, `utilities` and `screens` styles into your CSS."
+		},
+		{
+			"name": "@apply",
+			"description": "Use `@apply` to inline any existing utility classes into your own custom CSS."
+		},
+		{
+			"name": "@layer",
+			"description": "Use the `@layer` directive to tell Tailwind which “bucket” a set of custom styles belong to."
+		},
+		{
+			"name": "@config",
+			"description": "Use the `@config` directive to load a legacy JavaScript config file."
+		},
+		{
+			"name": "@plugin",
+			"description": "Use the `@plugin` directive to load a Tailwind CSS plugin."
+		},
+		{
+			"name": "@theme",
+			"description": "Use the `@theme` directive to define design tokens for your project."
+		},
+		{
+			"name": "@source",
+			"description": "Use the `@source` directive to explicitly specify source files that aren't picked up by Tailwind's automatic content detection."
+		},
+		{
+			"name": "@utility",
+			"description": "Use the `@utility` directive to define custom utilities."
+		},
+		{
+			"name": "@variant",
+			"description": "Use the `@variant` directive to apply a Tailwind variant in custom CSS."
+		},
+		{
+			"name": "@custom-variant",
+			"description": "Use the `@custom-variant` directive to add a custom variant."
+		},
+		{
+			"name": "@reference",
+			"description": "Use the `@reference` directive to import Tailwind theme variables without including CSS in the output."
+		}
+	]
+}

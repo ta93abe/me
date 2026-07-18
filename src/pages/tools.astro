@@ -1,6 +1,6 @@
 ---
-import { SITE } from "../config/site";
-import Layout from "../layouts/Layout.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
 
 type Tool = {
 	name: string;
@@ -918,17 +918,17 @@ const categories: Category[] = [
 	<main class="mx-auto max-w-6xl px-6 py-12">
 		<!-- ヘッダー -->
 		<div class="mb-12">
-			<h1 class="mb-4 text-4xl font-bold text-[var(--text-primary)]">Tools</h1>
-			<p class="mb-2 text-lg text-[var(--text-secondary)]">
+			<h1 class="mb-4 text-4xl font-bold text-(--text-primary)">Tools</h1>
+			<p class="mb-2 text-lg text-(--text-secondary)">
 				普段の開発で使用しているCLIツールやアプリケーションの一覧です。
 			</p>
-			<p class="text-sm text-[var(--text-muted)]">
+			<p class="text-sm text-(--text-muted)">
 				すべてのツールは
 				<a
 					href="https://github.com/ta93abe/dotfiles"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-[var(--primary-color)] hover:underline"
+					class="text-(--primary-color) hover:underline"
 				>
 					dotfiles リポジトリ
 				</a>
@@ -938,21 +938,21 @@ const categories: Category[] = [
 
 		<!-- 統計情報 -->
 		<div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-			<div class="rounded-lg bg-[var(--bg-tertiary)] p-6 text-center">
-				<div class="text-3xl font-bold text-[var(--primary-color)]">
+			<div class="rounded-lg bg-(--bg-tertiary) p-6 text-center">
+				<div class="text-3xl font-bold text-(--primary-color)">
 					{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}
 				</div>
-				<div class="text-sm text-[var(--text-secondary)]">ツール総数</div>
+				<div class="text-sm text-(--text-secondary)">ツール総数</div>
 			</div>
-			<div class="rounded-lg bg-[var(--bg-tertiary)] p-6 text-center">
+			<div class="rounded-lg bg-(--bg-tertiary) p-6 text-center">
 				<div class="text-3xl font-bold text-emerald-700">
 					{categories.length}
 				</div>
-				<div class="text-sm text-[var(--text-secondary)]">カテゴリ数</div>
+				<div class="text-sm text-(--text-secondary)">カテゴリ数</div>
 			</div>
-			<div class="rounded-lg bg-[var(--bg-tertiary)] p-6 text-center">
-				<div class="text-3xl font-bold text-[var(--accent-color)]">100%</div>
-				<div class="text-sm text-[var(--text-secondary)]">Nix管理率</div>
+			<div class="rounded-lg bg-(--bg-tertiary) p-6 text-center">
+				<div class="text-3xl font-bold text-(--accent-color)">100%</div>
+				<div class="text-sm text-(--text-secondary)">Nix管理率</div>
 			</div>
 		</div>
 
@@ -975,7 +975,7 @@ const categories: Category[] = [
 								return (
 								<article
 									id={toolId}
-									class="group rounded-xl bg-[var(--bg-secondary)] p-4 transition-all hover:bg-[var(--bg-elevated)]"
+									class="group rounded-xl bg-(--bg-secondary) p-4 transition-all hover:bg-(--bg-elevated)"
 								>
 									<a
 										href={tool.url}
@@ -983,14 +983,14 @@ const categories: Category[] = [
 										rel="noopener noreferrer"
 										class="block"
 									>
-										<h3 class="mb-2 font-mono text-lg font-semibold text-[var(--primary-color)] group-hover:text-[var(--link-hover-color)]">
+										<h3 class="mb-2 font-mono text-lg font-semibold text-(--primary-color) group-hover:text-(--link-hover-color)">
 											{tool.name}
-											<span class="ml-1 text-sm text-[var(--text-muted)]">↗</span>
+											<span class="ml-1 text-sm text-(--text-muted)">↗</span>
 										</h3>
-										<p class="text-sm text-[var(--text-secondary)]">
+										<p class="text-sm text-(--text-secondary)">
 											{tool.description}
 										</p>
-										<p class="mt-2 truncate text-xs text-[var(--text-muted)]">{tool.url}</p>
+										<p class="mt-2 truncate text-xs text-(--text-muted)">{tool.url}</p>
 									</a>
 								</article>
 								);
@@ -1002,20 +1002,20 @@ const categories: Category[] = [
 		</div>
 
 		<!-- フッター情報 -->
-		<div class="mt-16 rounded-2xl bg-[var(--bg-tertiary)] p-6">
-			<h3 class="mb-3 font-bold text-[var(--text-primary)]">🔧 管理方針</h3>
-			<ul class="space-y-2 text-sm text-[var(--text-secondary)]">
+		<div class="mt-16 rounded-2xl bg-(--bg-tertiary) p-6">
+			<h3 class="mb-3 font-bold text-(--text-primary)">🔧 管理方針</h3>
+			<ul class="space-y-2 text-sm text-(--text-secondary)">
 				<li>
-					<strong class="text-[var(--text-primary)]">Nix-First アプローチ:</strong> CLIツールは100% Nixで管理
+					<strong class="text-(--text-primary)">Nix-First アプローチ:</strong> CLIツールは100% Nixで管理
 				</li>
 				<li>
-					<strong class="text-[var(--text-primary)]">Homebrew:</strong> GUIアプリケーションのみ（nixpkgsにない場合）
+					<strong class="text-(--text-primary)">Homebrew:</strong> GUIアプリケーションのみ（nixpkgsにない場合）
 				</li>
 				<li>
-					<strong class="text-[var(--text-primary)]">統一テーマ:</strong> Tokyo Night（Ghostty、fzf、Zellij）
+					<strong class="text-(--text-primary)">統一テーマ:</strong> Tokyo Night（Ghostty、fzf、Zellij）
 				</li>
 				<li>
-					<strong class="text-[var(--text-primary)]">自動更新:</strong> topgradeで一括管理
+					<strong class="text-(--text-primary)">自動更新:</strong> topgradeで一括管理
 				</li>
 			</ul>
 			<div class="mt-4">
@@ -1023,7 +1023,7 @@ const categories: Category[] = [
 					href="https://github.com/ta93abe/dotfiles"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary-color)] hover:underline"
+					class="inline-flex items-center gap-2 text-sm font-medium text-(--primary-color) hover:underline"
 				>
 					→ dotfiles リポジトリを見る
 				</a>

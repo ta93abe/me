@@ -3,7 +3,7 @@ import * as React from "react";
 
 const quickLinks = [
 	{ href: "/", label: "Home", meta: "Front cover" },
-	{ href: "/works/", label: "Works", meta: "Selected archive" },
+	{ href: "/gallery/", label: "Gallery", meta: "Selected archive" },
 	{ href: "/blog/", label: "Blog", meta: "Field notes" },
 	{ href: "/links/", label: "Links", meta: "Elsewhere" },
 ];
@@ -12,7 +12,7 @@ const fieldNotes = [
 	"Route slipped between the columns",
 	"Margin marks are still blinking",
 	"Index says: try another doorway",
-	"Signal recovered near /works/",
+	"Signal recovered near /gallery/",
 ];
 
 const floatingLabels = [

@@ -1,16 +1,16 @@
 ---
 import { getCollection } from "astro:content";
-import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
-import PieceMedia from "../../components/creative/PieceMedia.astro";
-import EmptyState from "../../components/ui/EmptyState.astro";
-import { SITE } from "../../config/site";
-import Layout from "../../layouts/Layout.astro";
+import MediaTypeBadge from "@/components/creative/MediaTypeBadge.astro";
+import PieceMedia from "@/components/creative/PieceMedia.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
 import {
+	CREATIVE_MEDIA_TYPES,
 	MEDIA_TYPE_LABELS,
-	MEDIA_TYPES,
 	type MediaType,
-} from "../../utils/creative-media";
-import { formatDate } from "../../utils/date";
+} from "@/utils/creative-media";
+import { formatDate } from "@/utils/date";
 
 const pieces = await getCollection("atelier");
 
@@ -26,7 +26,7 @@ const statusLabel: Record<string, string> = {
 	sketch: "スケッチ",
 };
 
-const usedMediaTypes = MEDIA_TYPES.filter((type) =>
+const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 	sorted.some((piece) => piece.data.mediaType === type),
 );
 ---

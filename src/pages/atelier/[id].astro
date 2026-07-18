@@ -1,13 +1,12 @@
 ---
 import { getCollection, render } from "astro:content";
-import Breadcrumb from "../../components/Breadcrumb.astro";
-import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
-import PieceMedia from "../../components/creative/PieceMedia.astro";
-import { SITE } from "../../config/site";
-import Layout from "../../layouts/Layout.astro";
-import type { MediaType } from "../../utils/creative-media";
-import { formatDate } from "../../utils/date";
-import { generateBreadcrumbSchema, stringifySchema } from "../../utils/schema";
+import MediaTypeBadge from "@/components/creative/MediaTypeBadge.astro";
+import PieceMedia from "@/components/creative/PieceMedia.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import type { MediaType } from "@/utils/creative-media";
+import { formatDate } from "@/utils/date";
+import { stringifySchema } from "@/utils/schema";
 
 export async function getStaticPaths() {
 	const pieces = await getCollection("atelier");
@@ -22,7 +21,7 @@ const { Content } = await render(piece);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = piece.data.coverImage
 	? new URL(piece.data.coverImage.src, Astro.site)
-	: new URL("/og-image.png", Astro.site);
+	: new URL("/og/default.png", Astro.site);
 
 const statusLabel: Record<string, string> = {
 	wip: "作業中",
@@ -54,13 +53,6 @@ const pieceSchema = {
 	inLanguage: SITE.lang,
 	creativeWorkStatus: piece.data.status,
 };
-
-const breadcrumbItems = [
-	{ label: "ホーム", href: "/" },
-	{ label: "アトリエ", href: "/atelier" },
-	{ label: piece.data.title },
-];
-const siteUrl = Astro.site?.href || SITE.url;
 ---
 
 <Layout
@@ -76,13 +68,8 @@ const siteUrl = Astro.site?.href || SITE.url;
 			type="application/ld+json"
 			set:html={stringifySchema(pieceSchema)}
 		/>
-		<script
-			type="application/ld+json"
-			set:html={stringifySchema(generateBreadcrumbSchema(breadcrumbItems, siteUrl))}
-		/>
 	</Fragment>
 	<main class="atelier-detail">
-		<Breadcrumb items={breadcrumbItems} />
 		<a href="/atelier" class="atelier-back">← アトリエへ戻る</a>
 
 		<header class="atelier-detail-header">

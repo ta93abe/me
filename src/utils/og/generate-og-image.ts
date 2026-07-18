@@ -1,7 +1,8 @@
 import { Resvg } from "@resvg/resvg-js";
+import type { ReactNode } from "react";
 import satori from "satori";
 
-import { SITE } from "../../config/site";
+import { SITE } from "@/config/site";
 
 // OG Image dimensions (1200x630 is the standard)
 const OG_WIDTH = 1200;
@@ -72,143 +73,142 @@ export async function generateOgImage(
 	const fontSize =
 		displayTitle.length > 30 ? 48 : displayTitle.length > 20 ? 56 : 64;
 
-	const svg = await satori(
-		{
-			type: "div",
-			props: {
-				style: {
-					width: "100%",
-					height: "100%",
-					display: "flex",
-					flexDirection: "column",
-					justifyContent: "space-between",
-					padding: "60px",
-					background: colors.background,
-					fontFamily: "Noto Sans JP",
-				},
-				children: [
-					// Header with site name
-					{
-						type: "div",
-						props: {
-							style: {
-								display: "flex",
-								alignItems: "center",
-								gap: "16px",
-							},
-							children: [
-								{
-									type: "div",
-									props: {
-										style: {
-											width: "48px",
-											height: "48px",
-											borderRadius: "50%",
-											background: colors.accent,
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											fontSize: "24px",
-											fontWeight: "700",
-											color: "#0a0a0a",
-										},
-										children: "T",
-									},
-								},
-								{
-									type: "div",
-									props: {
-										style: {
-											fontSize: "24px",
-											fontWeight: "700",
-											color: colors.text,
-											opacity: 0.8,
-										},
-										children: SITE.name,
-									},
-								},
-							],
-						},
-					},
-					// Main title
-					{
-						type: "div",
-						props: {
-							style: {
-								display: "flex",
-								flexDirection: "column",
-								gap: "16px",
-								flex: 1,
-								justifyContent: "center",
-							},
-							children: [
-								{
-									type: "div",
-									props: {
-										style: {
-											fontSize: `${fontSize}px`,
-											fontWeight: "700",
-											color: colors.text,
-											lineHeight: 1.3,
-											letterSpacing: "-0.02em",
-										},
-										children: displayTitle,
-									},
-								},
-							],
-						},
-					},
-					// Footer with author/subtitle
-					{
-						type: "div",
-						props: {
-							style: {
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
-							},
-							children: [
-								{
-									type: "div",
-									props: {
-										style: {
-											fontSize: "20px",
-											color: colors.text,
-											opacity: 0.7,
-										},
-										children: subtitle,
-									},
-								},
-								{
-									type: "div",
-									props: {
-										style: {
-											fontSize: "18px",
-											color: colors.accent,
-											fontWeight: "600",
-										},
-										children: new URL(SITE.url).hostname,
-									},
-								},
-							],
-						},
-					},
-				],
+	const markup = {
+		type: "div",
+		props: {
+			style: {
+				width: "100%",
+				height: "100%",
+				display: "flex",
+				flexDirection: "column",
+				justifyContent: "space-between",
+				padding: "60px",
+				background: colors.background,
+				fontFamily: "Noto Sans JP",
 			},
-		},
-		{
-			width: OG_WIDTH,
-			height: OG_HEIGHT,
-			fonts: [
+			children: [
+				// Header with site name
 				{
-					name: "Noto Sans JP",
-					data: font,
-					weight: 700,
-					style: "normal",
+					type: "div",
+					props: {
+						style: {
+							display: "flex",
+							alignItems: "center",
+							gap: "16px",
+						},
+						children: [
+							{
+								type: "div",
+								props: {
+									style: {
+										width: "48px",
+										height: "48px",
+										borderRadius: "50%",
+										background: colors.accent,
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										fontSize: "24px",
+										fontWeight: "700",
+										color: "#0a0a0a",
+									},
+									children: "T",
+								},
+							},
+							{
+								type: "div",
+								props: {
+									style: {
+										fontSize: "24px",
+										fontWeight: "700",
+										color: colors.text,
+										opacity: 0.8,
+									},
+									children: SITE.name,
+								},
+							},
+						],
+					},
+				},
+				// Main title
+				{
+					type: "div",
+					props: {
+						style: {
+							display: "flex",
+							flexDirection: "column",
+							gap: "16px",
+							flex: 1,
+							justifyContent: "center",
+						},
+						children: [
+							{
+								type: "div",
+								props: {
+									style: {
+										fontSize: `${fontSize}px`,
+										fontWeight: "700",
+										color: colors.text,
+										lineHeight: 1.3,
+										letterSpacing: "-0.02em",
+									},
+									children: displayTitle,
+								},
+							},
+						],
+					},
+				},
+				// Footer with author/subtitle
+				{
+					type: "div",
+					props: {
+						style: {
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+						},
+						children: [
+							{
+								type: "div",
+								props: {
+									style: {
+										fontSize: "20px",
+										color: colors.text,
+										opacity: 0.7,
+									},
+									children: subtitle,
+								},
+							},
+							{
+								type: "div",
+								props: {
+									style: {
+										fontSize: "18px",
+										color: colors.accent,
+										fontWeight: "600",
+									},
+									children: new URL(SITE.url).hostname,
+								},
+							},
+						],
+					},
 				},
 			],
 		},
-	);
+	};
+
+	const svg = await satori(markup as ReactNode, {
+		width: OG_WIDTH,
+		height: OG_HEIGHT,
+		fonts: [
+			{
+				name: "Noto Sans JP",
+				data: font,
+				weight: 700,
+				style: "normal",
+			},
+		],
+	});
 
 	// Convert SVG to PNG using resvg
 	const resvg = new Resvg(svg, {
