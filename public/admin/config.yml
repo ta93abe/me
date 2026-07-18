@@ -40,7 +40,10 @@ collections:
     create: true
     extension: md
     format: yaml-frontmatter
-    slug: "{{slug}}"
+    # エントリ編集画面にスラッグ専用エディタを表示し、タイトルとは独立して
+    # ファイル名（= URL）を指定できるようにする。
+    # https://sveltiacms.app/en/docs/collections/entries
+    slug: "{{fields._slug}}"
     fields:
       - { name: title, label: タイトル }
       - {
