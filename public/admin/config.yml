@@ -1,7 +1,7 @@
 # Sveltia CMS 設定
 # https://sveltiacms.app/en/docs/intro
 #
-# フィールドは src/content.config.ts の blog スキーマと 1:1 対応させること。
+# フィールドは src/content.config.ts の各スキーマと 1:1 対応させること。
 
 backend:
   name: github
@@ -16,15 +16,37 @@ output:
   # Astro の z.coerce.date() がパースできずビルドが失敗する。
   # https://sveltiacms.app/en/docs/data-output
   omit_empty_optional_fields: true
+  # リポジトリ規約（タブインデント）に合わせる
+  json:
+    indent_style: tab
 
-# 画像アップロード先は R2 のみ。
-# media_folder を定義しないことで内部メディアストレージ（Git リポジトリへの
-# コミット）を無効化している。内部ストレージ経由だと画像が GitHub API の
-# 1 コミットに載り、45MB のペイロード上限に当たるため使わない。
-# https://sveltiacms.app/en/docs/media/internal
-# https://sveltiacms.app/en/docs/media/cloudflare-r2
+# 内部メディアストレージ（Git リポジトリ保存）のフォールバック先。
+# Atelier / Gallery はコレクション側で保存先を上書きする。
+# blog の本文は R2 のみ（下記 body フィールドの media_libraries 参照）。
+media_folder: public/uploads
+public_folder: /uploads
+
 media_libraries:
-  cloudflare_r2:
+  # 内部ストレージの安全弁:
+  # - 画像はアップロード時に WebP / 最大 2048px へ自動変換
+  #   （巨大な撮影元データをそのままコミットして GitHub API の
+  #     45MB ペイロード上限に当たる事故を防ぐ）
+  # - それでも超えるファイルは 25MB で拒否
+  default:
+    config:
+      slugify_filename: true
+      max_file_size: 26214400
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2048
+          height: 2048
+        svg:
+          optimize: true
+  # 画像アップロード先 R2
+  # https://sveltiacms.app/en/docs/media/cloudflare-r2
+  cloudflare_r2: &cloudflare_r2
     # R2 API トークン（Object Read & Write / me-images スコープ）の Access Key ID。
     # 公開されて良い値。Secret Access Key は初回利用時に CMS の UI で入力する。
     access_key_id: 97dd31bee85fbc1a627a46c038bc3b50
@@ -40,8 +62,7 @@ collections:
     create: true
     extension: md
     format: yaml-frontmatter
-    # エントリ編集画面にスラッグ専用エディタを表示し、タイトルとは独立して
-    # ファイル名（= URL）を指定できるようにする。
+    # スラッグ専用エディタでタイトルと独立してファイル名（= URL）を指定できる
     # https://sveltiacms.app/en/docs/collections/entries
     slug: "{{fields._slug}}"
     fields:
@@ -63,4 +84,157 @@ collections:
         }
       - { name: excerpt, label: 概要 }
       - { name: tags, label: タグ, widget: list, required: false }
-      - { name: body, label: 本文, widget: markdown }
+      - name: body
+        label: 本文
+        widget: markdown
+        # ブログ画像は R2 のみ。内部ストレージ（Git コミット）を無効化し、
+        # 巨大画像で GitHub API の 45MB 上限に当たる事故を防ぐ
+        media_libraries:
+          default: false
+          cloudflare_r2: *cloudflare_r2
+
+  # Atelier / Gallery のカバー画像は Astro の image()（ビルド時最適化）を
+  # 使うため、R2 ではなくリポジトリ内（src/assets/）に保存する。
+  # アップロード時に WebP へ自動変換されるのでサイズは抑えられる。
+  - name: atelier
+    label: Atelier
+    folder: src/content/atelier
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    slug: "{{fields._slug}}"
+    media_folder: /src/assets/atelier
+    public_folder: ../../assets/atelier
+    fields:
+      - { name: title, label: タイトル }
+      - {
+          name: mediaType,
+          label: 種別,
+          widget: select,
+          options: [drawing, photo, music],
+          default: drawing,
+        }
+      - {
+          name: coverImage,
+          label: カバー画像,
+          widget: image,
+          required: false,
+          hint: "drawing / photo では必須（リポジトリ内に保存される）",
+          media_libraries: { cloudflare_r2: false },
+        }
+      - {
+          name: audio,
+          label: 音源,
+          widget: file,
+          required: false,
+          accept: "audio/*",
+          media_folder: /public/media/audio,
+          public_folder: /media/audio,
+          hint: "music では必須",
+          media_libraries: { cloudflare_r2: false },
+        }
+      - { name: tags, label: タグ, widget: list, required: false }
+      - { name: excerpt, label: 概要 }
+      - {
+          name: status,
+          label: ステータス,
+          widget: select,
+          options: [wip, practice, sketch],
+          default: wip,
+        }
+      - {
+          name: date,
+          label: 日付,
+          widget: datetime,
+          format: YYYY-MM-DD,
+          time_format: false,
+          required: false,
+        }
+
+  - name: gallery
+    label: Gallery
+    folder: src/content/gallery
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    slug: "{{fields._slug}}"
+    media_folder: /src/assets/gallery
+    public_folder: ../../assets/gallery
+    fields:
+      - { name: title, label: タイトル }
+      - {
+          name: mediaType,
+          label: 種別,
+          widget: select,
+          options: [drawing, photo, music],
+          default: drawing,
+        }
+      - {
+          name: coverImage,
+          label: カバー画像,
+          widget: image,
+          required: false,
+          hint: "drawing / photo では必須（リポジトリ内に保存される）",
+          media_libraries: { cloudflare_r2: false },
+        }
+      - {
+          name: audio,
+          label: 音源,
+          widget: file,
+          required: false,
+          accept: "audio/*",
+          media_folder: /public/media/audio,
+          public_folder: /media/audio,
+          hint: "music では必須",
+          media_libraries: { cloudflare_r2: false },
+        }
+      - { name: tags, label: タグ, widget: list, required: false }
+      - { name: excerpt, label: 概要 }
+      - {
+          name: completedDate,
+          label: 完成日,
+          widget: datetime,
+          format: YYYY-MM-DD,
+          time_format: false,
+          required: false,
+        }
+
+  # SNS リンク集（src/data/links.json を丸ごと編集するファイルコレクション）
+  - name: data
+    label: Data
+    files:
+      - name: links
+        label: SNS リンク
+        file: src/data/links.json
+        format: json
+        fields:
+          - name: links
+            label: リンク
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { name: name, label: 名前 }
+              - { name: url, label: URL }
+              - {
+                  name: icon,
+                  label: アイコン,
+                  hint: "simple-icons のスラッグ（例: github）。未収録サービスは src/data/custom-icons.ts に追加",
+                }
+              - {
+                  name: category,
+                  label: カテゴリ,
+                  widget: select,
+                  options:
+                    [
+                      開発,
+                      SNS,
+                      動画・音声,
+                      ブログ,
+                      コミュニティ,
+                      音楽,
+                      AI/ML,
+                      デザイン,
+                      メッセージ,
+                      支援,
+                    ],
+                }
