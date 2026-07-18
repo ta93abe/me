@@ -3,230 +3,192 @@
 		{
 			"name": "GitHub",
 			"url": "https://github.com/ta93abe",
-			"icon": "github",
-			"category": "開発"
+			"icon": "github"
 		},
 		{
 			"name": "Zenn",
 			"url": "https://zenn.dev/ta93abe",
-			"icon": "zenn",
-			"category": "開発"
+			"icon": "zenn"
 		},
 		{
 			"name": "Qiita",
 			"url": "https://qiita.com/ta93abe",
-			"icon": "qiita",
-			"category": "開発"
+			"icon": "qiita"
 		},
 		{
 			"name": "Speaker Deck",
 			"url": "https://speakerdeck.com/ta93abe",
-			"icon": "speakerdeck",
-			"category": "開発"
+			"icon": "speakerdeck"
 		},
 		{
 			"name": "connpass",
 			"url": "https://connpass.com/user/ta93abe",
-			"icon": "connpass",
-			"category": "開発"
+			"icon": "connpass"
 		},
 		{
 			"name": "X",
 			"url": "https://x.com/ta93abe_",
-			"icon": "x",
-			"category": "SNS"
+			"icon": "x"
 		},
 		{
 			"name": "Bluesky",
 			"url": "https://bsky.app/profile/ta93abe.bsky.social",
-			"icon": "bluesky",
-			"category": "SNS"
+			"icon": "bluesky"
 		},
 		{
 			"name": "Threads",
 			"url": "https://threads.net/@ta93abe",
-			"icon": "threads",
-			"category": "SNS"
+			"icon": "threads"
 		},
 		{
 			"name": "Instagram",
 			"url": "https://instagram.com/ta93abe",
-			"icon": "instagram",
-			"category": "SNS"
+			"icon": "instagram"
 		},
 		{
 			"name": "Facebook",
 			"url": "https://facebook.com/ta93abe",
-			"icon": "facebook",
-			"category": "SNS"
+			"icon": "facebook"
 		},
 		{
 			"name": "LinkedIn",
 			"url": "https://linkedin.com/in/ta93abe",
-			"icon": "linkedin",
-			"category": "SNS"
+			"icon": "linkedin"
 		},
 		{
 			"name": "Mixi2",
 			"url": "https://mixi.social/@ta93abe",
-			"icon": "mixi2",
-			"category": "SNS"
+			"icon": "mixi2"
 		},
 		{
 			"name": "YouTube",
 			"url": "https://youtube.com/@ta93abe",
-			"icon": "youtube",
-			"category": "動画・音声"
+			"icon": "youtube"
 		},
 		{
 			"name": "TikTok",
 			"url": "https://tiktok.com/@ta93abe",
-			"icon": "tiktok",
-			"category": "動画・音声"
+			"icon": "tiktok"
 		},
 		{
 			"name": "Twitch",
 			"url": "https://twitch.tv/ta93abe",
-			"icon": "twitch",
-			"category": "動画・音声"
+			"icon": "twitch"
 		},
 		{
 			"name": "sizu.me",
 			"url": "https://sizu.me/ta93abe",
-			"icon": "sizume",
-			"category": "ブログ"
+			"icon": "sizume"
 		},
 		{
 			"name": "note",
 			"url": "https://note.com/ta93abe",
-			"icon": "note",
-			"category": "ブログ"
+			"icon": "note"
 		},
 		{
 			"name": "Medium",
 			"url": "https://medium.com/@ta93abe",
-			"icon": "medium",
-			"category": "ブログ"
+			"icon": "medium"
 		},
 		{
 			"name": "Substack",
 			"url": "https://ta93abe.substack.com",
-			"icon": "substack",
-			"category": "ブログ"
+			"icon": "substack"
 		},
 		{
 			"name": "Reddit",
 			"url": "https://reddit.com/user/ta93abe",
-			"icon": "reddit",
-			"category": "コミュニティ"
+			"icon": "reddit"
 		},
 		{
 			"name": "Spotify",
 			"url": "https://open.spotify.com/user/ta93abe",
-			"icon": "spotify",
-			"category": "音楽"
+			"icon": "spotify"
 		},
 		{
 			"name": "Kaggle",
 			"url": "https://kaggle.com/ta93abe",
-			"icon": "kaggle",
-			"category": "AI/ML"
+			"icon": "kaggle"
 		},
 		{
 			"name": "Hugging Face",
 			"url": "https://huggingface.co/ta93abe",
-			"icon": "huggingface",
-			"category": "AI/ML"
+			"icon": "huggingface"
 		},
 		{
 			"name": "Discord",
 			"url": "https://discord.com/users/ta93abe",
-			"icon": "discord",
-			"category": "コミュニティ"
+			"icon": "discord"
 		},
 		{
 			"name": "Pinterest",
 			"url": "https://pinterest.com/ta93abe",
-			"icon": "pinterest",
-			"category": "デザイン"
+			"icon": "pinterest"
 		},
 		{
 			"name": "Figma",
 			"url": "https://figma.com/@ta93abe",
-			"icon": "figma",
-			"category": "デザイン"
+			"icon": "figma"
 		},
 		{
 			"name": "Stack Overflow",
 			"url": "https://stackoverflow.com/users/ta93abe",
-			"icon": "stackoverflow",
-			"category": "開発"
+			"icon": "stackoverflow"
 		},
 		{
 			"name": "GitLab",
 			"url": "https://gitlab.com/ta93abe",
-			"icon": "gitlab",
-			"category": "開発"
+			"icon": "gitlab"
 		},
 		{
 			"name": "Wantedly",
 			"url": "https://wantedly.com/id/ta93abe",
-			"icon": "wantedly",
-			"category": "開発"
+			"icon": "wantedly"
 		},
 		{
 			"name": "SoundCloud",
 			"url": "https://soundcloud.com/ta93abe",
-			"icon": "soundcloud",
-			"category": "音楽"
+			"icon": "soundcloud"
 		},
 		{
 			"name": "Audius",
 			"url": "https://audius.co/ta93abe",
-			"icon": "audius",
-			"category": "音楽"
+			"icon": "audius"
 		},
 		{
 			"name": "Telegram",
 			"url": "https://t.me/ta93abe",
-			"icon": "telegram",
-			"category": "メッセージ"
+			"icon": "telegram"
 		},
 		{
 			"name": "Tumblr",
 			"url": "https://tumblr.com/ta93abe",
-			"icon": "tumblr",
-			"category": "ブログ"
+			"icon": "tumblr"
 		},
 		{
 			"name": "WhatsApp",
 			"url": "https://wa.me/ta93abe",
-			"icon": "whatsapp",
-			"category": "メッセージ"
+			"icon": "whatsapp"
 		},
 		{
 			"name": "Signal",
 			"url": "https://signal.me/#p/ta93abe",
-			"icon": "signal",
-			"category": "メッセージ"
+			"icon": "signal"
 		},
 		{
 			"name": "Apple Music",
 			"url": "https://music.apple.com/profile/ta93abe",
-			"icon": "applemusic",
-			"category": "音楽"
+			"icon": "applemusic"
 		},
 		{
 			"name": "Bandcamp",
 			"url": "https://bandcamp.com/ta93abe",
-			"icon": "bandcamp",
-			"category": "音楽"
+			"icon": "bandcamp"
 		},
 		{
 			"name": "Product Hunt",
 			"url": "https://producthunt.com/@ta93abe",
-			"icon": "producthunt",
-			"category": "コミュニティ"
+			"icon": "producthunt"
 		}
 	]
 }

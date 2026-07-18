@@ -39,70 +39,45 @@ const links = linksData.links.map((link) => ({
 	...link,
 	iconData: resolveIcon(link.icon),
 }));
-
-const categories = [...new Set(links.map((link) => link.category))];
 ---
 
-<div class="sns-links">
+<ul class="sns-links sns-grid">
 	{
-		categories.map((category) => (
-			<section class="sns-category">
-				<h2 class="sns-category-title">{category}</h2>
-
-				<ul class="sns-grid">
-					{links
-						.filter((link) => link.category === category)
-						.map((link) => (
-							<li>
-								<a
-									href={link.url}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="sns-card"
-									aria-label={link.name}
-								>
-									<svg
-										viewBox={link.iconData.viewBox}
-										class="sns-card-icon"
-										aria-hidden="true"
-									>
-										{link.iconData.stroke ? (
-											<path
-												d={link.iconData.path}
-												fill="none"
-												stroke={link.iconData.stroke.color}
-												stroke-width={link.iconData.stroke.width}
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											/>
-										) : (
-											<path d={link.iconData.path} fill={link.iconData.hex} />
-										)}
-									</svg>
-									<span class="sns-card-name">{link.name}</span>
-								</a>
-							</li>
-						))}
-				</ul>
-			</section>
+		links.map((link) => (
+			<li>
+				<a
+					href={link.url}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="sns-card"
+					aria-label={link.name}
+				>
+					<svg
+						viewBox={link.iconData.viewBox}
+						class="sns-card-icon"
+						aria-hidden="true"
+					>
+						{link.iconData.stroke ? (
+							<path
+								d={link.iconData.path}
+								fill="none"
+								stroke={link.iconData.stroke.color}
+								stroke-width={link.iconData.stroke.width}
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						) : (
+							<path d={link.iconData.path} fill={link.iconData.hex} />
+						)}
+					</svg>
+					<span class="sns-card-name">{link.name}</span>
+				</a>
+			</li>
 		))
 	}
-</div>
+</ul>
 
 <style>
-	.sns-links {
-		display: flex;
-		flex-direction: column;
-		gap: 2.5rem;
-	}
-
-	.sns-category-title {
-		margin: 0 0 1rem;
-		font-size: 0.8125rem;
-		font-weight: 500;
-		color: var(--text-muted);
-	}
-
 	.sns-grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
@@ -136,7 +111,9 @@ const categories = [...new Set(links.map((link) => link.category))];
 		text-decoration: none;
 		color: inherit;
 		background: var(--bg-secondary);
-		transition: background-color 0.15s ease, color 0.15s ease;
+		transition:
+			background-color 0.15s ease,
+			color 0.15s ease;
 	}
 
 	.sns-card:hover {

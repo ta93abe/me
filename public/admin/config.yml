@@ -257,20 +257,3 @@ collections:
                   label: アイコン,
                   hint: "simple-icons のスラッグ（例: github）。未収録サービスは src/data/custom-icons.ts に追加",
                 }
-              - {
-                  name: category,
-                  label: カテゴリ,
-                  widget: select,
-                  options:
-                    [
-                      開発,
-                      SNS,
-                      動画・音声,
-                      ブログ,
-                      コミュニティ,
-                      音楽,
-                      AI/ML,
-                      デザイン,
-                      メッセージ,
-                    ],
-                }

@@ -125,7 +125,9 @@ function createParticles(count: number): Points {
 	return points;
 }
 
-export function initHeroWebGL(canvas: HTMLCanvasElement): HeroWebGLHandle | null {
+export function initHeroWebGL(
+	canvas: HTMLCanvasElement,
+): HeroWebGLHandle | null {
 	if (prefersReducedMotion()) return null;
 
 	const scene = new Scene();
@@ -191,7 +193,10 @@ export function initHeroWebGL(canvas: HTMLCanvasElement): HeroWebGLHandle | null
 		renderer.setSize(width, height, false);
 		uniforms.uResolution.value.set(width, height);
 
-		const viewHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * Math.abs(camera.position.z - background.position.z);
+		const viewHeight =
+			2 *
+			Math.tan((camera.fov * Math.PI) / 360) *
+			Math.abs(camera.position.z - background.position.z);
 		const viewWidth = viewHeight * camera.aspect;
 		background.scale.set(viewWidth / 18, viewHeight / 12, 1);
 	};
@@ -215,12 +220,17 @@ export function initHeroWebGL(canvas: HTMLCanvasElement): HeroWebGLHandle | null
 		mouseCurrent.lerp(mouseTarget, 0.05);
 		uniforms.uMouse.value.copy(mouseCurrent);
 
-		const positions = particles.geometry.getAttribute("position") as BufferAttribute;
+		const positions = particles.geometry.getAttribute(
+			"position",
+		) as BufferAttribute;
 		const speeds = particles.userData.speeds as Float32Array;
 		for (let i = 0; i < speeds.length; i++) {
 			const y = positions.getY(i) + speeds[i] * 0.004;
 			positions.setY(i, y > 5 ? -5 : y);
-			positions.setX(i, positions.getX(i) + Math.sin(elapsed * 0.8 + i) * 0.0007);
+			positions.setX(
+				i,
+				positions.getX(i) + Math.sin(elapsed * 0.8 + i) * 0.0007,
+			);
 		}
 		positions.needsUpdate = true;
 
