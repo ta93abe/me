@@ -55,11 +55,11 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
     <!-- フィルタリング・ソート -->
     <FilterSort tags={allTags} containerId="blog-list" />
 
-    <div id="blog-list" class="flex flex-col gap-3">
+    <div id="blog-list" class="flex flex-col">
       {
         sortedPosts.map((post) => (
           <article
-            class="group bg-(--bg-secondary) transition-colors hover:bg-(--bg-tertiary)"
+            class="group border-b border-(--border-color) last:border-b-0"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
@@ -67,7 +67,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
           >
             <a
               href={`/blog/${post.id}`}
-              class="block px-5 py-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color) sm:px-6"
+              class="block py-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
             >
               <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">
                 <time class="shrink-0 font-sans text-sm tracking-wide text-(--text-muted) sm:w-28 sm:pt-1">
