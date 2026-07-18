@@ -936,18 +936,6 @@ const categories: Category[] = [
 			</p>
 		</div>
 
-		<div class="mb-12 flex flex-wrap gap-8 pb-2 text-sm text-(--text-secondary)">
-			<div>
-				<span class="mr-2 text-(--text-primary)">{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}</span>
-				ツール
-			</div>
-			<div>
-				<span class="mr-2 text-(--text-primary)">{categories.length}</span>
-				カテゴリ
-			</div>
-			<div>Nix 管理</div>
-		</div>
-
 		<!-- カテゴリ別ツールリスト -->
 		<div class="space-y-12">
 			{
