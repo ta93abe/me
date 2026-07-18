@@ -909,8 +909,6 @@ const categories: Category[] = [
 		],
 	},
 ];
-
-const enablePagefind = !import.meta.env.DEV;
 ---
 
 <Layout
@@ -936,20 +934,6 @@ const enablePagefind = !import.meta.env.DEV;
 				</a>
 				で管理されています（Nix + Home Manager）
 			</p>
-		</div>
-
-		<!-- 検索 -->
-		<div class="mb-12 rounded-2xl border border-(--border-color) bg-[var(--bg-tertiary)] p-6">
-			<h2 class="mb-2 text-xl font-bold text-[var(--text-primary)]">Search</h2>
-			<p class="mb-4 text-sm text-[var(--text-secondary)]">
-				ツール名・説明から検索できます。
-			</p>
-			<div id="pagefind-search" class="pagefind-search"></div>
-			{!enablePagefind && (
-				<p class="mt-3 text-xs text-[var(--text-muted)]">
-					検索はビルド後に有効になります。
-				</p>
-			)}
 		</div>
 
 		<!-- 統計情報 -->
@@ -991,7 +975,6 @@ const enablePagefind = !import.meta.env.DEV;
 								return (
 								<article
 									id={toolId}
-									data-pagefind-body
 									class="group rounded-xl border border-(--border-color) bg-[var(--bg-secondary)] p-4 transition-all hover:border-[var(--primary-color)]/50 hover:shadow-lg hover:shadow-[var(--primary-color)]/5"
 								>
 									<a
@@ -1000,23 +983,14 @@ const enablePagefind = !import.meta.env.DEV;
 										rel="noopener noreferrer"
 										class="block"
 									>
-										<h3
-											class="mb-2 font-mono text-lg font-semibold text-[var(--primary-color)] group-hover:text-[var(--link-hover-color)]"
-											data-pagefind-meta="title"
-										>
+										<h3 class="mb-2 font-mono text-lg font-semibold text-[var(--primary-color)] group-hover:text-[var(--link-hover-color)]">
 											{tool.name}
 											<span class="ml-1 text-sm text-[var(--text-muted)]">↗</span>
 										</h3>
-										<p
-											class="text-sm text-[var(--text-secondary)]"
-											data-pagefind-meta="description"
-										>
+										<p class="text-sm text-[var(--text-secondary)]">
 											{tool.description}
 										</p>
 										<p class="mt-2 truncate text-xs text-[var(--text-muted)]">{tool.url}</p>
-										<span class="sr-only" data-pagefind-meta="category">
-											{category.title}
-										</span>
 									</a>
 								</article>
 								);
@@ -1056,33 +1030,4 @@ const enablePagefind = !import.meta.env.DEV;
 			</div>
 		</div>
 	</main>
-
-	{
-		enablePagefind && (
-			<script type="module">
-				try {
-					const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
-					const searchElement = document.getElementById("pagefind-search");
-					if (searchElement) {
-						void new PagefindUI({
-							element: searchElement,
-							showSubResults: true,
-							translations: {
-								placeholder: "ツールを検索...",
-								clear_search: "クリア",
-								load_more: "さらに読み込む",
-								search_label: "このサイトを検索",
-								filters_label: "フィルター",
-								zero_results: "[SEARCH_TERM]の検索結果が見つかりませんでした",
-								many_results: "[SEARCH_TERM]の検索結果: [COUNT]件",
-								one_result: "[SEARCH_TERM]の検索結果: [COUNT]件",
-							},
-						});
-					}
-				} catch (e) {
-					console.error("Pagefind UIの読み込みに失敗しました", e);
-				}
-			</script>
-		)
-	}
 </Layout>
