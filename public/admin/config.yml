@@ -10,6 +10,13 @@ backend:
   # OAuth プロキシ（sveltia-cms-auth）。infra/alchemy.run.ts で管理。
   base_url: https://sveltia-auth.ta93abe.com
 
+output:
+  # 空のオプショナルフィールドをフロントマターから省略する。
+  # デフォルトでは updatedDate: '' のような空文字列が保存され、
+  # Astro の z.coerce.date() がパースできずビルドが失敗する。
+  # https://sveltiacms.app/en/docs/data-output
+  omit_empty_optional_fields: true
+
 # 画像アップロード先は R2 のみ。
 # media_folder を定義しないことで内部メディアストレージ（Git リポジトリへの
 # コミット）を無効化している。内部ストレージ経由だと画像が GitHub API の
