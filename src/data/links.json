@@ -121,12 +121,6 @@
 			"category": "コミュニティ"
 		},
 		{
-			"name": "Mastodon",
-			"url": "https://mastodon.social/@ta93abe",
-			"icon": "mastodon",
-			"category": "コミュニティ"
-		},
-		{
 			"name": "Spotify",
 			"url": "https://open.spotify.com/user/ta93abe",
 			"icon": "spotify",
