@@ -1,4 +1,7 @@
-# Sveltia CMS 用インフラ（infra/alchemy.run.ts）の自動デプロイ
+# Sveltia CMS 用インフラ（infra/alchemy.run.ts）の Plan / デプロイ
+#
+# - PR で infra/** に変更がある場合: alchemy plan（dry-run）を実行しログで差分を確認できる
+# - main への push で infra/** に変更がある場合: alchemy deploy を実行
 #
 # 必要な Secrets:
 # - CLOUDFLARE_API_TOKEN: Workers Scripts Write / Workers R2 Storage Write /
@@ -15,14 +18,42 @@ on:
     branches: [main]
     paths:
       - "infra/**"
+  pull_request:
+    paths:
+      - "infra/**"
   workflow_dispatch:
 
 concurrency:
-  group: deploy-infra
+  group: deploy-infra-${{ github.event_name == 'pull_request' && github.event.number || 'main' }}
   cancel-in-progress: false
 
 jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Plan infra changes
+        run: pnpm infra:plan
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_CLIENT_ID: ${{ secrets.SVELTIA_GITHUB_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.SVELTIA_GITHUB_CLIENT_SECRET }}
+
   deploy:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
