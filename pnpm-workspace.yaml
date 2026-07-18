@@ -2,7 +2,7 @@ packages:
   - "."
 
 allowBuilds:
-  core-js: false
+  core-js: true
   esbuild: true
   msgpackr-extract: true
   sharp: true
