@@ -1,70 +1,330 @@
 ---
-import Button from "@/components/ui/Button.astro";
+import { SITE } from "@/config/site";
 ---
 
-<section id="hero" class="hero-section">
-	<div class="hero-content">
-		<h1 class="hero-title font-display" data-animate>ta93abe</h1>
+<section id="hero" class="hero">
+	<div class="hero-atmosphere" aria-hidden="true">
+		<div class="hero-wash hero-wash--a"></div>
+		<div class="hero-wash hero-wash--b"></div>
+		<div class="hero-grain"></div>
+		<div class="hero-rule"></div>
+	</div>
 
-		<p class="hero-description" data-animate>
-			コードとデザインの間で、<br class="sm:hidden" />面白いものを作っています。
+	<div class="hero-stage">
+		<p class="hero-role" data-animate>
+			<span class="hero-role-text">Software Engineer</span>
 		</p>
 
-		<div class="hero-cta" data-animate="stagger">
-			<Button href="/gallery" variant="primary" size="lg">View Gallery</Button>
-			<Button href="/links" variant="secondary" size="lg">Links</Button>
+		<div class="hero-main">
+			<p class="hero-kana" data-animate>{SITE.author}</p>
+
+			<h1 class="hero-title font-display" aria-label={SITE.name}>
+				{
+					"ta93abe".split("").map((char, i) => (
+						<span
+							class="hero-char"
+							style={`--i: ${i}`}
+							data-animate
+						>
+							{char}
+						</span>
+					))
+				}
+			</h1>
+
+			<p class="hero-lead" data-animate>
+				コードとデザインの間で、<br />
+				面白いものを作っています。
+			</p>
+
+			<nav class="hero-cta" aria-label="主要リンク" data-animate="stagger">
+				<a href="/gallery" class="hero-link">
+					<span>Gallery</span>
+					<span class="hero-link-arrow" aria-hidden="true">→</span>
+				</a>
+				<a href="/atelier" class="hero-link">
+					<span>Atelier</span>
+					<span class="hero-link-arrow" aria-hidden="true">→</span>
+				</a>
+				<a href="/links" class="hero-link">
+					<span>Links</span>
+					<span class="hero-link-arrow" aria-hidden="true">→</span>
+				</a>
+			</nav>
 		</div>
 	</div>
 </section>
 
 <style>
-	.hero-section {
+	.hero {
+		position: relative;
+		isolation: isolate;
 		min-height: calc(100dvh - var(--header-height));
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		background: var(--bg-primary);
+		overflow: hidden;
+		background: #faf9f6;
 	}
 
-	.hero-content {
-		text-align: center;
-		padding: 2rem;
+	.hero-atmosphere {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	.hero-wash {
+		position: absolute;
+		border-radius: 50%;
+		filter: blur(80px);
+		will-change: transform;
+	}
+
+	.hero-wash--a {
+		width: min(70vw, 42rem);
+		height: min(70vw, 42rem);
+		top: -18%;
+		right: -12%;
+		background: radial-gradient(
+			circle,
+			rgba(166, 61, 42, 0.14) 0%,
+			rgba(166, 61, 42, 0) 70%
+		);
+		animation: wash-drift 18s ease-in-out infinite;
+	}
+
+	.hero-wash--b {
+		width: min(55vw, 32rem);
+		height: min(55vw, 32rem);
+		bottom: -20%;
+		left: -10%;
+		background: radial-gradient(
+			circle,
+			rgba(138, 109, 59, 0.12) 0%,
+			rgba(138, 109, 59, 0) 70%
+		);
+		animation: wash-drift 22s ease-in-out infinite reverse;
+	}
+
+	.hero-grain {
+		position: absolute;
+		inset: 0;
+		opacity: 0.35;
+		mix-blend-mode: multiply;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		background-size: 160px 160px;
+	}
+
+	.hero-rule {
+		position: absolute;
+		top: 18%;
+		right: 8%;
+		width: min(28vw, 12rem);
+		height: 1px;
+		background: linear-gradient(
+			90deg,
+			transparent,
+			color-mix(in srgb, var(--primary-color) 55%, transparent),
+			transparent
+		);
+		transform-origin: right center;
+		animation: rule-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+	}
+
+	.hero-stage {
+		position: relative;
+		z-index: 1;
+		width: 100%;
+		max-width: 72rem;
+		margin: 0 auto;
+		padding: 3rem 1.5rem 4rem;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 2rem 3rem;
+		align-items: center;
+	}
+
+	.hero-role {
+		margin: 0;
+		writing-mode: vertical-rl;
+		text-orientation: mixed;
+		justify-self: start;
+		align-self: stretch;
+		display: flex;
+		align-items: flex-start;
+	}
+
+	.hero-role-text {
+		font-family: "Inter", system-ui, sans-serif;
+		font-size: 0.6875rem;
+		font-weight: 500;
+		letter-spacing: 0.28em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.hero-main {
 		max-width: 40rem;
+		padding-top: 1rem;
+	}
+
+	.hero-kana {
+		margin: 0 0 0.75rem;
+		font-size: 0.875rem;
+		letter-spacing: 0.18em;
+		color: var(--accent-color);
 	}
 
 	.hero-title {
-		font-size: clamp(3rem, 12vw, 5rem);
+		display: flex;
+		flex-wrap: wrap;
+		margin: 0 0 1.75rem;
+		font-size: clamp(3.5rem, 14vw, 7.5rem);
 		font-weight: 700;
-		line-height: 1.1;
-		margin: 0 0 1.5rem;
+		line-height: 0.92;
+		letter-spacing: -0.04em;
 		color: var(--text-primary);
-		letter-spacing: -0.02em;
 	}
 
-	.hero-description {
-		font-size: clamp(1rem, 2.5vw, 1.25rem);
+	.hero-char {
+		display: inline-block;
+		transition-delay: calc(var(--i) * 45ms);
+	}
+
+	.hero-char:nth-child(3) {
+		color: var(--primary-color);
+	}
+
+	.hero-lead {
+		margin: 0 0 2.5rem;
+		max-width: 22rem;
+		font-size: clamp(1rem, 2.2vw, 1.1875rem);
+		line-height: 2;
 		color: var(--text-secondary);
-		margin: 0 0 2rem;
-		line-height: 1.8;
 	}
 
 	.hero-cta {
 		display: flex;
-		gap: 0.75rem;
-		justify-content: center;
 		flex-wrap: wrap;
+		gap: 1.25rem 2rem;
+	}
+
+	.hero-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-family: "Inter", system-ui, sans-serif;
+		font-size: 0.875rem;
+		font-weight: 500;
+		letter-spacing: 0.06em;
+		text-decoration: none;
+		color: var(--text-primary);
+		position: relative;
+	}
+
+	.hero-link::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		bottom: -0.3rem;
+		width: 100%;
+		height: 1px;
+		background: currentColor;
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.hero-link:hover::after,
+	.hero-link:focus-visible::after {
+		transform: scaleX(1);
+	}
+
+	.hero-link-arrow {
+		display: inline-block;
+		transition: transform 0.3s ease;
+		color: var(--primary-color);
+	}
+
+	.hero-link:hover .hero-link-arrow {
+		transform: translateX(4px);
+	}
+
+	@keyframes wash-drift {
+		0%,
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+		50% {
+			transform: translate(-3%, 4%) scale(1.06);
+		}
+	}
+
+	@keyframes rule-in {
+		from {
+			transform: scaleX(0);
+			opacity: 0;
+		}
+		to {
+			transform: scaleX(1);
+			opacity: 1;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.hero-stage {
+			grid-template-columns: 1fr;
+			gap: 1.25rem;
+			padding-top: 2rem;
+		}
+
+		.hero-role {
+			writing-mode: horizontal-tb;
+			align-self: auto;
+		}
+
+		.hero-role-text {
+			letter-spacing: 0.2em;
+		}
+
+		.hero-main {
+			padding-top: 0;
+		}
+
+		.hero-rule {
+			top: 12%;
+			right: 1.5rem;
+			width: 5rem;
+		}
 	}
 
 	@media (max-width: 768px) {
-		.hero-section {
+		.hero {
 			min-height: calc(100svh - var(--header-height));
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero-wash,
+		.hero-rule {
+			animation: none;
+		}
+
+		.hero-rule {
+			opacity: 1;
+			transform: none;
+		}
+
+		.hero-link::after,
+		.hero-link-arrow {
+			transition: none;
 		}
 	}
 </style>
 
 <script is:inline>
-	document.querySelectorAll(".hero-cta a").forEach(function(btn) {
-		btn.addEventListener("click", function() {
+	document.querySelectorAll(".hero-cta a").forEach(function (btn) {
+		btn.addEventListener("click", function () {
 			window.posthog?.capture("hero_cta_clicked", {
 				cta_label: btn.textContent?.trim(),
 				cta_href: btn.getAttribute("href"),
