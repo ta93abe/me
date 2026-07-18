@@ -111,7 +111,7 @@ function createParticles(count: number): Points {
 	geometry.setAttribute("position", new BufferAttribute(positions, 3));
 
 	const material = new PointsMaterial({
-		color: new Color("#a63d2a"),
+		color: new Color("#6b4c9a"),
 		size: 0.04,
 		transparent: true,
 		opacity: 0.5,
@@ -151,7 +151,7 @@ export function initHeroWebGL(canvas: HTMLCanvasElement): HeroWebGLHandle | null
 		uTime: { value: 0 },
 		uResolution: { value: new Vector2(1, 1) },
 		uMouse: { value: new Vector2(0.5, 0.5) },
-		uInk: { value: new Color("#a63d2a") },
+		uInk: { value: new Color("#6b4c9a") },
 		uOchre: { value: new Color("#8a6d3b") },
 		uPaper: { value: new Color("#faf9f6") },
 	};

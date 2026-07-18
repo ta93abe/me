@@ -48,7 +48,7 @@ export async function generateOgImage(
 	const colorSchemes = {
 		blog: {
 			background: "linear-gradient(135deg, #ffffff 0%, #f6f6f4 100%)",
-			accent: "#a63d2a",
+			accent: "#6b4c9a",
 			text: "#1c1b19",
 		},
 		works: {
@@ -58,7 +58,7 @@ export async function generateOgImage(
 		},
 		default: {
 			background: "linear-gradient(135deg, #ffffff 0%, #f6f6f4 100%)",
-			accent: "#a63d2a",
+			accent: "#6b4c9a",
 			text: "#1c1b19",
 		},
 	};

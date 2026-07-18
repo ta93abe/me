@@ -14,12 +14,12 @@
  * 白を基調にしたライトテーマ。
  * - ページ地はほぼ白。区切りは薄いニュートラルグレーの面で作る
  * - 本文はインク寄りダークグレー（純黒は避ける）
- * - アクセントは朱と黄土を控えめに
+ * - アクセントは紫を主軸に、黄土を控えめに
  */
 :root {
 	--header-height: 4rem;
-	--primary-color: #a63d2a; /* 朱 */
-	--primary-hover: #8a3120;
+	--primary-color: #6b4c9a; /* 紫 */
+	--primary-hover: #543a7d;
 	--accent-color: #8a6d3b; /* 黄土 */
 	--bg-primary: #ffffff;
 	--bg-secondary: #f6f6f4;
@@ -29,10 +29,10 @@
 	--text-secondary: #5c5a55;
 	--text-muted: #8b8983;
 	--border-color: #e6e4df;
-	--link-color: #a63d2a;
-	--link-hover-color: #8a3120;
-	--blockquote-bg: rgba(166, 61, 42, 0.05);
-	--blockquote-border: #a63d2a;
+	--link-color: #6b4c9a;
+	--link-hover-color: #543a7d;
+	--blockquote-bg: rgba(107, 76, 154, 0.06);
+	--blockquote-border: #6b4c9a;
 	--code-bg: #1f1e1c;
 	--code-text: #f2f0ea;
 }
@@ -429,8 +429,8 @@ body {
 	}
 }
 
-/* Selection（蛍光ペンのような淡い朱） */
+/* Selection（淡い紫） */
 ::selection {
-	background: rgba(166, 61, 42, 0.18);
+	background: rgba(107, 76, 154, 0.18);
 	color: var(--text-primary);
 }
