@@ -19,18 +19,16 @@ export default defineConfig({
 		defaultStrategy: "hover",
 	},
 	// Astro 7 デフォルトの Sätteri（Rust）で Markdown/MDX を処理。
-	// GFM / SmartyPants は標準搭載のため remark-gfm は不要。
+	// CSP と併用するためシンタックスハイライトは Prism（クラスベース）を使う。
+	// Shiki はインライン style 属性前提で Astro CSP と非互換。
 	markdown: {
-		shikiConfig: {
-			theme: "github-dark",
-			wrap: true,
-		},
+		syntaxHighlight: "prism",
 	},
 	// エージェント向けは `astro dev --json` / `pnpm dev:json` を使う
 	logger: logHandlers.console({ pretty: true }),
 	// Astro 7.1: ハッシュベース CSP + style-src-attr / script-src-elem
 	// PostHog の動的 script 注入は strict-dynamic で許可する。
-	// Shiki のトークン色は style 属性のため style-src-attr に unsafe-inline を限定付与。
+	// style-src-attr の unsafe-inline は --delay 等の CSS 変数属性用（Prism 自体は不要）。
 	security: {
 		csp: {
 			algorithm: "SHA-256",

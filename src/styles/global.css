@@ -193,6 +193,64 @@ body::before {
 	font-size: 0.875rem;
 	line-height: 1.6;
 	color: var(--code-text);
+	white-space: pre;
+	word-wrap: normal;
+}
+
+/* Prism tokens — github-dark 相当（墨版コードブロック向け） */
+.prose pre .token.comment,
+.prose pre .token.prolog,
+.prose pre .token.doctype,
+.prose pre .token.cdata {
+	color: #8b949e;
+}
+
+.prose pre .token.punctuation {
+	color: #c9d1d9;
+}
+
+.prose pre .token.property,
+.prose pre .token.tag,
+.prose pre .token.boolean,
+.prose pre .token.number,
+.prose pre .token.constant,
+.prose pre .token.symbol,
+.prose pre .token.deleted {
+	color: #79c0ff;
+}
+
+.prose pre .token.selector,
+.prose pre .token.attr-name,
+.prose pre .token.string,
+.prose pre .token.char,
+.prose pre .token.builtin,
+.prose pre .token.inserted {
+	color: #a5d6ff;
+}
+
+.prose pre .token.operator,
+.prose pre .token.entity,
+.prose pre .token.url,
+.prose pre .language-css .token.string,
+.prose pre .style .token.string {
+	color: #ff7b72;
+}
+
+.prose pre .token.atrule,
+.prose pre .token.attr-value,
+.prose pre .token.keyword {
+	color: #ff7b72;
+}
+
+.prose pre .token.function,
+.prose pre .token.class-name {
+	color: #d2a8ff;
+}
+
+.prose pre .token.regex,
+.prose pre .token.important,
+.prose pre .token.variable {
+	color: #ffa657;
 }
 
 /* Code block copy button */
