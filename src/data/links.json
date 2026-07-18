@@ -181,6 +181,12 @@
 			"category": "音楽"
 		},
 		{
+			"name": "Audius",
+			"url": "https://audius.co/ta93abe",
+			"icon": "audius",
+			"category": "音楽"
+		},
+		{
 			"name": "Telegram",
 			"url": "https://t.me/ta93abe",
 			"icon": "telegram",
