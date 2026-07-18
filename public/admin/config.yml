@@ -20,8 +20,7 @@ media_libraries:
   cloudflare_r2:
     # R2 API トークン（Object Read & Write / me-images スコープ）の Access Key ID。
     # 公開されて良い値。Secret Access Key は初回利用時に CMS の UI で入力する。
-    # TODO: R2 API トークン発行後に置き換える
-    access_key_id: REPLACE_WITH_R2_ACCESS_KEY_ID
+    access_key_id: 97dd31bee85fbc1a627a46c038bc3b50
     account_id: b0047256d1afc1be1df08289ee3be552
     bucket: me-images
     public_url: https://images.ta93abe.com
