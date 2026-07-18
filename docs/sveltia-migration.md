@@ -5,11 +5,21 @@
 
 ## 全体像
 
-```
-┌─ ローカルエディタ ── .md 編集 → git push ─┐
-│                                          ├─→ GitHub (ta93abe/me) ─→ Cloudflare Workers Builds ─→ 自動デプロイ
-└─ Sveltia CMS (GUI) ─ テキスト → commit ──┘
-                       └ 画像 → R2 バケットへ直接アップロード（公開 URL を Markdown に記録）
+```mermaid
+flowchart LR
+	local["ローカルエディタ"]
+	cms["Sveltia CMS（GUI）<br>/admin/"]
+	github["GitHub<br>ta93abe/me"]
+	builds["Cloudflare<br>Workers Builds"]
+	site["ta93abe.com<br>（自動デプロイ）"]
+	r2[("R2: me-images<br>images.ta93abe.com")]
+
+	local -- ".md 編集 → git push" --> github
+	cms -- "テキスト → commit" --> github
+	cms -- "画像を直接アップロード<br>（公開 URL を Markdown に記録）" --> r2
+	github -- "main への push" --> builds
+	builds --> site
+	r2 -. "画像配信" .-> site
 ```
 
 - **真のソースは Git**。GUI で書いてもローカルで書いても、同じ `src/content/**/*.md` に収束する
