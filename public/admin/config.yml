@@ -93,6 +93,43 @@ collections:
           default: false
           cloudflare_r2: *cloudflare_r2
 
+  # MDX 記事（コンポーネント入り）。リッチテキストエディタは JSX を
+  # 往復変換できないため、本文は raw（生テキスト）モード限定にする。
+  - name: blog-mdx
+    label: Blog (MDX)
+    folder: src/content/blog
+    create: true
+    extension: mdx
+    format: yaml-frontmatter
+    slug: "{{fields._slug}}"
+    fields:
+      - { name: title, label: タイトル }
+      - {
+          name: date,
+          label: 公開日,
+          widget: datetime,
+          format: YYYY-MM-DD,
+          time_format: false,
+        }
+      - {
+          name: updatedDate,
+          label: 更新日,
+          widget: datetime,
+          format: YYYY-MM-DD,
+          time_format: false,
+          required: false,
+        }
+      - { name: excerpt, label: 概要 }
+      - { name: tags, label: タグ, widget: list, required: false }
+      - name: body
+        label: 本文（MDX）
+        widget: markdown
+        modes: [raw]
+        hint: "MDX はそのまま生テキストとして編集される。import 文やコンポーネントタグも記述可"
+        media_libraries:
+          default: false
+          cloudflare_r2: *cloudflare_r2
+
   # Atelier / Gallery のカバー画像は Astro の image()（ビルド時最適化）を
   # 使うため、R2 ではなくリポジトリ内（src/assets/）に保存する。
   # アップロード時に WebP へ自動変換されるのでサイズは抑えられる。
