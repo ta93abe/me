@@ -16,7 +16,9 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:report": "playwright show-report",
-		"deploy": "pnpm build && wrangler deploy"
+		"deploy": "pnpm build && wrangler deploy",
+		"infra:deploy": "alchemy deploy infra/alchemy.run.ts --stage prod",
+		"infra:plan": "alchemy plan infra/alchemy.run.ts --stage prod"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.9",
@@ -52,6 +54,8 @@
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
 		"@vitest/ui": "^4.1.10",
+		"alchemy": "2.0.0-beta.61",
+		"effect": "4.0.0-beta.97",
 		"happy-dom": "^20.10.6",
 		"oxfmt": "^0.58.0",
 		"oxlint": "^1.73.0",
