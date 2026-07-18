@@ -10,11 +10,11 @@ backend:
   # OAuth プロキシ（sveltia-cms-auth）。infra/alchemy.run.ts で管理。
   base_url: https://sveltia-auth.ta93abe.com
 
-# 内部メディア（R2 を使わない場合のフォールバック先）
-media_folder: public/uploads
-public_folder: /uploads
-
-# 画像アップロード先を R2 に
+# 画像アップロード先は R2 のみ。
+# media_folder を定義しないことで内部メディアストレージ（Git リポジトリへの
+# コミット）を無効化している。内部ストレージ経由だと画像が GitHub API の
+# 1 コミットに載り、45MB のペイロード上限に当たるため使わない。
+# https://sveltiacms.app/en/docs/media/internal
 # https://sveltiacms.app/en/docs/media/cloudflare-r2
 media_libraries:
   cloudflare_r2:
