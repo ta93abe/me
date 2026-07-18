@@ -55,36 +55,45 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
     <!-- フィルタリング・ソート -->
     <FilterSort tags={allTags} containerId="blog-list" />
 
-    <div id="blog-list" class="space-y-8">
+    <div id="blog-list" class="flex flex-col gap-3">
       {
         sortedPosts.map((post) => (
           <article
-            class="group py-8"
+            class="group bg-(--bg-secondary) transition-colors hover:bg-(--bg-tertiary)"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="block py-2 transition-colors hover:text-(--primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)">
-              <time class="mb-2 block text-sm text-(--text-muted)">
-                {formatDate(post.data.date)}
-                {post.data.updatedDate && (
-                  <span class="ml-2 text-xs">
-                    (更新: {formatDate(post.data.updatedDate)})
-                  </span>
-                )}
-              </time>
-              <h2 class="mb-3 text-2xl font-bold text-(--text-primary)">
-                {post.data.title}
-              </h2>
-              <p class="mb-3 text-(--text-secondary)">{post.data.excerpt}</p>
-              {post.data.tags && post.data.tags.length > 0 && (
-                <div class="flex flex-wrap gap-2">
-                  {post.data.tags.map((tag) => (
-                    <Tag>{tag}</Tag>
-                  ))}
+            <a
+              href={`/blog/${post.id}`}
+              class="block px-5 py-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color) sm:px-6"
+            >
+              <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">
+                <time class="shrink-0 font-sans text-sm tracking-wide text-(--text-muted) sm:w-28 sm:pt-1">
+                  {formatDate(post.data.date)}
+                  {post.data.updatedDate && (
+                    <span class="mt-1 block text-xs">
+                      更新 {formatDate(post.data.updatedDate)}
+                    </span>
+                  )}
+                </time>
+                <div class="min-w-0 flex-1">
+                  <h2 class="mb-2 font-display text-xl font-bold text-(--text-primary) transition-colors group-hover:text-(--primary-color) sm:text-2xl">
+                    {post.data.title}
+                  </h2>
+                  <p class="mb-3 text-sm leading-relaxed text-(--text-secondary) sm:text-base">
+                    {post.data.excerpt}
+                  </p>
+                  {post.data.tags && post.data.tags.length > 0 && (
+                    <div class="flex flex-wrap gap-x-3 gap-y-1">
+                      {post.data.tags.map((tag) => (
+                        <Tag>#{tag}</Tag>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </a>
           </article>
         ))
