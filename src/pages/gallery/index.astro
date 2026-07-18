@@ -1,0 +1,363 @@
+---
+import { getCollection } from "astro:content";
+import MediaTypeBadge from "../../components/creative/MediaTypeBadge.astro";
+import PieceMedia from "../../components/creative/PieceMedia.astro";
+import EmptyState from "../../components/ui/EmptyState.astro";
+import { SITE } from "../../config/site";
+import Layout from "../../layouts/Layout.astro";
+import {
+	MEDIA_TYPE_LABELS,
+	MEDIA_TYPES,
+	type MediaType,
+} from "../../utils/creative-media";
+import { formatDate } from "../../utils/date";
+
+const pieces = await getCollection("gallery");
+
+const sorted = [...pieces].toSorted((a, b) => {
+	const aTime = a.data.completedDate?.getTime() ?? 0;
+	const bTime = b.data.completedDate?.getTime() ?? 0;
+	return bTime - aTime;
+});
+
+const usedMediaTypes = MEDIA_TYPES.filter((type) =>
+	sorted.some((piece) => piece.data.mediaType === type),
+);
+---
+
+<Layout
+	title={`Gallery | ${SITE.name}`}
+	description="絵・写真・音楽の完成作品を静かに並べたギャラリー。"
+>
+	<main class="gallery-page">
+		<header class="gallery-header" data-animate>
+			<p class="gallery-eyebrow">Exhibition</p>
+			<h1 class="gallery-title font-display">ギャラリー</h1>
+			<p class="gallery-lead">
+				絵・写真・音楽の完成したものを、余白を残して置いています。
+			</p>
+		</header>
+
+		{
+			sorted.length === 0 ? (
+				<EmptyState
+					title="展示はまだありません"
+					description="完成した作品が揃い次第、ここに並びます。"
+				/>
+			) : (
+				<>
+					{usedMediaTypes.length > 1 && (
+						<div
+							class="gallery-filters"
+							data-media-filter
+							role="group"
+							aria-label="メディア種別で絞り込み"
+						>
+							<button type="button" class="gallery-filter is-active" data-media="all">
+								すべて
+							</button>
+							{usedMediaTypes.map((type) => (
+								<button type="button" class="gallery-filter" data-media={type}>
+									{MEDIA_TYPE_LABELS[type]}
+								</button>
+							))}
+						</div>
+					)}
+
+					<section class="gallery-wall" aria-label="作品一覧">
+						{sorted.map((piece, index) => (
+							<a
+								href={`/gallery/${piece.id}`}
+								class="gallery-piece"
+								data-animate
+								data-item
+								data-media-type={piece.data.mediaType}
+								style={`--delay: ${index * 120}ms`}
+							>
+								<figure class="gallery-figure">
+									<div class="gallery-media">
+										<PieceMedia
+											mediaType={piece.data.mediaType as MediaType}
+											title={piece.data.title}
+											coverImage={piece.data.coverImage}
+											audio={piece.data.audio}
+											variant="card"
+										/>
+									</div>
+									<figcaption class="gallery-caption">
+										<div class="gallery-caption-text">
+											<div class="gallery-caption-meta">
+												<MediaTypeBadge mediaType={piece.data.mediaType as MediaType} />
+												{piece.data.completedDate && (
+													<time
+														class="gallery-piece-date"
+														datetime={piece.data.completedDate.toISOString()}
+													>
+														{formatDate(piece.data.completedDate)}
+													</time>
+												)}
+											</div>
+											<h2 class="gallery-piece-title">{piece.data.title}</h2>
+											<p class="gallery-piece-excerpt">{piece.data.excerpt}</p>
+										</div>
+									</figcaption>
+								</figure>
+							</a>
+						))}
+					</section>
+				</>
+			)
+		}
+	</main>
+</Layout>
+
+<style>
+	.gallery-page {
+		position: relative;
+		min-height: 100dvh;
+		padding: 8rem 1.5rem 6rem;
+		background: linear-gradient(
+			180deg,
+			#0c0c0e 0%,
+			var(--bg-primary) 40%,
+			#0a0a0b 100%
+		);
+	}
+
+	.gallery-page::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: radial-gradient(
+			ellipse at 50% 0%,
+			rgba(255, 255, 255, 0.04),
+			transparent 55%
+		);
+	}
+
+	.gallery-header {
+		position: relative;
+		z-index: 1;
+		max-width: 42rem;
+		margin: 0 auto 3rem;
+		text-align: center;
+	}
+
+	.gallery-eyebrow {
+		margin: 0 0 1rem;
+		font-size: 0.75rem;
+		letter-spacing: 0.28em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.gallery-title {
+		margin: 0 0 1.25rem;
+		font-size: clamp(2.75rem, 9vw, 4.5rem);
+		font-weight: 700;
+		line-height: 1.05;
+		letter-spacing: 0.04em;
+		color: var(--text-primary);
+	}
+
+	.gallery-lead {
+		margin: 0 auto;
+		max-width: 26rem;
+		font-size: 1rem;
+		line-height: 1.9;
+		color: var(--text-secondary);
+	}
+
+	.gallery-filters {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.6rem;
+		max-width: 56rem;
+		margin: 0 auto 3.5rem;
+	}
+
+	.gallery-filter {
+		padding: 0.4rem 0.9rem;
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		color: var(--text-muted);
+		background: transparent;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		cursor: pointer;
+		transition:
+			color 0.25s ease,
+			border-color 0.25s ease,
+			background 0.25s ease;
+	}
+
+	.gallery-filter:hover,
+	.gallery-filter.is-active {
+		color: var(--text-primary);
+		border-color: rgba(255, 255, 255, 0.35);
+		background: rgba(255, 255, 255, 0.03);
+	}
+
+	.gallery-wall {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 5rem;
+		max-width: 56rem;
+		margin: 0 auto;
+	}
+
+	@media (min-width: 768px) {
+		.gallery-wall {
+			gap: 7rem;
+		}
+	}
+
+	.gallery-piece {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+		opacity: 0;
+		animation: gallery-rise 0.9s ease forwards;
+		animation-delay: var(--delay, 0ms);
+	}
+
+	.gallery-piece.is-hidden {
+		display: none;
+	}
+
+	.gallery-piece:focus-visible {
+		outline: 2px solid var(--primary-color);
+		outline-offset: 6px;
+	}
+
+	.gallery-figure {
+		margin: 0;
+	}
+
+	.gallery-media {
+		overflow: hidden;
+		background: var(--bg-secondary);
+		aspect-ratio: 16 / 10;
+	}
+
+	.gallery-piece[data-media-type="music"] .gallery-media {
+		aspect-ratio: 16 / 9;
+	}
+
+	.gallery-piece :global(.piece-media-image) {
+		transform: scale(1.01);
+		transition:
+			transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+			filter 1.1s ease;
+		filter: brightness(0.92);
+	}
+
+	.gallery-piece:hover :global(.piece-media-image) {
+		transform: scale(1.04);
+		filter: brightness(1);
+	}
+
+	.gallery-caption {
+		padding: 1.5rem 0.25rem 0;
+	}
+
+	.gallery-caption-meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 0.85rem;
+	}
+
+	.gallery-piece-title {
+		margin: 0 0 0.4rem;
+		font-family: "Shippori Mincho", "Noto Serif JP", serif;
+		font-size: clamp(1.25rem, 3vw, 1.75rem);
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		color: var(--text-primary);
+		transition: letter-spacing 0.4s ease;
+	}
+
+	.gallery-piece:hover .gallery-piece-title {
+		letter-spacing: 0.06em;
+	}
+
+	.gallery-piece-excerpt {
+		margin: 0;
+		max-width: 28rem;
+		font-size: 0.9rem;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.gallery-piece-date {
+		flex-shrink: 0;
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		color: var(--text-muted);
+	}
+
+	@keyframes gallery-rise {
+		from {
+			opacity: 0;
+			transform: translateY(24px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.gallery-piece,
+		.gallery-piece :global(.piece-media-image),
+		.gallery-piece-title {
+			animation: none;
+			transition: none;
+			opacity: 1;
+			transform: none;
+		}
+	}
+</style>
+
+<script is:inline>
+	document.querySelectorAll(".gallery-piece").forEach(function (piece) {
+		piece.addEventListener("click", function () {
+			window.posthog?.capture("gallery_piece_clicked", {
+				piece_title: piece.querySelector(".gallery-piece-title")?.textContent?.trim(),
+				piece_href: piece.getAttribute("href"),
+				media_type: piece.getAttribute("data-media-type"),
+			});
+		});
+	});
+
+	(function () {
+		var filterRoot = document.querySelector("[data-media-filter]");
+		if (!filterRoot) return;
+
+		var buttons = filterRoot.querySelectorAll(".gallery-filter");
+		var items = document.querySelectorAll(".gallery-piece[data-media-type]");
+
+		buttons.forEach(function (button) {
+			button.addEventListener("click", function () {
+				var media = button.getAttribute("data-media") || "all";
+				buttons.forEach(function (b) {
+					b.classList.toggle("is-active", b === button);
+				});
+				items.forEach(function (item) {
+					var type = item.getAttribute("data-media-type");
+					item.classList.toggle("is-hidden", media !== "all" && type !== media);
+				});
+				if (media !== "all") {
+					window.posthog?.capture("gallery_media_filtered", { media_type: media });
+				}
+			});
+		});
+	})();
+</script>

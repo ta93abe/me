@@ -13,6 +13,45 @@ const tagsSchema = z.array(z.string()).optional();
 /** Excerpt schema - short description */
 const excerptSchema = z.string();
 
+/** Creative media type - drawing / photo / music */
+const mediaTypeSchema = z
+	.enum(["drawing", "photo", "music"])
+	.default("drawing");
+
+/**
+ * Validate creative media fields:
+ * - drawing / photo require coverImage
+ * - music requires audio
+ */
+const refineCreativeMedia = <
+	T extends {
+		mediaType: "drawing" | "photo" | "music";
+		coverImage?: unknown;
+		audio?: string;
+	},
+>(
+	data: T,
+	ctx: z.RefinementCtx,
+) => {
+	if (
+		(data.mediaType === "drawing" || data.mediaType === "photo") &&
+		!data.coverImage
+	) {
+		ctx.addIssue({
+			code: "custom",
+			path: ["coverImage"],
+			message: "coverImage is required for drawing and photo pieces",
+		});
+	}
+	if (data.mediaType === "music" && !data.audio) {
+		ctx.addIssue({
+			code: "custom",
+			path: ["audio"],
+			message: "audio is required for music pieces",
+		});
+	}
+};
+
 // =============================================================================
 // Content Collections
 // =============================================================================
@@ -27,6 +66,41 @@ const works = defineCollection({
 			tags: z.array(z.string()),
 			excerpt: excerptSchema,
 		}),
+});
+
+// Atelierコレクション（作業中・練習作品）
+const atelier = defineCollection({
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/atelier" }),
+	schema: ({ image }) =>
+		z
+			.object({
+				title: z.string(),
+				mediaType: mediaTypeSchema,
+				coverImage: image().optional(),
+				audio: z.string().optional(),
+				tags: tagsSchema,
+				excerpt: excerptSchema,
+				status: z.enum(["wip", "practice", "sketch"]).default("wip"),
+				date: z.coerce.date().optional(),
+			})
+			.superRefine(refineCreativeMedia),
+});
+
+// Galleryコレクション（完成作品）
+const gallery = defineCollection({
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery" }),
+	schema: ({ image }) =>
+		z
+			.object({
+				title: z.string(),
+				mediaType: mediaTypeSchema,
+				coverImage: image().optional(),
+				audio: z.string().optional(),
+				tags: tagsSchema,
+				excerpt: excerptSchema,
+				completedDate: z.coerce.date().optional(),
+			})
+			.superRefine(refineCreativeMedia),
 });
 
 // Booksコレクション（読書記録）
@@ -107,6 +181,8 @@ const podcast = defineCollection({
 
 export const collections = {
 	works,
+	atelier,
+	gallery,
 	books,
 	blog,
 	talks,
