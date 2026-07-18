@@ -35,21 +35,20 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       <a
         href="/rss.xml"
         id="rss-feed-link"
-        class="flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-400 transition-colors hover:bg-orange-500/20"
+        class="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-opacity hover:opacity-60"
         aria-label="RSS Feed"
       >
         <svg
-          class="h-5 w-5"
+          class="size-4"
           fill="currentColor"
           viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
         >
           <path
             d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"
           ></path>
         </svg>
-        <span class="hidden sm:inline">RSS</span>
+        <span>RSS</span>
       </a>
     </div>
 
@@ -60,13 +59,13 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       {
         sortedPosts.map((post) => (
           <article
-            class="group border-b border-(--border-color) pb-8"
+            class="group pb-8"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="block rounded-2xl border border-transparent p-5 -m-5 transition-all duration-200 hover:border-(--border-color) hover:bg-[var(--bg-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
+            <a href={`/blog/${post.id}`} class="block rounded-2xl p-5 -m-5 transition-all duration-200 hover:bg-[var(--bg-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]">
               <time class="mb-2 block text-sm text-[var(--text-muted)]">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
@@ -75,7 +74,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold text-[var(--text-primary)] group-hover:text-[var(--primary-color)] transition-colors">
+              <h2 class="mb-3 text-2xl font-bold text-[var(--text-primary)] transition-opacity group-hover:opacity-70">
                 {post.data.title}
               </h2>
               <p class="mb-3 text-[var(--text-secondary)]">{post.data.excerpt}</p>

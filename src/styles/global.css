@@ -9,32 +9,32 @@
 @import "@fontsource/inter/700.css";
 @plugin "@tailwindcss/typography";
 
-/* Editorial cream paper color system
+/* Editorial white color system
  *
- * 紙面をモチーフにしたクリーム基調のライトテーマ。
- * - 純白 / 純黒を避け、生成り紙 × セピアインクの低コントラストで
- *   長時間の閲覧でも目が疲れないようにする
- * - アクセントは朱（しゅ）と黄土。和文エディトリアルの差し色
+ * 白を基調にしたライトテーマ。
+ * - ページ地はほぼ白。区切りは薄いニュートラルグレーの面で作る
+ * - 本文はインク寄りダークグレー（純黒は避ける）
+ * - アクセントは朱と黄土を控えめに
  */
 :root {
 	--header-height: 4rem;
 	--primary-color: #a63d2a; /* 朱 */
 	--primary-hover: #8a3120;
 	--accent-color: #8a6d3b; /* 黄土 */
-	--bg-primary: #f6f1e6; /* 生成りの紙 */
-	--bg-secondary: #efe8d9; /* 一段深い紙 */
-	--bg-tertiary: #e7deca; /* カード・小口 */
-	--bg-elevated: #fbf7ee; /* 貼り込んだ白紙 */
-	--text-primary: #2b2620; /* 墨（セピア寄り） */
-	--text-secondary: #5a5244;
-	--text-muted: #8a8071;
-	--border-color: #ddd2bb;
+	--bg-primary: #ffffff;
+	--bg-secondary: #f6f6f4;
+	--bg-tertiary: #eeeeeb;
+	--bg-elevated: #ffffff;
+	--text-primary: #1c1b19;
+	--text-secondary: #5c5a55;
+	--text-muted: #8b8983;
+	--border-color: #e6e4df;
 	--link-color: #a63d2a;
 	--link-hover-color: #8a3120;
-	--blockquote-bg: rgba(166, 61, 42, 0.06);
+	--blockquote-bg: rgba(166, 61, 42, 0.05);
 	--blockquote-border: #a63d2a;
-	--code-bg: #2a2522; /* コードは墨版（ダーク）のまま */
-	--code-text: #ece5d8;
+	--code-bg: #1f1e1c;
+	--code-text: #f2f0ea;
 }
 
 /* Base */
@@ -51,19 +51,42 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* 紙のざらつき（フラクタルノイズのグレイン）
- * 画面全体に固定オーバーレイとして重ねる。multiply で紙色に沈むため
- * 発光感がなく、ごく低い不透明度でテクスチャだけが残る */
-body::before {
+/* 紙のざらつき（2層のフラクタルノイズ）
+ * WebGL なしでフィルム／紙繊維の質感を出す。
+ * - ::before: 細かい粒子（フィルムグレイン）
+ * - ::after: 粗い繊維（紙の目）
+ * 白地では soft-light の方が multiply よりはっきり乗る */
+body::before,
+body::after {
 	content: "";
 	position: fixed;
 	inset: 0;
 	z-index: 9999;
 	pointer-events: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-	background-size: 240px 240px;
-	opacity: 0.05;
+}
+
+body::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	background-size: 180px 180px;
+	opacity: 0.12;
+	mix-blend-mode: soft-light;
+}
+
+body::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.35' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	background-size: 280px 280px;
+	opacity: 0.07;
 	mix-blend-mode: multiply;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body::before {
+		opacity: 0.08;
+	}
+
+	body::after {
+		opacity: 0.04;
+	}
 }
 
 /* Focus */
@@ -99,11 +122,11 @@ body::before {
 
 /* Glow effects（紙面ではインクの滲みのような柔らかい影に） */
 .glow {
-	box-shadow: 0 2px 24px -6px rgba(90, 66, 34, 0.25);
+	box-shadow: 0 2px 24px -6px rgba(28, 27, 25, 0.12);
 }
 
 .glow-strong {
-	box-shadow: 0 4px 48px -12px rgba(90, 66, 34, 0.35);
+	box-shadow: 0 4px 48px -12px rgba(28, 27, 25, 0.16);
 }
 
 /* Editorial article body */
@@ -144,8 +167,6 @@ body::before {
 	font-size: 1.625rem;
 	margin-top: 2.75em;
 	margin-bottom: 0.875em;
-	padding-bottom: 0.5rem;
-	border-bottom: 1px solid var(--border-color);
 	letter-spacing: 0.02em;
 }
 
@@ -185,7 +206,6 @@ body::before {
 	border-radius: 0.75rem;
 	overflow-x: auto;
 	background: var(--code-bg);
-	border: 1px solid var(--border-color);
 }
 
 .prose pre code {
@@ -259,8 +279,8 @@ body::before {
 	top: 0.75rem;
 	right: 0.75rem;
 	padding: 0.5rem;
-	background: rgba(255, 255, 255, 0.08);
-	border: 1px solid var(--border-color);
+	background: rgba(255, 255, 255, 0.1);
+	border: none;
 	border-radius: 0.5rem;
 	cursor: pointer;
 	opacity: 0;
@@ -295,7 +315,6 @@ body::before {
 	font-size: 0.85em;
 	font-weight: 500;
 	color: var(--text-primary);
-	border: 1px solid var(--border-color);
 }
 
 .prose :not(pre) > code::before,
@@ -351,8 +370,11 @@ body::before {
 
 .prose th,
 .prose td {
-	border: 1px solid var(--border-color);
 	padding: 0.75rem;
+}
+
+.prose tr + tr td {
+	box-shadow: inset 0 1px 0 color-mix(in srgb, var(--border-color) 55%, transparent);
 }
 
 .prose tr:hover {
@@ -376,11 +398,10 @@ body::before {
 	accent-color: var(--primary-color);
 }
 
-/* Image styling（紙に貼った写真のような縁と影） */
+/* Image styling */
 .prose img {
 	border-radius: 0.25rem;
-	border: 1px solid var(--border-color);
-	box-shadow: 0 2px 12px -2px rgba(90, 66, 34, 0.18);
+	box-shadow: 0 2px 12px -2px rgba(28, 27, 25, 0.08);
 }
 
 /* Link styling */

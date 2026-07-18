@@ -938,19 +938,19 @@ const categories: Category[] = [
 
 		<!-- 統計情報 -->
 		<div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-			<div class="rounded-lg border border-(--border-color) bg-[var(--bg-tertiary)] p-6 text-center">
+			<div class="rounded-lg bg-[var(--bg-tertiary)] p-6 text-center">
 				<div class="text-3xl font-bold text-[var(--primary-color)]">
 					{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}
 				</div>
 				<div class="text-sm text-[var(--text-secondary)]">ツール総数</div>
 			</div>
-			<div class="rounded-lg border border-(--border-color) bg-[var(--bg-tertiary)] p-6 text-center">
-				<div class="text-3xl font-bold text-emerald-400">
+			<div class="rounded-lg bg-[var(--bg-tertiary)] p-6 text-center">
+				<div class="text-3xl font-bold text-emerald-700">
 					{categories.length}
 				</div>
 				<div class="text-sm text-[var(--text-secondary)]">カテゴリ数</div>
 			</div>
-			<div class="rounded-lg border border-(--border-color) bg-[var(--bg-tertiary)] p-6 text-center">
+			<div class="rounded-lg bg-[var(--bg-tertiary)] p-6 text-center">
 				<div class="text-3xl font-bold text-[var(--accent-color)]">100%</div>
 				<div class="text-sm text-[var(--text-secondary)]">Nix管理率</div>
 			</div>
@@ -975,7 +975,7 @@ const categories: Category[] = [
 								return (
 								<article
 									id={toolId}
-									class="group rounded-xl border border-(--border-color) bg-[var(--bg-secondary)] p-4 transition-all hover:border-[var(--primary-color)]/50 hover:shadow-lg hover:shadow-[var(--primary-color)]/5"
+									class="group rounded-xl bg-[var(--bg-secondary)] p-4 transition-all hover:bg-[var(--bg-elevated)]"
 								>
 									<a
 										href={tool.url}
@@ -1002,7 +1002,7 @@ const categories: Category[] = [
 		</div>
 
 		<!-- フッター情報 -->
-		<div class="mt-16 rounded-2xl border border-(--border-color) bg-[var(--bg-tertiary)] p-6">
+		<div class="mt-16 rounded-2xl bg-[var(--bg-tertiary)] p-6">
 			<h3 class="mb-3 font-bold text-[var(--text-primary)]">🔧 管理方針</h3>
 			<ul class="space-y-2 text-sm text-[var(--text-secondary)]">
 				<li>

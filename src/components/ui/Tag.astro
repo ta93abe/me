@@ -2,10 +2,10 @@
 import { cn } from "../../utils/cn";
 
 const variantStyles = {
-	default: "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-(--border-color)",
-	success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-	warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-	info: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+	default: "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
+	success: "bg-emerald-500/10 text-emerald-700",
+	warning: "bg-amber-500/10 text-amber-800",
+	info: "bg-[var(--primary-color)]/10 text-[var(--primary-color)]",
 };
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 
 const { variant = "default", class: className = "" } = Astro.props as Props;
 const classes = cn(
-	"rounded-full border px-3 py-1 text-xs",
+	"rounded-full px-3 py-1 text-xs",
 	variantStyles[variant],
 	className,
 );

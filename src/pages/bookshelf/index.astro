@@ -22,12 +22,6 @@ const allTags = books.flatMap((book) => [
 	...book.data.tags,
 ]);
 
-// ステータスに基づくソートオプション
-const sortOptions = [
-	{ value: "date-desc", label: "読了日（新しい順）" },
-	{ value: "date-asc", label: "読了日（古い順）" },
-	{ value: "title", label: "タイトル順" },
-];
 ---
 
 <Layout
@@ -37,8 +31,7 @@ const sortOptions = [
   <main class="mx-auto max-w-6xl px-6 py-12">
     <h1 class="mb-12 text-4xl font-bold text-[var(--text-primary)]">Bookshelf</h1>
 
-    <!-- フィルタリング・ソート -->
-    <FilterSort tags={allTags} sortOptions={sortOptions} containerId="bookshelf-list" />
+    <FilterSort tags={allTags} containerId="bookshelf-list" />
 
     <div id="bookshelf-list" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {
@@ -50,7 +43,7 @@ const sortOptions = [
           return (
           <a
             href={`/bookshelf/${book.id}`}
-            class="group block overflow-hidden rounded-xl border border-(--border-color) bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:shadow-lg hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
+            class="group block overflow-hidden rounded-xl bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:bg-[var(--bg-elevated)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
             data-item
             data-tags={bookTags.join(",")}
             data-date={book.data.finishedDate?.toISOString() ?? ""}

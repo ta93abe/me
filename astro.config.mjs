@@ -6,6 +6,15 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers } from "astro/config";
 
+/** @type {import('astro').CspResourceEntry[]} */
+const cspStyleResources = [
+	{ resource: "'self'", kind: "element" },
+	{ resource: "'unsafe-inline'", kind: "attribute" },
+];
+
+/** @type {import('astro').CspResourceEntry[]} */
+const cspScriptResources = [{ resource: "'self'", kind: "element" }];
+
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
@@ -25,7 +34,7 @@ export default defineConfig({
 		syntaxHighlight: "prism",
 	},
 	// エージェント向けは `astro dev --json` / `pnpm dev:json` を使う
-	logger: logHandlers.console({ pretty: true }),
+	logger: logHandlers.console(),
 	// Astro 7.1: ハッシュベース CSP + style-src-attr / script-src-elem
 	// PostHog の動的 script 注入は strict-dynamic で許可する。
 	// style-src-attr の unsafe-inline は --delay 等の CSS 変数属性用（Prism 自体は不要）。
@@ -44,15 +53,10 @@ export default defineConfig({
 				"worker-src 'self' blob:",
 			],
 			styleDirective: {
-				resources: [
-					{ resource: "'self'", kind: "element" },
-					{ resource: "'unsafe-inline'", kind: "attribute" },
-				],
+				resources: cspStyleResources,
 			},
 			scriptDirective: {
-				resources: [
-					{ resource: "'self'", kind: "element" },
-				],
+				resources: cspScriptResources,
 				strictDynamic: true,
 			},
 		},

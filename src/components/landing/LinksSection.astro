@@ -151,14 +151,12 @@ const links = [
     border-radius: 1rem;
     text-decoration: none;
     color: inherit;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease;
   }
 
   .link-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border-color: #404040;
+    transform: translateY(-2px);
+    background: var(--bg-elevated);
   }
 
   .link-card:hover .link-arrow {

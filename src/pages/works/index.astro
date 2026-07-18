@@ -20,14 +20,14 @@ const allTags = works.flatMap((work) => work.data.tags);
     <h1 class="mb-12 text-4xl font-bold text-[var(--text-primary)]">Works</h1>
 
     <!-- フィルタリング・ソート -->
-    <FilterSort tags={allTags} sortOptions={[]} containerId="works-list" />
+    <FilterSort tags={allTags} containerId="works-list" />
 
     <div id="works-list" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
       {
         works.map((work) => (
           <a
             href={`/works/${work.id}`}
-            class="group block overflow-hidden rounded-xl border border-(--border-color) bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-color)]/30 hover:shadow-lg hover:shadow-[var(--primary-color)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
+            class="group block overflow-hidden rounded-xl bg-[var(--bg-tertiary)] transition-all duration-200 hover:-translate-y-1 hover:bg-[var(--bg-elevated)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-color)]"
             data-item
             data-tags={work.data.tags.join(",")}
             data-title={work.data.title}

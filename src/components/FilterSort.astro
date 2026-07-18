@@ -1,314 +1,214 @@
 ---
-// フィルタリング・ソートコンポーネント
-// クライアントサイドでリストのフィルタ・ソートを行う
+// タグフィルタリングコンポーネント
+// クライアントサイドでリストのフィルタを行う
 
 interface Props {
 	tags: string[];
-	sortOptions?: { value: string; label: string }[];
 	containerId: string;
 }
 
-const {
-	tags,
-	sortOptions = [
-		{ value: "date-desc", label: "新しい順" },
-		{ value: "date-asc", label: "古い順" },
-		{ value: "title", label: "タイトル順" },
-	],
-	containerId,
-} = Astro.props;
+const { tags, containerId } = Astro.props;
 
 // 重複を排除してソート
 const uniqueTags = [...new Set(tags)].toSorted();
 ---
 
-<div class="mb-8 space-y-4" data-filter-sort data-container={containerId}>
-  <!-- フィルターとソート -->
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <!-- フィルター -->
-    {uniqueTags.length > 0 && (
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium text-neutral-400">タグ:</span>
-        <button
-          type="button"
-          class="filter-chip active"
-          data-tag="all"
-        >
-          すべて
-        </button>
-        {uniqueTags.map((tag) => (
-          <button
-            type="button"
-            class="filter-chip"
-            data-tag={tag}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
-    )}
+{
+	uniqueTags.length > 0 && (
+		<div class="mb-8 space-y-4" data-filter-sort data-container={containerId}>
+			<div class="flex flex-wrap items-center gap-2">
+				<span class="text-sm font-medium text-[var(--text-muted)]">タグ:</span>
+				<button type="button" class="filter-chip active" data-tag="all">
+					すべて
+				</button>
+				{uniqueTags.map((tag) => (
+					<button type="button" class="filter-chip" data-tag={tag}>
+						{tag}
+					</button>
+				))}
+			</div>
 
-    <!-- ソート -->
-    {sortOptions.length > 0 && (
-      <div class="flex items-center gap-2">
-        <label for={`sort-${containerId}`} class="text-sm font-medium text-neutral-400">
-          並び替え:
-        </label>
-        <select
-          id={`sort-${containerId}`}
-          class="sort-select rounded-lg border border-(--border-color) bg-[var(--bg-elevated)] px-3 py-1.5 text-sm transition-colors focus:border-[var(--primary-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-1"
-        >
-          {sortOptions.map((option) => (
-            <option value={option.value}>{option.label}</option>
-          ))}
-        </select>
-      </div>
-    )}
-  </div>
+			<div class="active-filter-area hidden items-center gap-2">
+				<span class="text-sm text-[var(--text-muted)]">選択中:</span>
+				<span class="active-filter-tag inline-flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-3 py-1 text-sm font-medium text-white"></span>
+				<button
+					type="button"
+					class="reset-filter-btn ml-2 text-sm text-[var(--text-muted)] underline transition-colors hover:text-[var(--text-primary)]"
+				>
+					リセット
+				</button>
+			</div>
 
-  <!-- アクティブフィルター表示エリア -->
-  <div class="active-filter-area hidden items-center gap-2">
-    <span class="text-sm text-neutral-500">選択中:</span>
-    <span class="active-filter-tag inline-flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-3 py-1 text-sm font-medium text-white"></span>
-    <button
-      type="button"
-      class="reset-filter-btn ml-2 text-sm text-neutral-500 underline transition-colors hover:text-neutral-300"
-    >
-      リセット
-    </button>
-  </div>
+			<div class="text-sm text-[var(--text-muted)]">
+				<span class="result-count"></span>
+			</div>
 
-  <!-- 結果数表示 -->
-  <div class="flex items-center justify-between text-sm text-neutral-500">
-    <span class="result-count"></span>
-  </div>
-
-  <!-- 空の検索結果状態 -->
-  <div class="empty-state hidden py-12 text-center" role="status" aria-live="polite">
-    <div class="mb-4 text-neutral-500">
-      <svg
-        class="mx-auto h-12 w-12"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.5"
-          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
-      </svg>
-    </div>
-    <h3 class="mb-2 text-lg font-medium text-neutral-100">
-      該当する項目がありません
-    </h3>
-    <p class="mb-4 text-sm text-neutral-500">
-      条件を変更して再度お試しください
-    </p>
-    <button
-      type="button"
-      class="reset-all-btn rounded-full border border-[var(--primary-color)] px-4 py-2 text-sm font-medium text-[var(--primary-color)] transition-colors hover:bg-[var(--primary-color)] hover:text-white"
-    >
-      フィルターをリセット
-    </button>
-  </div>
-</div>
+			<div class="empty-state hidden py-12 text-center" role="status" aria-live="polite">
+				<p class="mb-4 text-sm text-[var(--text-muted)]">
+					該当する項目がありません
+				</p>
+				<button
+					type="button"
+					class="reset-all-btn rounded-full bg-[var(--primary-color)]/10 px-4 py-2 text-sm font-medium text-[var(--primary-color)] transition-colors hover:bg-[var(--primary-color)] hover:text-white"
+				>
+					フィルターをリセット
+				</button>
+			</div>
+		</div>
+	)
+}
 
 <style>
-  .filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    border-radius: 9999px;
-    border: 1px solid var(--border-color);
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    background-color: var(--bg-primary);
-    color: var(--text-secondary);
-  }
+	.filter-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		border-radius: 9999px;
+		padding: 0.25rem 0.75rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		transition:
+			background-color 0.2s ease,
+			color 0.2s ease;
+		background-color: var(--bg-elevated);
+		color: var(--text-secondary);
+	}
 
-  .filter-chip:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-  }
+	.filter-chip:hover {
+		background-color: var(--bg-tertiary);
+		color: var(--primary-color);
+	}
 
-  .filter-chip:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
+	.filter-chip:focus-visible {
+		outline: 2px solid var(--primary-color);
+		outline-offset: 2px;
+	}
 
-  .filter-chip.active {
-    border-color: var(--primary-color);
-    background-color: var(--primary-color);
-    color: white;
-  }
+	.filter-chip.active {
+		background-color: var(--primary-color);
+		color: white;
+	}
 
-  /* Smooth filter transition */
-  [data-item] {
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
+	[data-item] {
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
 
-  [data-item].filter-hidden {
-    opacity: 0;
-    transform: scale(0.95);
-    pointer-events: none;
-    position: absolute;
-    visibility: hidden;
-  }
+	[data-item].filter-hidden {
+		opacity: 0;
+		transform: scale(0.95);
+		pointer-events: none;
+		position: absolute;
+		visibility: hidden;
+	}
 
-  @media (prefers-reduced-motion: reduce) {
-    .filter-chip,
-    [data-item] {
-      transition: none;
-    }
-  }
+	@media (prefers-reduced-motion: reduce) {
+		.filter-chip,
+		[data-item] {
+			transition: none;
+		}
+	}
 </style>
 
 <script is:inline>
-  (function() {
-    document.querySelectorAll("[data-filter-sort]").forEach(function(filterComponent) {
-      const containerId = filterComponent.dataset.container;
-      const container = document.getElementById(containerId);
-      if (!container) return;
+	(function () {
+		document.querySelectorAll("[data-filter-sort]").forEach(function (filterComponent) {
+			const containerId = filterComponent.dataset.container;
+			const container = document.getElementById(containerId);
+			if (!container) return;
 
-      const items = Array.from(container.querySelectorAll("[data-item]"));
-      const filterChips = filterComponent.querySelectorAll(".filter-chip");
-      const sortSelect = filterComponent.querySelector(".sort-select");
-      const resultCount = filterComponent.querySelector(".result-count");
-      const activeFilterArea = filterComponent.querySelector(".active-filter-area");
-      const activeFilterTag = filterComponent.querySelector(".active-filter-tag");
-      const resetFilterBtn = filterComponent.querySelector(".reset-filter-btn");
-      const emptyState = filterComponent.querySelector(".empty-state");
-      const resetAllBtn = filterComponent.querySelector(".reset-all-btn");
+			const items = Array.from(container.querySelectorAll("[data-item]"));
+			const filterChips = filterComponent.querySelectorAll(".filter-chip");
+			const resultCount = filterComponent.querySelector(".result-count");
+			const activeFilterArea = filterComponent.querySelector(".active-filter-area");
+			const activeFilterTag = filterComponent.querySelector(".active-filter-tag");
+			const resetFilterBtn = filterComponent.querySelector(".reset-filter-btn");
+			const emptyState = filterComponent.querySelector(".empty-state");
+			const resetAllBtn = filterComponent.querySelector(".reset-all-btn");
 
-      let currentTag = "all";
-      let currentSort = "date-desc";
+			let currentTag = "all";
 
-      function resetToAll() {
-        currentTag = "all";
-        filterChips.forEach(function(chip) {
-          chip.classList.remove("active");
-          if (chip.dataset.tag === "all") {
-            chip.classList.add("active");
-          }
-        });
-        filterAndSort();
-      }
+			function resetToAll() {
+				currentTag = "all";
+				filterChips.forEach(function (chip) {
+					chip.classList.remove("active");
+					if (chip.dataset.tag === "all") {
+						chip.classList.add("active");
+					}
+				});
+				applyFilter();
+			}
 
-      function updateActiveFilterArea() {
-        if (currentTag === "all") {
-          activeFilterArea.classList.add("hidden");
-          activeFilterArea.classList.remove("flex");
-        } else {
-          activeFilterArea.classList.remove("hidden");
-          activeFilterArea.classList.add("flex");
-          activeFilterTag.textContent = currentTag;
-        }
-      }
+			function updateActiveFilterArea() {
+				if (currentTag === "all") {
+					activeFilterArea.classList.add("hidden");
+					activeFilterArea.classList.remove("flex");
+				} else {
+					activeFilterArea.classList.remove("hidden");
+					activeFilterArea.classList.add("flex");
+					activeFilterTag.textContent = currentTag;
+				}
+			}
 
-      function updateResultCount(count, total) {
-        if (resultCount) {
-          if (currentTag === "all") {
-            resultCount.textContent = total + "件を表示中";
-          } else {
-            resultCount.textContent = count + " / " + total + "件を表示中";
-          }
-        }
-      }
+			function updateResultCount(count, total) {
+				if (!resultCount) return;
+				if (currentTag === "all") {
+					resultCount.textContent = total + "件を表示中";
+				} else {
+					resultCount.textContent = count + " / " + total + "件を表示中";
+				}
+			}
 
-      function updateEmptyState(count) {
-        if (count === 0) {
-          emptyState.classList.remove("hidden");
-          container.classList.add("hidden");
-        } else {
-          emptyState.classList.add("hidden");
-          container.classList.remove("hidden");
-        }
-      }
+			function updateEmptyState(count) {
+				if (count === 0) {
+					emptyState.classList.remove("hidden");
+					container.classList.add("hidden");
+				} else {
+					emptyState.classList.add("hidden");
+					container.classList.remove("hidden");
+				}
+			}
 
-      function filterAndSort() {
-        // Get sort value
-        if (sortSelect) {
-          currentSort = sortSelect.value;
-        }
+			function applyFilter() {
+				const filteredItems = items.filter(function (item) {
+					if (currentTag === "all") return true;
+					const itemTags = item.dataset.tags ? item.dataset.tags.split(",") : [];
+					return itemTags.includes(currentTag);
+				});
 
-        // Filter
-        const filteredItems = items.filter(function(item) {
-          if (currentTag === "all") return true;
-          const itemTags = item.dataset.tags ? item.dataset.tags.split(",") : [];
-          return itemTags.includes(currentTag);
-        });
+				items.forEach(function (item) {
+					if (filteredItems.includes(item)) {
+						item.classList.remove("filter-hidden");
+					} else {
+						item.classList.add("filter-hidden");
+					}
+				});
 
-        // Sort
-        filteredItems.sort(function(a, b) {
-          if (currentSort === "date-desc") {
-            const aDate = new Date(a.dataset.date || 0).getTime();
-            const bDate = new Date(b.dataset.date || 0).getTime();
-            return bDate - aDate;
-          } else if (currentSort === "date-asc") {
-            const aDate = new Date(a.dataset.date || 0).getTime();
-            const bDate = new Date(b.dataset.date || 0).getTime();
-            return aDate - bDate;
-          } else if (currentSort === "title") {
-            const aTitle = a.dataset.title || "";
-            const bTitle = b.dataset.title || "";
-            return aTitle.localeCompare(bTitle, "ja");
-          }
-          return 0;
-        });
+				updateResultCount(filteredItems.length, items.length);
+				updateActiveFilterArea();
+				updateEmptyState(filteredItems.length);
+			}
 
-        // Update visibility with smooth transition
-        items.forEach(function(item) {
-          if (!filteredItems.includes(item)) {
-            item.classList.add("filter-hidden");
-            item.style.order = "999";
-          }
-        });
+			filterChips.forEach(function (chip) {
+				chip.addEventListener("click", function () {
+					currentTag = chip.dataset.tag;
+					filterChips.forEach(function (c) {
+						c.classList.remove("active");
+					});
+					chip.classList.add("active");
+					applyFilter();
+				});
+			});
 
-        filteredItems.forEach(function(item, index) {
-          item.classList.remove("filter-hidden");
-          item.style.order = String(index);
-        });
+			if (resetFilterBtn) {
+				resetFilterBtn.addEventListener("click", resetToAll);
+			}
+			if (resetAllBtn) {
+				resetAllBtn.addEventListener("click", resetToAll);
+			}
 
-        updateResultCount(filteredItems.length, items.length);
-        updateActiveFilterArea();
-        updateEmptyState(filteredItems.length);
-      }
-
-      // Tag filter click handlers
-      filterChips.forEach(function(chip) {
-        chip.addEventListener("click", function() {
-          currentTag = chip.dataset.tag;
-
-          // Update active state
-          filterChips.forEach(function(c) {
-            c.classList.remove("active");
-          });
-          chip.classList.add("active");
-
-          filterAndSort();
-        });
-      });
-
-      // Sort change handler
-      if (sortSelect) {
-        sortSelect.addEventListener("change", filterAndSort);
-      }
-
-      // Reset filter handlers
-      if (resetFilterBtn) {
-        resetFilterBtn.addEventListener("click", resetToAll);
-      }
-      if (resetAllBtn) {
-        resetAllBtn.addEventListener("click", resetToAll);
-      }
-
-      // Initial display
-      filterAndSort();
-    });
-  })();
+			applyFilter();
+		});
+	})();
 </script>
