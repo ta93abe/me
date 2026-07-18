@@ -193,12 +193,6 @@
 			"category": "ブログ"
 		},
 		{
-			"name": "LINE",
-			"url": "https://line.me/ti/p/ta93abe",
-			"icon": "line",
-			"category": "メッセージ"
-		},
-		{
 			"name": "WhatsApp",
 			"url": "https://wa.me/ta93abe",
 			"icon": "whatsapp",
