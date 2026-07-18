@@ -271,24 +271,6 @@
 			"category": "音楽"
 		},
 		{
-			"name": "Patreon",
-			"url": "https://patreon.com/ta93abe",
-			"icon": "patreon",
-			"category": "支援"
-		},
-		{
-			"name": "Ko-fi",
-			"url": "https://ko-fi.com/ta93abe",
-			"icon": "kofi",
-			"category": "支援"
-		},
-		{
-			"name": "Buy Me a Coffee",
-			"url": "https://buymeacoffee.com/ta93abe",
-			"icon": "buymeacoffee",
-			"category": "支援"
-		},
-		{
 			"name": "Product Hunt",
 			"url": "https://producthunt.com/@ta93abe",
 			"icon": "producthunt",
