@@ -19,6 +19,10 @@ interface Props {
 	noindex?: boolean;
 	noHeader?: boolean;
 	noFooter?: boolean;
+	/** true のときメイン先頭のヘッダー分パディングを付けない（フルブリード用） */
+	flushTop?: boolean;
+	/** true のときビューポートに固定しスクロールを無効化 */
+	lockViewport?: boolean;
 }
 
 const {
@@ -32,6 +36,8 @@ const {
 	noindex = false,
 	noHeader = false,
 	noFooter = false,
+	flushTop = false,
+	lockViewport = false,
 } = Astro.props;
 
 const canonicalURL = canonicalOverride
@@ -97,13 +103,13 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 			</style>
 		</noscript>
 	</head>
-	<body class="transition-colors">
+	<body class:list={["transition-colors", { "lock-viewport": lockViewport }]}>
 		<!-- スキップリンク -->
 		<a href="#main-content" class="skip-link">
 			コンテンツにスキップ
 		</a>
 		{!noHeader && <Header />}
-		<div id="main-content">
+		<div id="main-content" class:list={[{ "main-flush": flushTop }]}>
 			<slot />
 		</div>
 		{!noFooter && <Footer />}
@@ -166,6 +172,39 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 		margin: 0;
 		width: 100%;
 		min-height: 100%;
+	}
+
+	#main-content:not(.main-flush) {
+		padding-top: var(--header-height);
+	}
+
+	body.lock-viewport {
+		height: 100dvh;
+		height: 100svh;
+		overflow: hidden;
+		overscroll-behavior: none;
+	}
+
+	:global(html:has(body.lock-viewport)) {
+		height: 100%;
+		overflow: hidden;
+		overscroll-behavior: none;
+	}
+
+	body.lock-viewport #main-content {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	body.lock-viewport :global(footer) {
+		position: fixed;
+		inset-inline: 0;
+		bottom: 0;
+		z-index: 50;
+	}
+
+	body.lock-viewport :global(footer) > div {
+		padding-block: 1.25rem;
 	}
 
 	/* スキップリンク */

@@ -2,24 +2,24 @@
 import { tv } from "tailwind-variants";
 
 const button = tv({
-	base: "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)",
+	base: "inline-flex items-center justify-center rounded-md font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)",
 	variants: {
 		variant: {
 			primary:
-				"relative overflow-hidden bg-(--text-primary) text-(--bg-primary) hover:shadow-[0_0_30px_-5px_rgba(166,61,42,0.35)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-(--primary-color) before:to-(--accent-color) before:opacity-0 before:transition-opacity hover:before:opacity-100",
+				"bg-(--text-primary) text-(--bg-primary) hover:bg-(--primary-hover)",
 			secondary:
 				"bg-(--bg-secondary) text-(--text-primary) hover:bg-(--bg-tertiary)",
 			ghost:
-				"bg-transparent text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-secondary)",
+				"bg-transparent text-(--text-secondary) hover:text-(--text-primary)",
 		},
 		size: {
 			sm: "px-4 py-2 text-sm",
-			md: "px-6 py-2.5 text-base",
-			lg: "px-8 py-3 text-lg",
+			md: "px-5 py-2.5 text-base",
+			lg: "px-6 py-3 text-base",
 		},
 		disabled: {
 			true: "opacity-50 cursor-not-allowed",
-			false: "hover:translate-y-[-2px]",
+			false: "",
 		},
 	},
 	defaultVariants: {
@@ -53,25 +53,11 @@ const classes = button({ variant, size, disabled, class: className });
 {
 	href && !disabled ? (
 		<a href={href} class={classes}>
-			<span class="relative z-10"><slot /></span>
+			<slot />
 		</a>
 	) : (
 		<button type={type} disabled={disabled} class={classes}>
-			<span class="relative z-10"><slot /></span>
+			<slot />
 		</button>
 	)
 }
-
-<style>
-	@media (prefers-reduced-motion: reduce) {
-		a,
-		button {
-			transition: none;
-		}
-
-		a:hover,
-		button:hover {
-			transform: none;
-		}
-	}
-</style>

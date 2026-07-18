@@ -8,51 +8,34 @@ import Layout from "@/layouts/Layout.astro";
 	title={`Links | ${SITE.name}`}
 	description="ta93abeのSNS・ソーシャルメディアへのリンク集です。"
 >
-	<main class="min-h-screen">
-		<!-- Hero -->
-		<section class="relative overflow-hidden bg-(--bg-secondary)">
-			<div class="absolute inset-0 opacity-50">
-				<div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-(--primary-color) blur-3xl"></div>
-				<div class="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-(--accent-color) blur-3xl"></div>
-			</div>
+	<main class="mx-auto max-w-5xl px-6 py-16">
+		<header class="mb-12 pb-2">
+			<h1 class="mb-2 font-display text-3xl font-bold text-(--text-primary)">
+				{SITE.author}
+			</h1>
+			<p class="mb-4 text-sm text-(--text-muted)">@ta93abe</p>
+			<p class="text-(--text-secondary)">
+				開発・デザイン・音楽など、いろいろな場所で活動しています。
+			</p>
+		</header>
 
-			<div class="relative mx-auto max-w-2xl px-6 py-20 text-center">
-				<div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-(--primary-color) to-(--accent-color) text-3xl font-bold text-white shadow-xl glow">
-					T
-				</div>
-				<h1 class="mb-2 font-display text-3xl font-bold tracking-tight text-(--text-primary)">
-					{SITE.author}
-				</h1>
-				<p class="mb-6 font-mono text-sm text-(--text-muted)">@ta93abe</p>
-				<p class="mx-auto max-w-md text-(--text-secondary)">
-					開発・デザイン・音楽など、いろいろな場所で活動しています。気軽にフォローしてください。
-				</p>
-			</div>
-		</section>
+		<SnsLinks />
 
-		<!-- Links -->
-		<section class="mx-auto max-w-5xl px-6 py-16">
-			<SnsLinks />
-		</section>
-
-		<!-- CTA -->
-		<section class="mx-auto max-w-xl px-6 pb-20 text-center">
-			<div class="rounded-2xl bg-(--bg-secondary) p-8">
-				<p class="mb-4 text-sm text-(--text-secondary)">
-					最新の活動は主に X（@ta93abe_）で発信しています。
-				</p>
-				<a
-					href="https://x.com/ta93abe_"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="inline-flex items-center gap-2 rounded-full bg-(--text-primary) px-6 py-3 text-sm font-medium text-(--bg-primary) transition-all hover:scale-105 hover:shadow-lg"
-				>
-					<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-						<path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
-					</svg>
-					X でフォローする
-				</a>
-			</div>
+		<section class="mt-16 pt-6 text-center">
+			<p class="mb-4 text-sm text-(--text-secondary)">
+				最新の活動は主に X（@ta93abe_）で発信しています。
+			</p>
+			<a
+				href="https://x.com/ta93abe_"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="inline-flex items-center gap-2 bg-(--bg-secondary) px-5 py-2.5 text-sm text-(--text-primary) transition-colors hover:bg-(--bg-tertiary)"
+			>
+				<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
+					<path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+				</svg>
+				X でフォローする
+			</a>
 		</section>
 	</main>
 </Layout>

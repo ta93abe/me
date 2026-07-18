@@ -54,6 +54,7 @@
 		"tailwind-merge": "^3.6.0",
 		"tailwind-variants": "^3.2.2",
 		"tailwindcss": "^4.3.2",
+		"three": "^0.185.1",
 		"typescript": "^6.0.3"
 	},
 	"devDependencies": {
@@ -62,6 +63,7 @@
 		"@types/node": "^25.9.5",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
+		"@types/three": "^0.185.1",
 		"@vitest/ui": "^4.1.10",
 		"alchemy": "2.0.0-beta.63",
 		"chrome-launcher": "^1.2.1",

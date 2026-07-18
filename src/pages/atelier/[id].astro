@@ -70,12 +70,12 @@ const pieceSchema = {
 		/>
 	</Fragment>
 	<main class="atelier-detail">
-		<a href="/atelier" class="atelier-back">← アトリエへ戻る</a>
+		<a href="/atelier" class="atelier-back">← 一覧へ戻る</a>
 
 		<header class="atelier-detail-header">
 			<div class="atelier-detail-meta">
 				<MediaTypeBadge mediaType={piece.data.mediaType as MediaType} />
-				<span class={`atelier-status atelier-status--${piece.data.status}`}>
+				<span class="atelier-status">
 					{statusLabel[piece.data.status] ?? piece.data.status}
 				</span>
 				{
@@ -125,60 +125,52 @@ const pieceSchema = {
 	.atelier-back {
 		display: inline-block;
 		margin: 1rem 0 1.5rem;
-		font-size: 0.875rem;
-		color: var(--text-muted);
+		font-size: 0.9375rem;
+		color: var(--text-secondary);
 		text-decoration: none;
 		transition: color 0.2s ease;
 	}
 
 	.atelier-back:hover {
-		color: var(--text-primary);
+		color: var(--primary-color);
 	}
 
 	.atelier-detail-header {
-		margin-bottom: 2rem;
+		margin-bottom: 2.5rem;
 	}
 
 	.atelier-detail-meta {
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		gap: 0.75rem;
-		margin-bottom: 1rem;
-		font-size: 0.75rem;
+		margin-bottom: 1.25rem;
+		font-size: 0.875rem;
 		color: var(--text-muted);
 	}
 
-	.atelier-status {
-		display: inline-block;
-		padding: 0.15rem 0.45rem;
-		border-radius: 9999px;
-		background: color-mix(in srgb, currentColor 14%, transparent);
+	.atelier-detail-media {
+		margin-bottom: 2.5rem;
+		overflow: hidden;
+		aspect-ratio: 16 / 10;
 	}
 
-	.atelier-status--wip {
-		color: #d4a574;
-	}
-
-	.atelier-status--practice {
-		color: #8fb3a0;
-	}
-
-	.atelier-status--sketch {
-		color: #9aa7b8;
+	.atelier-detail-media.is-music {
+		aspect-ratio: 16 / 9;
 	}
 
 	.atelier-detail-title {
-		margin: 0 0 0.75rem;
+		margin: 0 0 1rem;
 		font-size: clamp(2rem, 5vw, 2.75rem);
 		font-weight: 700;
-		line-height: 1.2;
+		line-height: 1.25;
 		color: var(--text-primary);
 	}
 
 	.atelier-detail-excerpt {
-		margin: 0 0 1rem;
-		font-size: 1rem;
-		line-height: 1.8;
+		margin: 0 0 1.25rem;
+		font-size: 1.0625rem;
+		line-height: 1.85;
 		color: var(--text-secondary);
 	}
 
@@ -192,23 +184,8 @@ const pieceSchema = {
 	}
 
 	.atelier-tags li {
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		color: var(--text-muted);
-		padding: 0.2rem 0.55rem;
-		border-radius: 9999px;
-		background: var(--bg-tertiary);
-	}
-
-	.atelier-detail-media {
-		margin-bottom: 2.5rem;
-		overflow: hidden;
-		background: var(--bg-secondary);
-		aspect-ratio: 16 / 10;
-		transform: rotate(-0.4deg);
-	}
-
-	.atelier-detail-media.is-music {
-		aspect-ratio: 16 / 9;
 	}
 </style>
 

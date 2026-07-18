@@ -33,7 +33,7 @@ const allTags = books.flatMap((book) => [
 
     <FilterSort tags={allTags} containerId="bookshelf-list" />
 
-    <div id="bookshelf-list" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div id="bookshelf-list" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {
         sortedBooks.map((book) => {
           const bookTags = [
@@ -43,25 +43,25 @@ const allTags = books.flatMap((book) => [
           return (
           <a
             href={`/bookshelf/${book.id}`}
-            class="group block overflow-hidden rounded-xl bg-(--bg-tertiary) transition-all duration-200 hover:-translate-y-1 hover:bg-(--bg-elevated) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+            class="group block overflow-hidden"
             data-item
             data-tags={bookTags.join(",")}
             data-date={book.data.finishedDate?.toISOString() ?? ""}
             data-title={book.data.title}
           >
-            <div class="aspect-[3/4] overflow-hidden bg-(--bg-secondary)">
+            <div class="aspect-[3/4] overflow-hidden">
               <Image
                 src={book.data.coverImage}
                 alt={`${book.data.title} cover`}
-                class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                class="h-full w-full object-cover"
               />
             </div>
-            <div class="p-4">
+            <div class="pt-3">
               <div class="mb-3 flex flex-wrap items-center gap-2">
                 <Badge variant={book.data.status} />
                 {book.data.category && <Tag>{book.data.category}</Tag>}
               </div>
-              <h2 class="mb-1 text-xl font-bold text-(--text-primary) group-hover:text-(--primary-color) transition-colors">{book.data.title}</h2>
+              <h2 class="mb-1 text-xl font-bold text-(--text-primary)">{book.data.title}</h2>
               <p class="mb-2 text-sm text-(--text-secondary)">{book.data.author}</p>
               {book.data.finishedDate && (
                 <p class="mb-2 text-xs text-(--text-muted)">

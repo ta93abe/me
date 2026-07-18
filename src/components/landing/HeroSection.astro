@@ -1,216 +1,151 @@
 ---
-// ヒーローセクション
-import Button from "@/components/ui/Button.astro";
+import { SITE } from "@/config/site";
 ---
 
-<section id="hero" class="hero-section">
-  <!-- Animated background orbs -->
-  <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
-  <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
-  <div class="hero-orb hero-orb-3" aria-hidden="true"></div>
-
-  <!-- Grid pattern overlay -->
-  <div class="hero-grid" aria-hidden="true"></div>
-
-  <div class="hero-content">
-    <div class="hero-badge" data-animate>
-      <span class="hero-badge-dot"></span>
-      <span>Software Engineer & Creative Developer</span>
-    </div>
-
-    <h1 class="hero-title" data-animate>
-      <span class="hero-name">ta93abe</span>
-    </h1>
-
-    <p class="hero-description" data-animate>
-      コードとデザインの間で、<br class="sm:hidden" />面白いものを作っています。
-    </p>
-
-    <div class="hero-cta" data-animate="stagger">
-      <Button href="/gallery" variant="primary" size="lg">View Gallery</Button>
-      <Button href="/links" variant="secondary" size="lg">Links</Button>
-    </div>
-  </div>
+<section id="hero" class="hero" aria-label={SITE.name}>
+	<h1 class="sr-only">{SITE.name}</h1>
+	<div class="hero-atmosphere" aria-hidden="true">
+		<canvas class="hero-canvas" data-hero-canvas></canvas>
+		<div class="hero-fallback">
+			<div class="hero-wash hero-wash--a"></div>
+			<div class="hero-wash hero-wash--b"></div>
+		</div>
+		<div class="hero-grain"></div>
+	</div>
 </section>
 
 <style>
-  .hero-section {
-    position: relative;
-    /* sticky ヘッダーの高さを差し引いて 1 画面に収める */
-    min-height: calc(100dvh - var(--header-height));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background:
-      radial-gradient(ellipse at 50% 0%, rgba(166, 61, 42, 0.06) 0%, transparent 50%),
-      var(--bg-primary);
-  }
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
 
-  .hero-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(28, 27, 25, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(28, 27, 25, 0.035) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
-    pointer-events: none;
-  }
+	.hero {
+		position: relative;
+		isolation: isolate;
+		height: 100%;
+		min-height: 100dvh;
+		min-height: 100svh;
+		overflow: hidden;
+		background: #faf9f6;
+	}
 
-  .hero-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.22;
-    pointer-events: none;
-    will-change: transform;
-  }
+	.hero-atmosphere {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+	}
 
-  .hero-orb-1 {
-    width: 500px;
-    height: 500px;
-    background: linear-gradient(135deg, #f0e6dc, #e8cfc0);
-    top: -150px;
-    right: -100px;
-    animation: float 12s ease-in-out infinite;
-  }
+	.hero-canvas {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		display: block;
+		opacity: 0;
+		transition: opacity 0.8s ease;
+	}
 
-  .hero-orb-2 {
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(135deg, #ebe8e0, #ddd6c8);
-    bottom: -100px;
-    left: -100px;
-    animation: float 14s ease-in-out infinite reverse;
-  }
+	.hero.is-webgl .hero-canvas {
+		opacity: 1;
+	}
 
-  .hero-orb-3 {
-    width: 300px;
-    height: 300px;
-    background: linear-gradient(135deg, #ead8cf, #dcc0b4);
-    top: 40%;
-    left: 30%;
-    opacity: 0.18;
-    animation: float 16s ease-in-out infinite;
-  }
+	.hero.is-webgl .hero-fallback {
+		opacity: 0;
+	}
 
-  @keyframes float {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-    }
-    33% {
-      transform: translate(30px, -40px) scale(1.05);
-    }
-    66% {
-      transform: translate(-20px, 30px) scale(0.95);
-    }
-  }
+	.hero-fallback {
+		position: absolute;
+		inset: 0;
+		transition: opacity 0.5s ease;
+	}
 
-  .hero-content {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    padding: 2rem;
-    max-width: 900px;
-  }
+	.hero-wash {
+		position: absolute;
+		border-radius: 50%;
+		filter: blur(80px);
+		will-change: transform;
+	}
 
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    background: rgba(28, 27, 25, 0.05);
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    backdrop-filter: blur(8px);
-  }
+	.hero-wash--a {
+		width: min(70vw, 42rem);
+		height: min(70vw, 42rem);
+		top: -18%;
+		right: -12%;
+		background: radial-gradient(
+			circle,
+			rgba(107, 76, 154, 0.14) 0%,
+			rgba(107, 76, 154, 0) 70%
+		);
+		animation: wash-drift 18s ease-in-out infinite;
+	}
 
-  .hero-badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    box-shadow: 0 0 8px rgba(166, 61, 42, 0.5);
-    animation: pulse 2s ease-in-out infinite;
-  }
+	.hero-wash--b {
+		width: min(55vw, 32rem);
+		height: min(55vw, 32rem);
+		bottom: -20%;
+		left: -10%;
+		background: radial-gradient(
+			circle,
+			rgba(138, 109, 59, 0.12) 0%,
+			rgba(138, 109, 59, 0) 70%
+		);
+		animation: wash-drift 22s ease-in-out infinite reverse;
+	}
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
+	.hero-grain {
+		position: absolute;
+		inset: 0;
+		opacity: 0.22;
+		mix-blend-mode: multiply;
+		pointer-events: none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		background-size: 160px 160px;
+	}
 
-  .hero-title {
-    font-size: clamp(4rem, 15vw, 10rem);
-    font-weight: 700;
-    line-height: 0.9;
-    margin: 0;
-    letter-spacing: -0.04em;
-  }
+	@keyframes wash-drift {
+		0%,
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+		50% {
+			transform: translate(-3%, 4%) scale(1.06);
+		}
+	}
 
-  .hero-name {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 2px 24px rgba(28, 27, 25, 0.08));
-  }
-
-  .hero-description {
-    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
-    color: var(--text-secondary);
-    margin: 2rem 0 2.5rem;
-    font-weight: 400;
-    line-height: 1.7;
-  }
-
-  .hero-cta {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  @media (max-width: 768px) {
-    .hero-section {
-      min-height: calc(100svh - var(--header-height));
-    }
-
-    .hero-orb-1 {
-      width: 300px;
-      height: 300px;
-    }
-
-    .hero-orb-2 {
-      width: 250px;
-      height: 250px;
-    }
-
-    .hero-orb-3 {
-      width: 200px;
-      height: 200px;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero-orb,
-    .hero-badge-dot {
-      animation: none;
-    }
-  }
+	@media (prefers-reduced-motion: reduce) {
+		.hero-wash,
+		.hero-canvas {
+			animation: none;
+			transition: none;
+		}
+	}
 </style>
 
-<script is:inline>
-  document.querySelectorAll(".hero-cta a").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      window.posthog?.capture("hero_cta_clicked", {
-        cta_label: btn.textContent?.trim(),
-        cta_href: btn.getAttribute("href"),
-      });
-    });
-  });
+<script>
+	import { initHeroWebGL } from "@/scripts/hero-webgl";
+
+	const hero = document.querySelector(".hero");
+	const canvas = document.querySelector<HTMLCanvasElement>("[data-hero-canvas]");
+
+	if (hero instanceof HTMLElement && canvas) {
+		const handle = initHeroWebGL(canvas);
+		if (handle) {
+			hero.classList.add("is-webgl");
+			document.addEventListener(
+				"astro:before-swap",
+				() => {
+					handle.destroy();
+				},
+				{ once: true },
+			);
+		}
+	}
 </script>

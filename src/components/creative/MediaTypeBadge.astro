@@ -13,34 +13,13 @@ const { mediaType, class: className = "" } = Astro.props;
 const label = getMediaTypeLabel(mediaType);
 ---
 
-<span class={`media-type media-type--${mediaType} ${className}`.trim()}>
+<span class={`media-type ${className}`.trim()}>
 	{label}
 </span>
 
 <style>
 	.media-type {
-		display: inline-block;
-		padding: 0.15rem 0.5rem;
-		font-size: 0.7rem;
-		letter-spacing: 0.08em;
-		line-height: 1.4;
-		border-radius: 9999px;
-		background: color-mix(in srgb, currentColor 14%, transparent);
-	}
-
-	.media-type--drawing {
-		color: #8a6d3b;
-	}
-
-	.media-type--photo {
-		color: #5a7a8f;
-	}
-
-	.media-type--music {
-		color: #7a6494;
-	}
-
-	.media-type--project {
-		color: #a63d2a;
+		font-size: 0.8125rem;
+		color: var(--text-muted);
 	}
 </style>

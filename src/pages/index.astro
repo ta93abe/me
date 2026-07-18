@@ -5,16 +5,24 @@ import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout
-  title={`${SITE.name} (ta93abe) | Software Engineer`}
-  description={SITE.description}
+	title={`${SITE.name} (ta93abe) | Software Engineer`}
+	description={SITE.description}
+	flushTop
+	lockViewport
 >
-  <main>
-    <HeroSection />
-  </main>
+	<main class="home-main">
+		<HeroSection />
+	</main>
 </Layout>
 
 <style>
-  main {
-    overflow: hidden;
-  }
+	.home-main {
+		height: 100%;
+		overflow: hidden;
+	}
+
+	.home-main :global(.hero) {
+		height: 100%;
+		min-height: 100%;
+	}
 </style>

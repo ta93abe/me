@@ -6,7 +6,7 @@ import NavLink from "./ui/NavLink.astro";
 ---
 
 <header
-  class="sticky top-0 z-50 bg-(--bg-primary)/80 backdrop-blur-xl"
+  class="fixed inset-x-0 top-0 z-50 bg-transparent"
 >
   <nav
     class="mx-auto flex h-(--header-height) max-w-7xl items-center justify-between px-6"
@@ -34,7 +34,7 @@ import NavLink from "./ui/NavLink.astro";
       <button
         type="button"
         id="mobile-menu-button"
-        class="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-elevated) hover:bg-(--bg-tertiary) transition-colors"
+        class="flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-(--bg-secondary)"
         aria-label="メニューを開く"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -74,7 +74,7 @@ import NavLink from "./ui/NavLink.astro";
   <!-- モバイルメニュー -->
   <div
     id="mobile-menu"
-    class="hidden bg-(--bg-secondary)/95 backdrop-blur-xl md:hidden"
+    class="hidden bg-transparent md:hidden"
     aria-hidden="true"
   >
     <ul class="space-y-1 px-6 py-4">

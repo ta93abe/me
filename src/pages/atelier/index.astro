@@ -5,11 +5,7 @@ import PieceMedia from "@/components/creative/PieceMedia.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
-import {
-	CREATIVE_MEDIA_TYPES,
-	MEDIA_TYPE_LABELS,
-	type MediaType,
-} from "@/utils/creative-media";
+import type { MediaType } from "@/utils/creative-media";
 import { formatDate } from "@/utils/date";
 
 const pieces = await getCollection("atelier");
@@ -25,10 +21,6 @@ const statusLabel: Record<string, string> = {
 	practice: "練習",
 	sketch: "スケッチ",
 };
-
-const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
-	sorted.some((piece) => piece.data.mediaType === type),
-);
 ---
 
 <Layout
@@ -36,8 +28,7 @@ const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 	description="絵・写真・音楽の作業中や練習を雑多に置くアトリエ。"
 >
 	<main class="atelier-page">
-		<header class="atelier-header" data-animate>
-			<p class="atelier-eyebrow">Workspace</p>
+		<header class="atelier-header">
 			<h1 class="atelier-title font-display">アトリエ</h1>
 			<p class="atelier-lead">
 				絵・写真・音楽の練習や途中経過を、作業机の上みたいに雑多に置いています。
@@ -51,42 +42,27 @@ const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 					description="習作や作業メモが増えたら、ここに散らばっていきます。"
 				/>
 			) : (
-				<>
-					{usedMediaTypes.length > 1 && (
-						<div class="atelier-filters" data-media-filter role="group" aria-label="メディア種別で絞り込み">
-							<button type="button" class="atelier-filter is-active" data-media="all">
-								すべて
-							</button>
-							{usedMediaTypes.map((type) => (
-								<button type="button" class="atelier-filter" data-media={type}>
-									{MEDIA_TYPE_LABELS[type]}
-								</button>
-							))}
-						</div>
-					)}
-
-					<div class="atelier-board">
-						{sorted.map((piece, index) => (
-							<a
-								href={`/atelier/${piece.id}`}
-								class={`atelier-scrap atelier-scrap--${(index % 3) + 1}`}
-								data-animate
-								data-item
-								data-media-type={piece.data.mediaType}
-								style={`--delay: ${index * 60}ms`}
-							>
-								<div class="atelier-scrap-media">
-									<PieceMedia
-										mediaType={piece.data.mediaType as MediaType}
-										title={piece.data.title}
-										coverImage={piece.data.coverImage}
-										audio={piece.data.audio}
-										variant="card"
-									/>
-								</div>
+				<div class="atelier-board">
+					{sorted.map((piece) => (
+						<a
+							href={`/atelier/${piece.id}`}
+							class="atelier-scrap"
+							data-item
+							data-media-type={piece.data.mediaType}
+						>
+							<div class="atelier-scrap-media">
+								<PieceMedia
+									mediaType={piece.data.mediaType as MediaType}
+									title={piece.data.title}
+									coverImage={piece.data.coverImage}
+									audio={piece.data.audio}
+									variant="card"
+								/>
+							</div>
+							<div class="atelier-scrap-body">
 								<div class="atelier-scrap-meta">
 									<MediaTypeBadge mediaType={piece.data.mediaType as MediaType} />
-									<span class={`atelier-status atelier-status--${piece.data.status}`}>
+									<span class="atelier-status">
 										{statusLabel[piece.data.status] ?? piece.data.status}
 									</span>
 									{piece.data.date && (
@@ -97,10 +73,10 @@ const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 								</div>
 								<h2 class="atelier-scrap-title">{piece.data.title}</h2>
 								<p class="atelier-scrap-excerpt">{piece.data.excerpt}</p>
-							</a>
-						))}
-					</div>
-				</>
+							</div>
+						</a>
+					))}
+				</div>
 			)
 		}
 	</main>
@@ -108,177 +84,63 @@ const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 
 <style>
 	.atelier-page {
-		position: relative;
-		min-height: 100dvh;
-		padding: 7rem 1.25rem 5rem;
-		overflow: hidden;
-		background:
-			radial-gradient(ellipse at 12% 8%, rgba(180, 140, 90, 0.08), transparent 42%),
-			radial-gradient(ellipse at 88% 18%, rgba(90, 120, 140, 0.07), transparent 40%),
-			linear-gradient(180deg, #12110f 0%, var(--bg-primary) 55%);
-	}
-
-	.atelier-page::before {
-		content: "";
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		opacity: 0.35;
-		background-image:
-			linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-			linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-		background-size: 28px 28px;
-		mask-image: radial-gradient(ellipse at center, black 30%, transparent 85%);
+		max-width: 68rem;
+		margin: 0 auto;
+		padding: 6rem 1.5rem 4rem;
 	}
 
 	.atelier-header {
-		position: relative;
-		z-index: 1;
-		max-width: 40rem;
-		margin: 0 auto 2.5rem;
-	}
-
-	.atelier-eyebrow {
-		margin: 0 0 0.75rem;
-		font-size: 0.75rem;
-		letter-spacing: 0.22em;
-		text-transform: uppercase;
-		color: var(--text-muted);
+		margin-bottom: 3rem;
 	}
 
 	.atelier-title {
-		margin: 0 0 1rem;
-		font-size: clamp(2.5rem, 8vw, 4rem);
+		margin: 0 0 0.75rem;
+		font-size: clamp(2rem, 6vw, 2.75rem);
 		font-weight: 700;
-		line-height: 1.1;
+		line-height: 1.2;
 		color: var(--text-primary);
 	}
 
 	.atelier-lead {
 		margin: 0;
-		max-width: 30rem;
+		max-width: 36rem;
 		font-size: 1rem;
 		line-height: 1.8;
 		color: var(--text-secondary);
 	}
 
-	.atelier-filters {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		max-width: 72rem;
-		margin: 0 auto 1.75rem;
-	}
-
-	.atelier-filter {
-		padding: 0.35rem 0.75rem;
-		font-size: 0.75rem;
-		letter-spacing: 0.06em;
-		color: var(--text-muted);
-		background: transparent;
-		border: none;
-		border-radius: 9999px;
-		cursor: pointer;
-		transition:
-			color 0.2s ease,
-			background 0.2s ease;
-	}
-
-	.atelier-filter:hover,
-	.atelier-filter.is-active {
-		color: var(--text-primary);
-		background: var(--bg-elevated);
-	}
-
 	.atelier-board {
-		position: relative;
-		z-index: 1;
-		column-count: 1;
-		column-gap: 1.25rem;
-		max-width: 72rem;
-		margin: 0 auto;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
 	}
 
 	@media (min-width: 640px) {
 		.atelier-board {
-			column-count: 2;
+			grid-template-columns: repeat(2, 1fr);
 		}
 	}
 
 	@media (min-width: 1024px) {
 		.atelier-board {
-			column-count: 3;
+			grid-template-columns: repeat(3, 1fr);
 		}
 	}
 
 	.atelier-scrap {
-		display: block;
-		break-inside: avoid;
-		margin-bottom: 1.25rem;
-		padding: 0.85rem;
+		display: flex;
+		flex-direction: column;
 		text-decoration: none;
 		color: inherit;
-		background: var(--bg-secondary);
-		border-radius: 0.25rem;
-		transition:
-			transform 0.35s ease,
-			background 0.35s ease;
-		animation: scrap-in 0.6s ease both;
-		animation-delay: var(--delay, 0ms);
-	}
-
-	.atelier-scrap.is-hidden {
-		display: none;
-	}
-
-	.atelier-scrap--1 {
-		transform: rotate(-1.2deg);
-	}
-
-	.atelier-scrap--2 {
-		transform: rotate(0.8deg);
-	}
-
-	.atelier-scrap--3 {
-		transform: rotate(-0.4deg);
-	}
-
-	.atelier-scrap:hover {
-		background: var(--bg-elevated);
-		transform: rotate(0deg) translateY(-4px);
-	}
-
-	.atelier-scrap:focus-visible {
-		outline: 2px solid var(--primary-color);
-		outline-offset: 3px;
 	}
 
 	.atelier-scrap-media {
-		margin-bottom: 0.75rem;
 		overflow: hidden;
-		background: var(--bg-secondary);
 		aspect-ratio: 4 / 3;
 	}
 
-	.atelier-scrap--2 .atelier-scrap-media {
-		aspect-ratio: 3 / 4;
-	}
-
-	.atelier-scrap--3 .atelier-scrap-media {
-		aspect-ratio: 1 / 1;
-	}
-
-	.atelier-scrap :global(.piece-media-image) {
-		transition:
-			transform 0.5s ease,
-			filter 0.5s ease;
-	}
-
-	.atelier-scrap:hover :global(.piece-media-image) {
-		transform: scale(1.03);
-		filter: saturate(1) contrast(1);
+	.atelier-scrap-body {
+		padding: 0.75rem 0 0;
 	}
 
 	.atelier-scrap-meta {
@@ -287,69 +149,27 @@ const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 		align-items: center;
 		gap: 0.5rem 0.75rem;
 		margin-bottom: 0.5rem;
-		font-size: 0.7rem;
-		letter-spacing: 0.04em;
+		font-size: 0.8125rem;
 		color: var(--text-muted);
 	}
 
 	.atelier-status {
-		display: inline-block;
-		padding: 0.15rem 0.45rem;
-		border-radius: 9999px;
-		background: color-mix(in srgb, currentColor 14%, transparent);
-		opacity: 0.9;
-	}
-
-	.atelier-status--wip {
-		color: #d4a574;
-	}
-
-	.atelier-status--practice {
-		color: #8fb3a0;
-	}
-
-	.atelier-status--sketch {
-		color: #9aa7b8;
+		color: var(--text-secondary);
 	}
 
 	.atelier-scrap-title {
-		margin: 0 0 0.4rem;
-		font-family: "Shippori Mincho", "Noto Serif JP", serif;
+		margin: 0 0 0.35rem;
 		font-size: 1.125rem;
 		font-weight: 700;
-		line-height: 1.4;
+		line-height: 1.45;
 		color: var(--text-primary);
 	}
 
 	.atelier-scrap-excerpt {
 		margin: 0;
-		font-size: 0.8125rem;
+		font-size: 0.9375rem;
 		line-height: 1.7;
 		color: var(--text-secondary);
-	}
-
-	@keyframes scrap-in {
-		from {
-			opacity: 0;
-			transform: translateY(12px) rotate(0deg);
-		}
-		to {
-			opacity: 1;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.atelier-scrap,
-		.atelier-scrap :global(.piece-media-image) {
-			animation: none;
-			transition: none;
-		}
-
-		.atelier-scrap--1,
-		.atelier-scrap--2,
-		.atelier-scrap--3 {
-			transform: none;
-		}
 	}
 </style>
 
@@ -363,28 +183,4 @@ const usedMediaTypes = CREATIVE_MEDIA_TYPES.filter((type) =>
 			});
 		});
 	});
-
-	(function () {
-		var filterRoot = document.querySelector("[data-media-filter]");
-		if (!filterRoot) return;
-
-		var buttons = filterRoot.querySelectorAll(".atelier-filter");
-		var items = document.querySelectorAll(".atelier-scrap[data-media-type]");
-
-		buttons.forEach(function (button) {
-			button.addEventListener("click", function () {
-				var media = button.getAttribute("data-media") || "all";
-				buttons.forEach(function (b) {
-					b.classList.toggle("is-active", b === button);
-				});
-				items.forEach(function (item) {
-					var type = item.getAttribute("data-media-type");
-					item.classList.toggle("is-hidden", media !== "all" && type !== media);
-				});
-				if (media !== "all") {
-					window.posthog?.capture("atelier_media_filtered", { media_type: media });
-				}
-			});
-		});
-	})();
 </script>
