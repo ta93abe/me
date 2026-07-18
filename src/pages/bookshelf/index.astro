@@ -43,20 +43,20 @@ const allTags = books.flatMap((book) => [
           return (
           <a
             href={`/bookshelf/${book.id}`}
-            class="group block overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+            class="group block overflow-hidden"
             data-item
             data-tags={bookTags.join(",")}
             data-date={book.data.finishedDate?.toISOString() ?? ""}
             data-title={book.data.title}
           >
-            <div class="aspect-[3/4] overflow-hidden bg-(--bg-secondary)">
+            <div class="aspect-[3/4] overflow-hidden">
               <Image
                 src={book.data.coverImage}
                 alt={`${book.data.title} cover`}
                 class="h-full w-full object-cover"
               />
             </div>
-            <div class="p-4">
+            <div class="pt-3">
               <div class="mb-3 flex flex-wrap items-center gap-2">
                 <Badge variant={book.data.status} />
                 {book.data.category && <Tag>{book.data.category}</Tag>}
