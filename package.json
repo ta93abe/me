@@ -42,6 +42,7 @@
 		"rss-parser": "^3.13.0",
 		"satori": "^0.26.0",
 		"sharp": "^0.35.3",
+		"simple-icons": "^16.26.0",
 		"tailwind-merge": "^3.6.0",
 		"tailwind-variants": "^3.2.2",
 		"tailwindcss": "^4.3.2",
