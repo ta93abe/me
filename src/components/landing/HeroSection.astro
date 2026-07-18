@@ -41,7 +41,8 @@ import Button from "../ui/Button.astro";
 <style>
   .hero-section {
     position: relative;
-    min-height: 100dvh;
+    /* sticky ヘッダーの高さを差し引いて 1 画面に収める */
+    min-height: calc(100dvh - var(--header-height));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -211,7 +212,7 @@ import Button from "../ui/Button.astro";
 
   @media (max-width: 768px) {
     .hero-section {
-      min-height: 100svh;
+      min-height: calc(100svh - var(--header-height));
     }
 
     .hero-orb-1 {

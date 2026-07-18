@@ -17,6 +17,7 @@
  * - アクセントは朱（しゅ）と黄土。和文エディトリアルの差し色
  */
 :root {
+	--header-height: 4rem;
 	--primary-color: #a63d2a; /* 朱 */
 	--primary-hover: #8a3120;
 	--accent-color: #8a6d3b; /* 黄土 */
