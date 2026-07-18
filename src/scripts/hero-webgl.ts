@@ -224,11 +224,6 @@ export function initHeroWebGL(canvas: HTMLCanvasElement): HeroWebGLHandle | null
 		}
 		positions.needsUpdate = true;
 
-		particles.rotation.z = elapsed * 0.015;
-		camera.position.x = (mouseCurrent.x - 0.5) * 0.4;
-		camera.position.y = (mouseCurrent.y - 0.5) * 0.22;
-		camera.lookAt(0, 0, 0);
-
 		renderer.render(scene, camera);
 	};
 
