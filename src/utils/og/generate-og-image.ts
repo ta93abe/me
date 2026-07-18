@@ -43,22 +43,22 @@ export async function generateOgImage(
 
 	const font = await loadFont();
 
-	// Color schemes based on content type
+	// Color schemes based on content type（サイト本体のクリーム基調に合わせる）
 	const colorSchemes = {
 		blog: {
-			background: "linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)",
-			accent: "#60a5fa",
-			text: "#f1f5f9",
+			background: "linear-gradient(135deg, #f6f1e6 0%, #efe8d9 100%)",
+			accent: "#a63d2a",
+			text: "#2b2620",
 		},
 		works: {
-			background: "linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%)",
-			accent: "#a78bfa",
-			text: "#f1f5f9",
+			background: "linear-gradient(135deg, #f6f1e6 0%, #e7deca 100%)",
+			accent: "#8a6d3b",
+			text: "#2b2620",
 		},
 		default: {
-			background: "linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)",
-			accent: "#818cf8",
-			text: "#f5f5f5",
+			background: "linear-gradient(135deg, #fbf7ee 0%, #efe8d9 100%)",
+			accent: "#a63d2a",
+			text: "#2b2620",
 		},
 	};
 
