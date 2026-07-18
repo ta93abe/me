@@ -5,7 +5,7 @@ const navLink = tv({
 	base: "relative font-medium transition-colors duration-200 hover:text-(--text-primary) text-(--text-secondary)",
 	variants: {
 		active: {
-			true: "text-(--text-primary)",
+			true: "text-(--text-primary) font-semibold",
 			false: "",
 		},
 	},
@@ -41,5 +41,4 @@ const classes = navLink({ active: isActive, class: className });
 	aria-current={isActive ? "page" : undefined}
 >
 	<slot />
-	{isActive && <span class="absolute -bottom-1 left-0 h-0.5 w-full rounded-full bg-gradient-to-r from-(--primary-color) to-(--accent-color)" aria-hidden="true" />}
 </a>

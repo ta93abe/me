@@ -104,12 +104,9 @@ const showPlayer = isMusic && Boolean(audio) && variant !== "card";
 		display: block;
 	}
 
-	.piece-media--photo .piece-media-image {
-		filter: saturate(0.92) contrast(1.04);
-	}
-
+	.piece-media--photo .piece-media-image,
 	.piece-media--drawing .piece-media-image {
-		filter: saturate(0.85) contrast(1.05);
+		filter: none;
 	}
 
 	.piece-media-placeholder {
@@ -120,9 +117,7 @@ const showPlayer = isMusic && Boolean(audio) && variant !== "card";
 		height: 100%;
 		min-height: 10rem;
 		color: var(--text-muted);
-		background:
-			radial-gradient(circle at 30% 30%, rgba(168, 146, 196, 0.18), transparent 55%),
-			linear-gradient(160deg, #16141c, #0e0e12);
+		background: var(--bg-secondary);
 	}
 
 	.piece-media-placeholder svg {

@@ -116,14 +116,14 @@ const pieceSchema = {
 	.gallery-back {
 		display: inline-block;
 		margin-top: 1rem;
-		font-size: 0.875rem;
-		color: var(--text-muted);
+		font-size: 0.9375rem;
+		color: var(--text-secondary);
 		text-decoration: none;
 		transition: color 0.2s ease;
 	}
 
 	.gallery-back:hover {
-		color: var(--text-primary);
+		color: var(--primary-color);
 	}
 
 	.gallery-detail-figure {
@@ -132,7 +132,7 @@ const pieceSchema = {
 
 	.gallery-detail-media {
 		width: 100%;
-		background: #050506;
+		background: var(--bg-secondary);
 		aspect-ratio: 21 / 9;
 		overflow: hidden;
 	}
@@ -151,18 +151,16 @@ const pieceSchema = {
 	.gallery-detail-caption {
 		max-width: 40rem;
 		margin: 0 auto;
-		padding: 2.5rem 1.5rem 0;
-		text-align: center;
+		padding: 2rem 1.5rem 0;
 	}
 
 	.gallery-detail-meta {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		justify-content: center;
 		gap: 0.85rem;
 		margin-bottom: 1rem;
-		font-size: 0.75rem;
-		letter-spacing: 0.12em;
+		font-size: 0.875rem;
 		color: var(--text-muted);
 	}
 
@@ -170,15 +168,14 @@ const pieceSchema = {
 		margin: 0 0 1rem;
 		font-size: clamp(2rem, 6vw, 3.25rem);
 		font-weight: 700;
-		letter-spacing: 0.04em;
-		line-height: 1.15;
+		line-height: 1.2;
 		color: var(--text-primary);
 	}
 
 	.gallery-detail-excerpt {
 		margin: 0;
-		font-size: 1rem;
-		line-height: 1.9;
+		font-size: 1.0625rem;
+		line-height: 1.85;
 		color: var(--text-secondary);
 	}
 

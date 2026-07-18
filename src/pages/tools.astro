@@ -936,24 +936,16 @@ const categories: Category[] = [
 			</p>
 		</div>
 
-		<!-- 統計情報 -->
-		<div class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-			<div class="rounded-lg bg-(--bg-tertiary) p-6 text-center">
-				<div class="text-3xl font-bold text-(--primary-color)">
-					{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}
-				</div>
-				<div class="text-sm text-(--text-secondary)">ツール総数</div>
+		<div class="mb-12 flex flex-wrap gap-8 pb-2 text-sm text-(--text-secondary)">
+			<div>
+				<span class="mr-2 text-(--text-primary)">{categories.reduce((sum, cat) => sum + cat.tools.length, 0)}</span>
+				ツール
 			</div>
-			<div class="rounded-lg bg-(--bg-tertiary) p-6 text-center">
-				<div class="text-3xl font-bold text-emerald-700">
-					{categories.length}
-				</div>
-				<div class="text-sm text-(--text-secondary)">カテゴリ数</div>
+			<div>
+				<span class="mr-2 text-(--text-primary)">{categories.length}</span>
+				カテゴリ
 			</div>
-			<div class="rounded-lg bg-(--bg-tertiary) p-6 text-center">
-				<div class="text-3xl font-bold text-(--accent-color)">100%</div>
-				<div class="text-sm text-(--text-secondary)">Nix管理率</div>
-			</div>
+			<div>Nix 管理</div>
 		</div>
 
 		<!-- カテゴリ別ツールリスト -->
@@ -961,36 +953,31 @@ const categories: Category[] = [
 			{
 				categories.map((category) => (
 					<section id={category.title.toLowerCase().replace(/[・\s]+/g, "-").replace(/[^a-z0-9-]/g, "")}>
-						<h2 class="mb-6 flex items-center gap-2 text-2xl font-bold">
-							<span class="text-3xl">{category.icon}</span>
+						<h2 class="mb-4 text-lg font-bold text-(--text-primary)">
 							{category.title}
-							<span class="text-sm font-normal text-neutral-500">
+							<span class="ml-2 text-sm font-normal text-(--text-muted)">
 								({category.tools.length})
 							</span>
 						</h2>
 
-						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div class="space-y-4">
 							{category.tools.map((tool) => {
 								const toolId = toId(`${category.title}-${tool.name}`);
 								return (
-								<article
-									id={toolId}
-									class="group rounded-xl bg-(--bg-secondary) p-4 transition-all hover:bg-(--bg-elevated)"
-								>
+								<article id={toolId}>
 									<a
 										href={tool.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="block"
+										class="block py-4 transition-colors hover:text-(--primary-color)"
 									>
-										<h3 class="mb-2 font-mono text-lg font-semibold text-(--primary-color) group-hover:text-(--link-hover-color)">
+										<h3 class="mb-1 font-mono text-base font-semibold text-(--text-primary)">
 											{tool.name}
-											<span class="ml-1 text-sm text-(--text-muted)">↗</span>
 										</h3>
 										<p class="text-sm text-(--text-secondary)">
 											{tool.description}
 										</p>
-										<p class="mt-2 truncate text-xs text-(--text-muted)">{tool.url}</p>
+										<p class="mt-1 truncate text-xs text-(--text-muted)">{tool.url}</p>
 									</a>
 								</article>
 								);
@@ -1002,8 +989,8 @@ const categories: Category[] = [
 		</div>
 
 		<!-- フッター情報 -->
-		<div class="mt-16 rounded-2xl bg-(--bg-tertiary) p-6">
-			<h3 class="mb-3 font-bold text-(--text-primary)">🔧 管理方針</h3>
+		<div class="mt-16 pt-6">
+			<h3 class="mb-3 font-bold text-(--text-primary)">管理方針</h3>
 			<ul class="space-y-2 text-sm text-(--text-secondary)">
 				<li>
 					<strong class="text-(--text-primary)">Nix-First アプローチ:</strong> CLIツールは100% Nixで管理

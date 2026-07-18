@@ -55,17 +55,17 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
     <!-- フィルタリング・ソート -->
     <FilterSort tags={allTags} containerId="blog-list" />
 
-    <div id="blog-list" class="flex flex-col space-y-6">
+    <div id="blog-list" class="space-y-8">
       {
         sortedPosts.map((post) => (
           <article
-            class="group pb-8"
+            class="group py-8"
             data-item
             data-tags={(post.data.tags ?? []).join(",")}
             data-date={post.data.date.toISOString()}
             data-title={post.data.title}
           >
-            <a href={`/blog/${post.id}`} class="block rounded-2xl p-5 -m-5 transition-all duration-200 hover:bg-(--bg-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)">
+            <a href={`/blog/${post.id}`} class="block py-2 transition-colors hover:text-(--primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)">
               <time class="mb-2 block text-sm text-(--text-muted)">
                 {formatDate(post.data.date)}
                 {post.data.updatedDate && (
@@ -74,7 +74,7 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
                   </span>
                 )}
               </time>
-              <h2 class="mb-3 text-2xl font-bold text-(--text-primary) transition-opacity group-hover:opacity-70">
+              <h2 class="mb-3 text-2xl font-bold text-(--text-primary)">
                 {post.data.title}
               </h2>
               <p class="mb-3 text-(--text-secondary)">{post.data.excerpt}</p>

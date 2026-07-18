@@ -2,10 +2,10 @@
 import { cn } from "@/utils/cn";
 
 const variantStyles = {
-	default: "bg-(--bg-tertiary) text-(--text-secondary)",
-	success: "bg-emerald-500/10 text-emerald-700",
-	warning: "bg-amber-500/10 text-amber-800",
-	info: "bg-(--primary-color)/10 text-(--primary-color)",
+	default: "text-(--text-muted)",
+	success: "text-emerald-700",
+	warning: "text-amber-800",
+	info: "text-(--primary-color)",
 };
 
 interface Props {
@@ -14,11 +14,7 @@ interface Props {
 }
 
 const { variant = "default", class: className = "" } = Astro.props as Props;
-const classes = cn(
-	"rounded-full px-3 py-1 text-xs",
-	variantStyles[variant],
-	className,
-);
+const classes = cn("text-xs", variantStyles[variant], className);
 ---
 
 <span class:list={[classes]}><slot /></span>

@@ -63,20 +63,16 @@ const uniqueTags = [...new Set(tags)].toSorted();
 		display: inline-flex;
 		align-items: center;
 		gap: 0.25rem;
-		border-radius: 9999px;
-		padding: 0.25rem 0.75rem;
+		padding: 0.125rem 0;
 		font-size: 0.875rem;
-		font-weight: 500;
-		transition:
-			background-color 0.2s ease,
-			color 0.2s ease;
-		background-color: var(--bg-elevated);
-		color: var(--text-secondary);
+		color: var(--text-muted);
+		background: transparent;
+		border: none;
+		transition: color 0.15s ease;
 	}
 
 	.filter-chip:hover {
-		background-color: var(--bg-tertiary);
-		color: var(--primary-color);
+		color: var(--text-primary);
 	}
 
 	.filter-chip:focus-visible {
@@ -85,19 +81,16 @@ const uniqueTags = [...new Set(tags)].toSorted();
 	}
 
 	.filter-chip.active {
-		background-color: var(--primary-color);
-		color: white;
+		color: var(--text-primary);
+		font-weight: 600;
 	}
 
 	[data-item] {
-		transition:
-			opacity 0.2s ease,
-			transform 0.2s ease;
+		transition: opacity 0.15s ease;
 	}
 
 	[data-item].filter-hidden {
 		opacity: 0;
-		transform: scale(0.95);
 		pointer-events: none;
 		position: absolute;
 		visibility: hidden;
