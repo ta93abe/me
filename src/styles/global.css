@@ -9,39 +9,61 @@
 @import "@fontsource/inter/700.css";
 @plugin "@tailwindcss/typography";
 
-/* Dark theme color system */
+/* Editorial cream paper color system
+ *
+ * 紙面をモチーフにしたクリーム基調のライトテーマ。
+ * - 純白 / 純黒を避け、生成り紙 × セピアインクの低コントラストで
+ *   長時間の閲覧でも目が疲れないようにする
+ * - アクセントは朱（しゅ）と黄土。和文エディトリアルの差し色
+ */
 :root {
-	--primary-color: #818cf8;
-	--primary-hover: #6366f1;
-	--accent-color: #c084fc;
-	--bg-primary: #0a0a0b;
-	--bg-secondary: #111113;
-	--bg-tertiary: #1a1a1e;
-	--bg-elevated: #222226;
-	--text-primary: #f5f5f7;
-	--text-secondary: #a1a1aa;
-	--text-muted: #71717a;
-	--border-color: #27272a;
-	--link-color: #818cf8;
-	--link-hover-color: #a5b4fc;
-	--blockquote-bg: rgba(129, 140, 248, 0.08);
-	--blockquote-border: #818cf8;
-	--code-bg: #1a1a1e;
-	--code-text: #e4e4e7;
+	--header-height: 4rem;
+	--primary-color: #a63d2a; /* 朱 */
+	--primary-hover: #8a3120;
+	--accent-color: #8a6d3b; /* 黄土 */
+	--bg-primary: #f6f1e6; /* 生成りの紙 */
+	--bg-secondary: #efe8d9; /* 一段深い紙 */
+	--bg-tertiary: #e7deca; /* カード・小口 */
+	--bg-elevated: #fbf7ee; /* 貼り込んだ白紙 */
+	--text-primary: #2b2620; /* 墨（セピア寄り） */
+	--text-secondary: #5a5244;
+	--text-muted: #8a8071;
+	--border-color: #ddd2bb;
+	--link-color: #a63d2a;
+	--link-hover-color: #8a3120;
+	--blockquote-bg: rgba(166, 61, 42, 0.06);
+	--blockquote-border: #a63d2a;
+	--code-bg: #2a2522; /* コードは墨版（ダーク）のまま */
+	--code-text: #ece5d8;
 }
 
 /* Base */
 html {
 	scroll-behavior: smooth;
+	background-color: var(--bg-primary);
 }
 
 body {
-	font-family:
-		"Inter", "Shippori Mincho", "Noto Serif JP", system-ui, sans-serif;
+	font-family: "Noto Serif JP", "Shippori Mincho", "Georgia", serif;
 	background-color: var(--bg-primary);
 	color: var(--text-primary);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+/* 紙のざらつき（フラクタルノイズのグレイン）
+ * 画面全体に固定オーバーレイとして重ねる。multiply で紙色に沈むため
+ * 発光感がなく、ごく低い不透明度でテクスチャだけが残る */
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	pointer-events: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	background-size: 240px 240px;
+	opacity: 0.05;
+	mix-blend-mode: multiply;
 }
 
 /* Focus */
@@ -75,16 +97,16 @@ body {
 	background-clip: text;
 }
 
-/* Glow effects */
+/* Glow effects（紙面ではインクの滲みのような柔らかい影に） */
 .glow {
-	box-shadow: 0 0 40px -10px rgba(129, 140, 248, 0.3);
+	box-shadow: 0 2px 24px -6px rgba(90, 66, 34, 0.25);
 }
 
 .glow-strong {
-	box-shadow: 0 0 80px -20px rgba(129, 140, 248, 0.4);
+	box-shadow: 0 4px 48px -12px rgba(90, 66, 34, 0.35);
 }
 
-/* Editorial article body - dark */
+/* Editorial article body */
 .prose {
 	font-family: "Shippori Mincho", "Noto Serif JP", serif;
 	font-size: 1.0625rem;
@@ -296,10 +318,11 @@ body {
 	accent-color: var(--primary-color);
 }
 
-/* Image styling */
+/* Image styling（紙に貼った写真のような縁と影） */
 .prose img {
-	border-radius: 0.75rem;
-	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+	border-radius: 0.25rem;
+	border: 1px solid var(--border-color);
+	box-shadow: 0 2px 12px -2px rgba(90, 66, 34, 0.18);
 }
 
 /* Link styling */
@@ -382,8 +405,8 @@ body {
 	}
 }
 
-/* Selection */
+/* Selection（蛍光ペンのような淡い朱） */
 ::selection {
-	background: rgba(129, 140, 248, 0.3);
+	background: rgba(166, 61, 42, 0.18);
 	color: var(--text-primary);
 }

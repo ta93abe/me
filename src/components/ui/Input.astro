@@ -5,12 +5,12 @@ const input = tv({
 	base: "w-full rounded-lg border px-4 py-2.5 text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1",
 	variants: {
 		error: {
-			true: "border-red-500 bg-red-950/40 text-neutral-100 focus:border-red-500 focus:ring-red-500",
+			true: "border-red-600 bg-red-50 text-[var(--text-primary)] focus:border-red-600 focus:ring-red-500",
 			false:
-				"border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]",
+				"border-(--border-color) bg-[var(--bg-elevated)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]",
 		},
 		disabled: {
-			true: "opacity-50 cursor-not-allowed bg-neutral-800",
+			true: "opacity-50 cursor-not-allowed bg-[var(--bg-tertiary)]",
 			false: "",
 		},
 	},
@@ -54,7 +54,7 @@ const classes = input({ error: !!error, disabled, class: className });
 		label && (
 			<label
 				for={id}
-				class="text-sm font-medium text-neutral-300"
+				class="text-sm font-medium text-[var(--text-secondary)]"
 			>
 				{label}
 				{required && <span class="text-red-500">*</span>}

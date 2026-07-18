@@ -6,10 +6,10 @@ import NavLink from "./ui/NavLink.astro";
 ---
 
 <header
-  class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[var(--bg-primary)]/70 backdrop-blur-xl"
+  class="sticky top-0 z-50 border-b border-(--border-color) bg-[var(--bg-primary)]/80 backdrop-blur-xl"
 >
   <nav
-    class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"
+    class="mx-auto flex h-[var(--header-height)] max-w-7xl items-center justify-between px-6"
     aria-label="メインナビゲーション"
   >
     <Logo />
@@ -34,7 +34,7 @@ import NavLink from "./ui/NavLink.astro";
       <button
         type="button"
         id="mobile-menu-button"
-        class="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+        class="flex h-10 w-10 items-center justify-center rounded-lg border border-(--border-color) bg-[var(--bg-elevated)] hover:bg-[var(--bg-tertiary)] transition-colors"
         aria-label="メニューを開く"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -74,7 +74,7 @@ import NavLink from "./ui/NavLink.astro";
   <!-- モバイルメニュー -->
   <div
     id="mobile-menu"
-    class="hidden border-t border-white/5 bg-[var(--bg-primary)]/95 backdrop-blur-xl md:hidden"
+    class="hidden border-t border-(--border-color) bg-[var(--bg-primary)]/95 backdrop-blur-xl md:hidden"
     aria-hidden="true"
   >
     <ul class="space-y-1 px-6 py-4">
@@ -83,7 +83,7 @@ import NavLink from "./ui/NavLink.astro";
           <li>
             <NavLink
               href={link.href}
-              class="block rounded-lg px-4 py-3 text-lg hover:bg-white/5"
+              class="block rounded-lg px-4 py-3 text-lg hover:bg-[var(--bg-secondary)]"
             >
               {link.text}
             </NavLink>

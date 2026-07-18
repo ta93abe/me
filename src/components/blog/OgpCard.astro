@@ -13,20 +13,20 @@ const ogp = await fetchOgpData(url);
   href={ogp.url}
   target="_blank"
   rel="noopener noreferrer"
-  class="my-6 flex rounded-lg border border-neutral-800 transition-all hover:border-neutral-700 hover:bg-neutral-900 hover:shadow-sm no-underline overflow-hidden"
+  class="my-6 flex rounded-lg border border-(--border-color) transition-all hover:border-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:shadow-sm no-underline overflow-hidden"
 >
   <div class="flex-1 min-w-0 p-4">
-    <div class="font-semibold text-neutral-100 truncate text-sm">
+    <div class="font-semibold text-[var(--text-primary)] truncate text-sm">
       {ogp.title}
     </div>
     {
       ogp.description && (
-        <div class="mt-1 text-xs text-neutral-400 line-clamp-2">
+        <div class="mt-1 text-xs text-[var(--text-secondary)] line-clamp-2">
           {ogp.description}
         </div>
       )
     }
-    <div class="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
+    <div class="mt-2 flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
       <img
         src={ogp.favicon}
         alt=""

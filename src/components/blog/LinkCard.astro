@@ -15,16 +15,16 @@ const domain = new URL(href).hostname.replace("www.", "");
   href={href}
   target="_blank"
   rel="noopener noreferrer"
-  class="my-6 flex items-center gap-4 rounded-lg border border-neutral-800 p-4 transition-all hover:border-neutral-700 hover:bg-neutral-900 hover:shadow-sm no-underline"
+  class="my-6 flex items-center gap-4 rounded-lg border border-(--border-color) p-4 transition-all hover:border-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:shadow-sm no-underline"
 >
   <div class="flex-1 min-w-0">
-    <div class="font-semibold text-neutral-100 truncate">{title}</div>
+    <div class="font-semibold text-[var(--text-primary)] truncate">{title}</div>
     {
       description && (
-        <div class="mt-1 text-sm text-neutral-400 line-clamp-2">{description}</div>
+        <div class="mt-1 text-sm text-[var(--text-secondary)] line-clamp-2">{description}</div>
       )
     }
-    <div class="mt-2 flex items-center gap-1 text-xs text-neutral-500">
+    <div class="mt-2 flex items-center gap-1 text-xs text-[var(--text-muted)]">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
@@ -48,7 +48,7 @@ const domain = new URL(href).hostname.replace("www.", "");
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
       fill="currentColor"
-      class="size-5 text-neutral-500"
+      class="size-5 text-[var(--text-muted)]"
     >
       <path
         fill-rule="evenodd"

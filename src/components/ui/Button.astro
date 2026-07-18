@@ -6,11 +6,11 @@ const button = tv({
 	variants: {
 		variant: {
 			primary:
-				"relative overflow-hidden bg-[var(--text-primary)] text-[var(--bg-primary)] hover:shadow-[0_0_30px_-5px_rgba(129,140,248,0.4)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-[var(--primary-color)] before:to-[var(--accent-color)] before:opacity-0 before:transition-opacity hover:before:opacity-100",
+				"relative overflow-hidden bg-[var(--text-primary)] text-[var(--bg-primary)] hover:shadow-[0_0_30px_-5px_rgba(166,61,42,0.35)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-[var(--primary-color)] before:to-[var(--accent-color)] before:opacity-0 before:transition-opacity hover:before:opacity-100",
 			secondary:
-				"bg-transparent text-[var(--text-primary)] border border-white/20 hover:border-[var(--primary-color)]/50 hover:bg-white/5",
+				"bg-transparent text-[var(--text-primary)] border border-(--border-color) hover:border-[var(--primary-color)]/50 hover:bg-[var(--bg-secondary)]",
 			ghost:
-				"bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5",
+				"bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]",
 		},
 		size: {
 			sm: "px-4 py-2 text-sm",
