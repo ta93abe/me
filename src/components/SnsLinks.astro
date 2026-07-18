@@ -1,5 +1,4 @@
 ---
-// SNSリンク集コンポーネント
 import * as simpleIcons from "simple-icons";
 import type { SimpleIcon } from "simple-icons";
 import { CUSTOM_ICONS } from "@/data/custom-icons";
@@ -44,13 +43,13 @@ const links = linksData.links.map((link) => ({
 const categories = [...new Set(links.map((link) => link.category))];
 ---
 
-<div class="sns-links space-y-10">
+<div class="sns-links">
 	{
 		categories.map((category) => (
-			<section>
-				<h2 class="mb-4 text-sm font-medium text-(--text-muted)">{category}</h2>
+			<section class="sns-category">
+				<h2 class="sns-category-title">{category}</h2>
 
-				<ul class="space-y-1">
+				<ul class="sns-grid">
 					{links
 						.filter((link) => link.category === category)
 						.map((link) => (
@@ -59,12 +58,12 @@ const categories = [...new Set(links.map((link) => link.category))];
 									href={link.url}
 									target="_blank"
 									rel="noopener noreferrer"
-									class="flex items-center gap-4 py-4 transition-colors hover:text-(--primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+									class="sns-card"
 									aria-label={link.name}
 								>
 									<svg
 										viewBox={link.iconData.viewBox}
-										class="h-5 w-5 shrink-0"
+										class="sns-card-icon"
 										aria-hidden="true"
 									>
 										{link.iconData.stroke ? (
@@ -80,13 +79,7 @@ const categories = [...new Set(links.map((link) => link.category))];
 											<path d={link.iconData.path} fill={link.iconData.hex} />
 										)}
 									</svg>
-
-									<span class="min-w-0 flex-1">
-										<span class="block font-medium text-(--text-primary)">{link.name}</span>
-										<span class="block truncate text-xs text-(--text-muted)">
-											{link.url.replace(/^https:\/\//, "")}
-										</span>
-									</span>
+									<span class="sns-card-name">{link.name}</span>
 								</a>
 							</li>
 						))}
@@ -95,6 +88,80 @@ const categories = [...new Set(links.map((link) => link.category))];
 		))
 	}
 </div>
+
+<style>
+	.sns-links {
+		display: flex;
+		flex-direction: column;
+		gap: 2.5rem;
+	}
+
+	.sns-category-title {
+		margin: 0 0 1rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	.sns-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	@media (min-width: 640px) {
+		.sns-grid {
+			grid-template-columns: repeat(3, 1fr);
+			gap: 1rem;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.sns-grid {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	.sns-card {
+		display: flex;
+		aspect-ratio: 1 / 1;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		padding: 1rem;
+		text-decoration: none;
+		color: inherit;
+		background: var(--bg-secondary);
+		transition: background-color 0.15s ease, color 0.15s ease;
+	}
+
+	.sns-card:hover {
+		background: var(--bg-tertiary);
+		color: var(--primary-color);
+	}
+
+	.sns-card-icon {
+		width: 2rem;
+		height: 2rem;
+		flex-shrink: 0;
+	}
+
+	.sns-card-name {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		line-height: 1.4;
+		text-align: center;
+		color: var(--text-primary);
+	}
+
+	.sns-card:hover .sns-card-name {
+		color: inherit;
+	}
+</style>
 
 <script is:inline>
 	document.querySelectorAll(".sns-links a[href]").forEach(function (link) {
