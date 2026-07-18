@@ -30,7 +30,8 @@ import { SITE } from "@/config/site";
 	.hero {
 		position: relative;
 		isolation: isolate;
-		min-height: calc(100dvh - var(--header-height));
+		min-height: 100dvh;
+		min-height: 100svh;
 		overflow: hidden;
 		background: #faf9f6;
 	}
@@ -115,12 +116,6 @@ import { SITE } from "@/config/site";
 		}
 		50% {
 			transform: translate(-3%, 4%) scale(1.06);
-		}
-	}
-
-	@media (max-width: 768px) {
-		.hero {
-			min-height: calc(100svh - var(--header-height));
 		}
 	}
 

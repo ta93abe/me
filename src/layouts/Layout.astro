@@ -19,6 +19,8 @@ interface Props {
 	noindex?: boolean;
 	noHeader?: boolean;
 	noFooter?: boolean;
+	/** true のときメイン先頭のヘッダー分パディングを付けない（フルブリード用） */
+	flushTop?: boolean;
 }
 
 const {
@@ -32,6 +34,7 @@ const {
 	noindex = false,
 	noHeader = false,
 	noFooter = false,
+	flushTop = false,
 } = Astro.props;
 
 const canonicalURL = canonicalOverride
@@ -103,7 +106,7 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 			コンテンツにスキップ
 		</a>
 		{!noHeader && <Header />}
-		<div id="main-content">
+		<div id="main-content" class:list={[{ "main-flush": flushTop }]}>
 			<slot />
 		</div>
 		{!noFooter && <Footer />}
@@ -166,6 +169,10 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 		margin: 0;
 		width: 100%;
 		min-height: 100%;
+	}
+
+	#main-content:not(.main-flush) {
+		padding-top: var(--header-height);
 	}
 
 	/* スキップリンク */
