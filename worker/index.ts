@@ -21,6 +21,8 @@ const DISCOVERY_LINKS = [
 	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
 ].join(", ");
 
+// HTML ページの CSP は Astro security.csp（meta）に委譲。
+// Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
 const SECURITY_HEADERS = {
 	"X-Frame-Options": "DENY",
 	"X-Content-Type-Options": "nosniff",
@@ -28,7 +30,7 @@ const SECURITY_HEADERS = {
 	"Permissions-Policy":
 		"accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
 	"Content-Security-Policy":
-		"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;",
+		"default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
 } as const;
 
 const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}

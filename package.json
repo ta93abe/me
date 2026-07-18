@@ -4,6 +4,12 @@
 	"type": "module",
 	"scripts": {
 		"dev": "astro dev",
+		"dev:bg": "astro dev --background",
+		"dev:json": "astro dev --json",
+		"dev:status": "astro dev status",
+		"dev:stop": "astro dev stop",
+		"dev:logs": "astro dev logs",
+		"dev:extra": "astro dev --ignore-lock",
 		"build": "astro build",
 		"preview": "astro preview",
 		"astro": "astro",
@@ -22,7 +28,6 @@
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.9",
-		"@astrojs/markdown-remark": "^7.2.1",
 		"@astrojs/mdx": "^7.0.3",
 		"@astrojs/react": "^6.0.1",
 		"@astrojs/rss": "^4.0.19",
@@ -39,7 +44,6 @@
 		"posthog-js": "^1.399.2",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",
-		"remark-gfm": "^4.0.1",
 		"rss-parser": "^3.13.0",
 		"satori": "^0.26.0",
 		"sharp": "^0.35.3",
