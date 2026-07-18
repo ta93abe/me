@@ -105,8 +105,8 @@ const categories = [...new Set(links.map((link) => link.category))];
 
 	.sns-grid {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 0.75rem;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.5rem;
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -114,14 +114,14 @@ const categories = [...new Set(links.map((link) => link.category))];
 
 	@media (min-width: 640px) {
 		.sns-grid {
-			grid-template-columns: repeat(3, 1fr);
-			gap: 1rem;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 0.625rem;
 		}
 	}
 
 	@media (min-width: 1024px) {
 		.sns-grid {
-			grid-template-columns: repeat(4, 1fr);
+			grid-template-columns: repeat(6, 1fr);
 		}
 	}
 
@@ -131,8 +131,8 @@ const categories = [...new Set(links.map((link) => link.category))];
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 0.75rem;
-		padding: 1rem;
+		gap: 0.4rem;
+		padding: 0.5rem;
 		text-decoration: none;
 		color: inherit;
 		background: var(--bg-secondary);
@@ -145,17 +145,21 @@ const categories = [...new Set(links.map((link) => link.category))];
 	}
 
 	.sns-card-icon {
-		width: 2rem;
-		height: 2rem;
+		width: 1.25rem;
+		height: 1.25rem;
 		flex-shrink: 0;
 	}
 
 	.sns-card-name {
-		font-size: 0.8125rem;
+		font-size: 0.6875rem;
 		font-weight: 500;
-		line-height: 1.4;
+		line-height: 1.3;
 		text-align: center;
 		color: var(--text-primary);
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
 	}
 
 	.sns-card:hover .sns-card-name {
