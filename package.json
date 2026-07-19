@@ -1,6 +1,7 @@
 {
 	"name": "me",
 	"version": "0.0.1",
+	"packageManager": "pnpm@11.15.0",
 	"type": "module",
 	"scripts": {
 		"dev": "astro dev",
