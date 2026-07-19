@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import FilterSort from "@/components/FilterSort.astro";
 import Badge from "@/components/ui/Badge.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
@@ -15,13 +14,6 @@ const sortedBooks = [...books].toSorted((a, b) => {
 	const bTime = b.data.finishedDate?.getTime() ?? 0;
 	return bTime - aTime;
 });
-
-// すべてのタグを収集（カテゴリ + タグ）
-const allTags = books.flatMap((book) => [
-	...(book.data.category ? [book.data.category] : []),
-	...book.data.tags,
-]);
-
 ---
 
 <Layout
@@ -31,23 +23,12 @@ const allTags = books.flatMap((book) => [
   <main class="mx-auto max-w-6xl px-6 py-12">
     <h1 class="mb-12 text-4xl font-bold text-(--text-primary)">Bookshelf</h1>
 
-    <FilterSort tags={allTags} containerId="bookshelf-list" />
-
-    <div id="bookshelf-list" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {
-        sortedBooks.map((book) => {
-          const bookTags = [
-            ...(book.data.category ? [book.data.category] : []),
-            ...book.data.tags,
-          ];
-          return (
+        sortedBooks.map((book) => (
           <a
             href={`/bookshelf/${book.id}`}
             class="group block overflow-hidden"
-            data-item
-            data-tags={bookTags.join(",")}
-            data-date={book.data.finishedDate?.toISOString() ?? ""}
-            data-title={book.data.title}
           >
             <div class="aspect-[3/4] overflow-hidden">
               <Image
@@ -69,9 +50,6 @@ const allTags = books.flatMap((book) => [
                 </p>
               )}
               <p class="mb-3 text-sm text-(--text-secondary)">{book.data.excerpt}</p>
-              <div class="flex flex-wrap gap-2">
-                {book.data.tags.map((tag) => <Tag>{tag}</Tag>)}
-              </div>
               {book.data.rating && (
                 <p class="mt-3 text-xs text-(--text-muted)">
                   評価: {book.data.rating} / 5
@@ -79,19 +57,8 @@ const allTags = books.flatMap((book) => [
               )}
             </div>
           </a>
-        );})
+        ))
       }
     </div>
   </main>
 </Layout>
-
-<script>
-  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const tag = (chip as HTMLElement).dataset.tag;
-      if (tag && tag !== "all") {
-        window.posthog?.capture("bookshelf_tag_filtered", { tag });
-      }
-    });
-  });
-</script>

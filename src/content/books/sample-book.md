@@ -6,7 +6,6 @@ status: "read"
 finishedDate: 2024-06-30
 rating: 4
 category: "技術"
-tags: ["Astro", "Web", "設計"]
 excerpt: "Astroを中心に、コンテンツ設計とページ構成を学ぶための入門書。"
 ---
 

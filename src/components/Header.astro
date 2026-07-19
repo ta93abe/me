@@ -2,14 +2,15 @@
 // ヘッダーコンポーネント
 import { NAV_LINKS } from "@/config/navigation";
 import Logo from "./Logo.astro";
+import MobileNav from "./MobileNav";
 import NavLink from "./ui/NavLink.astro";
 ---
 
 <header
-  class="fixed inset-x-0 top-0 z-50 bg-transparent"
+  class="fixed inset-x-0 top-0 z-50 bg-transparent transition-colors data-[menu-open]:bg-(--bg-primary)"
 >
   <nav
-    class="mx-auto flex h-(--header-height) max-w-7xl items-center justify-between px-6"
+    class="relative mx-auto flex h-(--header-height) max-w-7xl items-center justify-between px-6"
     aria-label="メインナビゲーション"
   >
     <Logo />
@@ -29,113 +30,10 @@ import NavLink from "./ui/NavLink.astro";
       </ul>
     </div>
 
-    <!-- モバイル: ハンバーガー -->
-    <div class="flex items-center gap-2 md:hidden">
-      <button
-        type="button"
-        id="mobile-menu-button"
-        class="flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-(--bg-secondary)"
-        aria-label="メニューを開く"
-        aria-expanded="false"
-        aria-controls="mobile-menu"
-      >
-      <svg
-        id="menu-icon-open"
-        class="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-      <svg
-        id="menu-icon-close"
-        class="hidden h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-      </button>
-    </div>
+    <MobileNav
+      client:load
+      links={NAV_LINKS}
+      currentPath={Astro.url.pathname}
+    />
   </nav>
-
-  <!-- モバイルメニュー -->
-  <div
-    id="mobile-menu"
-    class="hidden bg-transparent md:hidden"
-    aria-hidden="true"
-  >
-    <ul class="space-y-1 px-6 py-4">
-      {
-        NAV_LINKS.map((link) => (
-          <li>
-            <NavLink
-              href={link.href}
-              class="block rounded-lg px-4 py-3 text-lg hover:bg-(--bg-secondary)"
-            >
-              {link.text}
-            </NavLink>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
 </header>
-
-<script>
-  const menuButton = document.getElementById("mobile-menu-button");
-  const mobileMenu = document.getElementById("mobile-menu");
-  const iconOpen = document.getElementById("menu-icon-open");
-  const iconClose = document.getElementById("menu-icon-close");
-
-  if (!menuButton || !mobileMenu || !iconOpen || !iconClose) {
-    console.error("Mobile menu elements not found.");
-  } else {
-    const button = menuButton;
-    const menu = mobileMenu;
-    const openIcon = iconOpen;
-    const closeIcon = iconClose;
-    let isOpen = false;
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-
-    const toggleMenu = () => {
-      isOpen = !isOpen;
-      menu.classList.toggle("hidden", !isOpen);
-      menu.setAttribute("aria-hidden", String(!isOpen));
-      button.setAttribute("aria-expanded", String(isOpen));
-      button.setAttribute(
-        "aria-label",
-        isOpen ? "メニューを閉じる" : "メニューを開く",
-      );
-      openIcon.classList.toggle("hidden", isOpen);
-      closeIcon.classList.toggle("hidden", !isOpen);
-    };
-
-    button.addEventListener("click", toggleMenu);
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && isOpen) {
-        toggleMenu();
-        button.focus();
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (mediaQuery.matches && isOpen) {
-        toggleMenu();
-      }
-    });
-  }
-</script>

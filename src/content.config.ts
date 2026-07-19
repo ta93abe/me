@@ -116,7 +116,6 @@ const books = defineCollection({
 			finishedDate: z.coerce.date().optional(),
 			rating: z.number().min(1).max(5).optional(),
 			category: z.string().optional(),
-			tags: z.array(z.string()), // Required for books
 			excerpt: excerptSchema,
 		}),
 });

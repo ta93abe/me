@@ -51,6 +51,42 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+/* 紙のざらつき（コンテンツページのみ。トップはヒーロー側で完結）
+ * - ::before: 細かい粒子（フィルムグレイン）
+ * - ::after: 粗い繊維（紙の目） */
+body:not(.lock-viewport)::before,
+body:not(.lock-viewport)::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+body:not(.lock-viewport)::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='2.4' intercept='-0.7'/%3E%3CfeFuncG type='linear' slope='2.4' intercept='-0.7'/%3E%3CfeFuncB type='linear' slope='2.4' intercept='-0.7'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	background-size: 140px 140px;
+	opacity: 0.28;
+	mix-blend-mode: soft-light;
+}
+
+body:not(.lock-viewport)::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.4' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	background-size: 220px 220px;
+	opacity: 0.14;
+	mix-blend-mode: multiply;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body:not(.lock-viewport)::before {
+		opacity: 0.18;
+	}
+
+	body:not(.lock-viewport)::after {
+		opacity: 0.08;
+	}
+}
+
 /* Focus */
 :focus-visible {
 	outline: 2px solid var(--primary-color);
