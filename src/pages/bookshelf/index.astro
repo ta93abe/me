@@ -85,12 +85,12 @@ const allTags = books.flatMap((book) => [
   </main>
 </Layout>
 
-<script is:inline>
-  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach(function(chip) {
-    chip.addEventListener("click", function() {
-      var tag = chip.dataset.tag;
+<script>
+  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const tag = (chip as HTMLElement).dataset.tag;
       if (tag && tag !== "all") {
-        window.posthog?.capture("bookshelf_tag_filtered", { tag: tag });
+        window.posthog?.capture("bookshelf_tag_filtered", { tag });
       }
     });
   });

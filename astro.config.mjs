@@ -21,7 +21,14 @@ const cspStyleResources = [
 ];
 
 /** @type {CspResourceEntry[]} */
-const cspScriptResources = [{ resource: "'self'", kind: "element" }];
+const cspScriptResources = [
+	{ resource: "'self'", kind: "element" },
+	// PostHog（必要時の remote bundle）と Cloudflare Web Analytics beacon
+	{ resource: "https://*.i.posthog.com", kind: "element" },
+	{ resource: "https://us-assets.i.posthog.com", kind: "element" },
+	{ resource: "https://eu-assets.i.posthog.com", kind: "element" },
+	{ resource: "https://static.cloudflareinsights.com", kind: "element" },
+];
 
 // https://astro.build/config
 export default defineConfig({
@@ -48,7 +55,8 @@ export default defineConfig({
 	// エージェント向けは `astro dev --json` / `pnpm dev:json` を使う
 	logger: logHandlers.console(),
 	// Astro 7.1: ハッシュベース CSP + style-src-attr / script-src-elem
-	// PostHog の動的 script 注入は strict-dynamic で許可する。
+	// strict-dynamic は 'self' を無効化するため使わない（/_astro/*.js がブロックされる）。
+	// is:inline スクリプトはハッシュ対象外なので、クライアント script は bundled にする。
 	// style-src-attr の unsafe-inline は --delay 等の CSS 変数属性用（Prism 自体は不要）。
 	security: {
 		csp: {
@@ -58,8 +66,7 @@ export default defineConfig({
 				"img-src 'self' data: blob: https:",
 				"font-src 'self' data:",
 				"media-src 'self' blob:",
-				"connect-src 'self' https://*.i.posthog.com https://us.i.posthog.com https://eu.i.posthog.com",
-				"frame-ancestors 'none'",
+				"connect-src 'self' https://*.i.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://cloudflareinsights.com",
 				"base-uri 'self'",
 				"form-action 'self'",
 				"worker-src 'self' blob:",
@@ -69,7 +76,6 @@ export default defineConfig({
 			},
 			scriptDirective: {
 				resources: cspScriptResources,
-				strictDynamic: true,
 			},
 		},
 	},

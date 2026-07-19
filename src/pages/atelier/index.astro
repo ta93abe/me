@@ -173,9 +173,9 @@ const statusLabel: Record<string, string> = {
 	}
 </style>
 
-<script is:inline>
-	document.querySelectorAll(".atelier-scrap").forEach(function (scrap) {
-		scrap.addEventListener("click", function () {
+<script>
+	document.querySelectorAll(".atelier-scrap").forEach((scrap) => {
+		scrap.addEventListener("click", () => {
 			window.posthog?.capture("atelier_piece_clicked", {
 				piece_title: scrap.querySelector(".atelier-scrap-title")?.textContent?.trim(),
 				piece_href: scrap.getAttribute("href"),

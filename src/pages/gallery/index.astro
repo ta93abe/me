@@ -167,9 +167,9 @@ const sorted = [...pieces].toSorted((a, b) => {
 	}
 </style>
 
-<script is:inline>
-	document.querySelectorAll(".gallery-piece").forEach(function (piece) {
-		piece.addEventListener("click", function () {
+<script>
+	document.querySelectorAll(".gallery-piece").forEach((piece) => {
+		piece.addEventListener("click", () => {
 			window.posthog?.capture("gallery_piece_clicked", {
 				piece_title: piece.querySelector(".gallery-piece-title")?.textContent?.trim(),
 				piece_href: piece.getAttribute("href"),

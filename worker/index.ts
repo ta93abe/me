@@ -29,6 +29,8 @@ const SECURITY_HEADERS = {
 	"Referrer-Policy": "strict-origin-when-cross-origin",
 	"Permissions-Policy":
 		"accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+	// HTML ページの CSP は Astro security.csp（meta）と public/_headers に委譲。
+	// Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
 	"Content-Security-Policy":
 		"default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
 } as const;
@@ -607,10 +609,15 @@ export default {
 		if (pathname === "/agent/auth") {
 			const method = request.method.toUpperCase();
 			if (method !== "GET" && method !== "POST" && method !== "HEAD") {
-				return textResponse(request, "Method Not Allowed", "text/plain; charset=utf-8", {
-					status: 405,
-					headers: { Allow: "GET, POST, HEAD" },
-				});
+				return textResponse(
+					request,
+					"Method Not Allowed",
+					"text/plain; charset=utf-8",
+					{
+						status: 405,
+						headers: { Allow: "GET, POST, HEAD" },
+					},
+				);
 			}
 			return jsonResponse(request, agentAuthRegisterResponse());
 		}
