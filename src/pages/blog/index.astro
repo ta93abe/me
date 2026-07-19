@@ -102,16 +102,16 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
   </main>
 </Layout>
 
-<script is:inline>
-  document.getElementById("rss-feed-link")?.addEventListener("click", function() {
+<script>
+  document.getElementById("rss-feed-link")?.addEventListener("click", () => {
     window.posthog?.capture("rss_feed_clicked", { page: "blog" });
   });
 
-  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach(function(chip) {
-    chip.addEventListener("click", function() {
-      var tag = chip.dataset.tag;
+  document.querySelectorAll("[data-filter-sort] .filter-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const tag = (chip as HTMLElement).dataset.tag;
       if (tag && tag !== "all") {
-        window.posthog?.capture("blog_tag_filtered", { tag: tag });
+        window.posthog?.capture("blog_tag_filtered", { tag });
       }
     });
   });

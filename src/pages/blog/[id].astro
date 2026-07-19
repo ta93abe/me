@@ -181,7 +181,7 @@ const blogSchema = {
   });
 </script>
 
-<script is:inline>
+<script>
   window.posthog?.capture("blog_post_viewed", {
     post_title: document.title,
     post_url: window.location.href,
