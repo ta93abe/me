@@ -25,7 +25,7 @@
 ```
 /
 ├── .github/workflows/         # CI (perf / playwright / infra)
-├── docs/                      # アーキテクチャ・デプロイ・スタイルガイド
+├── docs/                      # アーキテクチャ・CMS 移行ノート
 ├── infra/                     # Alchemy による Cloudflare インフラ
 ├── perf/                      # Lighthouse / CWV budgets
 ├── public/                    # favicon, admin (Sveltia CMS), media
