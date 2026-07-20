@@ -72,6 +72,7 @@ import { SITE } from "@/config/site";
 		border-radius: 50%;
 		filter: blur(80px);
 		will-change: transform;
+		animation: wash-drift 18s ease-in-out infinite;
 	}
 
 	.hero-wash--a {
@@ -84,7 +85,6 @@ import { SITE } from "@/config/site";
 			rgba(107, 76, 154, 0.14) 0%,
 			rgba(107, 76, 154, 0) 70%
 		);
-		animation: wash-drift 18s ease-in-out infinite;
 	}
 
 	.hero-wash--b {
@@ -97,7 +97,8 @@ import { SITE } from "@/config/site";
 			rgba(138, 109, 59, 0.12) 0%,
 			rgba(138, 109, 59, 0) 70%
 		);
-		animation: wash-drift 22s ease-in-out infinite reverse;
+		animation-duration: 22s;
+		animation-direction: reverse;
 	}
 
 	.hero-grain {
@@ -125,19 +126,34 @@ import { SITE } from "@/config/site";
 		.hero-canvas {
 			animation: none;
 			transition: none;
+			will-change: auto;
 		}
 	}
 </style>
 
 <script>
-	import { initHeroWebGL } from "@/scripts/hero-webgl";
-
 	const hero = document.querySelector(".hero");
 	const canvas = document.querySelector<HTMLCanvasElement>("[data-hero-canvas]");
 
 	if (hero instanceof HTMLElement && canvas) {
-		const handle = initHeroWebGL(canvas);
-		if (handle) {
+		const reduceMotion = window.matchMedia(
+			"(prefers-reduced-motion: reduce)",
+		).matches;
+
+		let starting = false;
+
+		const startWebGL = async () => {
+			if (reduceMotion || starting || hero.classList.contains("is-webgl")) {
+				return;
+			}
+			starting = true;
+			const { initHeroWebGL } = await import("@/scripts/hero-webgl");
+			const handle = initHeroWebGL(canvas);
+			if (!handle) {
+				starting = false;
+				return;
+			}
+
 			hero.classList.add("is-webgl");
 			document.addEventListener(
 				"astro:before-swap",
@@ -146,6 +162,22 @@ import { SITE } from "@/config/site";
 				},
 				{ once: true },
 			);
+		};
+
+		// Lab SI must see a stable CSS hero. Upgrade to WebGL only after real input.
+		const onInteract = () => {
+			window.removeEventListener("pointerdown", onInteract);
+			window.removeEventListener("pointermove", onInteract);
+			void startWebGL();
+		};
+
+		if (!reduceMotion) {
+			window.addEventListener("pointerdown", onInteract, {
+				passive: true,
+			});
+			window.addEventListener("pointermove", onInteract, {
+				passive: true,
+			});
 		}
 	}
 </script>

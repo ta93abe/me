@@ -80,7 +80,8 @@ void main() {
 	float vignette = smoothstep(1.35, 0.25, length(p * 1.1));
 	color = mix(color * 0.96, color, vignette);
 
-	float grain = hash(uv * uResolution + uTime) * 0.035;
+	// Static grain — animated grain prevents Speed Index from converging
+	float grain = hash(uv * uResolution) * 0.035;
 	color += grain - 0.015;
 
 	gl_FragColor = vec4(color, 1.0);
@@ -106,14 +107,14 @@ export function initHeroWebGL(
 			canvas,
 			antialias: false,
 			alpha: true,
-			powerPreference: "high-performance",
+			powerPreference: "low-power",
 		});
 	} catch {
 		return null;
 	}
 
 	renderer.setClearColor(0xfaf9f6, 1);
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 
 	const uniforms = {
 		uTime: { value: 0 },
@@ -144,9 +145,16 @@ export function initHeroWebGL(
 	let running = true;
 	let inView = true;
 	let pageVisible = document.visibilityState === "visible";
+	let needsRender = true;
+	let interactUntil = 0;
 	const started = performance.now();
 
 	const canRender = () => inView && pageVisible;
+
+	const scheduleRender = () => {
+		if (!running || frameId !== 0) return;
+		frameId = requestAnimationFrame(tick);
+	};
 
 	const resize = () => {
 		const width = canvas.clientWidth;
@@ -163,6 +171,8 @@ export function initHeroWebGL(
 			Math.abs(camera.position.z - background.position.z);
 		const viewWidth = viewHeight * camera.aspect;
 		background.scale.set(viewWidth / 18, viewHeight / 12, 1);
+		needsRender = true;
+		scheduleRender();
 	};
 
 	const onPointerMove = (event: PointerEvent) => {
@@ -172,24 +182,43 @@ export function initHeroWebGL(
 			(event.clientX - rect.left) / rect.width,
 			1 - (event.clientY - rect.top) / rect.height,
 		);
+		// Keep rendering briefly while interacting so ribbons respond smoothly
+		interactUntil = performance.now() + 400;
+		needsRender = true;
+		scheduleRender();
 	};
 
 	const tick = () => {
-		if (!running) return;
-		frameId = requestAnimationFrame(tick);
-		if (!canRender()) return;
+		frameId = 0;
+		if (!running || !canRender()) return;
 
-		const elapsed = (performance.now() - started) / 1000;
-		uniforms.uTime.value = elapsed;
-		mouseCurrent.lerp(mouseTarget, 0.05);
+		const now = performance.now();
+		const interacting = now < interactUntil;
+		mouseCurrent.lerp(mouseTarget, interacting ? 0.08 : 0.05);
+		const mouseMoved =
+			Math.abs(mouseCurrent.x - uniforms.uMouse.value.x) > 0.0004 ||
+			Math.abs(mouseCurrent.y - uniforms.uMouse.value.y) > 0.0004;
+
+		if (!needsRender && !interacting && !mouseMoved) return;
+
+		uniforms.uTime.value = (now - started) / 1000;
 		uniforms.uMouse.value.copy(mouseCurrent);
-
 		renderer.render(scene, camera);
+		needsRender = false;
+
+		// Continue only while mouse is settling / interacting
+		if (interacting || mouseMoved) {
+			scheduleRender();
+		}
 	};
 
 	const visibilityObserver = new IntersectionObserver(
 		([entry]) => {
 			inView = entry?.isIntersecting ?? true;
+			if (inView) {
+				needsRender = true;
+				scheduleRender();
+			}
 		},
 		{ threshold: 0.05 },
 	);
@@ -197,6 +226,10 @@ export function initHeroWebGL(
 
 	const onVisibilityChange = () => {
 		pageVisible = document.visibilityState === "visible";
+		if (pageVisible) {
+			needsRender = true;
+			scheduleRender();
+		}
 	};
 
 	window.addEventListener("resize", resize);
@@ -204,12 +237,15 @@ export function initHeroWebGL(
 	document.addEventListener("visibilitychange", onVisibilityChange);
 
 	resize();
-	tick();
+	// Single settle frame — avoid perpetual RAF (breaks Speed Index)
+	needsRender = true;
+	scheduleRender();
 
 	return {
 		destroy: () => {
 			running = false;
-			cancelAnimationFrame(frameId);
+			if (frameId) cancelAnimationFrame(frameId);
+			frameId = 0;
 			visibilityObserver.disconnect();
 			window.removeEventListener("resize", resize);
 			window.removeEventListener("pointermove", onPointerMove);
