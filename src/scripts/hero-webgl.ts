@@ -1,13 +1,8 @@
 import {
-	AdditiveBlending,
-	BufferAttribute,
-	BufferGeometry,
 	Color,
 	Mesh,
 	PerspectiveCamera,
 	PlaneGeometry,
-	Points,
-	PointsMaterial,
 	Scene,
 	ShaderMaterial,
 	Vector2,
@@ -96,35 +91,6 @@ function prefersReducedMotion(): boolean {
 	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function createParticles(count: number): Points {
-	const positions = new Float32Array(count * 3);
-	const speeds = new Float32Array(count);
-
-	for (let i = 0; i < count; i++) {
-		positions[i * 3] = (Math.random() - 0.5) * 14;
-		positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
-		positions[i * 3 + 2] = (Math.random() - 0.5) * 4;
-		speeds[i] = 0.15 + Math.random() * 0.45;
-	}
-
-	const geometry = new BufferGeometry();
-	geometry.setAttribute("position", new BufferAttribute(positions, 3));
-
-	const material = new PointsMaterial({
-		color: new Color("#6b4c9a"),
-		size: 0.04,
-		transparent: true,
-		opacity: 0.5,
-		depthWrite: false,
-		blending: AdditiveBlending,
-		sizeAttenuation: true,
-	});
-
-	const points = new Points(geometry, material);
-	points.userData.speeds = speeds;
-	return points;
-}
-
 export function initHeroWebGL(
 	canvas: HTMLCanvasElement,
 ): HeroWebGLHandle | null {
@@ -169,9 +135,7 @@ export function initHeroWebGL(
 	background.position.z = -2;
 	background.frustumCulled = false;
 
-	const particles = createParticles(window.innerWidth < 768 ? 70 : 120);
 	scene.add(background);
-	scene.add(particles);
 
 	const mouseTarget = new Vector2(0.5, 0.5);
 	const mouseCurrent = new Vector2(0.5, 0.5);
@@ -220,20 +184,6 @@ export function initHeroWebGL(
 		mouseCurrent.lerp(mouseTarget, 0.05);
 		uniforms.uMouse.value.copy(mouseCurrent);
 
-		const positions = particles.geometry.getAttribute(
-			"position",
-		) as BufferAttribute;
-		const speeds = particles.userData.speeds as Float32Array;
-		for (let i = 0; i < speeds.length; i++) {
-			const y = positions.getY(i) + speeds[i] * 0.004;
-			positions.setY(i, y > 5 ? -5 : y);
-			positions.setX(
-				i,
-				positions.getX(i) + Math.sin(elapsed * 0.8 + i) * 0.0007,
-			);
-		}
-		positions.needsUpdate = true;
-
 		renderer.render(scene, camera);
 	};
 
@@ -267,8 +217,6 @@ export function initHeroWebGL(
 
 			bgGeometry.dispose();
 			bgMaterial.dispose();
-			particles.geometry.dispose();
-			(particles.material as PointsMaterial).dispose();
 			renderer.dispose();
 		},
 	};
