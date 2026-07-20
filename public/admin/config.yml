@@ -144,49 +144,53 @@ collections:
     public_folder: ../../assets/atelier
     fields:
       - { name: title, label: タイトル }
-      - {
-          name: mediaType,
-          label: 種別,
-          widget: select,
-          options: [drawing, photo, music],
-          default: drawing,
-        }
-      - {
-          name: coverImage,
-          label: カバー画像,
-          widget: image,
-          required: false,
-          hint: "drawing / photo では必須（リポジトリ内に保存される）",
-          media_libraries: { cloudflare_r2: false },
-        }
-      - {
-          name: audio,
-          label: 音源,
-          widget: file,
-          required: false,
-          accept: "audio/*",
-          media_folder: /public/media/audio,
-          public_folder: /media/audio,
-          hint: "music では必須",
-          media_libraries: { cloudflare_r2: false },
-        }
+      - name: mediaType
+        label: 種別
+        widget: select
+        default: drawing
+        options:
+          - { label: Drawing, value: drawing }
+          - { label: Photo, value: photo }
+          - { label: Music, value: music }
+      - name: coverImage
+        label: カバー画像
+        widget: image
+        required: false
+        hint: "drawing / photo では必須（リポジトリ内に保存される）"
+        media_libraries: { cloudflare_r2: false }
+      - name: audio
+        label: 音源
+        widget: file
+        required: false
+        accept: "audio/*"
+        media_folder: /public/media/audio
+        public_folder: /media/audio
+        hint: "music では必須"
+        media_libraries: { cloudflare_r2: false }
       - { name: tags, label: タグ, widget: list, required: false }
       - { name: excerpt, label: 概要 }
-      - {
-          name: status,
-          label: ステータス,
-          widget: select,
-          options: [wip, practice, sketch],
-          default: wip,
-        }
-      - {
-          name: date,
-          label: 日付,
-          widget: datetime,
-          format: YYYY-MM-DD,
-          time_format: false,
-          required: false,
-        }
+      - name: status
+        label: ステータス
+        widget: select
+        default: wip
+        options:
+          - { label: WIP, value: wip }
+          - { label: Practice, value: practice }
+          - { label: Sketch, value: sketch }
+      - name: date
+        label: 日付
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+        required: false
+      - name: body
+        label: 本文
+        widget: markdown
+        media_libraries:
+          default:
+            config:
+              max_file_size: 26214400
+          cloudflare_r2: false
 
   - name: gallery
     label: Gallery
@@ -199,42 +203,46 @@ collections:
     public_folder: ../../assets/gallery
     fields:
       - { name: title, label: タイトル }
-      - {
-          name: mediaType,
-          label: 種別,
-          widget: select,
-          options: [drawing, photo, music, project],
-          default: drawing,
-        }
-      - {
-          name: coverImage,
-          label: カバー画像,
-          widget: image,
-          required: false,
-          hint: "drawing / photo / project では必須（リポジトリ内に保存される）",
-          media_libraries: { cloudflare_r2: false },
-        }
-      - {
-          name: audio,
-          label: 音源,
-          widget: file,
-          required: false,
-          accept: "audio/*",
-          media_folder: /public/media/audio,
-          public_folder: /media/audio,
-          hint: "music では必須",
-          media_libraries: { cloudflare_r2: false },
-        }
+      - name: mediaType
+        label: 種別
+        widget: select
+        default: drawing
+        options:
+          - { label: Drawing, value: drawing }
+          - { label: Photo, value: photo }
+          - { label: Music, value: music }
+          - { label: Project, value: project }
+      - name: coverImage
+        label: カバー画像
+        widget: image
+        required: false
+        hint: "drawing / photo / project では必須（リポジトリ内に保存される）"
+        media_libraries: { cloudflare_r2: false }
+      - name: audio
+        label: 音源
+        widget: file
+        required: false
+        accept: "audio/*"
+        media_folder: /public/media/audio
+        public_folder: /media/audio
+        hint: "music では必須"
+        media_libraries: { cloudflare_r2: false }
       - { name: tags, label: タグ, widget: list, required: false }
       - { name: excerpt, label: 概要 }
-      - {
-          name: completedDate,
-          label: 完成日,
-          widget: datetime,
-          format: YYYY-MM-DD,
-          time_format: false,
-          required: false,
-        }
+      - name: completedDate
+        label: 完成日
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+        required: false
+      - name: body
+        label: 本文
+        widget: markdown
+        media_libraries:
+          default:
+            config:
+              max_file_size: 26214400
+          cloudflare_r2: false
 
   # SNS リンク集（src/data/links.json を丸ごと編集するファイルコレクション）
   - name: data
