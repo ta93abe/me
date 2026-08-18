@@ -1,0 +1,23 @@
+{
+  "branch": "04-14-feat_add_cron_trigger_to_rebuild_daily",
+  "checkpoint_id": "f3b0210a7bda",
+  "checkpoints_count": 2,
+  "cli_version": "0.5.4",
+  "files_touched": null,
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 67,
+    "cache_creation_tokens": 189670,
+    "cache_read_tokens": 6133352,
+    "input_tokens": 137,
+    "output_tokens": 29651
+  }
+}
