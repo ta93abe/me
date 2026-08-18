@@ -1,0 +1,24 @@
+{
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoint_id": "d76268b12739",
+  "checkpoints_count": 26,
+  "cli_version": "0.8.42",
+  "files_touched": null,
+  "sessions": [
+    {
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 74,
+    "cache_creation_tokens": 355921,
+    "cache_read_tokens": 10908966,
+    "input_tokens": 289,
+    "output_tokens": 80086
+  }
+}
