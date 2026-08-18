@@ -1,0 +1,63 @@
+{
+  "branch": "main",
+  "checkpoint_id": "e91d11776855",
+  "checkpoints_count": 12,
+  "cli_version": "0.7.7",
+  "combined_attribution": {
+    "agent_lines": 951,
+    "agent_percentage": 100,
+    "agent_removed": 29,
+    "calculated_at": "2026-06-27T06:07:38.356481Z",
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "metric_version": 2,
+    "total_committed": 951,
+    "total_lines_changed": 980
+  },
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "posthog-setup-report.md",
+    "src/components/SnsLinks.astro",
+    "src/components/blog/ShareButtons.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/components/posthog.astro",
+    "src/layouts/Layout.astro",
+    "src/pages/blog/[id].astro",
+    "src/pages/blog/index.astro",
+    "src/pages/bookshelf/index.astro",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro"
+  ],
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    },
+    {
+      "content_hash": "/1/content_hash.txt",
+      "metadata": "/1/metadata.json",
+      "prompt": "/1/prompt.txt",
+      "transcript": "/1/full.jsonl"
+    },
+    {
+      "content_hash": "/2/content_hash.txt",
+      "metadata": "/2/metadata.json",
+      "prompt": "/2/prompt.txt",
+      "transcript": "/2/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 125,
+    "cache_creation_tokens": 578011,
+    "cache_read_tokens": 13746354,
+    "input_tokens": 53362,
+    "output_tokens": 204420
+  }
+}
