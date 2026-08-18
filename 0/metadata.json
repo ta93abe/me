@@ -1,0 +1,85 @@
+{
+  "cli_version": "0.7.7",
+  "checkpoint_id": "c9247573f864",
+  "session_id": "d38888d6-c3aa-466e-b1bf-4129f131a92f",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-26T12:13:03.764736Z",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/SnsLinks.astro",
+    "src/pages/links.astro"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "d134612fc8fd",
+  "token_usage": {
+    "input_tokens": 48340,
+    "cache_creation_tokens": 103071,
+    "cache_read_tokens": 163524,
+    "output_tokens": 2757,
+    "api_call_count": 4
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_013fP1LJT44ViG9aSJTPFhyb",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "commit"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "d134612fc8fd",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 23,
+        "end": 24,
+        "entry_ids": [
+          "2ef5c05b-7550-4dae-942b-d22f96992120"
+        ],
+        "tool_use_id": "toolu_013fP1LJT44ViG9aSJTPFhyb"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_013fP1LJT44ViG9aSJTPFhyb"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: commit",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "initial_attribution": {
+    "calculated_at": "2026-06-26T12:13:03.739564Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 324,
+    "total_committed": 0,
+    "total_lines_changed": 324,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 214,
+      "user_lines_removed": 324,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "src/components/SnsLinks.astro": 166,
+        "src/pages/links.astro": 48
+      },
+      "user_removed_per_file": {
+        "src/components/SnsLinks.astro": 317,
+        "src/pages/links.astro": 7
+      }
+    }
+  ]
+}

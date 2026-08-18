@@ -1,0 +1,25 @@
+{
+  "checkpoint_id": "c9247573f864",
+  "checkpoints_count": 1,
+  "cli_version": "0.7.7",
+  "files_touched": [
+    "src/components/SnsLinks.astro",
+    "src/pages/links.astro"
+  ],
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 4,
+    "cache_creation_tokens": 103071,
+    "cache_read_tokens": 163524,
+    "input_tokens": 48340,
+    "output_tokens": 2757
+  }
+}
