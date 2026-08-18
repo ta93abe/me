@@ -1,0 +1,39 @@
+{
+  "branch": "refactor/minimal-clean-redesign",
+  "checkpoint_id": "1619c2e93989",
+  "checkpoints_count": 2,
+  "cli_version": "0.4.4",
+  "files_touched": [
+    ".claude/settings.json",
+    ".gitignore",
+    "src/components/FilterSort.astro",
+    "src/components/Header.astro",
+    "src/components/Logo.astro",
+    "src/components/SearchModal.astro",
+    "src/components/landing/AboutSection.astro",
+    "src/components/landing/EnsProfileCard.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/content.config.ts",
+    "src/layouts/Layout.astro",
+    "src/scripts/animations/observer.ts",
+    "src/styles/global.css"
+  ],
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "context": "/0/context.md",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 157,
+    "cache_creation_tokens": 381499,
+    "cache_read_tokens": 16922195,
+    "input_tokens": 183,
+    "output_tokens": 15033
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "1619c2e93989",
+  "session_id": "e9167529-9a26-4ca3-9c4c-a93639c3f2e4",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-16T15:17:25.654648Z",
+  "branch": "refactor/minimal-clean-redesign",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".claude/settings.json",
+    ".gitignore",
+    "src/components/FilterSort.astro",
+    "src/components/Header.astro",
+    "src/components/Logo.astro",
+    "src/components/SearchModal.astro",
+    "src/components/landing/AboutSection.astro",
+    "src/components/landing/EnsProfileCard.astro",
+    "src/components/landing/HeroSection.astro",
+    "src/components/landing/LinksSection.astro",
+    "src/content.config.ts",
+    "src/layouts/Layout.astro",
+    "src/scripts/animations/observer.ts",
+    "src/styles/global.css"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 183,
+    "cache_creation_tokens": 381499,
+    "cache_read_tokens": 16922195,
+    "output_tokens": 15033,
+    "api_call_count": 157
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-16T15:17:24.35866Z",
+    "agent_lines": 8,
+    "human_added": 0,
+    "human_modified": 1,
+    "human_removed": 83,
+    "total_committed": 9,
+    "agent_percentage": 88.88888888888889
+  },
+  "transcript_path": ".claude/projects/-Users-ta93abe-Developer-github-com-ta93abe-me/e9167529-9a26-4ca3-9c4c-a93639c3f2e4.jsonl"
+}
