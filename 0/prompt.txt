@@ -1,0 +1,644 @@
+Implement the following plan:
+
+# OGP リンクカード: MDX コンポーネント
+
+## Context
+
+works のコンテンツ内で GitHub リポジトリへのリンクを Zenn のようなリッチカード（OGP 情報付き）で表示したい。既存の `LinkCard` コンポーネントは手動で title/description を渡す設計だが、URL だけで OGP を自動取得するコンポーネントを作る。dbt-jobs.md を MDX に変換して使用する。
+
+---
+
+## Task 1: works コレクションを MDX 対応にする
+
+**ファイル:** `src/content.config.ts`
+
+- `pattern: "**/*.md"` → `pattern: "**/*.{md,mdx}"` に変更（blog と同様）
+
+---
+
+## Task 2: OGP 取得ユーティリティを作成
+
+**ファイル:** `src/utils/ogp.ts`（新規）
+
+- URL を受け取り、HTML をフェッチして OGP メタタグ（`og:title`, `og:description`, `og:image`）をパース
+- ビルド時に実行される（Astro コンポーネントの frontmatter で呼ばれる）
+- favicon URL も `https://www.google.com/s2/favicons?domain=DOMAIN` で取得
+
+---
+
+## Task 3: OgpCard コンポーネントを作成
+
+**ファイル:** `src/components/blog/OgpCard.astro`（新規）
+
+- Props: `url: string` のみ
+- frontmatter で OGP データをフェッチ
+- Zenn 風のカード UI: タイトル・説明・ドメイン名・favicon・OGP 画像（あれば）
+- 既存 `LinkCard.astro` のスタイルを参考にしつつ、OGP 画像対応を追加
+
+---
+
+## Task 4: dbt-jobs を MDX に変換
+
+- `src/content/works/dbt-jobs.md` → `src/content/works/dbt-jobs.mdx` にリネーム
+- マークダウンのリンクを `<OgpCard url="..." />` に置き換え
+- CSS の standalone link card スタイル（`p > a:only-child` 関連）を `global.css` から削除
+
+---
+
+## Task 5: ビルド・検証
+
+```bash
+pnpm build
+pnpm assist
+```
+
+Playwright MCP でスクリーンショット確認。
+
+---
+
+## 変更ファイルまとめ
+
+| アクション | ファイル |
+|---|---|
+| **変更** | `src/content.config.ts` |
+| **新規** | `src/utils/ogp.ts` |
+| **新規** | `src/components/blog/OgpCard.astro` |
+| **削除→新規** | `src/content/works/dbt-jobs.md` → `dbt-jobs.mdx` |
+| **変更** | `src/styles/global.css`（standalone link card CSS 削除） |
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/ta93abe/.REDACTED.jsonl
+
+---
+
+Base directory for this skill: /Users/ta93abe/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.0/skills/executing-plans
+
+# Executing Plans
+
+## Overview
+
+Load plan, review critically, execute tasks in batches, report for review between batches.
+
+**Core principle:** Batch execution with checkpoints for architect review.
+
+**Announce at start:** "I'm using the executing-plans skill to implement this plan."
+
+## The Process
+
+### Step 1: Load and Review Plan
+1. Read plan file
+2. Review critically - identify any questions or concerns about the plan
+3. If concerns: Raise them with your human partner before starting
+4. If no concerns: Create TodoWrite and proceed
+
+### Step 2: Execute Batch
+**Default: First 3 tasks**
+
+For each task:
+1. Mark as in_progress
+2. Follow each step exactly (plan has bite-sized steps)
+3. Run verifications as specified
+4. Mark as completed
+
+### Step 3: Report
+When batch complete:
+- Show what was implemented
+- Show verification output
+- Say: "Ready for feedback."
+
+### Step 4: Continue
+Based on feedback:
+- Apply changes if needed
+- Execute next batch
+- Repeat until complete
+
+### Step 5: Complete Development
+
+After all tasks complete and verified:
+- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
+- **REQUIRED SUB-SKILL:** Use superpowers:finishing-a-development-branch
+- Follow that skill to verify tests, present options, execute choice
+
+## When to Stop and Ask for Help
+
+**STOP executing immediately when:**
+- Hit a blocker mid-batch (missing dependency, test fails, instruction unclear)
+- Plan has critical gaps preventing starting
+- You don't understand an instruction
+- Verification fails repeatedly
+
+**Ask for clarification rather than guessing.**
+
+## When to Revisit Earlier Steps
+
+**Return to Review (Step 1) when:**
+- Partner updates the plan based on your feedback
+- Fundamental approach needs rethinking
+
+**Don't force through blockers** - stop and ask.
+
+## Remember
+- Review plan critically first
+- Follow plan steps exactly
+- Don't skip verifications
+- Reference skills when plan says to
+- Between batches: just report and wait
+- Stop when blocked, don't guess
+- Never start implementation on main/master branch without explicit user consent
+
+## Integration
+
+**Required workflow skills:**
+- **superpowers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **superpowers:writing-plans** - Creates the plan this skill executes
+- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+
+---
+
+完了までやって
+
+---
+
+Base directory for this skill: /Users/ta93abe/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.0/skills/finishing-a-development-branch
+
+# Finishing a Development Branch
+
+## Overview
+
+Guide completion of development work by presenting clear options and handling chosen workflow.
+
+**Core principle:** Verify tests → Present options → Execute choice → Clean up.
+
+**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
+
+## The Process
+
+### Step 1: Verify Tests
+
+**Before presenting options, verify tests pass:**
+
+```bash
+# Run project's test suite
+npm test / cargo test / pytest / go test ./...
+```
+
+**If tests fail:**
+```
+Tests failing (<N> failures). Must fix before completing:
+
+[Show failures]
+
+Cannot proceed with merge/PR until tests pass.
+```
+
+Stop. Don't proceed to Step 2.
+
+**If tests pass:** Continue to Step 2.
+
+### Step 2: Determine Base Branch
+
+```bash
+# Try common base branches
+git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
+```
+
+Or ask: "This branch split from main - is that correct?"
+
+### Step 3: Present Options
+
+Present exactly these 4 options:
+
+```
+Implementation complete. What would you like to do?
+
+1. Merge back to <base-branch> locally
+2. Push and create a Pull Request
+3. Keep the branch as-is (I'll handle it later)
+4. Discard this work
+
+Which option?
+```
+
+**Don't add explanation** - keep options concise.
+
+### Step 4: Execute Choice
+
+#### Option 1: Merge Locally
+
+```bash
+# Switch to base branch
+git checkout <base-branch>
+
+# Pull latest
+git pull
+
+# Merge feature branch
+git merge <feature-branch>
+
+# Verify tests on merged result
+<test command>
+
+# If tests pass
+git branch -d <feature-branch>
+```
+
+Then: Cleanup worktree (Step 5)
+
+#### Option 2: Push and Create PR
+
+```bash
+# Push branch
+git push -u origin <feature-branch>
+
+# Create PR
+gh pr create --title "<title>" --body "$(cat <<'EOF'
+## Summary
+<2-3 bullets of what changed>
+
+## Test Plan
+- [ ] <verification steps>
+EOF
+)"
+```
+
+Then: Cleanup worktree (Step 5)
+
+#### Option 3: Keep As-Is
+
+Report: "Keeping branch <name>. Worktree preserved at <path>."
+
+**Don't cleanup worktree.**
+
+#### Option 4: Discard
+
+**Confirm first:**
+```
+This will permanently delete:
+- Branch <name>
+- All commits: <commit-list>
+- Worktree at <path>
+
+Type 'discard' to confirm.
+```
+
+Wait for exact confirmation.
+
+If confirmed:
+```bash
+git checkout <base-branch>
+git branch -D <feature-branch>
+```
+
+Then: Cleanup worktree (Step 5)
+
+### Step 5: Cleanup Worktree
+
+**For Options 1, 2, 4:**
+
+Check if in worktree:
+```bash
+git worktree list | grep $(git branch --show-current)
+```
+
+If yes:
+```bash
+git worktree remove <worktree-path>
+```
+
+**For Option 3:** Keep worktree.
+
+## Quick Reference
+
+| Option | Merge | Push | Keep Worktree | Cleanup Branch |
+|--------|-------|------|---------------|----------------|
+| 1. Merge locally | ✓ | - | - | ✓ |
+| 2. Create PR | - | ✓ | ✓ | - |
+| 3. Keep as-is | - | - | ✓ | - |
+| 4. Discard | - | - | - | ✓ (force) |
+
+## Common Mistakes
+
+**Skipping test verification**
+- **Problem:** Merge broken code, create failing PR
+- **Fix:** Always verify tests before offering options
+
+**Open-ended questions**
+- **Problem:** "What should I do next?" → ambiguous
+- **Fix:** Present exactly 4 structured options
+
+**Automatic worktree cleanup**
+- **Problem:** Remove worktree when might need it (Option 2, 3)
+- **Fix:** Only cleanup for Options 1 and 4
+
+**No confirmation for discard**
+- **Problem:** Accidentally delete work
+- **Fix:** Require typed "discard" confirmation
+
+## Red Flags
+
+**Never:**
+- Proceed with failing tests
+- Merge without verifying tests on result
+- Delete work without confirmation
+- Force-push without explicit request
+
+**Always:**
+- Verify tests before offering options
+- Present exactly 4 options
+- Get typed confirmation for Option 4
+- Clean up worktree for Options 1 & 4 only
+
+## Integration
+
+**Called by:**
+- **subagent-driven-development** (Step 7) - After all tasks complete
+- **executing-plans** (Step 5) - After all batches complete
+
+**Pairs with:**
+- **using-git-worktrees** - Cleans up worktree created by that skill
+
+---
+
+<task-notification>
+<task-id>be6a1d6</task-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/be6a1d6.output</output-file>
+<status>completed</status>
+<summary>Background command "Start preview server in background" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/tasks/be6a1d6.output
+
+---
+
+そう。
+
+---
+
+含めて
+
+---
+
+Base directory for this skill: /Users/ta93abe/.claude/skills/pr
+
+# pr
+
+Pull Requestの作成・レビュー対応を行うスキル。
+
+## サブコマンド
+
+### /pr create (デフォルト)
+
+PRを作成する。
+
+**動作:**
+1. `git status` で現在のブランチと変更を確認
+2. `git log main..HEAD` でコミット履歴を確認
+3. `git diff main...HEAD` で全体の変更を確認
+4. 変更内容を分析してPRの説明文を生成
+5. `gh pr create` でPRを作成
+6. 変更の種類を確認し、リリースラベル（`patch`/`minor`/`major`）を付与
+
+**リリースラベル判断基準:**
+- `patch`: バグ修正、ドキュメント更新、リファクタリング、CI修正
+- `minor`: 新機能追加、既存機能の拡張
+- `major`: 破壊的変更（後方互換性のない変更）
+
+デフォルトは `patch`。判断に迷った場合はユーザーに確認する。
+
+**PR形式:**
+```markdown
+## Summary
+<変更の概要を箇条書き>
+
+## Test plan
+<テスト方法のチェックリスト>
+
+Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+### /pr review
+
+PRのレビューコメントに対応し、問題なければマージまで行う。
+
+**動作:**
+1. `gh pr view` でPR情報を取得
+2. `gh api` でレビューコメントを取得
+3. 各コメントの指摘内容を分析
+4. 必要な修正を実施
+5. 修正をコミット・プッシュ
+6. CIの状態を確認
+7. 重大な問題がなければ `gh pr merge` でマージ
+
+**マージ判断基準:**
+- 重大な問題（セキュリティ、破壊的変更）がない
+- CIが通っている
+- 軽微な指摘は対応済み、または次回対応として許容できる
+
+**マージ方法:**
+- デフォルトは squash merge (`--squash`)
+- マージ後にブランチを削除 (`--delete-branch`)
+
+### /pr status
+
+現在のPRの状態を確認する。
+
+**動作:**
+1. `gh pr status` でPR一覧を表示
+2. CIの状態を確認
+3. レビューの状態を確認
+
+## 注意事項
+
+- PRを作成する前にリモートにプッシュされていることを確認
+- ベースブランチ（通常はmain）との差分を確認
+- CIが通っていることを確認してからマージ依頼
+
+
+ARGUMENTS: review
+
+---
+
+github actions の作り方をブログにしたいね。
+あとこのサイトの技術スタックについても。このサイトもWorksに追加したい。サムネイルあとで指定する。
+
+---
+
+## Context
+
+- Current git status: On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   package.json
+	modified:   pnpm-lock.yaml
+	deleted:    src/content/blog/first-post.md
+	deleted:    src/content/blog/mdx-demo.mdx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.textlintrc.json
+	src/content/blog/github-actions-guide.mdx
+	src/content/blog/tech-stack.mdx
+	src/content/works/portfolio.mdx
+
+no changes added to commit (use "git add" and/or "git commit -a")
+- Current git diff (staged and unstaged changes): <persisted-output>
+Output too large (179.9KB). Full output saved to: /Users/ta93abe/.REDACTED.txt
+
+Preview (first 2KB):
+diff --git a/package.json b/package.json
+index 0a2a918..b5d90b7 100644
+--- a/package.json
++++ b/package.json
+@@ -17,7 +17,9 @@
+     "test:e2e": "playwright test",
+     "test:e2e:ui": "playwright test --ui",
+     "test:e2e:report": "playwright show-report",
+-    "deploy": "pnpm build && wrangler deploy"
++    "deploy": "pnpm build && wrangler deploy",
++    "textlint": "textlint 'src/content/**/*.{md,mdx}'",
++    "textlint:fix": "textlint --fix 'src/content/**/*.{md,mdx}'"
+   },
+   "dependencies": {
+     "@astrojs/mdx": "^4.3.13",
+@@ -46,6 +48,9 @@
+     "@vitest/ui": "^4.0.18",
+     "happy-dom": "^20.6.1",
+     "pagefind": "^1.4.0",
++    "textlint": "^15.5.1",
++    "textlint-rule-preset-ja-technical-writing": "^12.0.2",
++    "textlint-rule-preset-jtf-style": "^3.0.3",
+     "vitest": "^4.0.18",
+     "wrangler": "^4.65.0"
+   }
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 3da4b00..ee87fd0 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -81,6 +81,15 @@ importers:
+       pagefind:
+         specifier: ^1.4.0
+         version: 1.4.0
++      textlint:
++        specifier: ^15.5.1
++        version: 15.5.1
++      textlint-rule-preset-ja-technical-writing:
++        specifier: ^12.0.2
++        version: 12.0.2
++      textlint-rule-preset-jtf-style:
++        specifier: ^3.0.3
++        version: 3.0.3
+       vitest:
+         specifier: ^4.0.18
+         version: 4.0.18(@types/node@25.2.3)(@vitest/ui@4.0.18)(happy-dom@20.6.1)(jiti@2.6.1)(lightningcss@1.30.2)
+@@ -122,6 +131,16 @@ packages:
+     resolution: {integrity: REDACTED}
+     engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0}
+ 
++  '@azu/format-text@1.0.2':
++    resolution: {integrity: REDACTED}
++
++  '@azu/style-format@1.0.1':
++    resolution: {integrity: REDACTED}
++
+...
+</persisted-output>
+- Current branch: main
+- Recent commits: dd27081 feat: add OGP link card component and convert dbt-jobs to MDX Entire-Checkpoint: 5d0e293c1783 (#91)
+6c06c4e refactor: minimal clean redesign with lighter bundle (#90)
+16a489c feat(web3): add ENS profile card with 3D interaction (#89)
+c8e6841 feat(web3): add viem and ENS config (#84)
+cdbd337 style: apply Biome formatting to test and utility files (#83)
+c0093c5 feat(ui): add component library with tailwind-variants (#82)
+e1a5f70 feat: add initial design file created with Pencil (#81)
+76fa97a fix(a11y): add prefers-reduced-motion support to remaining components (#78)
+5353b83 feat(ux): add filtering and sorting to list pages (#77)
+8b226e0 refactor: add centralized type definitions (#72)
+
+## Your task
+
+Based on the above changes, create a single git commit.
+
+You have the capability to call multiple tools in a single response. Stage and create the commit using a single message. Do not use any other tools or do anything else. Do not send any other text or messages besides these tool calls.
+
+---
+
+main にコミットしないで
+
+---
+
+Base directory for this skill: /Users/ta93abe/.claude/skills/pr
+
+# pr
+
+Pull Requestの作成・レビュー対応を行うスキル。
+
+## サブコマンド
+
+### /pr create (デフォルト)
+
+PRを作成する。
+
+**動作:**
+1. `git status` で現在のブランチと変更を確認
+2. `git log main..HEAD` でコミット履歴を確認
+3. `git diff main...HEAD` で全体の変更を確認
+4. 変更内容を分析してPRの説明文を生成
+5. `gh pr create` でPRを作成
+6. 変更の種類を確認し、リリースラベル（`patch`/`minor`/`major`）を付与
+
+**リリースラベル判断基準:**
+- `patch`: バグ修正、ドキュメント更新、リファクタリング、CI修正
+- `minor`: 新機能追加、既存機能の拡張
+- `major`: 破壊的変更（後方互換性のない変更）
+
+デフォルトは `patch`。判断に迷った場合はユーザーに確認する。
+
+**PR形式:**
+```markdown
+## Summary
+<変更の概要を箇条書き>
+
+## Test plan
+<テスト方法のチェックリスト>
+
+Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+### /pr review
+
+PRのレビューコメントに対応し、問題なければマージまで行う。
+
+**動作:**
+1. `gh pr view` でPR情報を取得
+2. `gh api` でレビューコメントを取得
+3. 各コメントの指摘内容を分析
+4. 必要な修正を実施
+5. 修正をコミット・プッシュ
+6. CIの状態を確認
+7. 重大な問題がなければ `gh pr merge` でマージ
+
+**マージ判断基準:**
+- 重大な問題（セキュリティ、破壊的変更）がない
+- CIが通っている
+- 軽微な指摘は対応済み、または次回対応として許容できる
+
+**マージ方法:**
+- デフォルトは squash merge (`--squash`)
+- マージ後にブランチを削除 (`--delete-branch`)
+
+### /pr status
+
+現在のPRの状態を確認する。
+
+**動作:**
+1. `gh pr status` でPR一覧を表示
+2. CIの状態を確認
+3. レビューの状態を確認
+
+## 注意事項
+
+- PRを作成する前にリモートにプッシュされていることを確認
+- ベースブランチ（通常はmain）との差分を確認
+- CIが通っていることを確認してからマージ依頼
