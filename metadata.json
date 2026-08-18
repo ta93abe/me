@@ -1,0 +1,19 @@
+{
+  "branch": "feature/sveltia-cms",
+  "checkpoint_id": "2a20538b6731",
+  "checkpoints_count": 4,
+  "cli_version": "0.8.42",
+  "files_touched": [
+    "docs/sveltia-migration.md"
+  ],
+  "sessions": [
+    {
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit"
+}
