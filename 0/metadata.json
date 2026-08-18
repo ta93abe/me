@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "1bd3b5f272f9",
+  "session_id": "019f5485-b414-75e1-9c6c-f9e601443548",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-12T04:54:40.66789Z",
+  "branch": "feature/sveltia-cms",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "infra/alchemy.run.ts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml"
+  ],
+  "agent": "Codex",
+  "model": "gpt-5.6-sol",
+  "turn_id": "b0637d9ee35c",
+  "checkpoint_transcript_start": 332,
+  "transcript_lines_at_start": 332,
+  "compact_transcript_start": 63,
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-12T04:54:40.586541Z",
+    "agent_lines": 2169,
+    "agent_removed": 8,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2169,
+    "total_lines_changed": 2177,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
