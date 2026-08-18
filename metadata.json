@@ -1,0 +1,27 @@
+{
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoint_id": "f115ce7ad487",
+  "checkpoints_count": 2,
+  "cli_version": "0.8.42",
+  "files_touched": [
+    ".github/workflows/claude-code-review.yml",
+    ".github/workflows/claude.yml"
+  ],
+  "sessions": [
+    {
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 2,
+    "cache_creation_tokens": 817,
+    "cache_read_tokens": 451430,
+    "input_tokens": 4,
+    "output_tokens": 958
+  }
+}
