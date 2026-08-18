@@ -1,0 +1,36 @@
+{
+  "checkpoint_id": "5d0e293c1783",
+  "checkpoints_count": 19,
+  "cli_version": "0.4.4",
+  "files_touched": [
+    ".claude/settings.json",
+    "astro.config.mjs",
+    "dbt-jobs-check.png",
+    "dbt-jobs-page.png",
+    "public/dbt-jobs.png",
+    "src/components/FilterSort.astro",
+    "src/content.config.ts",
+    "src/content/works/dbt-jobs.md",
+    "src/content/works/sample-project.md",
+    "src/pages/works/[id].astro",
+    "src/pages/works/index.astro",
+    "src/styles/global.css"
+  ],
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "context": "/0/context.md",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 138,
+    "cache_creation_tokens": 132088,
+    "cache_read_tokens": 13882242,
+    "input_tokens": 186,
+    "output_tokens": 9736
+  }
+}
