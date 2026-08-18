@@ -1,0 +1,25 @@
+{
+  "branch": "main",
+  "checkpoint_id": "2cd3aaaabe8e",
+  "checkpoints_count": 0,
+  "cli_version": "0.7.5",
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/components/blog/TableOfContents.astro",
+    "src/content/blog/first-post.md",
+    "src/layouts/Layout.astro",
+    "src/pages/blog/[id].astro",
+    "src/pages/blog/index.astro",
+    "src/styles/global.css"
+  ],
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit"
+}
