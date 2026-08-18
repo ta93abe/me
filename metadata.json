@@ -1,0 +1,23 @@
+{
+  "branch": "04-14-fix_enable_tailwind_css_directives_in_biome",
+  "checkpoint_id": "7828f0ef643c",
+  "checkpoints_count": 3,
+  "cli_version": "0.5.4",
+  "files_touched": null,
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 57,
+    "cache_creation_tokens": 179067,
+    "cache_read_tokens": 5012427,
+    "input_tokens": 122,
+    "output_tokens": 25624
+  }
+}
