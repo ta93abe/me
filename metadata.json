@@ -1,0 +1,26 @@
+{
+  "branch": "chore/serena-language-servers",
+  "checkpoint_id": "4c591c87a83a",
+  "checkpoints_count": 8,
+  "cli_version": "0.8.42",
+  "files_touched": [
+    ".serena/project.yml"
+  ],
+  "sessions": [
+    {
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 33,
+    "cache_creation_tokens": 316870,
+    "cache_read_tokens": 2788444,
+    "input_tokens": 62,
+    "output_tokens": 22683
+  }
+}
