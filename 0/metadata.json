@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "80990ee87ac8",
+  "session_id": "019ec545-99e9-7ef1-a99b-c087c60881ac",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-14T13:35:11.353854Z",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "src/components/blog/TableOfContents.astro",
+    "src/pages/blog/[id].astro"
+  ],
+  "agent": "Codex",
+  "model": "gpt-5.5",
+  "turn_id": "a7d6135aab74",
+  "checkpoint_transcript_start": 704,
+  "transcript_lines_at_start": 704,
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-14T13:35:11.299956Z",
+    "agent_lines": 42,
+    "agent_removed": 206,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 42,
+    "total_lines_changed": 248,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
