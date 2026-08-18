@@ -1,0 +1,31 @@
+{
+  "branch": "main",
+  "checkpoint_id": "c68231a75716",
+  "checkpoints_count": 1,
+  "cli_version": "0.7.5",
+  "files_touched": [
+    "docs/AGENT_READINESS_PLAN.md",
+    "pnpm-workspace.yaml",
+    "public/_headers",
+    "public/robots.txt",
+    "src/layouts/Layout.astro",
+    "worker/index.ts",
+    "wrangler.jsonc"
+  ],
+  "sessions": [
+    {
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 79,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 8100736,
+    "input_tokens": 682747,
+    "output_tokens": 42814
+  }
+}
