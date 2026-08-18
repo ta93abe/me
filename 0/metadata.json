@@ -1,0 +1,50 @@
+{
+  "cli_version": "0.7.7",
+  "checkpoint_id": "3fcba2f2a923",
+  "session_id": "4a64de1f-3b64-4825-92e6-1e6717689c16",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-27T07:11:38.901899Z",
+  "branch": "main",
+  "checkpoints_count": 16,
+  "files_touched": [
+    ".env.example",
+    "src/components/posthog.astro",
+    "posthog-setup-report.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "13ad720fa94b",
+  "checkpoint_transcript_start": 149,
+  "transcript_lines_at_start": 149,
+  "token_usage": {
+    "input_tokens": 7499,
+    "cache_creation_tokens": 66567,
+    "cache_read_tokens": 6909499,
+    "output_tokens": 52780,
+    "api_call_count": 44
+  },
+  "session_metrics": {
+    "turn_count": 18
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-27T07:11:38.885446Z",
+    "agent_lines": 28,
+    "agent_removed": 3,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 28,
+    "total_lines_changed": 31,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
