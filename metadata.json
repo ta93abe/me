@@ -1,0 +1,26 @@
+{
+  "branch": "feature/404-playground-agent-docs",
+  "checkpoint_id": "26168d7abae1",
+  "checkpoints_count": 26,
+  "cli_version": "0.8.42",
+  "files_touched": [
+    ".serena/project.yml"
+  ],
+  "sessions": [
+    {
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "metadata": "/0/metadata.json",
+      "prompt": "/0/prompt.txt",
+      "transcript": "/0/full.jsonl"
+    }
+  ],
+  "strategy": "manual-commit",
+  "token_usage": {
+    "api_call_count": 77,
+    "cache_creation_tokens": 357717,
+    "cache_read_tokens": 11577452,
+    "input_tokens": 295,
+    "output_tokens": 80754
+  }
+}
