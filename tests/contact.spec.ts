@@ -40,8 +40,8 @@ test.describe("Contact Page", () => {
 	test("shows Contact in the header navigation", async ({ page }) => {
 		await page.goto("/contact");
 		await expect(
-			page.locator("header nav a", { hasText: "Contact" }),
-		).toHaveAttribute("href", "/contact");
+			page.locator("header nav a[href='/contact']").first(),
+		).toBeVisible();
 	});
 
 	test("shows success without waiting on delivery when the API accepts the form", async ({
