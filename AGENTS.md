@@ -321,5 +321,4 @@ Conventional Commits に従う:
 ## 次のステップ
 
 1. サンプルコンテンツを本番アセットに差し替え
-2. Sveltia CMS の books 対応・OAuth 本番確認
-3. Agent Readiness の残タスク（DNS-AID など）
+2. Agent Readiness の残タスク（DNS-AID など）

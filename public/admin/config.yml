@@ -21,7 +21,7 @@ output:
     indent_style: tab
 
 # 内部メディアストレージ（Git リポジトリ保存）のフォールバック先。
-# Atelier / Gallery はコレクション側で保存先を上書きする。
+# Atelier / Gallery / Books はコレクション側で保存先を上書きする。
 # blog の本文は R2 のみ（下記 body フィールドの media_libraries 参照）。
 media_folder: public/uploads
 public_folder: /uploads
@@ -235,6 +235,59 @@ collections:
         format: YYYY-MM-DD
         time_format: false
         required: false
+      - name: body
+        label: 本文
+        widget: markdown
+        media_libraries:
+          default:
+            config:
+              max_file_size: 26214400
+          cloudflare_r2: false
+
+  # Books のカバー画像は Astro の image()（ビルド時最適化）を使うため、
+  # blog の R2 ではなく gallery / atelier と同じくリポジトリ内に保存する。
+  # src/content.config.ts の books スキーマと 1:1 対応。
+  - name: books
+    label: Books
+    folder: src/content/books
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    slug: "{{fields._slug}}"
+    media_folder: /src/assets/books
+    public_folder: ../../assets/books
+    fields:
+      - { name: title, label: タイトル }
+      - { name: author, label: 著者 }
+      - name: coverImage
+        label: カバー画像
+        widget: image
+        hint: "必須。リポジトリ内（src/assets/books）に保存される"
+        media_libraries: { cloudflare_r2: false }
+      - name: status
+        label: ステータス
+        widget: select
+        options:
+          - { label: 読了, value: read }
+          - { label: 読書中, value: reading }
+          - { label: 積読, value: stacked }
+      - name: finishedDate
+        label: 読了日
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+        required: false
+      - name: rating
+        label: 評価
+        widget: number
+        value_type: int
+        min: 1
+        max: 5
+        step: 1
+        required: false
+        hint: "1〜5"
+      - { name: category, label: カテゴリ, required: false }
+      - { name: excerpt, label: 概要 }
       - name: body
         label: 本文
         widget: markdown

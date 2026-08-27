@@ -30,7 +30,7 @@ flowchart LR
 
 - Content Collections のスキーマ（`src/content.config.ts`）はそのまま
 - ローカルで Markdown を書いて `gt create` / push するフローはそのまま
-- works / books の `coverImage: image()`（Astro ビルド時最適化）はそのまま
+- gallery / atelier / books の `coverImage: image()`（Astro ビルド時最適化）はそのまま
 
 ### 新しく増えるもの
 
@@ -171,8 +171,8 @@ Alchemy に寄せられる（Astro は Vite 経由でビルドされ、静的 / 
 
 ## Step 4: CMS 設定（config.yml）
 
-**実装済み**: `public/admin/config.yml`。まずは blog コレクションのみで開始する
-（フィールドは `src/content.config.ts` の blog スキーマと 1:1 対応）。
+**実装済み**: `public/admin/config.yml`。blog / atelier / gallery / books / links を定義済み
+（フィールドは `src/content.config.ts` の各スキーマと 1:1 対応）。
 
 - `base_url`: `https://sveltia-auth.ta93abe.com`（Step 2 の Worker）
 - `media_libraries.cloudflare_r2`: `me-images` バケット + `images.ta93abe.com`
@@ -184,9 +184,10 @@ Alchemy に寄せられる（Astro は Vite 経由でビルドされ、静的 / 
   MDX はコンポーネントを含むためローカル編集で扱う（サイトのビルドでは従来通り公開される）
 - **コミット先**: GUI での保存は `main` に直接コミットされる（PR を経由しない）。
   Graphite のスタックフローとは独立した「コンテンツ専用の直コミット」と割り切る
-- **拡張**: 運用が回り始めたら works / books / talks を順次コレクション追加する。
-  works / books は `coverImage: image()`（ローカル画像必須）なので、
-  R2 参照に変える場合はスキーマを `z.string().url()` に変更する判断が必要
+- **カバー画像の保存先**: gallery / atelier / books は Astro の `image()` による
+  ビルド時最適化を使うため、Git（`src/assets/<collection>`）に保存する。
+  blog 本文の画像だけ R2（`images.ta93abe.com`）。books を R2 に寄せる場合は
+  スキーマを `z.string().url()` に変え、`astro:assets` の `Image` 利用も見直す必要がある
 
 ## Step 5: 自動デプロイ
 
@@ -213,23 +214,30 @@ Sveltia には OAuth 不要の **ローカルリポジトリモード** があ�
 
 - [x] `public/admin/index.html` を作成（バージョン固定 + SRI）
 - [x] `public/_headers` に `/admin/*` 用の CSP / noindex を追加
-- [x] `public/admin/config.yml` を作成（blog コレクション）
+- [x] `public/admin/config.yml` を作成（blog / atelier / gallery / books / links）
 - [x] `infra/alchemy.run.ts` で R2 バケット + sveltia-cms-auth Worker を定義
       （カスタムドメイン・CORS 込み）
 - [x] 自動デプロイ: 既存の Workers Builds で対応済み（追加作業なし）
-- [ ] GitHub OAuth App 作成（callback: `https://sveltia-auth.ta93abe.com/callback`、
+- [x] GitHub OAuth App 作成（callback: `https://sveltia-auth.ta93abe.com/callback`、
       Client ID / Secret を取得。Device Flow は不要）
-- [ ] インフラのデプロイ（どちらか）
+- [x] インフラのデプロイ（どちらか）
   - GitHub Actions: 上記 4 つの Secrets を登録し、Deploy Infra ワークフローを実行
   - ローカル: `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` を渡して `pnpm infra:deploy`
-- [ ] R2 API トークン作成（Object Read & Write / `me-images` スコープ）、
+- [x] R2 API トークン作成（Object Read & Write / `me-images` スコープ）、
       Access Key ID を `config.yml` の `access_key_id` に反映
 - [ ] ローカルリポジトリモードで動作確認
+- [x] OAuth プロキシ本番確認（2026-08-27）:
+      `https://sveltia-auth.ta93abe.com/auth?provider=github&site_id=ta93abe.com`
+      が GitHub の認可 URL（client_id 付き）へ 302 すること、
+      未許可ドメインは `UNSUPPORTED_DOMAIN` を返すこと、
+      `https://ta93abe.com/admin/` が 200 で配信されることを確認済み。
+      GitHub 同意画面の完了はリポジトリオーナーのセッションが必要
 - [ ] デプロイ後、`https://ta93abe.com/admin/` から GitHub ログイン → 記事作成 → 自動デプロイまで通し確認
 - [x] atelier / gallery / links（SNS リンク集）のコレクション追加
       （atelier / gallery の画像はリポジトリ内保存 + アップロード時 WebP 自動変換、
       音源は `public/media/audio`。links は `src/data/links.json` のファイルコレクション）
-- [ ] （任意）works / books / talks のコレクション追加を検討
+- [x] books コレクション追加（カバーは gallery と同じ Git `image()` / `src/assets/books`）
+- [ ] （任意）talks のコレクション追加を検討
 
 ## トラブルシューティング
 

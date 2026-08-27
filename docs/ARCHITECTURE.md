@@ -123,9 +123,8 @@ pnpm install
 ## 拡張ポイント
 
 1. 本番コンテンツの差し替え（gallery / atelier / books）
-2. CMS の books コレクション対応
-3. Agent Readiness 残タスク（DNS-AID など）
-4. x402 / tip エンドポイント（インフラ・シークレット前提）
+2. Agent Readiness 残タスク（DNS-AID など）
+3. x402 / tip エンドポイント（インフラ・シークレット前提）
 
 ## 参考資料
 
