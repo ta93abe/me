@@ -42,6 +42,7 @@ const featuredWorks = getFeaturedWorks(await getCollection("works"));
 		position: absolute;
 		inset: 0;
 		z-index: 0;
+		pointer-events: none;
 	}
 
 	.hero-canvas {
@@ -122,11 +123,6 @@ const featuredWorks = getFeaturedWorks(await getCollection("works"));
 		max-width: 40rem;
 		padding: 6.5rem 1.5rem 6rem;
 		overflow-y: auto;
-		pointer-events: none;
-	}
-
-	.hero-entry > * {
-		pointer-events: auto;
 	}
 
 	.hero-kicker {
