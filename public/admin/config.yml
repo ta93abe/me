@@ -211,12 +211,11 @@ collections:
           - { label: Drawing, value: drawing }
           - { label: Photo, value: photo }
           - { label: Music, value: music }
-          - { label: Project, value: project }
       - name: coverImage
         label: カバー画像
         widget: image
         required: false
-        hint: "drawing / photo / project では必須（リポジトリ内に保存される）"
+        hint: "drawing / photo では必須（リポジトリ内に保存される）"
         media_libraries: { cloudflare_r2: false }
       - name: audio
         label: 音源
@@ -235,6 +234,49 @@ collections:
         format: YYYY-MM-DD
         time_format: false
         required: false
+      - name: body
+        label: 本文
+        widget: markdown
+        media_libraries:
+          default:
+            config:
+              max_file_size: 26214400
+          cloudflare_r2: false
+
+  - name: works
+    label: Works
+    folder: src/content/works
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    slug: "{{fields._slug}}"
+    media_folder: /src/assets/works
+    public_folder: ../../assets/works
+    fields:
+      - { name: title, label: タイトル }
+      - name: coverImage
+        label: カバー画像
+        widget: image
+        hint: "必須（リポジトリ内に保存される）"
+        media_libraries: { cloudflare_r2: false }
+      - { name: tags, label: タグ, widget: list }
+      - { name: excerpt, label: 概要 }
+      - name: completedDate
+        label: 完成日
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+        required: false
+      - name: featured
+        label: 代表作
+        widget: boolean
+        required: false
+        hint: "トップから辿る代表作にする"
+      - name: repoUrl
+        label: リポジトリ URL
+        widget: string
+        required: false
+        hint: "GitHub など公開リポジトリの URL"
       - name: body
         label: 本文
         widget: markdown

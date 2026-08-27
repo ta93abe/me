@@ -1,0 +1,227 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, render } from "astro:content";
+import Tag from "@/components/ui/Tag.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/utils/date";
+import { stringifySchema } from "@/utils/schema";
+
+export async function getStaticPaths() {
+	const works = await getCollection("works");
+	return works.map((work) => ({
+		params: { id: work.id },
+		props: { work },
+	}));
+}
+
+const { work } = Astro.props;
+const { Content } = await render(work);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(work.data.coverImage.src, Astro.site);
+
+const workSchema = {
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	name: work.data.title,
+	description: work.data.excerpt,
+	image: ogImageURL.href,
+	keywords: work.data.tags.join(", "),
+	author: {
+		"@type": "Person",
+		name: SITE.author,
+		url: Astro.site?.href,
+	},
+	url: canonicalURL.href,
+	inLanguage: SITE.lang,
+	dateCreated: work.data.completedDate?.toISOString(),
+	...(work.data.repoUrl ? { codeRepository: work.data.repoUrl } : {}),
+};
+---
+
+<Layout
+	title={`${work.data.title} | Works | ${SITE.name}`}
+	description={work.data.excerpt}
+	ogType="article"
+	ogImage={ogImageURL.href}
+	ogImageAlt={work.data.title}
+>
+	<Fragment slot="head">
+		<meta property="article:author" content={SITE.author} />
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(workSchema)}
+		/>
+	</Fragment>
+	<main class="work-detail">
+		<div class="work-detail-nav">
+			<a href="/works" class="work-back">← Works 一覧へ戻る</a>
+		</div>
+
+		<header class="work-detail-header">
+			{
+				work.data.completedDate && (
+					<time
+						class="work-detail-date"
+						datetime={work.data.completedDate.toISOString()}
+					>
+						{formatDate(work.data.completedDate)}
+					</time>
+				)
+			}
+			<h1 class="work-detail-title font-display">{work.data.title}</h1>
+			<p class="work-detail-excerpt">{work.data.excerpt}</p>
+			{
+				work.data.tags.length > 0 && (
+					<div class="work-detail-tags">
+						{work.data.tags.map((tag) => (
+							<Tag>#{tag}</Tag>
+						))}
+					</div>
+				)
+			}
+			{
+				work.data.repoUrl && (
+					<p class="work-detail-repo">
+						<a href={work.data.repoUrl} rel="noopener noreferrer">
+							リポジトリを見る
+						</a>
+					</p>
+				)
+			}
+		</header>
+
+		<figure class="work-detail-figure">
+			<Image
+				src={work.data.coverImage}
+				alt={work.data.title}
+				class="work-detail-image"
+			/>
+		</figure>
+
+		<article class="work-detail-body prose prose-lg max-w-none">
+			<Content />
+		</article>
+	</main>
+</Layout>
+
+<style>
+	.work-detail {
+		padding: 6.5rem 0 5rem;
+	}
+
+	.work-detail-nav {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: 0 1.5rem 1.5rem;
+	}
+
+	.work-back {
+		display: inline-block;
+		margin-top: 1rem;
+		font-size: 0.9375rem;
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	.work-back:hover {
+		color: var(--primary-color);
+	}
+
+	.work-detail-header {
+		max-width: 40rem;
+		margin: 0 auto 2.5rem;
+		padding: 0 1.5rem;
+	}
+
+	.work-detail-date {
+		display: block;
+		margin-bottom: 0.75rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+	}
+
+	.work-detail-title {
+		margin: 0 0 1rem;
+		font-size: clamp(2rem, 6vw, 3.25rem);
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--text-primary);
+	}
+
+	.work-detail-excerpt {
+		margin: 0 0 1.25rem;
+		font-size: 1.0625rem;
+		line-height: 1.85;
+		color: var(--text-secondary);
+	}
+
+	.work-detail-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 0.75rem;
+	}
+
+	.work-detail-repo {
+		margin: 1.25rem 0 0;
+		font-size: 0.9375rem;
+	}
+
+	.work-detail-repo a {
+		color: var(--text-primary);
+		text-underline-offset: 0.2em;
+	}
+
+	.work-detail-figure {
+		max-width: 56rem;
+		margin: 0 auto 3rem;
+		padding: 0 1.5rem;
+	}
+
+	.work-detail-image {
+		width: 100%;
+		height: auto;
+		display: block;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		background: var(--bg-secondary);
+	}
+
+	.work-detail-body {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+	}
+</style>
+
+<script>
+	const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" /><path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" /></svg>`;
+	const copiedIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /></svg>`;
+
+	document.querySelectorAll(".prose pre").forEach((pre) => {
+		const button = document.createElement("button");
+		button.className = "copy-button";
+		button.innerHTML = copyIcon;
+		button.addEventListener("click", async () => {
+			const code = pre.querySelector("code");
+			if (code) {
+				await navigator.clipboard.writeText(code.textContent || "");
+				button.classList.add("copied");
+				button.innerHTML = copiedIcon;
+				setTimeout(() => {
+					button.classList.remove("copied");
+					button.innerHTML = copyIcon;
+				}, 2000);
+			}
+		});
+		pre.appendChild(button);
+	});
+</script>
+
+<script>
+	window.posthog?.capture("work_viewed", {
+		work_title: document.title,
+		work_url: window.location.href,
+	});
+</script>

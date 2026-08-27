@@ -28,9 +28,7 @@ const schemaType =
 		? "MusicComposition"
 		: piece.data.mediaType === "photo"
 			? "Photograph"
-			: piece.data.mediaType === "project"
-				? "SoftwareApplication"
-				: "VisualArtwork";
+			: "VisualArtwork";
 
 const pieceSchema = {
 	"@context": "https://schema.org",
@@ -136,8 +134,7 @@ const pieceSchema = {
 		overflow: hidden;
 	}
 
-	.gallery-detail-media.is-music,
-	.gallery-detail-media.is-project {
+	.gallery-detail-media.is-music {
 		aspect-ratio: 16 / 9;
 	}
 

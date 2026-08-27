@@ -11,19 +11,14 @@ const tagsSchema = z.array(z.string()).optional();
 /** Excerpt schema - short description */
 const excerptSchema = z.string();
 
-/** Atelier media type - drawing / photo / music */
+/** Atelier / Gallery media type - drawing / photo / music */
 const creativeMediaTypeSchema = z
 	.enum(["drawing", "photo", "music"])
 	.default("drawing");
 
-/** Gallery media type - 創作 + ポートフォリオプロジェクト */
-const galleryMediaTypeSchema = z
-	.enum(["drawing", "photo", "music", "project"])
-	.default("drawing");
-
 /**
  * Validate creative media fields:
- * - drawing / photo / project require coverImage
+ * - drawing / photo require coverImage
  * - music requires audio
  */
 type CreativeRefinementCtx = {
@@ -36,7 +31,7 @@ type CreativeRefinementCtx = {
 
 const refineCreativeMedia = <
 	T extends {
-		mediaType: "drawing" | "photo" | "music" | "project";
+		mediaType: "drawing" | "photo" | "music";
 		coverImage?: unknown;
 		audio?: string;
 	},
@@ -45,15 +40,13 @@ const refineCreativeMedia = <
 	ctx: CreativeRefinementCtx,
 ) => {
 	if (
-		(data.mediaType === "drawing" ||
-			data.mediaType === "photo" ||
-			data.mediaType === "project") &&
+		(data.mediaType === "drawing" || data.mediaType === "photo") &&
 		!data.coverImage
 	) {
 		ctx.addIssue({
 			code: "custom",
 			path: ["coverImage"],
-			message: "coverImage is required for drawing, photo, and project pieces",
+			message: "coverImage is required for drawing and photo pieces",
 		});
 	}
 	if (data.mediaType === "music" && !data.audio) {
@@ -68,6 +61,21 @@ const refineCreativeMedia = <
 // =============================================================================
 // Content Collections
 // =============================================================================
+
+// Worksコレクション（エンジニアリングの代表作）
+const works = defineCollection({
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/works" }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			coverImage: image(),
+			tags: z.array(z.string()),
+			excerpt: excerptSchema,
+			completedDate: z.coerce.date().optional(),
+			featured: z.boolean().optional(),
+			repoUrl: z.string().url().optional(),
+		}),
+});
 
 // Atelierコレクション（作業中・練習作品）
 const atelier = defineCollection({
@@ -87,14 +95,14 @@ const atelier = defineCollection({
 			.superRefine(refineCreativeMedia),
 });
 
-// Galleryコレクション（完成作品 + ポートフォリオプロジェクト）
+// Galleryコレクション（創作の完成作品）
 const gallery = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery" }),
 	schema: ({ image }) =>
 		z
 			.object({
 				title: z.string(),
-				mediaType: galleryMediaTypeSchema,
+				mediaType: creativeMediaTypeSchema,
 				coverImage: image().optional(),
 				audio: z.string().optional(),
 				tags: tagsSchema,
@@ -133,6 +141,7 @@ const blog = defineCollection({
 });
 
 export const collections = {
+	works,
 	atelier,
 	gallery,
 	books,

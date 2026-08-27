@@ -35,8 +35,9 @@ export default defineConfig({
 	site: "https://ta93abe.com",
 	integrations: [sitemap(), mdx(), react()],
 	redirects: {
-		"/works": "/gallery",
-		"/works/[id]": "/gallery/[id]",
+		"/projects": "/works",
+		"/projects/[id]": "/works/[id]",
+		"/gallery/dbt-jobs": "/works/dbt-jobs",
 	},
 	build: {
 		inlineStylesheets: "auto",

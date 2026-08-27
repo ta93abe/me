@@ -28,7 +28,7 @@
 ├── src/
 │   ├── components/          # UI / landing / blog / creative
 │   ├── config/              # site.ts / navigation.ts
-│   ├── content/             # blog / gallery / atelier / books
+│   ├── content/             # blog / gallery / atelier / books / works
 │   ├── layouts/Layout.astro
 │   ├── pages/               # ファイルベースルーティング
 │   ├── styles/global.css
@@ -46,6 +46,7 @@
 ```text
 src/pages/
 ├── index.astro              → /
+├── works/                   → /works, /works/:id
 ├── gallery/                 → /gallery, /gallery/:id
 ├── atelier/                 → /atelier, /atelier/:id
 ├── bookshelf/               → /bookshelf, /bookshelf/:id
@@ -58,7 +59,7 @@ src/pages/
 └── 404.astro
 ```
 
-互換のため `/works` と `/works/:id` は `/gallery` 系へリダイレクトする（`astro.config.mjs`）。
+エンジニアリングの代表作は `/works`、創作の完成作は `/gallery`。旧 Gallery のプロジェクト URL（`/gallery/dbt-jobs`）と `/projects` は `/works` へリダイレクトする（`astro.config.mjs`）。
 
 ## データフロー
 
@@ -122,7 +123,7 @@ pnpm install
 
 ## 拡張ポイント
 
-1. 本番コンテンツの差し替え（gallery / atelier / books）
+1. 本番コンテンツの差し替え（works / gallery / atelier / books）
 2. CMS の books コレクション対応
 3. Agent Readiness 残タスク（DNS-AID など）
 4. x402 / tip エンドポイント（インフラ・シークレット前提）

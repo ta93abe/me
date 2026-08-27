@@ -7,7 +7,7 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including gallery pieces and projects, atelier studies, blog posts, slides, books, tools, and social links.";
+	"Personal portfolio site for Takumi Abe (ta93abe), including engineering works, gallery pieces, atelier studies, blog posts, slides, books, tools, and social links.";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
@@ -41,6 +41,7 @@ ${SITE_DESCRIPTION}
 
 ## Primary sections
 
+- Works: ${SITE_URL}/works/
 - Gallery: ${SITE_URL}/gallery/
 - Atelier: ${SITE_URL}/atelier/
 - Blog: ${SITE_URL}/blog/
@@ -150,7 +151,8 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 
 ## What this site contains
 
-- Gallery exhibitions, creative pieces, and portfolio projects.
+- Engineering works and representative projects.
+- Gallery exhibitions and creative pieces.
 - Atelier studies and work-in-progress pieces.
 - Technical blog posts.
 - Public slide links.

@@ -1,0 +1,206 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import FilterSort from "@/components/FilterSort.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import Tag from "@/components/ui/Tag.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/utils/date";
+import { sortWorksByDate } from "@/utils/works";
+
+const works = sortWorksByDate(await getCollection("works"));
+const allTags = works.flatMap((work) => work.data.tags);
+---
+
+<Layout
+	title={`Works | ${SITE.name}`}
+	description="データ基盤や CI など、手がけたエンジニアリングのプロジェクト。"
+>
+	<main class="works-page">
+		<header class="works-header">
+			<h1 class="works-title font-display">Works</h1>
+			<p class="works-lead">
+				データ基盤や CI など、手がけたエンジニアリングのプロジェクトです。<br />
+				絵・写真・音楽の完成作は <a href="/gallery">Gallery</a> にあります。
+			</p>
+		</header>
+
+		{
+			works.length === 0 ? (
+				<EmptyState
+					title="まだ公開していません"
+					description="代表作が揃い次第、ここに並びます。"
+				/>
+			) : (
+				<>
+					<FilterSort tags={allTags} containerId="works-list" />
+					<section
+						id="works-list"
+						class="works-grid"
+						aria-label="プロジェクト一覧"
+					>
+						{works.map((work) => (
+							<a
+								href={`/works/${work.id}`}
+								class="works-card"
+								data-item
+								data-tags={work.data.tags.join(",")}
+								data-title={work.data.title}
+								data-date={work.data.completedDate?.toISOString() ?? ""}
+							>
+								<div class="works-card-media">
+									<Image
+										src={work.data.coverImage}
+										alt={work.data.title}
+										class="works-card-image"
+									/>
+								</div>
+								<div class="works-card-body">
+									<div class="works-card-meta">
+										{work.data.completedDate && (
+											<time datetime={work.data.completedDate.toISOString()}>
+												{formatDate(work.data.completedDate)}
+											</time>
+										)}
+									</div>
+									<h2 class="works-card-title">{work.data.title}</h2>
+									<p class="works-card-excerpt">{work.data.excerpt}</p>
+									{work.data.tags.length > 0 && (
+										<div class="works-card-tags">
+											{work.data.tags.map((tag) => (
+												<Tag>#{tag}</Tag>
+											))}
+										</div>
+									)}
+								</div>
+							</a>
+						))}
+					</section>
+				</>
+			)
+		}
+	</main>
+</Layout>
+
+<style>
+	.works-page {
+		max-width: 68rem;
+		margin: 0 auto;
+		padding: 6rem 1.5rem 4rem;
+	}
+
+	.works-header {
+		margin-bottom: 3rem;
+	}
+
+	.works-title {
+		margin: 0 0 0.75rem;
+		font-size: clamp(2rem, 6vw, 2.75rem);
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--text-primary);
+	}
+
+	.works-lead {
+		margin: 0;
+		max-width: 36rem;
+		font-size: 1rem;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.works-lead a {
+		color: var(--text-primary);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+
+	.works-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	@media (min-width: 768px) {
+		.works-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	.works-card {
+		display: flex;
+		flex-direction: column;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.works-card-media {
+		overflow: hidden;
+		aspect-ratio: 16 / 9;
+		background: var(--bg-secondary);
+	}
+
+	.works-card-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.works-card-body {
+		padding: 0.85rem 0 0;
+	}
+
+	.works-card-meta {
+		margin-bottom: 0.4rem;
+		font-size: 0.8125rem;
+		color: var(--text-muted);
+	}
+
+	.works-card-title {
+		margin: 0 0 0.35rem;
+		font-size: 1.25rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--text-primary);
+	}
+
+	.works-card:hover .works-card-title,
+	.works-card:focus-visible .works-card-title {
+		color: var(--primary-color);
+	}
+
+	.works-card-excerpt {
+		margin: 0 0 0.75rem;
+		font-size: 0.9375rem;
+		line-height: 1.7;
+		color: var(--text-secondary);
+	}
+
+	.works-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 0.75rem;
+	}
+</style>
+
+<script>
+	document.querySelectorAll(".works-card").forEach((card) => {
+		card.addEventListener("click", () => {
+			window.posthog?.capture("works_item_clicked", {
+				work_title: card.querySelector(".works-card-title")?.textContent?.trim(),
+				work_href: card.getAttribute("href"),
+			});
+		});
+	});
+
+	document.querySelectorAll("[data-filter-sort] .filter-chip").forEach((chip) => {
+		chip.addEventListener("click", () => {
+			const tag = (chip as HTMLElement).dataset.tag;
+			if (tag && tag !== "all") {
+				window.posthog?.capture("works_tag_filtered", { tag });
+			}
+		});
+	});
+</script>

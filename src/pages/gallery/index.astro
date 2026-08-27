@@ -19,14 +19,14 @@ const sorted = [...pieces].toSorted((a, b) => {
 
 <Layout
 	title={`Gallery | ${SITE.name}`}
-	description="絵・写真・音楽の完成作品と、ポートフォリオプロジェクトを並べたギャラリー。"
+	description="絵・写真・音楽の完成作品を並べたギャラリー。"
 >
 	<main class="gallery-page">
 		<header class="gallery-header">
 			<h1 class="gallery-title font-display">ギャラリー</h1>
 			<p class="gallery-lead">
-				絵・写真・音楽の完成作品と、<br />
-				手がけたプロジェクトを余白を残して置いています。
+				絵・写真・音楽の完成作品を、余白を残して置いています。<br />
+				エンジニアリングの仕事は <a href="/works">Works</a> にあります。
 			</p>
 		</header>
 
@@ -102,6 +102,12 @@ const sorted = [...pieces].toSorted((a, b) => {
 		font-size: 1rem;
 		line-height: 1.8;
 		color: var(--text-secondary);
+	}
+
+	.gallery-lead a {
+		color: var(--text-primary);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
 	}
 
 	.gallery-wall {

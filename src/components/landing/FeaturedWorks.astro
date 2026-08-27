@@ -1,0 +1,90 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+	works: CollectionEntry<"works">[];
+}
+
+const { works } = Astro.props;
+---
+
+{
+	works.length > 0 && (
+		<nav class="featured-works" aria-label="代表作">
+			<p class="featured-label">代表作</p>
+			<ul class="featured-list">
+				{works.map((work) => (
+					<li>
+						<a href={`/works/${work.id}`} data-featured-work>
+							{work.data.title}
+						</a>
+					</li>
+				))}
+			</ul>
+			<a class="featured-all" href="/works">
+				Works 一覧を見る
+			</a>
+		</nav>
+	)
+}
+
+<style>
+	.featured-works {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.65rem;
+	}
+
+	.featured-label {
+		margin: 0;
+		font-family: Inter, sans-serif;
+		font-size: 0.75rem;
+		font-weight: 500;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.featured-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.featured-list a,
+	.featured-all {
+		color: var(--text-primary);
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	.featured-list a {
+		font-size: 1.125rem;
+		line-height: 1.5;
+	}
+
+	.featured-list a:hover,
+	.featured-all:hover {
+		color: var(--primary-color);
+	}
+
+	.featured-all {
+		font-size: 0.9375rem;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		font-weight: 500;
+		color: var(--text-secondary);
+	}
+</style>
+
+<script>
+	document.querySelectorAll("[data-featured-work]").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("featured_work_clicked", {
+				work_title: link.textContent?.trim(),
+				work_href: link.getAttribute("href"),
+			});
+		});
+	});
+</script>

@@ -229,7 +229,8 @@ Sveltia には OAuth 不要の **ローカルリポジトリモード** があ�
 - [x] atelier / gallery / links（SNS リンク集）のコレクション追加
       （atelier / gallery の画像はリポジトリ内保存 + アップロード時 WebP 自動変換、
       音源は `public/media/audio`。links は `src/data/links.json` のファイルコレクション）
-- [ ] （任意）works / books / talks のコレクション追加を検討
+- [x] works コレクションを追加（エンジニアリングの代表作。Gallery とは分離）
+- [ ] （任意）books / talks のコレクション追加を検討
 
 ## トラブルシューティング
 

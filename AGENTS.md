@@ -32,7 +32,7 @@
 ├── src/
 │   ├── components/            # UI / landing / blog コンポーネント
 │   ├── config/                # site / navigation
-│   ├── content/               # Content Collections (blog, gallery, atelier, books)
+│   ├── content/               # Content Collections (blog, gallery, atelier, books, works)
 │   ├── layouts/Layout.astro
 │   ├── pages/                 # ファイルベースルーティング
 │   ├── styles/global.css
@@ -314,9 +314,10 @@ Conventional Commits に従う:
 
 ポートフォリオサイトとして運用中:
 - Astro 7 + Tailwind CSS 4 + Cloudflare Workers
-- ページ: Gallery / Atelier / Bookshelf / Blog / Links / Tools / Slides
+- ページ: Works / Gallery / Atelier / Bookshelf / Blog / Links / Tools / Slides
 - SEO（OG / JSON-LD / sitemap / robots）、PostHog、Sveltia CMS、perf CI まで実装済み
-- `/works` は `/gallery` へリダイレクト（互換維持）
+- エンジニアリングの代表作は `/works`、創作の完成作は `/gallery`
+- `/projects` と旧 `/gallery/dbt-jobs` は `/works` へリダイレクト
 
 ## 次のステップ
 
