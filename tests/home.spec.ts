@@ -14,15 +14,16 @@ test.describe("Home", () => {
 		await expect(
 			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
 		).toBeVisible();
-		await expect(page.getByRole("link", { name: "About" })).toHaveAttribute(
+		const ctas = page.getByRole("navigation", { name: "主なページ" });
+		await expect(ctas.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
 			"/about",
 		);
-		await expect(page.getByRole("link", { name: "Gallery" })).toHaveAttribute(
+		await expect(ctas.getByRole("link", { name: "Gallery" })).toHaveAttribute(
 			"href",
 			"/gallery",
 		);
-		await expect(page.getByRole("link", { name: "Contact" })).toHaveAttribute(
+		await expect(ctas.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
 			"/contact",
 		);
@@ -48,6 +49,21 @@ test.describe("Home", () => {
 
 		await expect(
 			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
+		).toBeVisible();
+	});
+
+	test("keeps the intro readable with reduced motion", async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await page.goto("/");
+
+		await expect(
+			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
+		).toBeVisible();
+		await expect(
+			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
+		).toBeVisible();
+		await expect(
+			page.getByRole("navigation", { name: "主なページ" }),
 		).toBeVisible();
 	});
 });
