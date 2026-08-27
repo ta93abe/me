@@ -23,3 +23,21 @@ export const NAV_LINKS: readonly NavLink[] = [
 	{ href: "/tools", text: "Tools" },
 	{ href: "/slides", text: "Slides" },
 ];
+
+export interface RecoveryLink {
+	readonly href: string;
+	readonly label: string;
+	readonly meta: string;
+}
+
+/**
+ * 404 から人のページへ戻る索引。
+ * `/careers` や `/jobs` はリダイレクトせず、About へのリンクで足りる。
+ * `/contact` は独立ページなので About へ送らない。
+ */
+export const NOT_FOUND_RECOVERY_LINKS: readonly RecoveryLink[] = [
+	{ href: "/about", label: "About", meta: "The person" },
+	{ href: "/contact", label: "Contact", meta: "Say hello" },
+	{ href: "/gallery", label: "Gallery", meta: "Selected archive" },
+	{ href: "/blog", label: "Blog", meta: "Field notes" },
+];

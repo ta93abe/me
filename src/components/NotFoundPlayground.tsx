@@ -1,24 +1,19 @@
 import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 
-const quickLinks = [
-	{ href: "/", label: "Home", meta: "Front cover" },
-	{ href: "/gallery/", label: "Gallery", meta: "Selected archive" },
-	{ href: "/blog/", label: "Blog", meta: "Field notes" },
-	{ href: "/links/", label: "Links", meta: "Elsewhere" },
-];
+import { NOT_FOUND_RECOVERY_LINKS } from "@/config/navigation";
 
 const fieldNotes = [
 	"Route slipped between the columns",
-	"Margin marks are still blinking",
-	"Index says: try another doorway",
-	"Signal recovered near /gallery/",
+	"Index says: try /about",
+	"Contact desk is still open",
+	"Signal recovered near /gallery",
 ];
 
 const floatingLabels = [
 	{ text: "NO SIGNAL", className: "nf-ticket nf-ticket-a" },
-	{ text: "TRY /BLOG", className: "nf-ticket nf-ticket-b" },
-	{ text: "LOST LINK", className: "nf-ticket nf-ticket-c" },
+	{ text: "TRY /ABOUT", className: "nf-ticket nf-ticket-b" },
+	{ text: "TRY /CONTACT", className: "nf-ticket nf-ticket-c" },
 	{ text: "PAGE DRIFT", className: "nf-ticket nf-ticket-d" },
 ];
 
@@ -207,7 +202,7 @@ export default function NotFoundPlayground() {
 						</div>
 
 						<nav className="nf-index" aria-label="Main sections">
-							{quickLinks.map((link, index) => (
+							{NOT_FOUND_RECOVERY_LINKS.map((link, index) => (
 								<motion.a
 									key={link.href}
 									href={link.href}
