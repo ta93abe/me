@@ -55,7 +55,7 @@ describe("generatePersonSchema", () => {
 		expect(schema.name).toBe(SITE.author);
 		expect(schema.alternateName).toBe(SITE.alternateName);
 		expect(schema.jobTitle).toBe("Software Engineer");
-		expect(schema.url).toBe("https://example.com/about");
+		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema["@id"]).toBe("https://example.com/#person");
 		expect(schema.sameAs).toEqual([
 			"https://github.com/ta93abe",

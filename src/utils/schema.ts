@@ -54,7 +54,7 @@ export const personId = (siteUrl: string): string =>
 	`${originFrom(siteUrl)}/#person`;
 
 export const personPageUrl = (siteUrl: string): string =>
-	`${originFrom(siteUrl)}/about`;
+	`${originFrom(siteUrl)}/about/`;
 
 /**
  * Generate Person JSON-LD schema

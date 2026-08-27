@@ -53,7 +53,7 @@ test.describe("About Page", () => {
 
 		expect(person).toBeDefined();
 		expect(person.jobTitle).toBe("Software Engineer");
-		expect(person.url).toMatch(/\/about$/);
+		expect(person.url).toMatch(/\/about\/?$/);
 		expect(person.sameAs).toEqual(
 			expect.arrayContaining([
 				"https://github.com/ta93abe",
