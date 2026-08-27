@@ -46,6 +46,8 @@
 ```text
 src/pages/
 ├── index.astro              → /
+├── about.astro              → /about
+├── contact.astro            → /contact
 ├── gallery/                 → /gallery, /gallery/:id
 ├── atelier/                 → /atelier, /atelier/:id
 ├── bookshelf/               → /bookshelf, /bookshelf/:id

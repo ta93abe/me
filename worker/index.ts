@@ -41,9 +41,11 @@ ${SITE_DESCRIPTION}
 
 ## Primary sections
 
+- About: ${SITE_URL}/about/
 - Gallery: ${SITE_URL}/gallery/
-- Atelier: ${SITE_URL}/atelier/
 - Blog: ${SITE_URL}/blog/
+- Contact: ${SITE_URL}/contact/
+- Atelier: ${SITE_URL}/atelier/
 - Slides: ${SITE_URL}/slides/
 - Bookshelf: ${SITE_URL}/bookshelf/
 - Tools: ${SITE_URL}/tools/

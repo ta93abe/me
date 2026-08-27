@@ -1,0 +1,82 @@
+---
+import Button from "@/components/ui/Button.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+
+const profiles = [
+	{ name: "GitHub", url: "https://github.com/ta93abe" },
+	{ name: "X", url: "https://x.com/ta93abe_" },
+	{ name: "LinkedIn", url: "https://linkedin.com/in/ta93abe" },
+	{ name: "Zenn", url: "https://zenn.dev/ta93abe" },
+	{ name: "Speaker Deck", url: "https://speakerdeck.com/ta93abe" },
+	{ name: "Substack", url: "https://ta93abe.substack.com" },
+] as const;
+---
+
+<Layout
+	title={`Contact | ${SITE.name}`}
+	description="Takumi Abe (ta93abe) への連絡先。GitHub、X、LinkedIn など。"
+>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="font-display text-4xl font-bold tracking-tight text-(--text-primary)">
+				Contact
+			</h1>
+			<p class="mt-3 max-w-xl text-(--text-secondary)">
+				仕事の相談や連絡は、使っている SNS からどうぞ。自己紹介は
+				<a
+					href="/about"
+					class="text-(--link-color) underline underline-offset-2 hover:text-(--link-hover-color)"
+				>
+					About
+				</a>
+				にあります。
+			</p>
+		</header>
+
+		<section aria-labelledby="contact-sns-heading">
+			<h2
+				id="contact-sns-heading"
+				class="mb-4 text-lg font-bold text-(--text-primary)"
+			>
+				SNS
+			</h2>
+			<ul class="divide-y divide-(--border-color)">
+				{
+					profiles.map((profile) => (
+						<li>
+							<a
+								href={profile.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="flex items-center justify-between py-4 text-(--text-primary) transition-colors hover:text-(--primary-color)"
+							>
+								<span class="font-medium">{profile.name}</span>
+								<span class="truncate pl-4 text-sm text-(--text-muted)">
+									{profile.url.replace(/^https:\/\//, "")}
+								</span>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</section>
+
+		<p class="mt-10 text-sm text-(--text-muted)">
+			その他のリンクは
+			<a
+				href="/links"
+				class="text-(--link-color) underline underline-offset-2 hover:text-(--link-hover-color)"
+			>
+				Links
+			</a>
+			にまとめています。
+		</p>
+
+		<div class="mt-8">
+			<Button href="/about" variant="secondary" size="sm">
+				About を見る
+			</Button>
+		</div>
+	</main>
+</Layout>

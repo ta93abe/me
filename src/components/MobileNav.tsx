@@ -9,6 +9,7 @@ const EXIT_MS = 240;
 
 type Props = {
 	links: readonly NavLink[];
+	secondaryLinks?: readonly NavLink[];
 	currentPath: string;
 };
 
@@ -17,7 +18,11 @@ function isActivePath(href: string, currentPath: string): boolean {
 	return currentPath.startsWith(href);
 }
 
-export default function MobileNav({ links, currentPath }: Props) {
+export default function MobileNav({
+	links,
+	secondaryLinks = [],
+	currentPath,
+}: Props) {
 	const [isOpen, setIsOpen] = useState(false);
 	const prefersReducedMotion = useReducedMotion();
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -209,6 +214,34 @@ export default function MobileNav({ links, currentPath }: Props) {
 								</motion.li>
 							);
 						})}
+						{secondaryLinks.length > 0 ? (
+							<motion.li variants={itemVariants} className="pt-4">
+								<p className="px-4 pb-2 text-xs font-medium tracking-wide text-(--text-muted) uppercase">
+									その他
+								</p>
+								<ul className="space-y-1">
+									{secondaryLinks.map((link) => {
+										const active = isActivePath(link.href, currentPath);
+										return (
+											<li key={link.href}>
+												<a
+													href={link.href}
+													aria-current={active ? "page" : undefined}
+													className={[
+														"block rounded-lg px-4 py-2.5 text-base font-medium transition-colors duration-200 hover:bg-(--bg-secondary) hover:text-(--text-primary)",
+														active
+															? "font-semibold text-(--text-primary)"
+															: "text-(--text-secondary)",
+													].join(" ")}
+												>
+													{link.text}
+												</a>
+											</li>
+										);
+									})}
+								</ul>
+							</motion.li>
+						) : null}
 					</motion.ul>
 				</nav>
 			</dialog>

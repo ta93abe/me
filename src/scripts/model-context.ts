@@ -23,9 +23,11 @@ if (!modelContext) {
 		execute: async () => ({
 			site: "https://ta93abe.com/",
 			sections: [
+				"https://ta93abe.com/about/",
 				"https://ta93abe.com/gallery/",
-				"https://ta93abe.com/atelier/",
 				"https://ta93abe.com/blog/",
+				"https://ta93abe.com/contact/",
+				"https://ta93abe.com/atelier/",
 				"https://ta93abe.com/slides/",
 				"https://ta93abe.com/bookshelf/",
 				"https://ta93abe.com/tools/",

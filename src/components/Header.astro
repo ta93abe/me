@@ -1,6 +1,6 @@
 ---
 // ヘッダーコンポーネント
-import { NAV_LINKS } from "@/config/navigation";
+import { PRIMARY_NAV_LINKS, SECONDARY_NAV_LINKS } from "@/config/navigation";
 import Logo from "./Logo.astro";
 import MobileNav from "./MobileNav";
 import NavLink from "./ui/NavLink.astro";
@@ -25,7 +25,7 @@ const isHome =
     <div class="hidden items-center md:flex">
       <ul class="flex items-center gap-0.5">
         {
-          NAV_LINKS.map((link) => (
+          PRIMARY_NAV_LINKS.map((link) => (
             <li>
               <NavLink href={link.href} class="rounded-lg px-2.5 py-2 text-sm">
                 {link.text}
@@ -38,7 +38,8 @@ const isHome =
 
     <MobileNav
       client:idle
-      links={NAV_LINKS}
+      links={PRIMARY_NAV_LINKS}
+      secondaryLinks={SECONDARY_NAV_LINKS}
       currentPath={Astro.url.pathname}
     />
   </nav>
