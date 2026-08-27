@@ -22,4 +22,5 @@ export const NAV_LINKS: readonly NavLink[] = [
 	{ href: "/links", text: "Links" },
 	{ href: "/tools", text: "Tools" },
 	{ href: "/slides", text: "Slides" },
+	{ href: "/contact", text: "Contact" },
 ];

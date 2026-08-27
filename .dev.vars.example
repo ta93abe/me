@@ -1,0 +1,8 @@
+# wrangler secret / local Worker vars
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+DEPLOY_HOOK_URL=
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+SLACK_WEBHOOK_URL=
+# 検証済み受信箱。EMAIL_INBOX.send() の to に使う
+CONTACT_INBOX_EMAIL=

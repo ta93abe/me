@@ -1,7 +1,7 @@
-interface Env {
-	ASSETS: Fetcher;
-	DEPLOY_HOOK_URL: string;
-}
+import { handleContactRequest } from "./contact";
+import { ContactWorkflow } from "./contact-workflow";
+
+export { ContactWorkflow };
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
@@ -48,6 +48,7 @@ ${SITE_DESCRIPTION}
 - Bookshelf: ${SITE_URL}/bookshelf/
 - Tools: ${SITE_URL}/tools/
 - Links: ${SITE_URL}/links/
+- Contact: ${SITE_URL}/contact/
 
 ## Machine-readable resources
 
@@ -564,6 +565,10 @@ export default {
 	async fetch(request, env): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = url.pathname.replace(/\/+$/, "") || "/";
+
+		if (pathname === "/api/contact") {
+			return handleContactRequest(request, env);
+		}
 
 		if (
 			request.method !== "GET" &&
