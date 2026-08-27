@@ -52,7 +52,10 @@ const profiles = [
 								class="flex items-center justify-between py-4 text-(--text-primary) transition-colors hover:text-(--primary-color)"
 							>
 								<span class="font-medium">{profile.name}</span>
-								<span class="truncate pl-4 text-sm text-(--text-muted)">
+								<span
+									class="truncate pl-4 text-sm text-(--text-muted)"
+									aria-hidden="true"
+								>
 									{profile.url.replace(/^https:\/\//, "")}
 								</span>
 							</a>

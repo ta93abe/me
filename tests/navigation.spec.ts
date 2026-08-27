@@ -90,11 +90,21 @@ test.describe("Primary navigation", () => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto("/blog");
 
+		await expect
+			.poll(async () =>
+				page.locator('astro-island[component-url*="MobileNav.tsx"]').getAttribute("ssr"),
+			)
+			.toBeNull();
+
 		await page.getByRole("button", { name: "メニューを開く" }).click();
+		await expect(page.getByRole("dialog", { name: "メニュー" })).toBeVisible();
 
 		const mobileNav = page.getByRole("navigation", {
 			name: "モバイルナビゲーション",
 		});
+		await expect(
+			mobileNav.getByRole("link", { name: "About", exact: true }),
+		).toBeVisible();
 		const hrefs = await mobileNav.getByRole("link").evaluateAll((anchors) =>
 			anchors.map((anchor) => anchor.getAttribute("href")),
 		);
