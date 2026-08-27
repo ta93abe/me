@@ -11,9 +11,14 @@
 			"icon": "zenn"
 		},
 		{
-			"name": "Qiita",
-			"url": "https://qiita.com/ta93abe",
-			"icon": "qiita"
+			"name": "X",
+			"url": "https://x.com/ta93abe_",
+			"icon": "x"
+		},
+		{
+			"name": "LinkedIn",
+			"url": "https://linkedin.com/in/ta93abe",
+			"icon": "linkedin"
 		},
 		{
 			"name": "Speaker Deck",
@@ -26,169 +31,9 @@
 			"icon": "connpass"
 		},
 		{
-			"name": "X",
-			"url": "https://x.com/ta93abe_",
-			"icon": "x"
-		},
-		{
-			"name": "Bluesky",
-			"url": "https://bsky.app/profile/ta93abe.bsky.social",
-			"icon": "bluesky"
-		},
-		{
-			"name": "Threads",
-			"url": "https://threads.net/@ta93abe",
-			"icon": "threads"
-		},
-		{
-			"name": "Instagram",
-			"url": "https://instagram.com/ta93abe",
-			"icon": "instagram"
-		},
-		{
-			"name": "Facebook",
-			"url": "https://facebook.com/ta93abe",
-			"icon": "facebook"
-		},
-		{
-			"name": "LinkedIn",
-			"url": "https://linkedin.com/in/ta93abe",
-			"icon": "linkedin"
-		},
-		{
-			"name": "Mixi2",
-			"url": "https://mixi.social/@ta93abe",
-			"icon": "mixi2"
-		},
-		{
-			"name": "YouTube",
-			"url": "https://youtube.com/@ta93abe",
-			"icon": "youtube"
-		},
-		{
-			"name": "TikTok",
-			"url": "https://tiktok.com/@ta93abe",
-			"icon": "tiktok"
-		},
-		{
-			"name": "Twitch",
-			"url": "https://twitch.tv/ta93abe",
-			"icon": "twitch"
-		},
-		{
-			"name": "sizu.me",
-			"url": "https://sizu.me/ta93abe",
-			"icon": "sizume"
-		},
-		{
-			"name": "note",
-			"url": "https://note.com/ta93abe",
-			"icon": "note"
-		},
-		{
-			"name": "Medium",
-			"url": "https://medium.com/@ta93abe",
-			"icon": "medium"
-		},
-		{
 			"name": "Substack",
 			"url": "https://ta93abe.substack.com",
 			"icon": "substack"
-		},
-		{
-			"name": "Reddit",
-			"url": "https://reddit.com/user/ta93abe",
-			"icon": "reddit"
-		},
-		{
-			"name": "Spotify",
-			"url": "https://open.spotify.com/user/ta93abe",
-			"icon": "spotify"
-		},
-		{
-			"name": "Kaggle",
-			"url": "https://kaggle.com/ta93abe",
-			"icon": "kaggle"
-		},
-		{
-			"name": "Hugging Face",
-			"url": "https://huggingface.co/ta93abe",
-			"icon": "huggingface"
-		},
-		{
-			"name": "Discord",
-			"url": "https://discord.com/users/ta93abe",
-			"icon": "discord"
-		},
-		{
-			"name": "Pinterest",
-			"url": "https://pinterest.com/ta93abe",
-			"icon": "pinterest"
-		},
-		{
-			"name": "Figma",
-			"url": "https://figma.com/@ta93abe",
-			"icon": "figma"
-		},
-		{
-			"name": "Stack Overflow",
-			"url": "https://stackoverflow.com/users/ta93abe",
-			"icon": "stackoverflow"
-		},
-		{
-			"name": "GitLab",
-			"url": "https://gitlab.com/ta93abe",
-			"icon": "gitlab"
-		},
-		{
-			"name": "Wantedly",
-			"url": "https://wantedly.com/id/ta93abe",
-			"icon": "wantedly"
-		},
-		{
-			"name": "SoundCloud",
-			"url": "https://soundcloud.com/ta93abe",
-			"icon": "soundcloud"
-		},
-		{
-			"name": "Audius",
-			"url": "https://audius.co/ta93abe",
-			"icon": "audius"
-		},
-		{
-			"name": "Telegram",
-			"url": "https://t.me/ta93abe",
-			"icon": "telegram"
-		},
-		{
-			"name": "Tumblr",
-			"url": "https://tumblr.com/ta93abe",
-			"icon": "tumblr"
-		},
-		{
-			"name": "WhatsApp",
-			"url": "https://wa.me/ta93abe",
-			"icon": "whatsapp"
-		},
-		{
-			"name": "Signal",
-			"url": "https://signal.me/#p/ta93abe",
-			"icon": "signal"
-		},
-		{
-			"name": "Apple Music",
-			"url": "https://music.apple.com/profile/ta93abe",
-			"icon": "applemusic"
-		},
-		{
-			"name": "Bandcamp",
-			"url": "https://bandcamp.com/ta93abe",
-			"icon": "bandcamp"
-		},
-		{
-			"name": "Product Hunt",
-			"url": "https://producthunt.com/@ta93abe",
-			"icon": "producthunt"
 		}
 	]
 }
