@@ -1,4 +1,19 @@
-import { SITE } from "@/config/site";
+import { SITE, SITE_SAME_AS } from "@/config/site";
+
+const originFrom = (siteUrl: string): string => siteUrl.replace(/\/$/, "");
+
+export interface PersonSchema {
+	"@context": "https://schema.org";
+	"@type": "Person";
+	"@id": string;
+	name: string;
+	alternateName: string;
+	url: string;
+	jobTitle: string;
+	description: string;
+	sameAs: string[];
+	knowsAbout: string[];
+}
 
 interface WebSiteSchema {
 	"@context": "https://schema.org";
@@ -8,8 +23,11 @@ interface WebSiteSchema {
 	description: string;
 	author: {
 		"@type": "Person";
+		"@id": string;
 		name: string;
 		url: string;
+		jobTitle: string;
+		sameAs: string[];
 	};
 	inLanguage: string;
 	potentialAction?: {
@@ -32,6 +50,33 @@ interface WebSiteSchemaOptions {
 	searchUrlTemplate?: string;
 }
 
+export const personId = (siteUrl: string): string =>
+	`${originFrom(siteUrl)}/#person`;
+
+export const personPageUrl = (siteUrl: string): string =>
+	`${originFrom(siteUrl)}/about`;
+
+/**
+ * Generate Person JSON-LD schema
+ * jobTitle / sameAs / url をトップレベル Person として出す。
+ */
+export const generatePersonSchema = (siteUrl: string): PersonSchema => {
+	const origin = originFrom(siteUrl);
+
+	return {
+		"@context": "https://schema.org",
+		"@type": "Person",
+		"@id": personId(origin),
+		name: SITE.author,
+		alternateName: SITE.alternateName,
+		url: personPageUrl(origin),
+		jobTitle: SITE.jobTitle,
+		description: SITE.tagline,
+		sameAs: [...SITE_SAME_AS],
+		knowsAbout: [...SITE.interests],
+	};
+};
+
 /**
  * Generate WebSite JSON-LD schema
  * @param siteUrl - Base URL for the site
@@ -46,6 +91,8 @@ export const generateWebSiteSchema = (
 		searchUrlTemplate = `${siteUrl}search?q={search_term_string}`,
 	} = options;
 
+	const person = generatePersonSchema(siteUrl);
+
 	const schema: WebSiteSchema = {
 		"@context": "https://schema.org",
 		"@type": "WebSite",
@@ -54,8 +101,11 @@ export const generateWebSiteSchema = (
 		description: SITE.description,
 		author: {
 			"@type": "Person",
-			name: SITE.author,
-			url: siteUrl,
+			"@id": person["@id"],
+			name: person.name,
+			url: person.url,
+			jobTitle: person.jobTitle,
+			sameAs: person.sameAs,
 		},
 		inLanguage: SITE.lang,
 	};

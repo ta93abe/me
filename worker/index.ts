@@ -41,6 +41,7 @@ ${SITE_DESCRIPTION}
 
 ## Primary sections
 
+- About: ${SITE_URL}/about/
 - Gallery: ${SITE_URL}/gallery/
 - Atelier: ${SITE_URL}/atelier/
 - Blog: ${SITE_URL}/blog/

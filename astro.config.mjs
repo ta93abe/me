@@ -37,6 +37,10 @@ export default defineConfig({
 	redirects: {
 		"/works": "/gallery",
 		"/works/[id]": "/gallery/[id]",
+		// 採用・仕事文脈のクローラー向け。/contact は独立ページ（TA-789）なのでリダイレクトしない。
+		"/careers": "/about",
+		"/jobs": "/about",
+		"/recruit": "/about",
 	},
 	build: {
 		inlineStylesheets: "auto",

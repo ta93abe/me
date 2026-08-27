@@ -1,0 +1,298 @@
+---
+import { getCollection } from "astro:content";
+import Button from "@/components/ui/Button.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { generatePersonSchema, stringifySchema } from "@/utils/schema";
+
+const gallery = await getCollection("gallery");
+const featuredWorks = [...gallery]
+	.filter((piece) => piece.data.mediaType === "project")
+	.toSorted((a, b) => {
+		const aTime = a.data.completedDate?.getTime() ?? 0;
+		const bTime = b.data.completedDate?.getTime() ?? 0;
+		return bTime - aTime;
+	})
+	.slice(0, 3);
+
+const siteUrl = Astro.site?.href || SITE.url;
+const personSchema = generatePersonSchema(siteUrl);
+---
+
+<Layout
+	title={`About | ${SITE.name}`}
+	description={SITE.tagline}
+>
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(personSchema)}
+		/>
+	</Fragment>
+
+	<main class="about-page">
+		<header class="about-header">
+			<p class="about-kicker">{SITE.alternateName}</p>
+			<h1 class="about-title font-display">{SITE.author}</h1>
+			<p class="about-role">{SITE.jobTitle}</p>
+			<p class="about-lead">{SITE.tagline}</p>
+		</header>
+
+		<section class="about-section" aria-labelledby="about-bio-heading">
+			<h2 id="about-bio-heading" class="about-heading">自己紹介</h2>
+			<p>
+				ソフトウェアエンジニアとして、データ基盤と CI/CD
+				を書いています。パイプラインが壊れにくいこと、差分だけを回せることを大切にしています。
+			</p>
+			<p>
+				仕事の外では絵・写真・音楽も置いています。完成したものは
+				<a href="/gallery">Gallery</a>、途中経過は
+				<a href="/atelier">Atelier</a> にあります。
+			</p>
+		</section>
+
+		<section class="about-section" aria-labelledby="about-interests-heading">
+			<h2 id="about-interests-heading" class="about-heading">関心</h2>
+			<ul class="about-interests">
+				{
+					SITE.interests.map((interest) => (
+						<li>{interest}</li>
+					))
+				}
+			</ul>
+		</section>
+
+		<section class="about-section" aria-labelledby="about-works-heading">
+			<h2 id="about-works-heading" class="about-heading">代表作</h2>
+			{
+				featuredWorks.length > 0 ? (
+					<ul class="about-works">
+						{featuredWorks.map((piece) => (
+							<li>
+								<a
+									href={`/gallery/${piece.id}`}
+									class="about-work"
+									data-work-title={piece.data.title}
+								>
+									<span class="about-work-title">{piece.data.title}</span>
+									<span class="about-work-excerpt">{piece.data.excerpt}</span>
+								</a>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p>
+						プロジェクトは <a href="/gallery">Gallery</a> に並べています。
+					</p>
+				)
+			}
+			<p class="about-works-more">
+				創作も含めた一覧は <a href="/gallery">Gallery</a>、習作は
+				<a href="/atelier">Atelier</a>。
+			</p>
+		</section>
+
+		<section class="about-section" aria-labelledby="about-sns-heading">
+			<h2 id="about-sns-heading" class="about-heading">SNS</h2>
+			<ul class="about-sns">
+				{
+					SITE.profiles.map((profile) => (
+						<li>
+							<a
+								href={profile.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								data-sns={profile.name}
+							>
+								{profile.name}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</section>
+
+		<section class="about-section about-contact" aria-labelledby="about-contact-heading">
+			<h2 id="about-contact-heading" class="about-heading">連絡</h2>
+			<p>
+				仕事の相談や連絡は Contact ページからどうぞ。フォームはそちらにあります。
+			</p>
+			<Button href="/contact" variant="primary" size="md">
+				Contact へ
+			</Button>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.about-page {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: 6rem 1.5rem 4rem;
+	}
+
+	.about-header {
+		margin-bottom: 3rem;
+	}
+
+	.about-kicker {
+		margin: 0 0 0.5rem;
+		font-family: Inter, system-ui, sans-serif;
+		font-size: 0.8125rem;
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+	}
+
+	.about-title {
+		margin: 0 0 0.5rem;
+		font-size: clamp(2rem, 6vw, 2.75rem);
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--text-primary);
+	}
+
+	.about-role {
+		margin: 0 0 1rem;
+		font-family: Inter, system-ui, sans-serif;
+		font-size: 0.9375rem;
+		font-weight: 500;
+		color: var(--text-secondary);
+	}
+
+	.about-lead {
+		margin: 0;
+		max-width: 36rem;
+		font-size: 1.0625rem;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.about-section {
+		margin-bottom: 2.5rem;
+	}
+
+	.about-heading {
+		margin: 0 0 0.85rem;
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: var(--text-primary);
+	}
+
+	.about-section p {
+		margin: 0 0 0.85rem;
+		line-height: 1.85;
+		color: var(--text-secondary);
+	}
+
+	.about-section p:last-child {
+		margin-bottom: 0;
+	}
+
+	.about-section a {
+		color: var(--link-color);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	.about-section a:hover {
+		color: var(--link-hover-color);
+	}
+
+	.about-interests,
+	.about-sns,
+	.about-works {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.about-interests {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.about-interests li {
+		padding: 0.35rem 0.75rem;
+		background: var(--bg-secondary);
+		font-size: 0.875rem;
+		color: var(--text-primary);
+	}
+
+	.about-works {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.about-work {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 0.85rem 0;
+		text-decoration: none !important;
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.about-work-title {
+		font-weight: 700;
+		color: var(--text-primary);
+	}
+
+	.about-work-excerpt {
+		font-size: 0.9375rem;
+		line-height: 1.7;
+		color: var(--text-secondary);
+	}
+
+	.about-work:hover .about-work-title {
+		color: var(--primary-color);
+	}
+
+	.about-works-more {
+		margin-top: 0.5rem;
+	}
+
+	.about-sns {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 1.5rem;
+	}
+
+	.about-sns a {
+		font-weight: 600;
+	}
+
+	.about-contact p {
+		margin-bottom: 1.25rem;
+	}
+</style>
+
+<script>
+	document.querySelectorAll(".about-work").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("about_work_clicked", {
+				work_title: link.getAttribute("data-work-title"),
+				url: link.getAttribute("href"),
+			});
+		});
+	});
+
+	document.querySelectorAll(".about-sns a").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("about_sns_clicked", {
+				platform: link.getAttribute("data-sns"),
+				url: link.getAttribute("href"),
+			});
+		});
+	});
+
+	document.querySelectorAll('a[href="/contact"]').forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("about_contact_clicked", {
+				url: "/contact",
+			});
+		});
+	});
+</script>

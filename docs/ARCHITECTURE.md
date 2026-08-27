@@ -46,6 +46,7 @@
 ```text
 src/pages/
 ├── index.astro              → /
+├── about.astro              → /about
 ├── gallery/                 → /gallery, /gallery/:id
 ├── atelier/                 → /atelier, /atelier/:id
 ├── bookshelf/               → /bookshelf, /bookshelf/:id
@@ -59,6 +60,7 @@ src/pages/
 ```
 
 互換のため `/works` と `/works/:id` は `/gallery` 系へリダイレクトする（`astro.config.mjs`）。
+採用・仕事文脈のクローラー向けに `/careers` / `/jobs` / `/recruit` は `/about` へリダイレクトする。`/contact` は独立ページのためリダイレクトしない。
 
 ## データフロー
 

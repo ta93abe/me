@@ -16,6 +16,7 @@ export interface NavLink {
  * `/bookshelf` の URL 自体は残している。
  */
 export const NAV_LINKS: readonly NavLink[] = [
+	{ href: "/about", text: "About" },
 	{ href: "/gallery", text: "Gallery" },
 	{ href: "/atelier", text: "Atelier" },
 	{ href: "/blog", text: "Blog" },
