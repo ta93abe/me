@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getCollection, render } from "astro:content";
+import NewsletterCta from "@/components/NewsletterCta.astro";
 import PostNavigation from "@/components/PostNavigation.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import BackToTop from "@/components/ui/BackToTop.astro";
@@ -138,6 +139,8 @@ const blogSchema = {
     <article class="prose prose-lg">
       <Content />
     </article>
+
+    <NewsletterCta source="blog-post" />
 
     <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import FilterSort from "@/components/FilterSort.astro";
+import NewsletterCta from "@/components/NewsletterCta.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
@@ -99,6 +100,8 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
         ))
       }
     </div>
+
+    <NewsletterCta source="blog-index" />
   </main>
 </Layout>
 

@@ -1,0 +1,63 @@
+---
+import { SITE } from "@/config/site";
+
+interface Props {
+	/**
+	 * footer: 全ページ共通のテキストリンク。
+	 * block: Blog 一覧・記事下の購読導線。
+	 */
+	variant?: "footer" | "block";
+	/** PostHog `newsletter_cta_clicked` の source */
+	source?: string;
+}
+
+const { variant = "block", source = variant } = Astro.props;
+---
+
+{
+	variant === "footer" ? (
+		<a
+			href={SITE.substackSubscribeUrl}
+			target="_blank"
+			rel="noopener noreferrer"
+			data-newsletter-cta={source}
+			class="text-sm text-(--text-muted) transition-colors hover:text-(--text-primary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+		>
+			Newsletter
+		</a>
+	) : (
+		<aside
+			class="mt-12 border-t border-(--border-color) pt-8"
+			aria-label="Newsletter"
+			data-newsletter-cta-block
+		>
+			<h2 class="font-display text-lg font-bold text-(--text-primary)">
+				Newsletter
+			</h2>
+			<p class="mt-2 text-sm leading-relaxed text-(--text-secondary)">
+				記事の本文はこのサイトに置いています。不定期の便りは Substack
+				で配信しています。
+			</p>
+			<a
+				href={SITE.substackSubscribeUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				data-newsletter-cta={source}
+				class="mt-4 inline-flex items-center justify-center rounded-md bg-(--text-primary) px-5 py-2.5 text-sm font-medium text-(--bg-primary) transition-colors duration-150 hover:bg-(--primary-hover) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+			>
+				Substack で購読する
+			</a>
+		</aside>
+	)
+}
+
+<script>
+	document.querySelectorAll("[data-newsletter-cta]").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("newsletter_cta_clicked", {
+				source: link.getAttribute("data-newsletter-cta"),
+				url: link.getAttribute("href"),
+			});
+		});
+	});
+</script>
