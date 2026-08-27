@@ -205,8 +205,10 @@ Sveltia には OAuth 不要の **ローカルリポジトリモード** があ�
 デプロイ前でも管理画面の使い勝手を試せる。
 
 1. `pnpm dev` を起動
-2. Chromium 系ブラウザ（Chrome / Edge / Brave）で `http://localhost:4321/admin/` を開く
-   （File System Access API 依存のため Firefox / Safari 不可。Brave はフラグで有効化が必要）
+2. Chromium 系ブラウザ（Chrome / Edge / Brave）で `http://localhost:4321/admin/index.html` を開く
+   （File System Access API 依存のため Firefox / Safari 不可。Brave はフラグで有効化が必要。
+   Astro の開発サーバーは `public/admin/` をディレクトリインデックスしないため `/admin/` は 404。
+   本番の Cloudflare では `https://ta93abe.com/admin/` で配信される）
 3. 「Work with Local Repository」を選び、プロジェクトフォルダを指定
 4. 保存するとローカルの `.md` ファイルが直接書き換わる → 確認して自分で commit / push
 
