@@ -20,17 +20,24 @@ test.describe("Published content", () => {
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toBeVisible();
 	});
 
-	test("gallery keeps dbt-jobs with its own cover", async ({ page }) => {
+	test("gallery is creative-only and empty without sample pieces", async ({
+		page,
+	}) => {
 		await page.goto("/gallery");
 
 		await expect(page.locator("body")).not.toContainText(sampleCopy);
-		await expect(page.getByRole("heading", { name: "dbt-jobs" })).toBeVisible();
-		await expect(page.getByRole("heading", { name: "静かな枠" })).toHaveCount(0);
-		await expect(page.getByRole("heading", { name: "夜の粒子" })).toHaveCount(0);
-
-		const cover = page.locator(".gallery-piece img").first();
-		await expect(cover).toBeVisible();
-		await expect(cover).toHaveAttribute("alt", /dbt-jobs/i);
+		await expect(page.getByRole("heading", { name: "dbt-jobs" })).toHaveCount(
+			0,
+		);
+		await expect(page.getByRole("heading", { name: "静かな枠" })).toHaveCount(
+			0,
+		);
+		await expect(page.getByRole("heading", { name: "夜の粒子" })).toHaveCount(
+			0,
+		);
+		await expect(page.getByRole("status")).toContainText(
+			"展示はまだありません",
+		);
 	});
 
 	test("atelier and bookshelf stay empty without placeholders", async ({

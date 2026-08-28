@@ -47,11 +47,11 @@ describe("published content", () => {
 		expect(listEntries("books")).toEqual([]);
 	});
 
-	it("keeps only gallery pieces with unique covers", () => {
+	it("keeps only creative gallery pieces with unique covers", () => {
 		const files = listEntries("gallery");
 		const covers = coverImages("gallery");
 
-		expect(files).toContain("dbt-jobs.mdx");
+		expect(files).not.toContain("dbt-jobs.mdx");
 		expect(files).not.toEqual(
 			expect.arrayContaining([
 				"quiet-frame.md",
@@ -60,6 +60,15 @@ describe("published content", () => {
 				"thin-chord.md",
 			]),
 		);
+		expect(covers.length).toBe(files.length);
+		expect(new Set(covers).size).toBe(covers.length);
+	});
+
+	it("keeps engineering work in Works, not Gallery", () => {
+		const files = listEntries("works");
+		const covers = coverImages("works");
+
+		expect(files).toContain("dbt-jobs.mdx");
 		expect(covers.length).toBe(files.length);
 		expect(new Set(covers).size).toBe(covers.length);
 		expect(covers.some((cover) => cover.includes("dbt-jobs"))).toBe(true);
