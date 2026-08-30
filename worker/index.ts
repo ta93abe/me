@@ -4,14 +4,10 @@ import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { handleContentQueue } from "./content/queue.ts";
 
-interface Env {
-	ASSETS: Fetcher;
-	DEPLOY_HOOK_URL: string;
-	CONTENT: R2Bucket;
-	IMAGES: R2Bucket;
-	CONTENT_EVENTS: Queue;
-	CONTENT_HMAC_SECRET: string;
-	IMAGES_PUBLIC_ORIGIN: string;
+type CacheStore = { default: Cache };
+
+function defaultCache(): Cache {
+	return (caches as unknown as CacheStore).default;
 }
 
 const SITE_URL = "https://ta93abe.com";
@@ -588,7 +584,7 @@ async function fetchAstro(
 		isBlogHtmlPath(pathname) &&
 		(method === "GET" || method === "HEAD")
 	) {
-		const cached = await caches.default.match(request);
+		const cached = await defaultCache().match(request);
 		if (cached) {
 			return cached;
 		}
@@ -609,7 +605,7 @@ async function fetchAstro(
 			statusText: response.statusText,
 			headers,
 		});
-		ctx.waitUntil(caches.default.put(request, cached.clone()));
+		ctx.waitUntil(defaultCache().put(request, cached.clone()));
 		return cached;
 	}
 
@@ -749,7 +745,7 @@ export default {
 		await handleContentQueue(batch, env.CONTENT, {
 			origin: SITE_URL,
 			purge: async (urls) => {
-				await Promise.all(urls.map((target) => caches.default.delete(target)));
+				await Promise.all(urls.map((target) => defaultCache().delete(target)));
 			},
 		});
 	},

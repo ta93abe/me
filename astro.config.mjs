@@ -5,7 +5,7 @@ import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, logHandlers } from "astro/config";
+import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
 /**
  * Astro の CspResourceEntry 相当。
@@ -40,6 +40,10 @@ export default defineConfig({
 		// OG / resvg / satori は Node 前提のプリレンダー
 		prerenderEnvironment: "node",
 	}),
+	// セッションは使わない。SESSION KV を自動で増やさない
+	session: {
+		driver: sessionDrivers.lruCache(),
+	},
 	integrations: [sitemap(), mdx(), react()],
 	redirects: {
 		"/works": "/gallery",
