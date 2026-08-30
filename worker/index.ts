@@ -1,6 +1,14 @@
+import { handleContentApi } from "./content/api.ts";
+import { handleContentQueue } from "./content/queue.ts";
+
 interface Env {
 	ASSETS: Fetcher;
 	DEPLOY_HOOK_URL: string;
+	CONTENT: R2Bucket;
+	IMAGES: R2Bucket;
+	CONTENT_EVENTS: Queue;
+	CONTENT_HMAC_SECRET: string;
+	IMAGES_PUBLIC_ORIGIN: string;
 }
 
 const SITE_URL = "https://ta93abe.com";
@@ -565,6 +573,11 @@ export default {
 		const url = new URL(request.url);
 		const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
+		const contentResponse = await handleContentApi(request, env);
+		if (contentResponse) {
+			return contentResponse;
+		}
+
 		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
@@ -682,6 +695,10 @@ export default {
 
 		const response = await env.ASSETS.fetch(request);
 		return addHomepageDiscoveryHeaders(request, response);
+	},
+
+	async queue(batch, env): Promise<void> {
+		await handleContentQueue(batch, env.CONTENT);
 	},
 
 	async scheduled(_event, env): Promise<void> {
