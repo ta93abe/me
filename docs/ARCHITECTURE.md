@@ -4,17 +4,17 @@
 
 ## 技術スタック概要
 
-| カテゴリ | 技術 | 役割 |
-|---------|------|------|
-| フレームワーク | Astro 7 | スタティックサイトジェネレーション |
-| スタイリング | Tailwind CSS 4 | ユーティリティファースト CSS |
-| ビルドツール | Vite 8 | 開発サーバー・バンドリング |
-| 言語 | TypeScript | 型安全な開発 |
-| パッケージマネージャー | pnpm | 高速・効率的な依存管理 |
-| リンター/フォーマッター | Oxlint / Oxfmt | コード品質管理 |
-| テスティング | Vitest + Playwright | ユニット・E2E テスト |
-| CMS | Sveltia CMS | Git ベースのコンテンツ編集 |
-| デプロイ先 | Cloudflare Workers | エッジ配信 + Worker ロジック |
+| カテゴリ                | 技術                                             | 役割                                                                   |
+| ----------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| フレームワーク          | Astro 7                                          | スタティックサイトジェネレーション                                     |
+| スタイリング            | Tailwind CSS 4                                   | ユーティリティファースト CSS                                           |
+| ビルドツール            | Vite 8                                           | 開発サーバー・バンドリング                                             |
+| 言語                    | TypeScript                                       | 型安全な開発                                                           |
+| パッケージマネージャー  | pnpm                                             | 高速・効率的な依存管理                                                 |
+| リンター/フォーマッター | Oxlint / Oxfmt                                   | コード品質管理                                                         |
+| テスティング            | Vitest + Playwright                              | ユニット・E2E テスト                                                   |
+| CMS                     | Obsidian プラグイン（pubme）→ 非公開 R2 → Worker | 本文は Vault から HMAC Worker 経由で `me-content` へ。Git はコードだけ |
+| デプロイ先              | Cloudflare Workers                               | エッジ配信 + Worker ロジック                                           |
 
 ## ディレクトリ構造
 
@@ -71,9 +71,15 @@ src/pages/
 
 ### コンテンツ
 
-1. **Content Collections** (`src/content/` + `src/content.config.ts`) で型付きコンテンツを管理
-2. **Sveltia CMS** (`public/admin/`) から Git 経由で編集
-3. ビルド時に静的 HTML / 画像最適化 / sitemap を生成
+段階 1（このリポジトリの Worker API）:
+
+1. 公開本文は非公開 R2 `me-content`（`md/{collection}/{slug}.md`）
+2. `PUT` / `DELETE /api/content/:collection/:slug` は HMAC-SHA256（本文 + パス + 時刻、時計ずれ 5 分）
+3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index を冪等再構築
+4. 添付は公開 R2 `me-images` の `content/{collection}/{slug}/...`
+5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
+
+サイトの一覧・詳細はまだ Astro Content Collections（`src/content/`）。hybrid 化は段階 1 のあと。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
 
 ## 主要な設計パターン
 
@@ -93,7 +99,7 @@ src/pages/
 
 ### 4. Worker 拡張
 
-`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）を担当する。
+`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）を担当する。`run_worker_first: true`。
 
 ## 依存関係の流れ
 
@@ -122,10 +128,10 @@ pnpm install
 
 ## 拡張ポイント
 
-1. 本番コンテンツの差し替え（gallery / atelier / books）
-2. CMS の books コレクション対応
-3. Agent Readiness 残タスク（DNS-AID など）
-4. x402 / tip エンドポイント（インフラ・シークレット前提）
+1. Content API 段階 1（curl で PUT/GET と index）の本番投入
+2. pubme から本番 Worker へ Publish / Unpublish
+3. blog 一覧・詳細の R2 読み（Astro hybrid はここから）
+4. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料
 

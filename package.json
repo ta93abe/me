@@ -14,7 +14,7 @@
 		"build": "astro build",
 		"preview": "astro preview",
 		"astro": "astro",
-		"lint": "oxlint --fix src",
+		"lint": "oxlint --fix src worker",
 		"format": "oxfmt src",
 		"format:check": "oxfmt --check src",
 		"check": "astro check",
@@ -56,7 +56,8 @@
 		"tailwind-variants": "^3.2.2",
 		"tailwindcss": "^4.3.2",
 		"three": "^0.185.1",
-		"typescript": "^6.0.3"
+		"typescript": "^6.0.3",
+		"zod": "^4.5.2"
 	},
 	"devDependencies": {
 		"@effect/platform-node": "4.0.0-beta.97",

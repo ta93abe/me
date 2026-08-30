@@ -1,8 +1,13 @@
 /**
- * Sveltia CMS 用インフラ（Alchemy v2）
+ * CMS インフラ（Alchemy v2）
  *
- * - me-images: 画像アップロード先の R2 バケット（公開 URL: images.ta93abe.com）
- * - sveltia-cms-auth: GitHub OAuth プロキシ Worker（sveltia-auth.ta93abe.com）
+ * - me-images: 公開メディア（images.ta93abe.com）
+ * - me-content: 非公開本文（Worker binding のみ。カスタムドメインなし）
+ * - content-events: R2 md/ の create/delete で index を再構築する Queue
+ * - sveltia-cms-auth: 既存 GitHub OAuth プロキシ（移行完了まで残す）
+ *
+ * HMAC シークレットは wrangler secret:
+ *   wrangler secret put CONTENT_HMAC_SECRET
  *
  * デプロイ:
  *   GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET を環境変数（または --env-file）で渡して
@@ -23,6 +28,32 @@ export default Alchemy.Stack(
 	Effect.gen(function* () {
 		// Sveltia CMS がブラウザから直接アップロードする画像バケット。
 		// CORS は AWS Signature v4 のカスタムヘッダーによるプリフライトを通すために必須。
+		const content = yield* Cloudflare.R2.Bucket("Content", {
+			name: "me-content",
+		});
+
+		const contentEvents = yield* Cloudflare.Queues.Queue("ContentEvents", {
+			name: "content-events",
+		});
+
+		yield* Cloudflare.R2.BucketEventNotification("ContentMarkdownEvents", {
+			bucketName: content.bucketName,
+			queueId: contentEvents.queueId,
+			rules: [
+				{
+					actions: [
+						"PutObject",
+						"CopyObject",
+						"CompleteMultipartUpload",
+						"DeleteObject",
+					],
+					prefix: "md/",
+					suffix: ".md",
+					description: "rebuild indexes when published markdown changes",
+				},
+			],
+		});
+
 		const images = yield* Cloudflare.R2.Bucket("Images", {
 			name: "me-images",
 			domains: [{ name: IMAGES_DOMAIN }],
@@ -56,6 +87,8 @@ export default Alchemy.Stack(
 			authWorkersDevUrl: auth.url,
 			imagesBucket: images.bucketName,
 			imagesPublicUrl: `https://${IMAGES_DOMAIN}`,
+			contentBucket: content.bucketName,
+			contentEventsQueue: contentEvents.queueName,
 		};
 	}),
 );
