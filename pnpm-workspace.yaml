@@ -9,4 +9,6 @@ allowBuilds:
   workerd: true
 
 minimumReleaseAgeExclude:
-  - astro@7.1.1
+  - astro@7.2.9
+  - happy-dom@20.12.0
+  - zod@4.5.4
