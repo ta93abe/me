@@ -1,4 +1,4 @@
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 
 const apiKey = import.meta.env.PUBLIC_POSTHOG_PROJECT_TOKEN;
 const apiHost =
