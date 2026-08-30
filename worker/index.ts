@@ -1,4 +1,7 @@
+import { handle } from "@astrojs/cloudflare/handler";
+
 import { handleContentApi } from "./content/api.ts";
+import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { handleContentQueue } from "./content/queue.ts";
 
 interface Env {
@@ -568,8 +571,53 @@ async function handleMcp(request: Request): Promise<Response> {
 	});
 }
 
+function isBlogHtmlPath(pathname: string): boolean {
+	return pathname === "/blog" || pathname.startsWith("/blog/");
+}
+
+async function fetchAstro(
+	request: Request,
+	env: Env,
+	ctx: ExecutionContext,
+): Promise<Response> {
+	const url = new URL(request.url);
+	const pathname = url.pathname.replace(/\/+$/, "") || "/";
+	const method = request.method.toUpperCase();
+
+	if (
+		isBlogHtmlPath(pathname) &&
+		(method === "GET" || method === "HEAD")
+	) {
+		const cached = await caches.default.match(request);
+		if (cached) {
+			return cached;
+		}
+	}
+
+	const response = await handle(request, env, ctx);
+	const contentType = response.headers.get("Content-Type") ?? "";
+	if (
+		isBlogHtmlPath(pathname) &&
+		(method === "GET" || method === "HEAD") &&
+		response.ok &&
+		contentType.includes("text/html")
+	) {
+		const headers = new Headers(response.headers);
+		headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
+		const cached = new Response(response.body, {
+			status: response.status,
+			statusText: response.statusText,
+			headers,
+		});
+		ctx.waitUntil(caches.default.put(request, cached.clone()));
+		return cached;
+	}
+
+	return response;
+}
+
 export default {
-	async fetch(request, env): Promise<Response> {
+	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
@@ -583,7 +631,7 @@ export default {
 			request.method !== "HEAD" &&
 			pathname !== "/mcp"
 		) {
-			return env.ASSETS.fetch(request);
+			return handle(request, env, ctx);
 		}
 
 		if (pathname === "/" && acceptsMarkdown(request)) {
@@ -693,12 +741,17 @@ export default {
 			return notFoundResponse(request);
 		}
 
-		const response = await env.ASSETS.fetch(request);
+		const response = await fetchAstro(request, env, ctx);
 		return addHomepageDiscoveryHeaders(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
-		await handleContentQueue(batch, env.CONTENT);
+		await handleContentQueue(batch, env.CONTENT, {
+			origin: SITE_URL,
+			purge: async (urls) => {
+				await Promise.all(urls.map((target) => caches.default.delete(target)));
+			},
+		});
 	},
 
 	async scheduled(_event, env): Promise<void> {

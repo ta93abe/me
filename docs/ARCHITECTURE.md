@@ -71,15 +71,17 @@ src/pages/
 
 ### コンテンツ
 
-段階 1（このリポジトリの Worker API）:
+段階 3（blog の R2 読み）:
 
 1. 公開本文は非公開 R2 `me-content`（`md/{collection}/{slug}.md`）
 2. `PUT` / `DELETE /api/content/:collection/:slug` は HMAC-SHA256（本文 + パス + 時刻、時計ずれ 5 分）
 3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index を冪等再構築
 4. 添付は公開 R2 `me-images` の `content/{collection}/{slug}/...`
 5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
+6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge
+7. Git に残る MDX（`dbt-jobs-composite-action.mdx`）は v1 で R2 に載せられないので、一覧・詳細の後退として残す
 
-サイトの一覧・詳細はまだ Astro Content Collections（`src/content/`）。hybrid 化は段階 1 のあと。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
+gallery / atelier / books はまだ Astro Content Collections。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
 
 ## 主要な設計パターン
 
@@ -130,8 +132,11 @@ pnpm install
 
 1. Content API 段階 1（curl で PUT/GET と index）の本番投入
 2. pubme から本番 Worker へ Publish / Unpublish
-3. blog 一覧・詳細の R2 読み（Astro hybrid はここから）
-4. Agent Readiness 残タスク（DNS-AID など）
+3. blog 一覧・詳細の R2 読み（Astro hybrid）
+4. gallery / atelier / books を同じ経路に
+5. RSS / sitemap / llms / OG を index に接続
+6. 本番記事を移行し、`src/content` と Sveltia を外す
+7. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料
 

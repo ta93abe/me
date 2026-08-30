@@ -1,5 +1,6 @@
 // @ts-check
 
+import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -33,6 +34,12 @@ const cspScriptResources = [
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
+	adapter: cloudflare({
+		// IMAGES は公開 R2 `me-images` のバインディング名なので Cloudflare Images と混ぜない
+		imageService: "compile",
+		// OG / resvg / satori は Node 前提のプリレンダー
+		prerenderEnvironment: "node",
+	}),
 	integrations: [sitemap(), mdx(), react()],
 	redirects: {
 		"/works": "/gallery",

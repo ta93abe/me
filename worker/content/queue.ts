@@ -1,3 +1,4 @@
+import { blogHtmlCacheUrls, blogSlugsFromMarkdownKeys } from "./blog-cache.ts";
 import { rebuildContentIndexes } from "./index-store.ts";
 import { parseMarkdownKey } from "./keys.ts";
 
@@ -30,17 +31,33 @@ export function shouldRebuildFromQueueBody(body: unknown): boolean {
 export async function handleContentQueue(
 	batch: MessageBatch<unknown>,
 	bucket: R2Bucket,
+	options?: {
+		origin?: string;
+		purge?: (urls: string[]) => Promise<void>;
+	},
 ): Promise<void> {
 	let rebuild = false;
+	const markdownKeys: string[] = [];
 
 	for (const message of batch.messages) {
 		if (shouldRebuildFromQueueBody(message.body)) {
 			rebuild = true;
+			const key = notificationKey(message.body);
+			if (key) {
+				markdownKeys.push(key);
+			}
 		}
 		message.ack();
 	}
 
 	if (rebuild) {
 		await rebuildContentIndexes(bucket);
+	}
+
+	const blogSlugs = blogSlugsFromMarkdownKeys(markdownKeys);
+	if (blogSlugs.length > 0 && options?.purge) {
+		await options.purge(
+			blogHtmlCacheUrls(options.origin ?? "https://ta93abe.com", blogSlugs),
+		);
 	}
 }
