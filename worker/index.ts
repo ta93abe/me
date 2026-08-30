@@ -1,5 +1,6 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { handleContentQueue } from "./content/queue.ts";
@@ -621,6 +622,13 @@ export default {
 		const contentResponse = await handleContentApi(request, env);
 		if (contentResponse) {
 			return contentResponse;
+		}
+
+		if (
+			isRetiredSitePath(pathname) &&
+			(request.method === "GET" || request.method === "HEAD")
+		) {
+			return Response.redirect(new URL("/", url), 301);
 		}
 
 		if (
