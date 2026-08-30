@@ -20,6 +20,14 @@ test.describe("Published content", () => {
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toBeVisible();
 	});
 
+	test("missing blog slug returns the 404 playground", async ({ page }) => {
+		const response = await page.goto("/blog/does-not-exist");
+
+		expect(response?.status()).toBe(404);
+		await expect(page).toHaveTitle(/404/);
+		await expect(page.locator("body")).not.toContainText(sampleCopy);
+	});
+
 	test("gallery keeps dbt-jobs with its own cover", async ({ page }) => {
 		await page.goto("/gallery");
 

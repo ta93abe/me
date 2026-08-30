@@ -571,6 +571,11 @@ function isBlogHtmlPath(pathname: string): boolean {
 	return pathname === "/blog" || pathname.startsWith("/blog/");
 }
 
+function shouldCacheBlogHtml(request: Request): boolean {
+	const host = new URL(request.url).hostname;
+	return host !== "localhost" && host !== "127.0.0.1";
+}
+
 async function fetchAstro(
 	request: Request,
 	env: Env,
@@ -581,6 +586,7 @@ async function fetchAstro(
 	const method = request.method.toUpperCase();
 
 	if (
+		shouldCacheBlogHtml(request) &&
 		isBlogHtmlPath(pathname) &&
 		(method === "GET" || method === "HEAD")
 	) {
@@ -593,6 +599,7 @@ async function fetchAstro(
 	const response = await handle(request, env, ctx);
 	const contentType = response.headers.get("Content-Type") ?? "";
 	if (
+		shouldCacheBlogHtml(request) &&
 		isBlogHtmlPath(pathname) &&
 		(method === "GET" || method === "HEAD") &&
 		response.ok &&
