@@ -144,7 +144,7 @@ async function main() {
 			}
 		}
 	} finally {
-		await chrome.kill();
+		chrome.kill();
 	}
 
 	const summaryPath = path.join(outDir, "lighthouse-summary.json");

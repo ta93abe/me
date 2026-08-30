@@ -8,7 +8,11 @@ allowBuilds:
   sharp: true
   workerd: true
 
+overrides:
+  vite: 8.2.2
+
 minimumReleaseAgeExclude:
   - astro@7.2.9
   - happy-dom@20.12.0
+  - vite@8.2.2
   - zod@4.5.4

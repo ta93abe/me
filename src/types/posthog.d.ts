@@ -1,4 +1,4 @@
-import type posthog from "posthog-js";
+import { posthog } from "posthog-js";
 
 declare global {
 	interface Window {
