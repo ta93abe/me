@@ -2,7 +2,7 @@
 
 Obsidian プラグイン（`pubme`）と curl が使う Worker API。本文は非公開 R2 `me-content`、添付は公開 R2 `me-images`。
 
-段階 3: `/blog` と `/blog/:slug` はリクエスト時に R2 を読む（`@astrojs/cloudflare` hybrid）。gallery / atelier / books の一覧・詳細はまだ Astro Content Collections。
+段階 3: `/blog` と `/blog/:slug` はリクエスト時に R2 を読む（`@astrojs/cloudflare` hybrid）。gallery / atelier / books のサイトページは公開コンテンツができるまで外し、旧 URL は `/` へリダイレクトする。API コレクション自体は残す。
 
 Linear: [TA-790](https://linear.app/ta93abe/issue/TA-790)
 

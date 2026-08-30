@@ -1,15 +1,21 @@
 import { expect, test } from "@playwright/test";
 
 const sampleCopy = /サンプルブック|テスト投稿|最初のブログ投稿/;
+const hiddenSections = ["Gallery", "Atelier", "Bookshelf"] as const;
 
 test.describe("Published content", () => {
-	test("header does not advertise Bookshelf", async ({ page }) => {
-		await page.goto("/gallery");
+	test("header only advertises live sections", async ({ page }) => {
+		await page.goto("/blog");
 
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
-		await expect(nav.getByRole("link", { name: "Gallery" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Blog" })).toBeVisible();
-		await expect(nav.getByRole("link", { name: "Bookshelf" })).toHaveCount(0);
+		await expect(nav.getByRole("link", { name: "Links" })).toBeVisible();
+		await expect(nav.getByRole("link", { name: "Tools" })).toBeVisible();
+		await expect(nav.getByRole("link", { name: "Slides" })).toBeVisible();
+
+		for (const name of hiddenSections) {
+			await expect(nav.getByRole("link", { name })).toHaveCount(0);
+		}
 	});
 
 	test("blog lists a real post without sample titles", async ({ page }) => {
@@ -26,34 +32,21 @@ test.describe("Published content", () => {
 		expect(response?.status()).toBe(404);
 		await expect(page).toHaveTitle(/404/);
 		await expect(page.locator("body")).not.toContainText(sampleCopy);
+		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
 
-	test("gallery keeps dbt-jobs with its own cover", async ({ page }) => {
-		await page.goto("/gallery");
-
-		await expect(page.locator("body")).not.toContainText(sampleCopy);
-		await expect(page.getByRole("heading", { name: "dbt-jobs" })).toBeVisible();
-		await expect(page.getByRole("heading", { name: "静かな枠" })).toHaveCount(0);
-		await expect(page.getByRole("heading", { name: "夜の粒子" })).toHaveCount(0);
-
-		const cover = page.locator(".gallery-piece img").first();
-		await expect(cover).toBeVisible();
-		await expect(cover).toHaveAttribute("alt", /dbt-jobs/i);
-	});
-
-	test("atelier and bookshelf stay empty without placeholders", async ({
-		page,
-	}) => {
-		await page.goto("/atelier");
-		await expect(page.locator("body")).not.toContainText(sampleCopy);
-		await expect(page.getByRole("status")).toContainText(
-			"まだ何も置いていません",
-		);
-
-		await page.goto("/bookshelf");
-		await expect(page.locator("body")).not.toContainText(sampleCopy);
-		await expect(page.getByRole("status")).toContainText(
-			"まだ本を置いていません",
-		);
+	test("retired collection URLs redirect home", async ({ page }) => {
+		for (const path of [
+			"/gallery",
+			"/gallery/dbt-jobs",
+			"/atelier",
+			"/bookshelf",
+			"/works",
+		]) {
+			const response = await page.goto(path);
+			expect(response?.status(), path).toBe(200);
+			expect(new URL(page.url()).pathname, path).toBe("/");
+			await expect(page.locator("body")).not.toContainText(sampleCopy);
+		}
 	});
 });

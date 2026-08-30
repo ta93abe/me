@@ -1,7 +1,7 @@
 export const SITE = {
 	name: "Takumi Abe",
 	description:
-		"ソフトウェアエンジニア Takumi Abe (ta93abe) のポートフォリオ。Gallery、Blog、Tools など。",
+		"ソフトウェアエンジニア Takumi Abe (ta93abe) のポートフォリオ。Blog、Tools、Links など。",
 	author: "Takumi Abe",
 	url: "https://ta93abe.com",
 	slidesUrl: "https://slides.ta93abe.com",

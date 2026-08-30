@@ -46,9 +46,6 @@
 ```text
 src/pages/
 ├── index.astro              → /
-├── gallery/                 → /gallery, /gallery/:id
-├── atelier/                 → /atelier, /atelier/:id
-├── bookshelf/               → /bookshelf, /bookshelf/:id
 ├── blog/                    → /blog, /blog/:id
 ├── links.astro              → /links
 ├── tools.astro              → /tools
@@ -58,7 +55,7 @@ src/pages/
 └── 404.astro
 ```
 
-互換のため `/works` と `/works/:id` は `/gallery` 系へリダイレクトする（`astro.config.mjs`）。
+`/gallery` `/atelier` `/bookshelf` `/works` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。Content API のコレクション契約はそのまま。
 
 ## データフロー
 
@@ -81,7 +78,7 @@ src/pages/
 6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge
 7. Git に残る MDX（`dbt-jobs-composite-action.mdx`）は v1 で R2 に載せられないので、一覧・詳細の後退として残す
 
-gallery / atelier / books はまだ Astro Content Collections。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
+gallery / atelier / books のサイトページはいったん外している。Worker Content API のコレクション契約と `src/content` の原稿は残す。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
 
 ## 主要な設計パターン
 

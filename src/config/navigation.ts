@@ -12,12 +12,10 @@ export interface NavLink {
  * Main navigation links
  * ヘッダーナビゲーションに表示するリンク
  *
- * Bookshelf は実本が揃うまで外す（TA-782 / TA-785）。
- * `/bookshelf` の URL 自体は残している。
+ * Gallery / Atelier / Bookshelf は公開コンテンツができるまで外す。
+ * 旧 URL は `astro.config.mjs` で `/` へリダイレクトする。
  */
 export const NAV_LINKS: readonly NavLink[] = [
-	{ href: "/gallery", text: "Gallery" },
-	{ href: "/atelier", text: "Atelier" },
 	{ href: "/blog", text: "Blog" },
 	{ href: "/links", text: "Links" },
 	{ href: "/tools", text: "Tools" },

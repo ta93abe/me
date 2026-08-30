@@ -46,8 +46,10 @@ export default defineConfig({
 	},
 	integrations: [sitemap(), mdx(), react()],
 	redirects: {
-		"/works": "/gallery",
-		"/works/[id]": "/gallery/[id]",
+		"/gallery": "/",
+		"/atelier": "/",
+		"/bookshelf": "/",
+		"/works": "/",
 	},
 	build: {
 		inlineStylesheets: "auto",
