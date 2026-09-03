@@ -1,5 +1,8 @@
 # Sveltia CMS 導入ガイド
 
+> 退役。段階 6 で `/admin` と `src/content` を外した。公開本文の正は pubme → Worker Content API → R2。
+> Alchemy の `sveltia-cms-auth` Worker だけは本番破壊を避けるため残している。現行の契約は `docs/CONTENT_API.md`。
+
 このサイト（Astro + Content Collections + Cloudflare Workers）に [Sveltia CMS](https://sveltiacms.app/) を導入し、
 **「ローカルエディタでも、ブラウザの管理画面でも書ける。画像は R2 にホストされる」** 体制を作るためのガイド。
 

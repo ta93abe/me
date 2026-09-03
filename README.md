@@ -53,4 +53,4 @@ PostHog 用の変数を使用します。`PUBLIC_` 接頭辞の変数は **Astro
 
 - プロジェクト詳細・ワークフロー: [`AGENTS.md`](AGENTS.md)
 - アーキテクチャ: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- Sveltia CMS: [`docs/sveltia-migration.md`](docs/sveltia-migration.md)
+- Content API: [`docs/CONTENT_API.md`](docs/CONTENT_API.md)

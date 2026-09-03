@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	mergeBlogLists,
-	toFeedPost,
-	type BlogListItem,
-} from "@/lib/content/blog";
+import { toFeedPost, type BlogListItem } from "@/lib/content/blog";
 
 import {
 	buildBlogRssXml,
@@ -23,34 +19,35 @@ function item(
 }
 
 describe("request-time feeds", () => {
-	it("merges leftover Git posts into RSS and the blog sitemap", () => {
-		const posts = mergeBlogLists(
-			[
-				item({
-					slug: "hello-world",
-					title: "Hello",
-					excerpt: "from r2",
-					date: new Date("2026-08-30"),
-				}),
-			],
-			[
-				item({
-					slug: "dbt-jobs-composite-action",
-					title: "dbt leftover",
-					excerpt: "from git",
-					date: new Date("2026-08-27"),
-				}),
-			],
-		).map(toFeedPost);
+	it("builds RSS and the blog sitemap from R2 posts only", () => {
+		const posts = [
+			item({
+				slug: "hello-world",
+				title: "Hello",
+				excerpt: "from r2",
+				date: new Date("2026-08-30"),
+			}),
+		].map(toFeedPost);
 
 		const rss = buildBlogRssXml(posts, "https://ta93abe.com");
 		const sitemap = buildBlogSitemapXml(posts, "https://ta93abe.com");
 
 		expect(rss).toContain("/blog/hello-world/");
-		expect(rss).toContain("/blog/dbt-jobs-composite-action/");
+		expect(rss).toContain("<language>ja</language>");
+		expect(rss).not.toContain("dbt-jobs");
 		expect(sitemap).toContain("/blog/hello-world/");
-		expect(sitemap).toContain("/blog/dbt-jobs-composite-action/");
 		expect(sitemap).toContain("/blog/");
+		expect(sitemap).not.toContain("dbt-jobs");
 		expect(sitemap).not.toContain("/links/");
+	});
+
+	it("keeps empty feeds valid when R2 has no posts", () => {
+		const rss = buildBlogRssXml([], "https://ta93abe.com");
+		const sitemap = buildBlogSitemapXml([], "https://ta93abe.com");
+
+		expect(rss).toContain("<language>ja</language>");
+		expect(rss).not.toContain("<item>");
+		expect(sitemap).toContain("/blog/");
+		expect(sitemap).not.toContain("/blog/hello-world/");
 	});
 });

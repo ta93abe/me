@@ -1,26 +1,18 @@
 ---
 export const prerender = false;
 
-import { getCollection } from "astro:content";
 import FilterSort from "@/components/FilterSort.astro";
 import NewsletterCta from "@/components/NewsletterCta.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
 import { getContentBucket } from "@/lib/content/bindings";
-import {
-	collectionEntryToListItem,
-	listBlogPosts,
-	mergeBlogLists,
-} from "@/lib/content/blog";
+import { listBlogPosts } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils/date";
 
 const bucket = await getContentBucket();
-const r2Posts = bucket ? await listBlogPosts(bucket) : [];
-// MDX など v1 で R2 に載せられない Git 記事は、段階 6 まで一覧に残す
-const leftover = (await getCollection("blog")).map(collectionEntryToListItem);
-const sortedPosts = mergeBlogLists(r2Posts, leftover);
+const sortedPosts = bucket ? await listBlogPosts(bucket) : [];
 const allTags = sortedPosts.flatMap((post) => post.tags);
 
 Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
