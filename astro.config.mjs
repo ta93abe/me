@@ -1,10 +1,11 @@
 // @ts-check
 
+import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, logHandlers } from "astro/config";
+import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
 /**
  * Astro の CspResourceEntry 相当。
@@ -33,10 +34,22 @@ const cspScriptResources = [
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
+	adapter: cloudflare({
+		// IMAGES は公開 R2 `me-images` のバインディング名なので Cloudflare Images と混ぜない
+		imageService: "compile",
+		// OG / resvg / satori は Node 前提のプリレンダー
+		prerenderEnvironment: "node",
+	}),
+	// セッションは使わない。SESSION KV を自動で増やさない
+	session: {
+		driver: sessionDrivers.lruCache(),
+	},
 	integrations: [sitemap(), mdx(), react()],
 	redirects: {
-		"/works": "/gallery",
-		"/works/[id]": "/gallery/[id]",
+		"/gallery": "/",
+		"/atelier": "/",
+		"/bookshelf": "/",
+		"/works": "/",
 	},
 	build: {
 		inlineStylesheets: "auto",

@@ -1,5 +1,5 @@
 {
-	"urls": ["/", "/gallery/", "/blog/", "/links/"],
+	"urls": ["/", "/blog/", "/links/"],
 	"budgets": {
 		"performanceScore": 0.9,
 		"lcp": 2500,

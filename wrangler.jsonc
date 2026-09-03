@@ -2,6 +2,7 @@
   "name": "me",
   "main": "worker/index.ts",
   "compatibility_date": "2026-06-14",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

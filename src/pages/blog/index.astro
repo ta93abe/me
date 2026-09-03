@@ -1,19 +1,41 @@
 ---
+export const prerender = false;
+
+import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import FilterSort from "@/components/FilterSort.astro";
 import NewsletterCta from "@/components/NewsletterCta.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
+import { getContentBucket } from "@/lib/content/bindings";
+import {
+	listBlogPosts,
+	mergeBlogLists,
+	type BlogListItem,
+} from "@/lib/content/blog";
+import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils/date";
 
-const blogPosts = await getCollection("blog");
-const sortedPosts = blogPosts.toSorted(
-	(a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+function fromCollection(post: CollectionEntry<"blog">): BlogListItem {
+	return {
+		slug: post.id,
+		title: post.data.title,
+		excerpt: post.data.excerpt,
+		date: post.data.date,
+		updatedDate: post.data.updatedDate,
+		tags: post.data.tags ?? [],
+	};
+}
 
-// すべてのタグを収集
-const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
+const bucket = await getContentBucket();
+const r2Posts = bucket ? await listBlogPosts(bucket) : [];
+// MDX など v1 で R2 に載せられない Git 記事は、段階 6 まで一覧に残す
+const leftover = (await getCollection("blog")).map(fromCollection);
+const sortedPosts = mergeBlogLists(r2Posts, leftover);
+const allTags = sortedPosts.flatMap((post) => post.tags);
+
+Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
 ---
 
 <Layout
@@ -53,53 +75,58 @@ const allTags = blogPosts.flatMap((post) => post.data.tags ?? []);
       </a>
     </div>
 
-    <!-- フィルタリング・ソート -->
     <FilterSort tags={allTags} containerId="blog-list" />
 
-    <div id="blog-list" class="flex flex-col">
-      {
-        sortedPosts.map((post) => (
-          <article
-            class="group border-b border-(--border-color) last:border-b-0"
-            data-item
-            data-tags={(post.data.tags ?? []).join(",")}
-            data-date={post.data.date.toISOString()}
-            data-title={post.data.title}
-          >
-            <a
-              href={`/blog/${post.id}`}
-              class="block py-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+    {
+      sortedPosts.length === 0 ? (
+        <p role="status" class="text-(--text-secondary)">
+          まだ記事を置いていません。
+        </p>
+      ) : (
+        <div id="blog-list" class="flex flex-col">
+          {sortedPosts.map((post) => (
+            <article
+              class="group border-b border-(--border-color) last:border-b-0"
+              data-item
+              data-tags={post.tags.join(",")}
+              data-date={post.date.toISOString()}
+              data-title={post.title}
             >
-              <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">
-                <time class="shrink-0 font-sans text-sm tracking-wide text-(--text-muted) sm:w-28 sm:pt-1">
-                  {formatDate(post.data.date)}
-                  {post.data.updatedDate && (
-                    <span class="mt-1 block text-xs">
-                      更新 {formatDate(post.data.updatedDate)}
-                    </span>
-                  )}
-                </time>
-                <div class="min-w-0 flex-1">
-                  <h2 class="mb-2 font-display text-xl font-bold text-(--text-primary) transition-colors group-hover:text-(--primary-color) sm:text-2xl">
-                    {post.data.title}
-                  </h2>
-                  <p class="mb-3 text-sm leading-relaxed text-(--text-secondary) sm:text-base">
-                    {post.data.excerpt}
-                  </p>
-                  {post.data.tags && post.data.tags.length > 0 && (
-                    <div class="flex flex-wrap gap-x-3 gap-y-1">
-                      {post.data.tags.map((tag) => (
-                        <Tag>#{tag}</Tag>
-                      ))}
-                    </div>
-                  )}
+              <a
+                href={`/blog/${post.slug}`}
+                class="block py-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+              >
+                <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">
+                  <time class="shrink-0 font-sans text-sm tracking-wide text-(--text-muted) sm:w-28 sm:pt-1">
+                    {formatDate(post.date)}
+                    {post.updatedDate && (
+                      <span class="mt-1 block text-xs">
+                        更新 {formatDate(post.updatedDate)}
+                      </span>
+                    )}
+                  </time>
+                  <div class="min-w-0 flex-1">
+                    <h2 class="mb-2 font-display text-xl font-bold text-(--text-primary) transition-colors group-hover:text-(--primary-color) sm:text-2xl">
+                      {post.title}
+                    </h2>
+                    <p class="mb-3 text-sm leading-relaxed text-(--text-secondary) sm:text-base">
+                      {post.excerpt}
+                    </p>
+                    {post.tags.length > 0 && (
+                      <div class="flex flex-wrap gap-x-3 gap-y-1">
+                        {post.tags.map((tag) => (
+                          <Tag>#{tag}</Tag>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </a>
-          </article>
-        ))
-      }
-    </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      )
+    }
 
     <NewsletterCta source="blog-index" />
   </main>

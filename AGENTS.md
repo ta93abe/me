@@ -314,9 +314,9 @@ Conventional Commits に従う:
 
 ポートフォリオサイトとして運用中:
 - Astro 7 + Tailwind CSS 4 + Cloudflare Workers
-- ページ: Gallery / Atelier / Bookshelf / Blog / Links / Tools / Slides
+- ページ: Blog / Links / Tools / Slides
 - SEO（OG / JSON-LD / sitemap / robots）、PostHog、Sveltia CMS、perf CI まで実装済み
-- `/works` は `/gallery` へリダイレクト（互換維持）
+- `/gallery` `/atelier` `/bookshelf` `/works` は公開コンテンツができるまで `/` へリダイレクト
 
 ## 次のステップ
 

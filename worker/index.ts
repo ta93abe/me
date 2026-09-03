@@ -1,21 +1,21 @@
+import { handle } from "@astrojs/cloudflare/handler";
+
+import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
+import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { handleContentQueue } from "./content/queue.ts";
 
-interface Env {
-	ASSETS: Fetcher;
-	DEPLOY_HOOK_URL: string;
-	CONTENT: R2Bucket;
-	IMAGES: R2Bucket;
-	CONTENT_EVENTS: Queue;
-	CONTENT_HMAC_SECRET: string;
-	IMAGES_PUBLIC_ORIGIN: string;
+type CacheStore = { default: Cache };
+
+function defaultCache(): Cache {
+	return (caches as unknown as CacheStore).default;
 }
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including gallery pieces and projects, atelier studies, blog posts, slides, books, tools, and social links.";
+	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, and social links.";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
@@ -49,11 +49,8 @@ ${SITE_DESCRIPTION}
 
 ## Primary sections
 
-- Gallery: ${SITE_URL}/gallery/
-- Atelier: ${SITE_URL}/atelier/
 - Blog: ${SITE_URL}/blog/
 - Slides: ${SITE_URL}/slides/
-- Bookshelf: ${SITE_URL}/bookshelf/
 - Tools: ${SITE_URL}/tools/
 - Links: ${SITE_URL}/links/
 
@@ -158,11 +155,8 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 
 ## What this site contains
 
-- Gallery exhibitions, creative pieces, and portfolio projects.
-- Atelier studies and work-in-progress pieces.
 - Technical blog posts.
 - Public slide links.
-- Bookshelf notes.
 - Tool and social-link directories.
 
 ## How to use
@@ -568,8 +562,60 @@ async function handleMcp(request: Request): Promise<Response> {
 	});
 }
 
+function isBlogHtmlPath(pathname: string): boolean {
+	return pathname === "/blog" || pathname.startsWith("/blog/");
+}
+
+function shouldCacheBlogHtml(request: Request): boolean {
+	const host = new URL(request.url).hostname;
+	return host !== "localhost" && host !== "127.0.0.1";
+}
+
+async function fetchAstro(
+	request: Request,
+	env: Env,
+	ctx: ExecutionContext,
+): Promise<Response> {
+	const url = new URL(request.url);
+	const pathname = url.pathname.replace(/\/+$/, "") || "/";
+	const method = request.method.toUpperCase();
+
+	if (
+		shouldCacheBlogHtml(request) &&
+		isBlogHtmlPath(pathname) &&
+		(method === "GET" || method === "HEAD")
+	) {
+		const cached = await defaultCache().match(request);
+		if (cached) {
+			return cached;
+		}
+	}
+
+	const response = await handle(request, env, ctx);
+	const contentType = response.headers.get("Content-Type") ?? "";
+	if (
+		shouldCacheBlogHtml(request) &&
+		isBlogHtmlPath(pathname) &&
+		(method === "GET" || method === "HEAD") &&
+		response.ok &&
+		contentType.includes("text/html")
+	) {
+		const headers = new Headers(response.headers);
+		headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
+		const cached = new Response(response.body, {
+			status: response.status,
+			statusText: response.statusText,
+			headers,
+		});
+		ctx.waitUntil(defaultCache().put(request, cached.clone()));
+		return cached;
+	}
+
+	return response;
+}
+
 export default {
-	async fetch(request, env): Promise<Response> {
+	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
@@ -579,11 +625,18 @@ export default {
 		}
 
 		if (
+			isRetiredSitePath(pathname) &&
+			(request.method === "GET" || request.method === "HEAD")
+		) {
+			return Response.redirect(new URL("/", url), 301);
+		}
+
+		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
 			pathname !== "/mcp"
 		) {
-			return env.ASSETS.fetch(request);
+			return handle(request, env, ctx);
 		}
 
 		if (pathname === "/" && acceptsMarkdown(request)) {
@@ -693,12 +746,17 @@ export default {
 			return notFoundResponse(request);
 		}
 
-		const response = await env.ASSETS.fetch(request);
+		const response = await fetchAstro(request, env, ctx);
 		return addHomepageDiscoveryHeaders(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
-		await handleContentQueue(batch, env.CONTENT);
+		await handleContentQueue(batch, env.CONTENT, {
+			origin: SITE_URL,
+			purge: async (urls) => {
+				await Promise.all(urls.map((target) => defaultCache().delete(target)));
+			},
+		});
 	},
 
 	async scheduled(_event, env): Promise<void> {
