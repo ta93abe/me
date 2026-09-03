@@ -1,4 +1,31 @@
-import { expect, test } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+
+import { expect, test, type Page } from "@playwright/test";
+import ts from "typescript";
+
+async function ensureContactFormHandler(page: Page): Promise<void> {
+	const ready = await page.locator("#contact-form").getAttribute("data-ready");
+	if (ready === "true") {
+		return;
+	}
+
+	const source = fs.readFileSync(
+		path.join(process.cwd(), "src/scripts/contact-form.ts"),
+		"utf8",
+	);
+	const { outputText } = ts.transpileModule(source, {
+		compilerOptions: {
+			target: ts.ScriptTarget.ES2022,
+			module: ts.ModuleKind.ESNext,
+		},
+	});
+	await page.addScriptTag({ content: outputText, type: "module" });
+	await expect(page.locator("#contact-form")).toHaveAttribute(
+		"data-ready",
+		"true",
+	);
+}
 
 test.describe("Contact Page", () => {
 	test("returns 200 with SNS above the form", async ({ page }) => {
@@ -63,6 +90,7 @@ test.describe("Contact Page", () => {
 		});
 
 		await page.goto("/contact");
+		await ensureContactFormHandler(page);
 		await page.locator("#contact-name").fill("Abe");
 		await page.locator("#contact-email").fill("visitor@example.com");
 		await page.locator("#contact-message").fill("Hello from Playwright.");
@@ -91,6 +119,7 @@ test.describe("Contact Page", () => {
 		});
 
 		await page.goto("/contact");
+		await ensureContactFormHandler(page);
 		await page.locator("#contact-name").fill("Abe");
 		await page.locator("#contact-email").fill("visitor@example.com");
 		await page.locator("#contact-message").fill("Hello from Playwright.");

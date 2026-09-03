@@ -1,10 +1,17 @@
-const form = document.querySelector<HTMLFormElement>("#contact-form");
-const statusEl = document.querySelector<HTMLElement>("#contact-status");
-const submitButton = form?.querySelector<HTMLButtonElement>(
-	'button[type="submit"]',
-);
+export function bindContactForm(root: ParentNode = document): boolean {
+	const form = root.querySelector<HTMLFormElement>("#contact-form");
+	const statusEl = root.querySelector<HTMLElement>("#contact-status");
+	const submitButton = form?.querySelector<HTMLButtonElement>(
+		'button[type="submit"]',
+	);
 
-if (form && statusEl && submitButton) {
+	if (!form || !statusEl || !submitButton) {
+		return false;
+	}
+	if (form.dataset.ready === "true") {
+		return true;
+	}
+
 	const idleLabel = submitButton.textContent ?? "送信する";
 
 	const setStatus = (message: string, tone: "idle" | "error" | "success") => {
@@ -84,4 +91,9 @@ if (form && statusEl && submitButton) {
 			setSubmitting(false);
 		}
 	});
+
+	form.dataset.ready = "true";
+	return true;
 }
+
+bindContactForm();
