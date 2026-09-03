@@ -10,7 +10,6 @@ type Tool = {
 
 type Category = {
 	title: string;
-	icon: string;
 	tools: Tool[];
 };
 
@@ -21,890 +20,116 @@ const toId = (value: string) =>
 		.replace(/[\s_\\/]+/g, "-")
 		.replace(/[^a-z0-9-]/g, "");
 
+const DOTFILES_URL = "https://github.com/ta93abe/dotfiles";
+
 const categories: Category[] = [
 	{
 		title: "シェル・ターミナル",
-		icon: "🐚",
 		tools: [
 			{
 				name: "Fish",
-				description:
-					"シンタックスハイライトと強力な補完機能を持つモダンなシェル",
+				description: "補完とハイライトが最初から入っているシェル",
 				url: "https://fishshell.com/",
 			},
 			{
 				name: "Starship",
-				description: "高速でカスタマイズ可能なクロスシェルプロンプト",
+				description: "クロスシェルのプロンプト。Nix でテーマまで固定する",
 				url: "https://starship.rs/",
 			},
 			{
 				name: "Ghostty",
-				description: "高速でGPUアクセラレーション対応のターミナルエミュレータ",
+				description: "GPU アクセラレーションのターミナル。Tokyo Night",
 				url: "https://ghostty.org/",
 			},
 			{
 				name: "Zellij",
-				description: "Vim風キーバインドを持つターミナルマルチプレクサ",
+				description: "ターミナルマルチプレクサ。キーバインドも Nix で管理",
 				url: "https://zellij.dev/",
 			},
 		],
 	},
 	{
-		title: "検索・ナビゲーション",
-		icon: "🔍",
+		title: "エディタ",
+		tools: [
+			{
+				name: "Cursor",
+				description: "日常のコーディングはここ。設定は dotfiles 側",
+				url: "https://cursor.com/",
+			},
+		],
+	},
+	{
+		title: "毎日の CLI",
 		tools: [
 			{
 				name: "ripgrep",
-				description: "超高速な正規表現ベースの検索ツール",
+				description: "コード検索",
 				url: "https://github.com/BurntSushi/ripgrep",
 			},
 			{
 				name: "fd",
-				description: "シンプルで高速なfindの代替",
+				description: "ファイル検索",
 				url: "https://github.com/sharkdp/fd",
 			},
 			{
 				name: "fzf",
-				description: "汎用的なコマンドラインファジーファインダー",
+				description: "ファジーファインダー。Tokyo Night",
 				url: "https://github.com/junegunn/fzf",
 			},
 			{
 				name: "zoxide",
-				description: "スマートなディレクトリジャンプツール",
+				description: "よく行くディレクトリへ飛ぶ",
 				url: "https://github.com/ajeetdsouza/zoxide",
 			},
 			{
-				name: "broot",
-				description: "ディレクトリツリーの新しい見方と操作方法",
-				url: "https://github.com/Canop/broot",
-			},
-			{
-				name: "ghq",
-				description: "Gitリポジトリの一元管理ツール",
-				url: "https://github.com/x-motemen/ghq",
-			},
-		],
-	},
-	{
-		title: "ファイル操作",
-		icon: "📄",
-		tools: [
-			{
 				name: "eza",
-				description: "カラフルで機能豊富なlsの代替",
+				description: "ls の代替",
 				url: "https://github.com/eza-community/eza",
 			},
 			{
 				name: "bat",
-				description: "シンタックスハイライト付きのcat",
+				description: "シンタックスハイライト付きの cat",
 				url: "https://github.com/sharkdp/bat",
 			},
 			{
-				name: "dust",
-				description: "視覚的なディスク使用量表示ツール",
-				url: "https://github.com/bootandy/dust",
-			},
-			{
-				name: "hexyl",
-				description: "カラフルなコマンドライン16進数ビューア",
-				url: "https://github.com/sharkdp/hexyl",
-			},
-			{
-				name: "SmoothCSV",
-				description: "高速で使いやすいCSVエディタ",
-				url: "https://smoothcsv.com/",
-			},
-		],
-	},
-	{
-		title: "Git ツール",
-		icon: "🎨",
-		tools: [
-			{
-				name: "GitHub CLI",
-				description: "GitHubのコマンドラインツール",
+				name: "gh",
+				description: "GitHub CLI。PR と Issue はターミナルから",
 				url: "https://cli.github.com/",
 			},
 			{
 				name: "delta",
-				description: "構文強調表示を備えたGit diffビューア",
+				description: "Git diff の見やすさ用",
 				url: "https://github.com/dandavison/delta",
 			},
 			{
-				name: "gitui",
-				description: "高速なターミナルUIベースのGitクライアント",
-				url: "https://github.com/extrawurst/gitui",
-			},
-			{
-				name: "lazygit",
-				description: "シンプルなターミナルUIのGitツール",
-				url: "https://github.com/jesseduffield/lazygit",
-			},
-			{
-				name: "tig",
-				description: "テキストベースのGitリポジトリブラウザ",
-				url: "https://github.com/jonas/tig",
-			},
-		],
-	},
-	{
-		title: "システム監視",
-		icon: "📊",
-		tools: [
-			{
-				name: "bottom",
-				description:
-					"カスタマイズ可能なクロスプラットフォームのシステム監視ツール",
-				url: "https://github.com/ClementTsang/bottom",
-			},
-			{
-				name: "procs",
-				description: "モダンなpsの代替",
-				url: "https://github.com/dalance/procs",
-			},
-			{
-				name: "bandwhich",
-				description: "ターミナルベースのネットワーク帯域幅監視ツール",
-				url: "https://github.com/imsnif/bandwhich",
-			},
-			{
-				name: "gping",
-				description: "グラフ付きのpingツール",
-				url: "https://github.com/orf/gping",
-			},
-		],
-	},
-	{
-		title: "テキスト処理",
-		icon: "🔧",
-		tools: [
-			{
 				name: "jq",
-				description: "軽量で柔軟なコマンドラインJSON処理ツール",
+				description: "JSON をその場で見る",
 				url: "https://jqlang.github.io/jq/",
 			},
-			{
-				name: "yq",
-				description: "YAML/JSON/XML/TOML処理のためのjqラッパー",
-				url: "https://github.com/mikefarah/yq",
-			},
-			{
-				name: "sd",
-				description: "直感的な検索と置換CLI",
-				url: "https://github.com/chmln/sd",
-			},
-			{
-				name: "xsv",
-				description: "高速なCSVコマンドラインツールキット",
-				url: "https://github.com/BurntSushi/xsv",
-			},
 		],
 	},
 	{
-		title: "ネットワーク・HTTP",
-		icon: "🌐",
+		title: "パッケージ",
 		tools: [
 			{
-				name: "xh",
-				description: "フレンドリーで高速なHTTPリクエストツール",
-				url: "https://github.com/ducaale/xh",
+				name: "Nix",
+				description: "CLI はすべてここ。再現可能な開発環境の本体",
+				url: "https://nixos.org/",
 			},
-			{
-				name: "httpstat",
-				description: "curlの統計情報を視覚化",
-				url: "https://github.com/reorx/httpstat",
-			},
-			{
-				name: "dog",
-				description: "ユーザーフレンドリーなコマンドラインDNSクライアント",
-				url: "https://github.com/ogham/dog",
-			},
-			{
-				name: "grpcurl",
-				description: "curlライクなコマンドラインツール（gRPC用）",
-				url: "https://github.com/fullstorydev/grpcurl",
-			},
-		],
-	},
-	{
-		title: "データベース",
-		icon: "🗄️",
-		tools: [
-			{
-				name: "usql",
-				description: "複数のSQLデータベースに対応するユニバーサルCLI",
-				url: "https://github.com/xo/usql",
-			},
-			{
-				name: "pgcli",
-				description: "自動補完と構文強調表示を備えたPostgreSQL CLI",
-				url: "https://www.pgcli.com/",
-			},
-			{
-				name: "mycli",
-				description: "自動補完と構文強調表示を備えたMySQL/MariaDB CLI",
-				url: "https://www.mycli.net/",
-			},
-		],
-	},
-	{
-		title: "Kubernetes",
-		icon: "☸️",
-		tools: [
-			{
-				name: "k9s",
-				description: "Kubernetesクラスタ管理のためのターミナルUI",
-				url: "https://k9scli.io/",
-			},
-			{
-				name: "helm",
-				description: "Kubernetesのパッケージマネージャ",
-				url: "https://helm.sh/",
-			},
-			{
-				name: "kubectx",
-				description: "Kubernetesのコンテキストとネームスペースを素早く切り替え",
-				url: "https://github.com/ahmetb/kubectx",
-			},
-			{
-				name: "stern",
-				description: "Kubernetesのマルチポッドログテーリング",
-				url: "https://github.com/stern/stern",
-			},
-		],
-	},
-	{
-		title: "エディタ・ドキュメント",
-		icon: "📝",
-		tools: [
-			{
-				name: "Helix",
-				description: "Rustで書かれたポストモダンなモーダルテキストエディタ",
-				url: "https://helix-editor.com/",
-			},
-			{
-				name: "glow",
-				description: "ターミナルでMarkdownをレンダリング",
-				url: "https://github.com/charmbracelet/glow",
-			},
-			{
-				name: "pandoc",
-				description: "ユニバーサルドキュメントコンバータ",
-				url: "https://pandoc.org/",
-			},
-			{
-				name: "mdbook",
-				description: "Markdownから本を作成",
-				url: "https://rust-lang.github.io/mdBook/",
-			},
-		],
-	},
-	{
-		title: "メディア処理",
-		icon: "🎬",
-		tools: [
-			{
-				name: "ffmpeg",
-				description: "マルチメディアファイルの処理フレームワーク",
-				url: "https://ffmpeg.org/",
-			},
-			{
-				name: "gifski",
-				description: "高品質なGIF作成ツール",
-				url: "https://gif.ski/",
-			},
-			{
-				name: "silicon",
-				description: "美しいコードスクリーンショット生成ツール",
-				url: "https://github.com/Aloxaf/silicon",
-			},
-		],
-	},
-	{
-		title: "開発ツール",
-		icon: "🛠️",
-		tools: [
-			{
-				name: "act",
-				description: "GitHub Actionsをローカルで実行",
-				url: "https://github.com/nektos/act",
-			},
-			{
-				name: "devenv",
-				description: "高速で宣言的な開発環境",
-				url: "https://devenv.sh/",
-			},
-			{
-				name: "hyperfine",
-				description: "コマンドラインベンチマークツール",
-				url: "https://github.com/sharkdp/hyperfine",
-			},
-			{
-				name: "tokei",
-				description: "コード統計を表示するプログラム",
-				url: "https://github.com/XAMPPRocky/tokei",
-			},
-			{
-				name: "Expressions",
-				description: "正規表現テスター・デバッガー",
-				url: "https://www.apptorium.com/expressions",
-			},
-		],
-	},
-	{
-		title: "クラウド・インフラ",
-		icon: "☁️",
-		tools: [
-			{
-				name: "AWS CLI",
-				description: "Amazon Web Servicesの公式CLI",
-				url: "https://aws.amazon.com/cli/",
-			},
-			{
-				name: "Azure CLI",
-				description: "Microsoft Azureの公式CLI",
-				url: "https://learn.microsoft.com/cli/azure/",
-			},
-			{
-				name: "gcloud",
-				description: "Google Cloud Platformの公式CLI",
-				url: "https://cloud.google.com/sdk/gcloud",
-			},
-			{
-				name: "flyctl",
-				description: "Fly.ioのコマンドラインインターフェース",
-				url: "https://fly.io/docs/flyctl/",
-			},
-		],
-	},
-	{
-		title: "パッケージマネージャ",
-		icon: "📦",
-		tools: [
 			{
 				name: "pnpm",
-				description: "高速で効率的なNode.jsパッケージマネージャ",
+				description: "Node のパッケージマネージャ",
 				url: "https://pnpm.io/",
 			},
 			{
 				name: "uv",
-				description: "超高速なPythonパッケージマネージャ",
+				description: "Python のパッケージマネージャ",
 				url: "https://github.com/astral-sh/uv",
 			},
 			{
 				name: "topgrade",
-				description: "すべてのパッケージマネージャを一度に更新",
+				description: "Nix とそれ以外をまとめて更新する",
 				url: "https://github.com/topgrade-rs/topgrade",
-			},
-			{
-				name: "Nix",
-				description: "宣言的で再現可能なパッケージマネージャ",
-				url: "https://nixos.org/",
-			},
-			{
-				name: "Miniforge",
-				description: "conda/mamba Pythonディストリビューション",
-				url: "https://github.com/conda-forge/miniforge",
-			},
-		],
-	},
-	{
-		title: "IDE・エディタ",
-		icon: "💻",
-		tools: [
-			{
-				name: "Visual Studio Code",
-				description: "マイクロソフトの強力なコードエディタ",
-				url: "https://code.visualstudio.com/",
-			},
-			{
-				name: "Cursor",
-				description: "AI統合型のコードエディタ",
-				url: "https://cursor.sh/",
-			},
-			{
-				name: "Zed",
-				description: "高速で協調作業に最適化されたコードエディタ",
-				url: "https://zed.dev/",
-			},
-			{
-				name: "Android Studio",
-				description: "Android開発のための公式IDE",
-				url: "https://developer.android.com/studio",
-			},
-		],
-	},
-	{
-		title: "デザイン・クリエイティブ",
-		icon: "🎨",
-		tools: [
-			{
-				name: "Figma",
-				description: "コラボレーション型UIデザインツール",
-				url: "https://www.figma.com/",
-			},
-			{
-				name: "Rive",
-				description: "インタラクティブアニメーション作成ツール",
-				url: "https://rive.app/",
-			},
-			{
-				name: "Framer",
-				description: "プロトタイピング・デザインツール",
-				url: "https://www.framer.com/",
-			},
-			{
-				name: "Spline",
-				description: "3Dデザイン・アニメーションツール",
-				url: "https://spline.design/",
-			},
-			{
-				name: "Affinity Designer",
-				description: "プロフェッショナルなベクターグラフィックデザインツール",
-				url: "https://affinity.serif.com/designer/",
-			},
-			{
-				name: "Affinity Photo",
-				description: "プロフェッショナルな写真編集ツール",
-				url: "https://affinity.serif.com/photo/",
-			},
-			{
-				name: "Affinity Publisher",
-				description: "プロフェッショナルなデスクトップパブリッシングツール",
-				url: "https://affinity.serif.com/publisher/",
-			},
-			{
-				name: "Canva",
-				description: "オンラインデザインプラットフォーム",
-				url: "https://www.canva.com/",
-			},
-			{
-				name: "Blender",
-				description: "オープンソースの3D制作スイート",
-				url: "https://www.blender.org/",
-			},
-			{
-				name: "Rotato",
-				description: "3Dデバイスモックアップ作成ツール",
-				url: "https://rotato.app/",
-			},
-			{
-				name: "Storyboarder",
-				description: "ストーリーボード作成ツール",
-				url: "https://wonderunit.com/storyboarder/",
-			},
-		],
-	},
-	{
-		title: "API・HTTP開発",
-		icon: "🔌",
-		tools: [
-			{
-				name: "Bruno",
-				description: "オープンソースのAPI開発ツール",
-				url: "https://www.usebruno.com/",
-			},
-			{
-				name: "Postman",
-				description: "APIプラットフォーム",
-				url: "https://www.postman.com/",
-			},
-			{
-				name: "HTTPie Desktop",
-				description: "APIテストのためのデスクトップクライアント",
-				url: "https://httpie.io/desktop",
-			},
-			{
-				name: "Yaak",
-				description: "モダンなAPIクライアント（開発停止中）",
-				url: "https://yaak.app/",
-			},
-		],
-	},
-	{
-		title: "Git・バージョン管理",
-		icon: "🔀",
-		tools: [
-			{
-				name: "GitHub Desktop",
-				description: "GitHubの公式デスクトップクライアント",
-				url: "https://desktop.github.com/",
-			},
-			{
-				name: "GitKraken",
-				description: "パワフルなGitクライアント",
-				url: "https://www.gitkraken.com/",
-			},
-		],
-	},
-	{
-		title: "ブラウザ",
-		icon: "🌐",
-		tools: [
-			{
-				name: "Arc",
-				description: "モダンなウェブブラウザ",
-				url: "https://arc.net/",
-			},
-			{
-				name: "Brave",
-				description: "プライバシー重視のブラウザ",
-				url: "https://brave.com/",
-			},
-			{
-				name: "Firefox",
-				description: "オープンソースのウェブブラウザ",
-				url: "https://www.mozilla.org/firefox/",
-			},
-			{
-				name: "Google Chrome",
-				description: "Googleのウェブブラウザ",
-				url: "https://www.google.com/chrome/",
-			},
-			{
-				name: "Opera",
-				description: "高機能ウェブブラウザ",
-				url: "https://www.opera.com/",
-			},
-			{
-				name: "Opera GX",
-				description: "ゲーマー向けブラウザ",
-				url: "https://www.opera.com/gx",
-			},
-			{
-				name: "Opera Air",
-				description: "AI機能を統合したOpera新ブラウザ",
-				url: "https://www.opera.com/air",
-			},
-		],
-	},
-	{
-		title: "コミュニケーション",
-		icon: "💬",
-		tools: [
-			{
-				name: "Slack",
-				description: "ビジネスコミュニケーションプラットフォーム",
-				url: "https://slack.com/",
-			},
-			{
-				name: "Discord",
-				description: "コミュニティ向けチャットプラットフォーム",
-				url: "https://discord.com/",
-			},
-			{
-				name: "Zoom",
-				description: "ビデオ会議プラットフォーム",
-				url: "https://zoom.us/",
-			},
-			{
-				name: "Microsoft Teams",
-				description: "Microsoftのコラボレーションツール",
-				url: "https://www.microsoft.com/microsoft-teams/",
-			},
-			{
-				name: "Signal",
-				description: "プライバシー重視のメッセージングアプリ",
-				url: "https://signal.org/",
-			},
-			{
-				name: "Legcord",
-				description: "カスタマイズ可能なDiscord代替クライアント",
-				url: "https://legcord.app/",
-			},
-		],
-	},
-	{
-		title: "音楽・オーディオ制作",
-		icon: "🎵",
-		tools: [
-			{
-				name: "Ableton Live",
-				description:
-					"プロフェッショナルなDAW（デジタルオーディオワークステーション）",
-				url: "https://www.ableton.com/",
-			},
-			{
-				name: "Audio Hijack",
-				description: "macOS用オーディオ録音ツール",
-				url: "https://rogueamoeba.com/audiohijack/",
-			},
-			{
-				name: "Farrago",
-				description: "オーディオプレイバックツール",
-				url: "https://rogueamoeba.com/farrago/",
-			},
-			{
-				name: "Loopback",
-				description: "オーディオルーティングツール",
-				url: "https://rogueamoeba.com/loopback/",
-			},
-			{
-				name: "Splice",
-				description: "音楽制作プラットフォーム",
-				url: "https://splice.com/",
-			},
-			{
-				name: "Sonic Pi",
-				description: "ライブコーディングシンセサイザー",
-				url: "https://sonic-pi.net/",
-			},
-			{
-				name: "SuperCollider",
-				description: "オーディオ合成・アルゴリズム作曲プラットフォーム",
-				url: "https://supercollider.github.io/",
-			},
-			{
-				name: "Cycling '74 Max",
-				description: "ビジュアルプログラミング言語（音楽・マルチメディア）",
-				url: "https://cycling74.com/",
-			},
-			{
-				name: "Forecast",
-				description: "ポッドキャストのチャプター・メタデータエディタ",
-				url: "https://overcast.fm/forecast",
-			},
-		],
-	},
-	{
-		title: "映像・配信",
-		icon: "🎬",
-		tools: [
-			{
-				name: "OBS",
-				description: "オープンソースの配信・録画ソフトウェア",
-				url: "https://obsproject.com/",
-			},
-			{
-				name: "Camo Studio",
-				description: "スマートフォンをウェブカメラとして使用",
-				url: "https://reincubate.com/camo/",
-			},
-		],
-	},
-	{
-		title: "ビジュアルプログラミング・インタラクティブ",
-		icon: "🎭",
-		tools: [
-			{
-				name: "TouchDesigner",
-				description: "リアルタイムビジュアルプログラミングツール",
-				url: "https://derivative.ca/",
-			},
-			{
-				name: "Processing",
-				description: "ビジュアルアート向けプログラミング環境",
-				url: "https://processing.org/",
-			},
-			{
-				name: "OpenFrameworks",
-				description: "クリエイティブコーディングツールキット",
-				url: "https://openframeworks.cc/",
-			},
-			{
-				name: "Unity Hub",
-				description: "Unityエディタの管理ツール",
-				url: "https://unity.com/",
-			},
-			{
-				name: "Spark AR Studio",
-				description: "AR体験作成ツール（非推奨・2024年9月終了）",
-				url: "https://sparkar.facebook.com/",
-			},
-		],
-	},
-	{
-		title: "生産性",
-		icon: "⚡",
-		tools: [
-			{
-				name: "Raycast",
-				description: "拡張可能なランチャー・生産性ツール",
-				url: "https://www.raycast.com/",
-			},
-			{
-				name: "Notion",
-				description: "オールインワンワークスペース",
-				url: "https://www.notion.so/",
-			},
-			{
-				name: "Linear",
-				description: "モダンなプロジェクト管理ツール",
-				url: "https://linear.app/",
-			},
-			{
-				name: "Obsidian",
-				description: "ローカルファースト型ノート管理アプリ",
-				url: "https://obsidian.md/",
-			},
-			{
-				name: "Amie",
-				description: "カレンダー・タスク管理ツール（Notionに統合予定）",
-				url: "https://amie.so/",
-			},
-			{
-				name: "Morgen",
-				description: "統合カレンダーアプリ（Clockwiseに統合予定）",
-				url: "https://www.morgen.so/",
-			},
-			{
-				name: "CleanShot",
-				description: "高機能スクリーンショットツール",
-				url: "https://cleanshot.com/",
-			},
-			{
-				name: "PixelSnap",
-				description: "画面上の要素を測定するツール",
-				url: "https://getpixelsnap.com/",
-			},
-			{
-				name: "Rectangle Pro",
-				description: "ウィンドウ管理ツール",
-				url: "https://rectangleapp.com/pro",
-			},
-			{
-				name: "Numi",
-				description: "テキストベースの計算機",
-				url: "https://numi.app/",
-			},
-		],
-	},
-	{
-		title: "開発サポート",
-		icon: "🛠️",
-		tools: [
-			{
-				name: "OrbStack",
-				description: "高速で軽量なDockerデスクトップ代替",
-				url: "https://orbstack.dev/",
-			},
-			{
-				name: "DevToys",
-				description: "開発者向けユーティリティツール集",
-				url: "https://devtoys.app/",
-			},
-			{
-				name: "DevTui",
-				description: "ターミナルベースの開発者ツール（アーカイブ済）",
-				url: "https://github.com/jeremychone-channel/rust-devtui",
-			},
-		],
-	},
-	{
-		title: "AI・機械学習",
-		icon: "🤖",
-		tools: [
-			{
-				name: "ChatGPT",
-				description: "OpenAIの対話型AIアシスタント",
-				url: "https://chat.openai.com/",
-			},
-			{
-				name: "Claude",
-				description: "Anthropicの対話型AIアシスタント",
-				url: "https://claude.ai/",
-			},
-			{
-				name: "Claude Code",
-				description: "Claude AIの開発ツール（CLI）",
-				url: "https://docs.anthropic.com/en/docs/claude-code/overview",
-			},
-			{
-				name: "Codex",
-				description: "ターミナルで動作するOpenAIのコーディングエージェント",
-				url: "https://github.com/openai/codex",
-			},
-			{
-				name: "Kiro",
-				description: "スペック駆動開発のためのエージェント中心型IDE（AWS製）",
-				url: "https://kiro.dev/",
-			},
-			{
-				name: "Limitless",
-				description: "AI会議レコーダー・アシスタント",
-				url: "https://www.limitless.ai/",
-			},
-			{
-				name: "Aqua Voice",
-				description: "AI音声入力ツール",
-				url: "https://withaqua.com/",
-			},
-			{
-				name: "Trae",
-				description: "AIアシスタント",
-				url: "https://www.trae.ai/",
-			},
-		],
-	},
-	{
-		title: "ユーティリティ",
-		icon: "🔧",
-		tools: [
-			{
-				name: "1Password",
-				description: "パスワードマネージャー",
-				url: "https://1password.com/",
-			},
-			{
-				name: "Karabiner-Elements",
-				description: "キーボードカスタマイズツール",
-				url: "https://karabiner-elements.pqrs.org/",
-			},
-			{
-				name: "Stats",
-				description: "システムモニター（メニューバー）",
-				url: "https://github.com/exelban/stats",
-			},
-			{
-				name: "Sensei",
-				description: "システム最適化・監視ツール",
-				url: "https://sensei.app/",
-			},
-			{
-				name: "Google Drive",
-				description: "クラウドストレージサービス",
-				url: "https://www.google.com/drive/",
-			},
-			{
-				name: "Logi Options+",
-				description: "Logicool周辺機器設定ツール",
-				url: "https://www.logitech.com/en-us/software/logi-options-plus.html",
-			},
-			{
-				name: "Gyazo",
-				description: "スクリーンショット共有ツール",
-				url: "https://gyazo.com/",
-			},
-			{
-				name: "AZooKey",
-				description: "カスタマイズ可能なmacOS用日本語キーボード",
-				url: "https://github.com/azooKey/azooKey-Desktop",
-			},
-		],
-	},
-	{
-		title: "エンターテイメント",
-		icon: "🎮",
-		tools: [
-			{
-				name: "Spotify",
-				description: "音楽ストリーミングサービス",
-				url: "https://www.spotify.com/",
-			},
-			{
-				name: "Pocket Casts",
-				description: "ポッドキャストプレイヤー",
-				url: "https://pocketcasts.com/",
-			},
-			{
-				name: "Steam",
-				description: "ゲーム配信プラットフォーム",
-				url: "https://store.steampowered.com/",
-			},
-			{
-				name: "Epic Games",
-				description: "ゲームストア・ランチャー",
-				url: "https://www.epicgames.com/",
 			},
 		],
 	},
@@ -913,34 +138,52 @@ const categories: Category[] = [
 
 <Layout
 	title={`Tools | ${SITE.name}`}
-	description="開発で使用しているツールやアプリケーションの一覧です。"
+	description="Nix + Home Manager で管理している開発環境。毎日使っているツールと、そうしている理由。"
 >
-	<main class="mx-auto max-w-6xl px-6 py-12">
-		<!-- ヘッダー -->
-		<div class="mb-12">
-			<h1 class="mb-4 text-4xl font-bold text-(--text-primary)">Tools</h1>
-			<p class="mb-2 text-lg text-(--text-secondary)">
-				普段の開発で使用しているCLIツールやアプリケーションの一覧です。
+	<main class="mx-auto max-w-3xl px-6 py-12">
+		<header class="mb-12">
+			<h1 class="mb-4 font-display text-4xl font-bold text-(--text-primary)">
+				Tools
+			</h1>
+			<p class="mb-4 text-lg text-(--text-secondary)">
+				開発環境は Nix + Home Manager で宣言的に管理しています。百科事典ではなく、毎日触っているものと、そうしている理由だけを置いています。
 			</p>
-			<p class="text-sm text-(--text-muted)">
-				すべてのツールは
-				<a
-					href="https://github.com/ta93abe/dotfiles"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="text-(--primary-color) hover:underline"
-				>
-					dotfiles リポジトリ
-				</a>
-				で管理されています（Nix + Home Manager）
-			</p>
-		</div>
+			<a
+				href={DOTFILES_URL}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="inline-flex items-center gap-2 text-sm font-medium text-(--primary-color) hover:underline"
+			>
+				→ dotfiles リポジトリ（Nix + Home Manager）
+			</a>
+		</header>
 
-		<!-- カテゴリ別ツールリスト -->
+		<section id="why-nix" class="mb-14">
+			<h2 class="mb-4 text-lg font-bold text-(--text-primary)">なぜ Nix か</h2>
+			<ul class="space-y-3 text-(--text-secondary)">
+				<li>
+					<strong class="text-(--text-primary)">CLI は 100% Nix。</strong>
+					マシンを作り直しても同じシェル・同じツールが入る。
+				</li>
+				<li>
+					<strong class="text-(--text-primary)">Homebrew は GUI だけ。</strong>
+					nixpkgs にないアプリに限る。
+				</li>
+				<li>
+					<strong class="text-(--text-primary)">テーマは Tokyo Night。</strong>
+					Ghostty、fzf、Zellij まで同じ色にする。
+				</li>
+				<li>
+					<strong class="text-(--text-primary)">更新は topgrade。</strong>
+					Nix もそれ以外も一度に上げる。
+				</li>
+			</ul>
+		</section>
+
 		<div class="space-y-12">
 			{
 				categories.map((category) => (
-					<section id={category.title.toLowerCase().replace(/[・\s]+/g, "-").replace(/[^a-z0-9-]/g, "")}>
+					<section id={toId(category.title)}>
 						<h2 class="mb-4 text-lg font-bold text-(--text-primary)">
 							{category.title}
 							<span class="ml-2 text-sm font-normal text-(--text-muted)">
@@ -952,57 +195,27 @@ const categories: Category[] = [
 							{category.tools.map((tool) => {
 								const toolId = toId(`${category.title}-${tool.name}`);
 								return (
-								<article id={toolId}>
-									<a
-										href={tool.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="block py-4 transition-colors hover:text-(--primary-color)"
-									>
-										<h3 class="mb-1 font-mono text-base font-semibold text-(--text-primary)">
-											{tool.name}
-										</h3>
-										<p class="text-sm text-(--text-secondary)">
-											{tool.description}
-										</p>
-										<p class="mt-1 truncate text-xs text-(--text-muted)">{tool.url}</p>
-									</a>
-								</article>
+									<article id={toolId}>
+										<a
+											href={tool.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="block py-4 transition-colors hover:text-(--primary-color)"
+										>
+											<h3 class="mb-1 font-mono text-base font-semibold text-(--text-primary)">
+												{tool.name}
+											</h3>
+											<p class="text-sm text-(--text-secondary)">
+												{tool.description}
+											</p>
+										</a>
+									</article>
 								);
 							})}
 						</div>
 					</section>
 				))
 			}
-		</div>
-
-		<!-- フッター情報 -->
-		<div class="mt-16 pt-6">
-			<h3 class="mb-3 font-bold text-(--text-primary)">管理方針</h3>
-			<ul class="space-y-2 text-sm text-(--text-secondary)">
-				<li>
-					<strong class="text-(--text-primary)">Nix-First アプローチ:</strong> CLIツールは100% Nixで管理
-				</li>
-				<li>
-					<strong class="text-(--text-primary)">Homebrew:</strong> GUIアプリケーションのみ（nixpkgsにない場合）
-				</li>
-				<li>
-					<strong class="text-(--text-primary)">統一テーマ:</strong> Tokyo Night（Ghostty、fzf、Zellij）
-				</li>
-				<li>
-					<strong class="text-(--text-primary)">自動更新:</strong> topgradeで一括管理
-				</li>
-			</ul>
-			<div class="mt-4">
-				<a
-					href="https://github.com/ta93abe/dotfiles"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="inline-flex items-center gap-2 text-sm font-medium text-(--primary-color) hover:underline"
-				>
-					→ dotfiles リポジトリを見る
-				</a>
-			</div>
 		</div>
 	</main>
 </Layout>

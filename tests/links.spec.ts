@@ -8,21 +8,33 @@ test.describe("Links Page", () => {
 		await expect(page.locator("h1").first()).toContainText("Links");
 	});
 
-	test("should display page description", async ({ page }) => {
+	test("should explain the curated profiles", async ({ page }) => {
 		await page.goto("/links");
 
 		await expect(
-			page.locator("p").filter({ hasText: "SNS・ソーシャルメディア" }),
+			page.locator("p").filter({ hasText: "いま主に使っている場所" }),
 		).toBeVisible();
 	});
 
-	test("should display SNS links", async ({ page }) => {
+	test("should list the active profiles and omit placeholders", async ({
+		page,
+	}) => {
 		await page.goto("/links");
 
-		// GitHubリンクが存在することを確認
-		await expect(
-			page.locator('a[href*="github.com"]').first(),
-		).toBeVisible();
+		const names = page.locator(".sns-row-name");
+		await expect(names).toHaveText([
+			"GitHub",
+			"Zenn",
+			"X",
+			"LinkedIn",
+			"Speaker Deck",
+			"connpass",
+			"Substack",
+		]);
+
+		await expect(page.getByText("WhatsApp")).toHaveCount(0);
+		await expect(page.getByText("TikTok")).toHaveCount(0);
+		await expect(page.getByText("Product Hunt")).toHaveCount(0);
 	});
 
 	test("should have external links with correct attributes", async ({
@@ -30,8 +42,9 @@ test.describe("Links Page", () => {
 	}) => {
 		await page.goto("/links");
 
-		// 外部リンクが存在することを確認
-		const externalLinks = page.locator('a[href^="https://"]');
-		await expect(externalLinks.first()).toBeVisible();
+		const github = page.locator('a[href*="github.com"]').first();
+		await expect(github).toBeVisible();
+		await expect(github).toHaveAttribute("target", "_blank");
+		await expect(github).toHaveAttribute("rel", /noopener/);
 	});
 });
