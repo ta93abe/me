@@ -24,11 +24,10 @@
 ├── docs/                    # プロジェクトドキュメント
 ├── infra/                   # Alchemy による Cloudflare リソース
 ├── perf/                    # Lighthouse / CWV budgets
-├── public/                  # 静的ファイル・admin CMS・media
+├── public/                  # 静的ファイル・media
 ├── src/
 │   ├── components/          # UI / landing / blog / creative
 │   ├── config/              # site.ts / navigation.ts
-│   ├── content/             # blog / gallery / atelier / books
 │   ├── layouts/Layout.astro
 │   ├── pages/               # ファイルベースルーティング
 │   ├── styles/global.css
@@ -68,7 +67,7 @@ src/pages/
 
 ### コンテンツ
 
-段階 5（blog の R2 読み + 発見面）:
+段階 6（R2 だけが正）:
 
 1. 公開本文は非公開 R2 `me-content`（`md/{collection}/{slug}.md`）
 2. `PUT` / `DELETE /api/content/:collection/:slug` は HMAC-SHA256（本文 + パス + 時刻、時計ずれ 5 分）
@@ -77,9 +76,9 @@ src/pages/
 5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
 6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge
 7. RSS / sitemap-blog / llms / OG は blog index と `derived/` に接続する。全文再ビルドはコード変更のときだけ
-8. Git に残る MDX（`dbt-jobs-composite-action.mdx`）は v1 で R2 に載せられないので、一覧・詳細・フィードの後退として残す
+8. Git の `src/content`、Sveltia `/admin`、MDX 記事は外した。既存 Git 記事は移行せず捨てた
 
-gallery / atelier / books のサイトページはいったん外している。Worker Content API のコレクション契約と `src/content` の原稿は残す。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
+gallery / atelier / books のサイトページはいったん外している。Worker Content API のコレクション契約は残す。契約は `docs/CONTENT_API.md`。
 
 ## 主要な設計パターン
 
@@ -133,7 +132,7 @@ pnpm install
 3. blog 一覧・詳細の R2 読み（Astro hybrid）
 4. gallery / atelier / books を同じ経路に
 5. RSS / sitemap / llms / OG を index に接続（実装済み）
-6. 本番記事を移行し、`src/content` と Sveltia を外す
+6. `src/content` と Sveltia を外す（実装済み。既存 Git 記事は捨てた）
 7. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料

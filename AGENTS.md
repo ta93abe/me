@@ -25,14 +25,13 @@
 ```
 /
 ├── .github/workflows/         # CI (perf / playwright / infra)
-├── docs/                      # アーキテクチャ・CMS 移行ノート
+├── docs/                      # アーキテクチャ・Content API ノート
 ├── infra/                     # Alchemy による Cloudflare インフラ
 ├── perf/                      # Lighthouse / CWV budgets
-├── public/                    # favicon, admin (Sveltia CMS), media
+├── public/                    # favicon, media
 ├── src/
 │   ├── components/            # UI / landing / blog コンポーネント
 │   ├── config/                # site / navigation
-│   ├── content/               # Content Collections (blog, gallery, atelier, books)
 │   ├── layouts/Layout.astro
 │   ├── pages/                 # ファイルベースルーティング
 │   ├── styles/global.css
@@ -315,11 +314,11 @@ Conventional Commits に従う:
 ポートフォリオサイトとして運用中:
 - Astro 7 + Tailwind CSS 4 + Cloudflare Workers
 - ページ: Blog / Links / Tools / Slides
-- SEO（OG / JSON-LD / sitemap / robots）、PostHog、Sveltia CMS、perf CI まで実装済み
+- SEO（OG / JSON-LD / sitemap / robots）、PostHog、perf CI まで実装済み
+- 公開本文は pubme → 非公開 R2 `me-content`。Git に原稿は置かない
 - `/gallery` `/atelier` `/bookshelf` `/works` は公開コンテンツができるまで `/` へリダイレクト
 
 ## 次のステップ
 
-1. サンプルコンテンツを本番アセットに差し替え
-2. Sveltia CMS の books 対応・OAuth 本番確認
-3. Agent Readiness の残タスク（DNS-AID など）
+1. 本番 R2 の Hello 以外の記事を pubme から足す
+2. Agent Readiness の残タスク（DNS-AID など）

@@ -16,7 +16,7 @@ describe("isRetiredSitePath", () => {
 	it("leaves live pages alone", () => {
 		expect(isRetiredSitePath("/")).toBe(false);
 		expect(isRetiredSitePath("/blog")).toBe(false);
-		expect(isRetiredSitePath("/blog/dbt-jobs-composite-action")).toBe(false);
+		expect(isRetiredSitePath("/blog/hello-world")).toBe(false);
 		expect(isRetiredSitePath("/links")).toBe(false);
 		expect(isRetiredSitePath("/tools")).toBe(false);
 		expect(isRetiredSitePath("/slides")).toBe(false);

@@ -1,8 +1,6 @@
 ---
 export const prerender = false;
 
-import type { CollectionEntry } from "astro:content";
-import { getCollection, getEntry, render } from "astro:content";
 import NewsletterCta from "@/components/NewsletterCta.astro";
 import NotFoundPlayground from "@/components/NotFoundPlayground";
 import PostNavigation from "@/components/PostNavigation.astro";
@@ -11,14 +9,7 @@ import BackToTop from "@/components/ui/BackToTop.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
 import { getContentBucket } from "@/lib/content/bindings";
-import {
-	blogNeighbors,
-	collectionEntryToListItem,
-	listBlogPosts,
-	loadBlogPost,
-	mergeBlogLists,
-	type BlogPost,
-} from "@/lib/content/blog";
+import { blogNeighbors, listBlogPosts, loadBlogPost } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils/date";
@@ -27,64 +18,22 @@ import { stringifySchema } from "@/utils/schema";
 
 const slug = Astro.params.id ?? "";
 const bucket = await getContentBucket();
-const r2Post = bucket ? await loadBlogPost(bucket, slug) : null;
-const leftoverEntries = await getCollection("blog");
-const leftover = leftoverEntries.map(collectionEntryToListItem);
-const r2List = bucket ? await listBlogPosts(bucket) : [];
-const allPosts = mergeBlogLists(r2List, leftover);
+const post = bucket ? await loadBlogPost(bucket, slug) : null;
+const allPosts = bucket ? await listBlogPosts(bucket) : [];
 
-let post: BlogPost | CollectionEntry<"blog"> | null = r2Post;
-let MdxContent: Awaited<ReturnType<typeof render>>["Content"] | undefined;
-let source: "r2" | "mdx" | "missing" = r2Post ? "r2" : "missing";
-
-if (!r2Post) {
-	const entry = await getEntry("blog", slug);
-	if (entry) {
-		source = "mdx";
-		post = entry;
-		const rendered = await render(entry);
-		MdxContent = rendered.Content;
-	}
-}
-
-const missing = !post || source === "missing";
-if (missing) {
+if (!post) {
 	// on-demand から prerender の /404 へ rewrite は Astro 7 server では禁止
 	Astro.response.status = 404;
 }
 
-const neighbors = missing ? undefined : blogNeighbors(allPosts, slug);
-const title = missing
-	? ""
-	: source === "r2"
-		? (post as BlogPost).title
-		: (post as CollectionEntry<"blog">).data.title;
-const excerpt = missing
-	? ""
-	: source === "r2"
-		? (post as BlogPost).excerpt
-		: (post as CollectionEntry<"blog">).data.excerpt;
-const date = missing
-	? new Date(0)
-	: source === "r2"
-		? (post as BlogPost).date
-		: (post as CollectionEntry<"blog">).data.date;
-const updatedDate = missing
-	? undefined
-	: source === "r2"
-		? (post as BlogPost).updatedDate
-		: (post as CollectionEntry<"blog">).data.updatedDate;
-const tags = missing
-	? []
-	: source === "r2"
-		? (post as BlogPost).tags
-		: ((post as CollectionEntry<"blog">).data.tags ?? []);
-const body = missing
-	? ""
-	: source === "r2"
-		? (post as BlogPost).body
-		: ((post as CollectionEntry<"blog">).body ?? "");
-const html = missing ? "" : source === "r2" ? (post as BlogPost).html : "";
+const neighbors = post ? blogNeighbors(allPosts, slug) : undefined;
+const title = post?.title ?? "";
+const excerpt = post?.excerpt ?? "";
+const date = post?.date ?? new Date(0);
+const updatedDate = post?.updatedDate;
+const tags = post?.tags ?? [];
+const body = post?.body ?? "";
+const html = post?.html ?? "";
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const readingTime = getReadingTime(body);
@@ -110,13 +59,13 @@ const blogSchema = {
 	...(tags.length > 0 ? { keywords: tags.join(", ") } : {}),
 };
 
-if (!missing) {
+if (post) {
 	Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
 }
 ---
 
 {
-  missing ? (
+  !post ? (
     <Layout
       title={`404 - ページが見つかりません | ${SITE.name}`}
       description="お探しのページは見つかりませんでした。"
@@ -189,7 +138,7 @@ if (!missing) {
     </header>
 
     <article class="prose prose-lg">
-      {source === "r2" ? <Fragment set:html={html} /> : MdxContent && <MdxContent />}
+      <Fragment set:html={html} />
     </article>
 
     <NewsletterCta source="blog-post" />

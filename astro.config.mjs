@@ -1,7 +1,6 @@
 // @ts-check
 
 import cloudflare from "@astrojs/cloudflare";
-import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
@@ -44,7 +43,7 @@ export default defineConfig({
 	session: {
 		driver: sessionDrivers.lruCache(),
 	},
-	integrations: [sitemap(), mdx(), react()],
+	integrations: [sitemap(), react()],
 	redirects: {
 		"/gallery": "/",
 		"/atelier": "/",
@@ -59,7 +58,7 @@ export default defineConfig({
 		prefetchAll: false,
 		defaultStrategy: "hover",
 	},
-	// Astro 7 デフォルトの Sätteri（Rust）で Markdown/MDX を処理。
+	// 記事本文は Worker 側の marked + Prism。ここはデフォルト OG など残りの Markdown 用。
 	// CSP と併用するためシンタックスハイライトは Prism（クラスベース）を使う。
 	// Shiki はインライン style 属性前提で Astro CSP と非互換。
 	markdown: {

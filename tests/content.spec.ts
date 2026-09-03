@@ -18,12 +18,17 @@ test.describe("Published content", () => {
 		}
 	});
 
-	test("blog lists a real post without sample titles", async ({ page }) => {
+	test("preview blog is R2-only and has no leftover Git posts", async ({
+		page,
+	}) => {
 		await page.goto("/blog");
 
 		await expect(page.locator("h1").first()).toContainText("Blog");
 		await expect(page.locator("body")).not.toContainText(sampleCopy);
-		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toBeVisible();
+		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
+		await expect(page.getByRole("status")).toContainText(
+			"まだ記事を置いていません。",
+		);
 	});
 
 	test("missing blog slug returns the 404 playground", async ({ page }) => {
@@ -35,19 +40,20 @@ test.describe("Published content", () => {
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
 
-	test("rss and blog sitemap include leftover git posts", async ({
+	test("rss and blog sitemap stay valid without leftover Git posts", async ({
 		request,
 	}) => {
 		const rss = await request.get("/rss.xml");
 		expect(rss.ok()).toBeTruthy();
 		const rssBody = await rss.text();
-		expect(rssBody).toContain("dbt-jobs-composite-action");
 		expect(rssBody).toContain("<language>ja</language>");
+		expect(rssBody).not.toContain("dbt-jobs");
 
 		const sitemap = await request.get("/sitemap-blog.xml");
 		expect(sitemap.ok()).toBeTruthy();
 		const sitemapBody = await sitemap.text();
-		expect(sitemapBody).toContain("/blog/dbt-jobs-composite-action/");
+		expect(sitemapBody).toContain("/blog/");
+		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
 	});
 

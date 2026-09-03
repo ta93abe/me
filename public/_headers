@@ -20,16 +20,3 @@
   # Content-Security-Policy は Astro security.csp（ページ内 meta + ハッシュ）に委譲。
   # ここで script-src/style-src を重ねると、ブラウザは両方を満たす必要があり
   # ハッシュベース CSP と衝突する。
-
-# Sveltia CMS admin (/admin/*)
-# - unpkg: CMS 本体スクリプトと追加依存（PDF.js / Prism 等）の取得
-# - api.github.com / githubstatus: GitHub バックエンド + サービスステータス確認
-# - *.githubusercontent.com: アバター・リポジトリ内画像のプレビュー
-# - sveltia-auth.ta93abe.com: OAuth プロキシ（infra/alchemy.run.ts で管理）
-# - r2.cloudflarestorage.com: R2 メディアライブラリへの直接アップロード（S3 API）
-# - images.ta93abe.com: R2 バケットの公開 URL（アセットプレビュー）
-# 参考: https://sveltiacms.app/en/docs/security
-/admin/*
-  ! Content-Security-Policy
-  X-Robots-Tag: noindex, nofollow
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://*.githubusercontent.com https://images.ta93abe.com; media-src blob:; frame-src blob:; connect-src 'self' blob: data: https://unpkg.com https://api.github.com https://www.githubstatus.com https://sveltia-auth.ta93abe.com https://b0047256d1afc1be1df08289ee3be552.r2.cloudflarestorage.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'

@@ -80,18 +80,8 @@
 **主要レイアウト:**
 - `Layout.astro` - メインレイアウト（HTML head/body）
 
-### `/src/content/` - コンテンツコレクション
-Astroのコンテンツコレクション機能を使用。
-
-**コレクション:**
-- `about/` - About情報（Markdown）
-- `blog/` - ブログ記事（Markdown）
-- `books/` - 読書記録（Markdown）
-- `works/` - プロジェクト作品（Markdown）
-- `talks/` - 登壇情報（JSON）
-
-**設定:**
-- `content.config.ts` - コレクションスキーマ定義
+### 公開本文
+Git の `src/content` は置かない。公開本文は pubme → Worker Content API → 非公開 R2 `me-content`。
 
 ### `/src/utils/` - ユーティリティ
 汎用的な関数。
@@ -169,7 +159,7 @@ Playwrightによるエンドツーエンドテスト。
 
 1. **ページ追加**: `src/pages/` に `.astro` ファイルを作成
 2. **コンポーネント作成**: `src/components/` に再利用可能なコンポーネントを作成
-3. **コンテンツ追加**: `src/content/` に Markdown ファイルを追加
+3. **コンテンツ追加**: pubme から Content API へ Publish する（Git に原稿を置かない）
 4. **ユーティリティ関数**: `src/utils/` に共通関数を作成
 5. **スタイリング**: Tailwind CSSクラスを使用、必要に応じて `<style>` タグ
 6. **テスト**: `src/__tests__/` または `tests/` にテストを追加

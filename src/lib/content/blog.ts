@@ -26,26 +26,6 @@ export type BlogPost = BlogListItem & {
 	html: string;
 };
 
-export function collectionEntryToListItem(post: {
-	id: string;
-	data: {
-		title: string;
-		excerpt: string;
-		date: Date;
-		updatedDate?: Date;
-		tags?: string[];
-	};
-}): BlogListItem {
-	return {
-		slug: post.id,
-		title: post.data.title,
-		excerpt: post.data.excerpt,
-		date: post.data.date,
-		updatedDate: post.data.updatedDate,
-		tags: post.data.tags ?? [],
-	};
-}
-
 export function toFeedPost(post: BlogListItem): FeedPost {
 	return {
 		slug: post.slug,
@@ -154,17 +134,6 @@ export async function loadBlogPost(
 	} catch {
 		return null;
 	}
-}
-
-export function mergeBlogLists(
-	primary: BlogListItem[],
-	fallback: BlogListItem[],
-): BlogListItem[] {
-	const slugs = new Set(primary.map((post) => post.slug));
-	return sortBlogList([
-		...primary,
-		...fallback.filter((post) => !slugs.has(post.slug)),
-	]);
 }
 
 export function blogNeighbors(

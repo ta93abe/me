@@ -4,7 +4,7 @@
  * - me-images: 公開メディア（images.ta93abe.com）
  * - me-content: 非公開本文（Worker binding のみ。カスタムドメインなし）
  * - content-events: R2 md/ の create/delete で index を再構築する Queue
- * - sveltia-cms-auth: 既存 GitHub OAuth プロキシ（移行完了まで残す）
+ * - sveltia-cms-auth: 既存 GitHub OAuth プロキシ（サイトの /admin は外した。本番破壊を避けるため Worker は残す）
  *
  * HMAC シークレットは wrangler secret:
  *   wrangler secret put CONTENT_HMAC_SECRET
@@ -26,8 +26,7 @@ export default Alchemy.Stack(
 	"me-cms",
 	{ providers: Cloudflare.providers(), state: Cloudflare.state() },
 	Effect.gen(function* () {
-		// Sveltia CMS がブラウザから直接アップロードする画像バケット。
-		// CORS は AWS Signature v4 のカスタムヘッダーによるプリフライトを通すために必須。
+		// 公開メディア。CORS はブラウザ直アップロード（旧 Sveltia / 今後の添付）のプリフライト用。
 		const content = yield* Cloudflare.R2.Bucket("Content", {
 			name: "me-content",
 		});

@@ -27,16 +27,6 @@ test.describe("Newsletter CTA (Substack)", () => {
 		).toHaveAttribute("href", subscribeUrl);
 	});
 
-	test("blog post has a subscribe block", async ({ page }) => {
-		await page.goto("/blog/first-post");
-
-		const block = page.locator("[data-newsletter-cta-block]");
-		await expect(block).toBeVisible();
-		await expect(
-			block.locator('a[data-newsletter-cta="blog-post"]'),
-		).toHaveAttribute("href", subscribeUrl);
-	});
-
 	test("Links keeps the Substack entry", async ({ page }) => {
 		await page.goto("/links");
 

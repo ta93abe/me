@@ -5,7 +5,6 @@ import {
 	indexEntryToListItem,
 	listBlogPosts,
 	loadBlogPost,
-	mergeBlogLists,
 	sortBlogList,
 	toDate,
 	type BlogListItem,
@@ -65,33 +64,6 @@ describe("blog content helpers", () => {
 		const bucket = createMemoryR2();
 		expect(await loadBlogPost(bucket, "Hello")).toBeNull();
 		expect(await loadBlogPost(bucket, "missing")).toBeNull();
-	});
-
-	it("merges R2 over leftover Git entries", () => {
-		const merged = mergeBlogLists(
-			[
-				item({
-					slug: "hello",
-					title: "From R2",
-					date: new Date("2026-08-30"),
-				}),
-			],
-			[
-				item({
-					slug: "hello",
-					title: "From Git",
-					date: new Date("2026-01-01"),
-				}),
-				item({
-					slug: "legacy",
-					title: "MDX leftover",
-					date: new Date("2026-08-27"),
-				}),
-			],
-		);
-
-		expect(merged.map((post) => post.slug)).toEqual(["hello", "legacy"]);
-		expect(merged[0]?.title).toBe("From R2");
 	});
 
 	it("sorts newest first and builds neighbors", () => {
