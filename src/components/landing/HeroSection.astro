@@ -1,9 +1,12 @@
 ---
-import { SITE } from "@/config/site";
+import Button from "@/components/ui/Button.astro";
+import { FEATURED_WORKS, HOME_CTAS, SITE } from "@/config/site";
+
+const isExternalHref = (href: string) =>
+	href.startsWith("https://") || href.startsWith("http://");
 ---
 
-<section id="hero" class="hero" aria-label={SITE.name}>
-	<h1 class="sr-only">{SITE.name}</h1>
+<section id="hero" class="hero" aria-labelledby="hero-name">
 	<div class="hero-atmosphere" aria-hidden="true">
 		<canvas class="hero-canvas" data-hero-canvas></canvas>
 		<div class="hero-fallback">
@@ -12,27 +15,71 @@ import { SITE } from "@/config/site";
 		</div>
 		<div class="hero-grain"></div>
 	</div>
+
+	<div class="hero-content">
+		<div class="hero-copy">
+			<p class="hero-handle">{SITE.handle}</p>
+			<h1 id="hero-name" class="hero-name font-display">{SITE.name}</h1>
+			<p class="hero-tagline">{SITE.tagline}</p>
+
+			{
+				FEATURED_WORKS.length > 0 && (
+					<section
+						class="hero-featured"
+						aria-labelledby="hero-featured-heading"
+					>
+						<h2 id="hero-featured-heading" class="hero-featured-heading">
+							代表作
+						</h2>
+						<ul class="hero-featured-list">
+							{FEATURED_WORKS.map((work) => {
+								const external = isExternalHref(work.href);
+								return (
+									<li>
+										<a
+											href={work.href}
+											class="hero-featured-link"
+											data-featured-work
+											target={external ? "_blank" : undefined}
+											rel={
+												external
+													? "noopener noreferrer"
+													: undefined
+											}
+										>
+											<span class="hero-featured-title">
+												{work.title}
+											</span>
+											<span class="hero-featured-excerpt">
+												{work.excerpt}
+											</span>
+										</a>
+									</li>
+								);
+							})}
+						</ul>
+					</section>
+				)
+			}
+
+			<nav class="hero-cta" aria-label="主なページ">
+				{
+					HOME_CTAS.map((cta) => (
+						<Button href={cta.href} variant={cta.variant} size="md">
+							{cta.label}
+						</Button>
+					))
+				}
+			</nav>
+		</div>
+	</div>
 </section>
 
 <style>
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
-	}
-
 	.hero {
 		position: relative;
 		isolation: isolate;
-		height: 100%;
-		min-height: 100dvh;
-		min-height: 100svh;
+		min-height: 100%;
 		overflow: hidden;
 		background: #faf9f6;
 	}
@@ -111,6 +158,121 @@ import { SITE } from "@/config/site";
 		background-size: 160px 160px;
 	}
 
+	.hero-content {
+		position: relative;
+		z-index: 1;
+		min-height: 100%;
+	}
+
+	.hero-content::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: linear-gradient(
+			90deg,
+			rgba(250, 249, 246, 0.92) 0%,
+			rgba(250, 249, 246, 0.62) 38%,
+			rgba(250, 249, 246, 0.18) 62%,
+			rgba(250, 249, 246, 0) 88%
+		);
+	}
+
+	.hero-copy {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		width: min(100%, 42rem);
+		padding: calc(var(--header-height) + 1.25rem) 1.5rem 5.75rem;
+	}
+
+	.hero-handle {
+		margin: 0 0 0.4rem;
+		font-family: "Inter", system-ui, sans-serif;
+		font-size: 0.875rem;
+		font-weight: 500;
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+	}
+
+	.hero-name {
+		margin: 0;
+		font-size: clamp(2.25rem, 8vw, 4rem);
+		font-weight: 700;
+		line-height: 1.15;
+		letter-spacing: -0.02em;
+		color: var(--text-primary);
+	}
+
+	.hero-tagline {
+		margin: 1rem 0 0;
+		max-width: 32rem;
+		font-size: 1.0625rem;
+		line-height: 1.85;
+		color: var(--text-secondary);
+	}
+
+	.hero-featured {
+		margin-top: 2rem;
+	}
+
+	.hero-featured-heading {
+		margin: 0 0 0.35rem;
+		font-family: "Inter", system-ui, sans-serif;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.hero-featured-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.hero-featured-link {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		padding: 0.75rem 0;
+		text-decoration: none;
+		color: inherit;
+		border-top: 1px solid var(--border-color);
+		transition: color 0.15s ease;
+	}
+
+	.hero-featured-list li:last-child .hero-featured-link {
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.hero-featured-title {
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--text-primary);
+	}
+
+	.hero-featured-excerpt {
+		font-size: 0.875rem;
+		line-height: 1.7;
+		color: var(--text-secondary);
+	}
+
+	.hero-featured-link:hover .hero-featured-title,
+	.hero-featured-link:focus-visible .hero-featured-title {
+		color: var(--primary-color);
+	}
+
+	.hero-cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 2rem;
+	}
+
 	@keyframes wash-drift {
 		0%,
 		100% {
@@ -121,9 +283,19 @@ import { SITE } from "@/config/site";
 		}
 	}
 
+	@media (min-width: 768px) {
+		.hero-copy {
+			justify-content: center;
+			min-height: 100%;
+			padding-left: clamp(1.5rem, 6vw, 4.5rem);
+			padding-right: 1.5rem;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.hero-wash,
-		.hero-canvas {
+		.hero-canvas,
+		.hero-featured-link {
 			animation: none;
 			transition: none;
 			will-change: auto;
@@ -180,4 +352,22 @@ import { SITE } from "@/config/site";
 			});
 		}
 	}
+
+	document.querySelectorAll("[data-featured-work]").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("home_featured_clicked", {
+				title: link.querySelector(".hero-featured-title")?.textContent?.trim(),
+				href: link.getAttribute("href"),
+			});
+		});
+	});
+
+	document.querySelectorAll(".hero-cta a[href]").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("home_cta_clicked", {
+				label: link.textContent?.trim(),
+				href: link.getAttribute("href"),
+			});
+		});
+	});
 </script>

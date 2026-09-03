@@ -1,0 +1,84 @@
+---
+import SnsLinks from "@/components/SnsLinks.astro";
+import Button from "@/components/ui/Button.astro";
+import { FEATURED_WORKS, SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { generatePersonSchema, stringifySchema } from "@/utils/schema";
+
+const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
+---
+
+<Layout
+	title={`About | ${SITE.name}`}
+	description={SITE.description}
+>
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(personSchema)}
+		/>
+	</Fragment>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
+				About
+			</h1>
+			<p
+				class="mb-2 font-sans text-sm font-medium tracking-wide text-(--text-muted)"
+			>
+				{SITE.handle}
+			</p>
+			<p class="mb-4 font-display text-2xl font-bold text-(--text-primary)">
+				{SITE.name}
+			</p>
+			<p class="max-w-xl text-(--text-secondary)">
+				{SITE.tagline}
+			</p>
+		</header>
+
+		<section class="mb-14" aria-labelledby="about-works-heading">
+			<h2
+				id="about-works-heading"
+				class="mb-4 font-display text-xl font-bold text-(--text-primary)"
+			>
+				代表作
+			</h2>
+			<ul
+				class="divide-y divide-(--border-color) border-y border-(--border-color)"
+			>
+				{
+					FEATURED_WORKS.map((work) => (
+						<li>
+							<a
+								href={work.href}
+								class="block py-4 no-underline"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<p class="font-bold text-(--text-primary)">{work.title}</p>
+								<p class="mt-1 text-sm text-(--text-secondary)">
+									{work.excerpt}
+								</p>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</section>
+
+		<section class="mb-14" aria-labelledby="about-sns-heading">
+			<h2
+				id="about-sns-heading"
+				class="mb-4 font-display text-xl font-bold text-(--text-primary)"
+			>
+				SNS
+			</h2>
+			<SnsLinks />
+		</section>
+
+		<p class="text-(--text-secondary)">連絡は Contact からどうぞ。</p>
+		<div class="mt-4">
+			<Button href="/contact" variant="primary">Contact</Button>
+		</div>
+	</main>
+</Layout>
