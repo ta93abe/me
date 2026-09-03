@@ -1,7 +1,6 @@
 ---
 export const prerender = false;
 
-import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import FilterSort from "@/components/FilterSort.astro";
 import NewsletterCta from "@/components/NewsletterCta.astro";
@@ -9,29 +8,18 @@ import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
 import { getContentBucket } from "@/lib/content/bindings";
 import {
+	collectionEntryToListItem,
 	listBlogPosts,
 	mergeBlogLists,
-	type BlogListItem,
 } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils/date";
 
-function fromCollection(post: CollectionEntry<"blog">): BlogListItem {
-	return {
-		slug: post.id,
-		title: post.data.title,
-		excerpt: post.data.excerpt,
-		date: post.data.date,
-		updatedDate: post.data.updatedDate,
-		tags: post.data.tags ?? [],
-	};
-}
-
 const bucket = await getContentBucket();
 const r2Posts = bucket ? await listBlogPosts(bucket) : [];
 // MDX など v1 で R2 に載せられない Git 記事は、段階 6 まで一覧に残す
-const leftover = (await getCollection("blog")).map(fromCollection);
+const leftover = (await getCollection("blog")).map(collectionEntryToListItem);
 const sortedPosts = mergeBlogLists(r2Posts, leftover);
 const allTags = sortedPosts.flatMap((post) => post.tags);
 

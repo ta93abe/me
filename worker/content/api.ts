@@ -7,6 +7,7 @@ import {
 import type { ContentBindings } from "./env.ts";
 import { looksLikeMdx, parseMarkdownDocument } from "./frontmatter.ts";
 import { verifyContentHmac } from "./hmac.ts";
+import { writeDerivedDiscovery } from "./derived.ts";
 import {
 	readAllIndex,
 	readCollectionIndex,
@@ -137,6 +138,7 @@ async function handlePut(
 		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
 	});
 	const index = await rebuildContentIndexes(env.CONTENT);
+	await writeDerivedDiscovery(env.CONTENT);
 
 	return jsonResponse(request, {
 		ok: true,
@@ -204,6 +206,7 @@ async function handleDelete(
 
 	await env.CONTENT.delete(key);
 	const index = await rebuildContentIndexes(env.CONTENT);
+	await writeDerivedDiscovery(env.CONTENT);
 	return jsonResponse(request, {
 		ok: true,
 		deleted: key,

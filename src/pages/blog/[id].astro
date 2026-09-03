@@ -13,10 +13,10 @@ import { SITE } from "@/config/site";
 import { getContentBucket } from "@/lib/content/bindings";
 import {
 	blogNeighbors,
+	collectionEntryToListItem,
 	listBlogPosts,
 	loadBlogPost,
 	mergeBlogLists,
-	type BlogListItem,
 	type BlogPost,
 } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
@@ -25,22 +25,11 @@ import { formatDate } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
 import { stringifySchema } from "@/utils/schema";
 
-function fromCollection(post: CollectionEntry<"blog">): BlogListItem {
-	return {
-		slug: post.id,
-		title: post.data.title,
-		excerpt: post.data.excerpt,
-		date: post.data.date,
-		updatedDate: post.data.updatedDate,
-		tags: post.data.tags ?? [],
-	};
-}
-
 const slug = Astro.params.id ?? "";
 const bucket = await getContentBucket();
 const r2Post = bucket ? await loadBlogPost(bucket, slug) : null;
 const leftoverEntries = await getCollection("blog");
-const leftover = leftoverEntries.map(fromCollection);
+const leftover = leftoverEntries.map(collectionEntryToListItem);
 const r2List = bucket ? await listBlogPosts(bucket) : [];
 const allPosts = mergeBlogLists(r2List, leftover);
 
@@ -102,10 +91,7 @@ const readingTime = getReadingTime(body);
 const readingTimeText = formatReadingTime(readingTime);
 const publishedTime = date.toISOString();
 const modifiedTime = updatedDate ? updatedDate.toISOString() : publishedTime;
-const ogImageURL = new URL(
-	source === "mdx" ? `/og/blog/${slug}.png` : "/og/default.png",
-	Astro.site,
-);
+const ogImageURL = new URL(`/og/blog/${slug}.png`, Astro.site);
 const blogSchema = {
 	"@context": "https://schema.org",
 	"@type": "BlogPosting",

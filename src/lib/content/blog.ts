@@ -1,4 +1,5 @@
 import { isValidSlug } from "../../../worker/content/collections.ts";
+import type { FeedPost } from "../../../worker/content/derived.ts";
 import {
 	looksLikeMdx,
 	parseMarkdownDocument,
@@ -24,6 +25,36 @@ export type BlogPost = BlogListItem & {
 	body: string;
 	html: string;
 };
+
+export function collectionEntryToListItem(post: {
+	id: string;
+	data: {
+		title: string;
+		excerpt: string;
+		date: Date;
+		updatedDate?: Date;
+		tags?: string[];
+	};
+}): BlogListItem {
+	return {
+		slug: post.id,
+		title: post.data.title,
+		excerpt: post.data.excerpt,
+		date: post.data.date,
+		updatedDate: post.data.updatedDate,
+		tags: post.data.tags ?? [],
+	};
+}
+
+export function toFeedPost(post: BlogListItem): FeedPost {
+	return {
+		slug: post.slug,
+		title: post.title,
+		excerpt: post.excerpt,
+		date: post.date,
+		updatedDate: post.updatedDate,
+	};
+}
 
 export function toDate(value: unknown): Date | undefined {
 	if (value instanceof Date && !Number.isNaN(value.getTime())) {

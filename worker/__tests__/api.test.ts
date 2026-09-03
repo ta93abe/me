@@ -161,6 +161,18 @@ describe("content api", () => {
 		expect(await env.IMAGES.get(json.key)).not.toBeNull();
 	});
 
+	it("writes derived discovery files on publish", async () => {
+		const env = createContentEnv();
+		const response = await handleContentApi(
+			await signedRequest("PUT", "/api/content/blog/hello", blogMarkdown),
+			env,
+		);
+		expect(response?.status).toBe(200);
+		expect(await env.CONTENT.get("derived/rss-blog.xml")).not.toBeNull();
+		expect(await env.CONTENT.get("derived/sitemap-urls.json")).not.toBeNull();
+		expect(await env.CONTENT.get("derived/llms-blog.txt")).not.toBeNull();
+	});
+
 	it("leaves non-content routes to the site worker", async () => {
 		const env = createContentEnv();
 		const response = await handleContentApi(

@@ -2,7 +2,7 @@
 
 Obsidian プラグイン（`pubme`）と curl が使う Worker API。本文は非公開 R2 `me-content`、添付は公開 R2 `me-images`。
 
-段階 3: `/blog` と `/blog/:slug` はリクエスト時に R2 を読む（`@astrojs/cloudflare` hybrid）。gallery / atelier / books のサイトページは公開コンテンツができるまで外し、旧 URL は `/` へリダイレクトする。API コレクション自体は残す。
+段階 5: `/blog` と `/blog/:slug` はリクエスト時に R2 を読む。RSS / sitemap / llms / OG は blog index と `derived/` に接続する。gallery / atelier / books のサイトページは公開コンテンツができるまで外し、旧 URL は `/` へリダイレクトする。API コレクション自体は残す。
 
 Linear: [TA-790](https://linear.app/ta93abe/issue/TA-790)
 
@@ -52,13 +52,16 @@ wrangler secret put CONTENT_HMAC_SECRET
 - `md/{collection}/{slug}.md`
 - `index/{collection}.json`
 - `index/all.json`
+- `derived/rss-blog.xml`
+- `derived/sitemap-urls.json`
+- `derived/llms-blog.txt`
 
 `me-images`（公開）:
 
 - `content/{collection}/{slug}/{filename}`
 - URL: `https://images.ta93abe.com/content/...`
 
-PUT / DELETE は同期で index を冪等に書き直す。R2 の `md/` 通知は Queue `content-events` でも同じ再構築を行う。
+PUT / DELETE は同期で index と `derived/` を冪等に書き直す。R2 の `md/` 通知は Queue `content-events` でも同じ再構築と Cache purge（`/blog` HTML、`/rss.xml`、sitemap、llms、OG）を行う。
 
 ## curl（wrangler dev）
 
