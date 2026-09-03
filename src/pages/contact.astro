@@ -1,0 +1,31 @@
+---
+import SnsLinks from "@/components/SnsLinks.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout
+	title={`Contact | ${SITE.name}`}
+	description={`${SITE.name} への連絡先。GitHub、X、LinkedIn など。`}
+>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
+				Contact
+			</h1>
+			<p class="text-(--text-secondary)">
+				いまは SNS から連絡してください。問い合わせフォームは別途用意します。
+			</p>
+		</header>
+
+		<section aria-labelledby="contact-sns-heading">
+			<h2
+				id="contact-sns-heading"
+				class="mb-6 font-display text-xl font-bold text-(--text-primary)"
+			>
+				SNS
+			</h2>
+			<SnsLinks />
+		</section>
+	</main>
+</Layout>

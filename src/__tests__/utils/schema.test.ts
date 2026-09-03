@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { generateWebSiteSchema, stringifySchema } from "@/utils/schema";
+import {
+	generatePersonSchema,
+	generateWebSiteSchema,
+	stringifySchema,
+} from "@/utils/schema";
 
 describe("generateWebSiteSchema", () => {
 	const siteUrl = "https://example.com";
@@ -33,6 +37,26 @@ describe("generateWebSiteSchema", () => {
 
 		expect(schema.potentialAction).toBeDefined();
 		expect(schema.potentialAction?.["@type"]).toBe("SearchAction");
+	});
+});
+
+describe("generatePersonSchema", () => {
+	it("includes Person fields and sameAs profiles", () => {
+		const schema = generatePersonSchema("https://example.com/");
+
+		expect(schema["@type"]).toBe("Person");
+		expect(schema.name).toBe("Takumi Abe");
+		expect(schema.jobTitle).toBe("Software Engineer");
+		expect(schema.description).toContain(
+			"データ基盤と CI を書くソフトウェアエンジニア",
+		);
+		expect(schema.sameAs).toEqual(
+			expect.arrayContaining([
+				"https://github.com/ta93abe",
+				"https://x.com/ta93abe_",
+				"https://linkedin.com/in/ta93abe",
+			]),
+		);
 	});
 });
 

@@ -20,8 +20,8 @@ export const SITE = {
 export type SiteConfig = typeof SITE;
 
 /**
- * トップの次の行動。About / Contact はそれぞれ TA-783 / TA-789。
- * Gallery は公開コンテンツができるまで出さない。
+ * トップの次の行動。Gallery は公開コンテンツができるまで出さない。
+ * About / Contact の本実装（ナビ追加・フォーム）は TA-783 / TA-789。
  */
 export const HOME_CTAS = [
 	{ href: "/about", label: "About", variant: "secondary" },

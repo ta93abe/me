@@ -1,4 +1,5 @@
 import { SITE } from "@/config/site";
+import linksData from "@/data/links.json";
 
 interface WebSiteSchema {
 	"@context": "https://schema.org";
@@ -73,6 +74,26 @@ export const generateWebSiteSchema = (
 
 	return schema;
 };
+
+interface PersonSchema {
+	"@context": "https://schema.org";
+	"@type": "Person";
+	name: string;
+	url: string;
+	jobTitle: string;
+	description: string;
+	sameAs: string[];
+}
+
+export const generatePersonSchema = (siteUrl: string): PersonSchema => ({
+	"@context": "https://schema.org",
+	"@type": "Person",
+	name: SITE.name,
+	url: siteUrl,
+	jobTitle: "Software Engineer",
+	description: SITE.tagline,
+	sameAs: linksData.links.map((link) => link.url),
+});
 
 /**
  * Safely stringify JSON-LD for embedding in HTML

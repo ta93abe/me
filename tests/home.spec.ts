@@ -72,4 +72,31 @@ test.describe("Home", () => {
 			page.getByRole("navigation", { name: "主なページ" }),
 		).toBeVisible();
 	});
+
+	test("about and contact pages return 200", async ({ page, request }) => {
+		for (const path of ["/about", "/contact"] as const) {
+			const res = await request.get(path);
+			expect(res.status(), path).toBe(200);
+		}
+
+		await page.goto("/");
+		await page
+			.getByRole("navigation", { name: "主なページ" })
+			.getByRole("link", { name: "About" })
+			.click();
+		await expect(page).toHaveURL(/\/about\/?$/);
+		await expect(
+			page.getByRole("heading", { level: 1, name: "About" }),
+		).toBeVisible();
+
+		await page.goto("/");
+		await page
+			.getByRole("navigation", { name: "主なページ" })
+			.getByRole("link", { name: "Contact" })
+			.click();
+		await expect(page).toHaveURL(/\/contact\/?$/);
+		await expect(
+			page.getByRole("heading", { level: 1, name: "Contact" }),
+		).toBeVisible();
+	});
 });
