@@ -10,7 +10,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const response = await next();
 	const pathname = context.url.pathname.replace(/\/+$/, "") || "/";
-	if (response.ok && (pathname === "/blog" || pathname.startsWith("/blog/"))) {
+	if (
+		response.ok &&
+		(pathname === "/blog" ||
+			pathname.startsWith("/blog/") ||
+			pathname === "/rss.xml" ||
+			pathname === "/sitemap-blog.xml")
+	) {
 		response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
 	}
 	return response;

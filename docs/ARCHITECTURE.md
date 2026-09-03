@@ -68,15 +68,16 @@ src/pages/
 
 ### コンテンツ
 
-段階 3（blog の R2 読み）:
+段階 5（blog の R2 読み + 発見面）:
 
 1. 公開本文は非公開 R2 `me-content`（`md/{collection}/{slug}.md`）
 2. `PUT` / `DELETE /api/content/:collection/:slug` は HMAC-SHA256（本文 + パス + 時刻、時計ずれ 5 分）
-3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index を冪等再構築
+3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index と `derived/` を冪等再構築
 4. 添付は公開 R2 `me-images` の `content/{collection}/{slug}/...`
 5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
 6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge
-7. Git に残る MDX（`dbt-jobs-composite-action.mdx`）は v1 で R2 に載せられないので、一覧・詳細の後退として残す
+7. RSS / sitemap-blog / llms / OG は blog index と `derived/` に接続する。全文再ビルドはコード変更のときだけ
+8. Git に残る MDX（`dbt-jobs-composite-action.mdx`）は v1 で R2 に載せられないので、一覧・詳細・フィードの後退として残す
 
 gallery / atelier / books のサイトページはいったん外している。Worker Content API のコレクション契約と `src/content` の原稿は残す。Sveltia は増強しない。契約は `docs/CONTENT_API.md`。
 
@@ -131,7 +132,7 @@ pnpm install
 2. pubme から本番 Worker へ Publish / Unpublish
 3. blog 一覧・詳細の R2 読み（Astro hybrid）
 4. gallery / atelier / books を同じ経路に
-5. RSS / sitemap / llms / OG を index に接続
+5. RSS / sitemap / llms / OG を index に接続（実装済み）
 6. 本番記事を移行し、`src/content` と Sveltia を外す
 7. Agent Readiness 残タスク（DNS-AID など）
 

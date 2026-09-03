@@ -3,6 +3,11 @@ import { handle } from "@astrojs/cloudflare/handler";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
+import {
+	buildSitemapIndexXml,
+	readLlmsBlogSection,
+} from "./content/derived.ts";
+import { buildBlogOgSvg, loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { handleContentQueue } from "./content/queue.ts";
 
 type CacheStore = { default: Cache };
@@ -64,8 +69,7 @@ ${SITE_DESCRIPTION}
 - Authentication notes: ${SITE_URL}/auth.md
 `;
 
-const LLMS_FULL_TEXT = `${SITE_OVERVIEW_MARKDOWN}
-## Agent guidance
+const LLMS_GUIDANCE = `## Agent guidance
 
 - This is a public content site. No authentication is required to read the public pages.
 - Prefer canonical URLs on ${SITE_HOST}.
@@ -76,6 +80,15 @@ const LLMS_FULL_TEXT = `${SITE_OVERVIEW_MARKDOWN}
 
 Content-Signal: ${CONTENT_SIGNAL}
 `;
+
+async function siteOverviewMarkdown(env: Env): Promise<string> {
+	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
+	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
+}
+
+async function llmsFullText(env: Env): Promise<string> {
+	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
+}
 
 const AUTH_MD = `# Auth.md
 
@@ -458,7 +471,7 @@ function mcpToolList() {
 	];
 }
 
-async function handleMcp(request: Request): Promise<Response> {
+async function handleMcp(request: Request, env: Env): Promise<Response> {
 	if (request.method.toUpperCase() !== "POST") {
 		return jsonResponse(
 			request,
@@ -545,7 +558,7 @@ async function handleMcp(request: Request): Promise<Response> {
 				content: [
 					{
 						type: "text",
-						text: SITE_OVERVIEW_MARKDOWN,
+						text: await siteOverviewMarkdown(env),
 					},
 				],
 			},
@@ -640,32 +653,68 @@ export default {
 		}
 
 		if (pathname === "/" && acceptsMarkdown(request)) {
-			return textResponse(
-				request,
-				SITE_OVERVIEW_MARKDOWN,
-				"text/markdown; charset=utf-8",
-				{
-					headers: {
-						Link: DISCOVERY_LINKS,
-						Vary: "Accept",
-						"X-Markdown-Tokens": String(
-							SITE_OVERVIEW_MARKDOWN.split(/\s+/).filter(Boolean).length,
-						),
-					},
+			const overview = await siteOverviewMarkdown(env);
+			return textResponse(request, overview, "text/markdown; charset=utf-8", {
+				headers: {
+					Link: DISCOVERY_LINKS,
+					Vary: "Accept",
+					"Cache-Control": BLOG_HTML_CACHE_CONTROL,
+					"X-Markdown-Tokens": String(
+						overview.split(/\s+/).filter(Boolean).length,
+					),
 				},
-			);
+			});
 		}
 
 		if (pathname === "/llms.txt") {
 			return textResponse(
 				request,
-				SITE_OVERVIEW_MARKDOWN,
+				await siteOverviewMarkdown(env),
 				"text/plain; charset=utf-8",
+				{
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				},
 			);
 		}
 
 		if (pathname === "/llms-full.txt") {
-			return textResponse(request, LLMS_FULL_TEXT, "text/plain; charset=utf-8");
+			return textResponse(
+				request,
+				await llmsFullText(env),
+				"text/plain; charset=utf-8",
+				{
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				},
+			);
+		}
+
+		if (pathname === "/sitemap-index.xml") {
+			return textResponse(
+				request,
+				buildSitemapIndexXml(SITE_URL),
+				"application/xml; charset=utf-8",
+				{
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				},
+			);
+		}
+
+		const ogSlug = parseOgBlogPath(pathname);
+		if (
+			ogSlug &&
+			(request.method === "GET" || request.method === "HEAD")
+		) {
+			const title = await loadOgTitle(env.CONTENT, ogSlug);
+			if (title) {
+				return textResponse(
+					request,
+					buildBlogOgSvg(title),
+					"image/svg+xml; charset=utf-8",
+					{
+						headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+					},
+				);
+			}
 		}
 
 		if (pathname === "/auth.md") {
@@ -731,7 +780,7 @@ export default {
 		}
 
 		if (pathname === "/mcp") {
-			return handleMcp(request);
+			return handleMcp(request, env);
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.

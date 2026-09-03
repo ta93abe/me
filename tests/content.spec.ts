@@ -35,6 +35,22 @@ test.describe("Published content", () => {
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
 
+	test("rss and blog sitemap include leftover git posts", async ({
+		request,
+	}) => {
+		const rss = await request.get("/rss.xml");
+		expect(rss.ok()).toBeTruthy();
+		const rssBody = await rss.text();
+		expect(rssBody).toContain("dbt-jobs-composite-action");
+		expect(rssBody).toContain("<language>ja</language>");
+
+		const sitemap = await request.get("/sitemap-blog.xml");
+		expect(sitemap.ok()).toBeTruthy();
+		const sitemapBody = await sitemap.text();
+		expect(sitemapBody).toContain("/blog/dbt-jobs-composite-action/");
+		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
+	});
+
 	test("retired collection URLs redirect home", async ({ page }) => {
 		for (const path of [
 			"/gallery",

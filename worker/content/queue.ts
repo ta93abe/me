@@ -1,4 +1,5 @@
 import { blogHtmlCacheUrls, blogSlugsFromMarkdownKeys } from "./blog-cache.ts";
+import { discoveryCacheUrls, writeDerivedDiscovery } from "./derived.ts";
 import { rebuildContentIndexes } from "./index-store.ts";
 import { parseMarkdownKey } from "./keys.ts";
 
@@ -52,12 +53,15 @@ export async function handleContentQueue(
 
 	if (rebuild) {
 		await rebuildContentIndexes(bucket);
+		await writeDerivedDiscovery(bucket, options?.origin);
 	}
 
 	const blogSlugs = blogSlugsFromMarkdownKeys(markdownKeys);
-	if (blogSlugs.length > 0 && options?.purge) {
-		await options.purge(
-			blogHtmlCacheUrls(options.origin ?? "https://ta93abe.com", blogSlugs),
-		);
+	if ((rebuild || blogSlugs.length > 0) && options?.purge) {
+		const origin = options.origin ?? "https://ta93abe.com";
+		await options.purge([
+			...blogHtmlCacheUrls(origin, blogSlugs),
+			...discoveryCacheUrls(origin, blogSlugs),
+		]);
 	}
 }
