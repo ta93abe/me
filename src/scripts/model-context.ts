@@ -27,6 +27,7 @@ if (!modelContext) {
 				"https://ta93abe.com/slides/",
 				"https://ta93abe.com/tools/",
 				"https://ta93abe.com/links/",
+				"https://ta93abe.com/contact/",
 			],
 			discovery: {
 				llms: "https://ta93abe.com/llms.txt",

@@ -1,0 +1,204 @@
+---
+import SnsLinks from "@/components/SnsLinks.astro";
+import Button from "@/components/ui/Button.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+
+const turnstileSiteKey =
+	import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ??
+	(import.meta.env.DEV ? "1x00000000000000000000AA" : "");
+---
+
+<Layout
+	title={`Contact | ${SITE.name}`}
+	description="SNS とお問い合わせフォームから連絡できます。"
+>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
+				Contact
+			</h1>
+			<p class="text-(--text-secondary)">
+				SNS か、下のフォームからどうぞ。返信が必要なときはメールアドレスを正しく入力してください。
+			</p>
+		</header>
+
+		<section class="contact-sns" aria-labelledby="contact-sns-heading">
+			<h2
+				id="contact-sns-heading"
+				class="mb-6 font-display text-xl font-bold text-(--text-primary)"
+			>
+				SNS
+			</h2>
+			<SnsLinks />
+		</section>
+
+		<section class="contact-form-section" aria-labelledby="contact-form-heading">
+			<h2
+				id="contact-form-heading"
+				class="mb-2 font-display text-xl font-bold text-(--text-primary)"
+			>
+				お問い合わせ
+			</h2>
+			<p class="mb-8 text-sm text-(--text-secondary)">
+				名前・メール・本文を送ると受け取り確認のメールが届きます。
+			</p>
+
+			{
+				turnstileSiteKey ? (
+					<form
+						id="contact-form"
+						class="contact-form font-sans"
+						action="/api/contact"
+						method="POST"
+					>
+						<label class="contact-field">
+							<span class="contact-label">名前</span>
+							<input
+								id="contact-name"
+								name="name"
+								type="text"
+								required
+								maxlength="100"
+								autocomplete="name"
+							/>
+						</label>
+
+						<label class="contact-field">
+							<span class="contact-label">メール</span>
+							<input
+								id="contact-email"
+								name="email"
+								type="email"
+								required
+								maxlength="254"
+								autocomplete="email"
+							/>
+						</label>
+
+						<label class="contact-field">
+							<span class="contact-label">
+								件名 <span class="contact-optional">任意</span>
+							</span>
+							<input
+								id="contact-subject"
+								name="subject"
+								type="text"
+								maxlength="200"
+								autocomplete="off"
+							/>
+						</label>
+
+						<label class="contact-field">
+							<span class="contact-label">本文</span>
+							<textarea
+								id="contact-message"
+								name="message"
+								required
+								maxlength="5000"
+								rows="8"
+							></textarea>
+						</label>
+
+						<div
+							class="cf-turnstile"
+							data-sitekey={turnstileSiteKey}
+							data-theme="light"
+						></div>
+
+						<div class="contact-actions">
+							<Button type="submit">送信する</Button>
+							<p
+								id="contact-status"
+								class="contact-status"
+								role="status"
+								aria-live="polite"
+								data-tone="idle"
+							></p>
+						</div>
+					</form>
+				) : (
+					<p class="text-sm text-(--text-secondary)">
+						フォームは準備中です。SNS から連絡してください。
+					</p>
+				)
+			}
+		</section>
+	</main>
+
+	<script
+		is:inline
+		src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+		async
+		defer></script>
+	<script>
+		import "../scripts/contact-form.ts";
+	</script>
+</Layout>
+
+<style>
+	.contact-form-section {
+		margin-top: 4rem;
+		padding-top: 3rem;
+		border-top: 1px solid var(--border-color);
+	}
+
+	.contact-form {
+		display: grid;
+		max-width: 36rem;
+		gap: 1.25rem;
+	}
+
+	.contact-field {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.contact-label {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text-primary);
+	}
+
+	.contact-optional {
+		font-weight: 400;
+		color: var(--text-muted);
+	}
+
+	.contact-form input,
+	.contact-form textarea {
+		width: 100%;
+		padding: 0.7rem 0.85rem;
+		border: 1px solid var(--border-color);
+		background: var(--bg-primary);
+		color: var(--text-primary);
+		font: inherit;
+		border-radius: 0;
+	}
+
+	.contact-form textarea {
+		resize: vertical;
+		min-height: 10rem;
+	}
+
+	.contact-actions {
+		display: grid;
+		gap: 0.75rem;
+		justify-items: start;
+	}
+
+	.contact-status {
+		min-height: 1.5rem;
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+	}
+
+	.contact-status[data-tone="success"] {
+		color: var(--primary-color);
+	}
+
+	.contact-status[data-tone="error"] {
+		color: #8a3b32;
+	}
+</style>

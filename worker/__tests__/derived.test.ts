@@ -63,6 +63,7 @@ describe("derived discovery feeds", () => {
 			"https://ta93abe.com/links/",
 			"https://ta93abe.com/slides/",
 			"https://ta93abe.com/tools/",
+			"https://ta93abe.com/contact/",
 		]);
 		expect(urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod).toBe(
 			"2026-08-30",
