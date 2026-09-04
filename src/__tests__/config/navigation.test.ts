@@ -10,6 +10,7 @@ describe("NAV_LINKS", () => {
 			"/links",
 			"/tools",
 			"/slides",
+			"/contact",
 		]);
 	});
 

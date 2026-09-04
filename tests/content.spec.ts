@@ -13,6 +13,7 @@ test.describe("Published content", () => {
 		await expect(nav.getByRole("link", { name: "Links" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Tools" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Slides" })).toBeVisible();
+		await expect(nav.getByRole("link", { name: "Contact" })).toBeVisible();
 
 		for (const name of hiddenSections) {
 			await expect(nav.getByRole("link", { name })).toHaveCount(0);
