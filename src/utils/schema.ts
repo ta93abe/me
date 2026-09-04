@@ -1,17 +1,22 @@
 import { SITE } from "@/config/site";
 import linksData from "@/data/links.json";
 
+interface PersonFields {
+	"@type": "Person";
+	name: string;
+	url: string;
+	jobTitle: string;
+	description: string;
+	sameAs: string[];
+}
+
 interface WebSiteSchema {
 	"@context": "https://schema.org";
 	"@type": "WebSite";
 	name: string;
 	url: string;
 	description: string;
-	author: {
-		"@type": "Person";
-		name: string;
-		url: string;
-	};
+	author: PersonFields;
 	inLanguage: string;
 	potentialAction?: {
 		"@type": "SearchAction";
@@ -53,11 +58,7 @@ export const generateWebSiteSchema = (
 		name: SITE.name,
 		url: siteUrl,
 		description: SITE.description,
-		author: {
-			"@type": "Person",
-			name: SITE.author,
-			url: siteUrl,
-		},
+		author: personFields(siteUrl),
 		inLanguage: SITE.lang,
 	};
 
@@ -75,24 +76,29 @@ export const generateWebSiteSchema = (
 	return schema;
 };
 
-interface PersonSchema {
+interface PersonSchema extends PersonFields {
 	"@context": "https://schema.org";
-	"@type": "Person";
-	name: string;
-	url: string;
-	jobTitle: string;
-	description: string;
-	sameAs: string[];
+}
+
+function originBase(siteUrl: string): string {
+	return siteUrl.replace(/\/+$/, "");
+}
+
+function personFields(siteUrl: string): PersonFields {
+	const origin = originBase(siteUrl);
+	return {
+		"@type": "Person",
+		name: SITE.author,
+		url: `${origin}/about`,
+		jobTitle: "Software Engineer",
+		description: SITE.tagline,
+		sameAs: linksData.links.map((link) => link.url),
+	};
 }
 
 export const generatePersonSchema = (siteUrl: string): PersonSchema => ({
 	"@context": "https://schema.org",
-	"@type": "Person",
-	name: SITE.name,
-	url: siteUrl,
-	jobTitle: "Software Engineer",
-	description: SITE.tagline,
-	sameAs: linksData.links.map((link) => link.url),
+	...personFields(siteUrl),
 });
 
 /**

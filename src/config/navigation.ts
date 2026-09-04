@@ -16,6 +16,7 @@ export interface NavLink {
  * 旧 URL は `astro.config.mjs` で `/` へリダイレクトする。
  */
 export const NAV_LINKS: readonly NavLink[] = [
+	{ href: "/about", text: "About" },
 	{ href: "/blog", text: "Blog" },
 	{ href: "/links", text: "Links" },
 	{ href: "/tools", text: "Tools" },

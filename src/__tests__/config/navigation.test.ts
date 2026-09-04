@@ -5,6 +5,7 @@ import { NAV_LINKS } from "@/config/navigation";
 describe("NAV_LINKS", () => {
 	it("keeps public sections that currently have pages", () => {
 		expect(NAV_LINKS.map((link) => link.href)).toEqual([
+			"/about",
 			"/blog",
 			"/links",
 			"/tools",

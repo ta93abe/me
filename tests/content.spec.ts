@@ -8,6 +8,7 @@ test.describe("Published content", () => {
 		await page.goto("/blog");
 
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
+		await expect(nav.getByRole("link", { name: "About" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Blog" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Links" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Tools" })).toBeVisible();
