@@ -39,23 +39,37 @@ test.describe("Navigation", () => {
 		await expect(page).toHaveURL(/\/links\/?$/);
 	});
 
-	test("mobile menu shows the same primary axis", async ({ page }) => {
+	test("mobile header keeps the primary axis in the menu markup", async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto("/blog");
 
-		await page.getByRole("button", { name: "メニューを開く" }).click();
-
-		const menu = page.getByRole("navigation", {
-			name: "モバイルナビゲーション",
+		const headerNav = page.getByRole("navigation", {
+			name: "メインナビゲーション",
 		});
+		await expect(
+			headerNav.getByRole("button", { name: "メニューを開く" }),
+		).toBeVisible();
 		for (const name of primary) {
-			await expect(menu.getByRole("link", { name })).toBeVisible();
+			await expect(
+				headerNav.getByRole("link", { name, exact: true }),
+			).toHaveCount(0);
+		}
+
+		const dialog = page.locator("dialog[aria-label='メニュー']");
+		for (const name of primary) {
+			await expect(dialog.getByText(name, { exact: true })).toHaveCount(1);
 		}
 		for (const name of [...secondary, ...hidden]) {
-			await expect(menu.getByRole("link", { name })).toHaveCount(0);
+			await expect(dialog.getByText(name, { exact: true })).toHaveCount(0);
 		}
 
-		await menu.getByRole("link", { name: "Contact" }).click();
-		await expect(page).toHaveURL(/\/contact\/?$/);
+		const footerNav = page.getByRole("navigation", {
+			name: "二次ナビゲーション",
+		});
+		for (const name of secondary) {
+			await expect(footerNav.getByRole("link", { name, exact: true })).toBeVisible();
+		}
 	});
 });
