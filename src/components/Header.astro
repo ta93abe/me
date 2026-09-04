@@ -10,36 +10,36 @@ const isHome =
 ---
 
 <header
-  class:list={[
-    "fixed inset-x-0 top-0 z-50 transition-colors data-[menu-open]:bg-(--bg-primary)",
-    isHome ? "bg-transparent" : "bg-(--bg-primary)",
-  ]}
+	class:list={[
+		"fixed inset-x-0 top-0 z-50 transition-colors data-[menu-open]:bg-(--bg-primary)",
+		isHome ? "bg-transparent" : "bg-(--bg-primary)",
+	]}
 >
-  <nav
-    class="relative mx-auto flex h-(--header-height) max-w-7xl items-center justify-between px-6"
-    aria-label="メインナビゲーション"
-  >
-    <Logo />
+	<nav
+		class="relative mx-auto flex h-(--header-height) max-w-7xl items-center justify-between px-6"
+		aria-label="メインナビゲーション"
+	>
+		<Logo />
 
-    <!-- デスクトップナビゲーション -->
-    <div class="hidden items-center md:flex">
-      <ul class="flex items-center gap-0.5">
-        {
-          NAV_LINKS.map((link) => (
-            <li>
-              <NavLink href={link.href} class="rounded-lg px-2.5 py-2 text-sm">
-                {link.text}
-              </NavLink>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
+		<!-- デスクトップナビゲーション -->
+		<div class="hidden items-center md:flex">
+			<ul class="flex items-center gap-0.5">
+				{
+					NAV_LINKS.map((link) => (
+						<li>
+							<NavLink href={link.href} class="rounded-lg px-2.5 py-2 text-sm">
+								{link.text}
+							</NavLink>
+						</li>
+					))
+				}
+			</ul>
+		</div>
 
-    <MobileNav
-      client:load
-      links={NAV_LINKS}
-      currentPath={Astro.url.pathname}
-    />
-  </nav>
+		<MobileNav
+			client:load
+			links={NAV_LINKS}
+			currentPath={Astro.url.pathname}
+		/>
+	</nav>
 </header>
