@@ -18,7 +18,32 @@
   },
   "vars": {
     "IMAGES_PUBLIC_ORIGIN": "https://images.ta93abe.com",
+    "CONTACT_FROM_ADDRESS": "contact@ta93abe.com",
+    "CONTACT_FROM_NAME": "Takumi Abe",
   },
+  // EMAIL_INBOX は検証済み受信箱向け。ダッシュボードで受信箱を検証したあと
+  // destination_address を同じアドレスに固定する。
+  // CONTACT_INBOX_EMAIL は Worker var / .dev.vars で渡す（個人アドレスをリポジトリに置かない）。
+  // シークレット: TURNSTILE_SECRET, SLACK_WEBHOOK_URL, DEPLOY_HOOK_URL, CONTENT_HMAC_SECRET
+  //   wrangler secret put TURNSTILE_SECRET
+  //   wrangler secret put SLACK_WEBHOOK_URL
+  "send_email": [
+    {
+      "name": "EMAIL_INBOX",
+      "allowed_sender_addresses": ["contact@ta93abe.com"],
+    },
+    {
+      "name": "EMAIL_REPLY",
+      "allowed_sender_addresses": ["contact@ta93abe.com"],
+    },
+  ],
+  "workflows": [
+    {
+      "name": "contact",
+      "binding": "CONTACT_WORKFLOW",
+      "class_name": "ContactWorkflow",
+    },
+  ],
   "r2_buckets": [
     { "binding": "CONTENT", "bucket_name": "me-content" },
     { "binding": "IMAGES", "bucket_name": "me-images" },
