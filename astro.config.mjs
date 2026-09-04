@@ -49,6 +49,9 @@ export default defineConfig({
 		"/atelier": "/",
 		"/bookshelf": "/",
 		"/works": "/",
+		"/careers": "/about",
+		"/jobs": "/about",
+		"/recruit": "/about",
 	},
 	build: {
 		inlineStylesheets: "auto",

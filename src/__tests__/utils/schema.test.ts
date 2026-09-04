@@ -21,7 +21,16 @@ describe("generateWebSiteSchema", () => {
 		const schema = generateWebSiteSchema(siteUrl);
 
 		expect(schema.author["@type"]).toBe("Person");
-		expect(schema.author.url).toBe(siteUrl);
+		expect(schema.author.name).toBe("Takumi Abe");
+		expect(schema.author.url).toBe(`${siteUrl}/about`);
+		expect(schema.author.jobTitle).toBe("Software Engineer");
+		expect(schema.author.sameAs).toEqual(
+			expect.arrayContaining([
+				"https://github.com/ta93abe",
+				"https://x.com/ta93abe_",
+				"https://linkedin.com/in/ta93abe",
+			]),
+		);
 	});
 
 	it("should exclude search action by default", () => {
@@ -46,6 +55,7 @@ describe("generatePersonSchema", () => {
 
 		expect(schema["@type"]).toBe("Person");
 		expect(schema.name).toBe("Takumi Abe");
+		expect(schema.url).toBe("https://example.com/about");
 		expect(schema.jobTitle).toBe("Software Engineer");
 		expect(schema.description).toContain(
 			"データ基盤と CI を書くソフトウェアエンジニア",

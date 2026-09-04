@@ -22,7 +22,13 @@ export type SitemapUrlEntry = {
 	lastmod?: string;
 };
 
-const STATIC_SECTION_PATHS = ["/links/", "/slides/", "/tools/"] as const;
+const STATIC_SECTION_PATHS = [
+	"/about/",
+	"/contact/",
+	"/links/",
+	"/slides/",
+	"/tools/",
+] as const;
 
 function originBase(origin: string): string {
 	return origin.replace(/\/+$/, "");
