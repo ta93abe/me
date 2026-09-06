@@ -20,7 +20,7 @@ describe("isRetiredSitePath", () => {
 		expect(isRetiredSitePath("/slides")).toBe(false);
 		expect(isRetiredSitePath("/works")).toBe(false);
 		expect(isRetiredSitePath("/works/dbt-jobs")).toBe(false);
-		expect(isRetiredSitePath("/things")).toBe(false);
-		expect(isRetiredSitePath("/things/macbook-pro")).toBe(false);
+		expect(isRetiredSitePath("/gadgets")).toBe(false);
+		expect(isRetiredSitePath("/gadgets/macbook-pro")).toBe(false);
 	});
 });

@@ -20,7 +20,7 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, things, and social links.";
+	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
@@ -60,7 +60,7 @@ ${SITE_DESCRIPTION}
 - Contact: ${SITE_URL}/contact/
 - Slides: ${SITE_URL}/slides/
 - Tools: ${SITE_URL}/tools/
-- Things: ${SITE_URL}/things/
+- Gadgets: ${SITE_URL}/gadgets/
 - Links: ${SITE_URL}/links/
 
 ## Machine-readable resources
@@ -174,7 +174,7 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 
 - Technical blog posts.
 - Public slide links.
-- Tool, things, and social-link directories.
+- Tool, gadget, and social-link directories.
 
 ## How to use
 

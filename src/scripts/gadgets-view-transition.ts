@@ -1,10 +1,10 @@
 import {
-	isThingsIndexPath,
-	thingSlugFromPath,
-	thingViewTransitionName,
-} from "@/data/things";
+	gadgetSlugFromPath,
+	gadgetViewTransitionName,
+	isGadgetsIndexPath,
+} from "@/data/gadgets";
 
-const STORAGE_KEY = "things-view-transition-slug";
+const STORAGE_KEY = "gadgets-view-transition-slug";
 
 type ViewTransitionLike = {
 	finished: Promise<unknown>;
@@ -12,17 +12,17 @@ type ViewTransitionLike = {
 
 function nameThumbnail(slug: string): void {
 	const img = document.querySelector<HTMLElement>(
-		`[data-thing-thumb="${CSS.escape(slug)}"]`,
+		`[data-gadget-thumb="${CSS.escape(slug)}"]`,
 	);
 	if (!img) {
 		return;
 	}
-	img.style.viewTransitionName = thingViewTransitionName(slug);
+	img.style.viewTransitionName = gadgetViewTransitionName(slug);
 }
 
-function clearThingNames(): void {
+function clearGadgetNames(): void {
 	for (const img of document.querySelectorAll<HTMLElement>(
-		"[data-thing-thumb]",
+		"[data-gadget-thumb]",
 	)) {
 		img.style.removeProperty("view-transition-name");
 	}
@@ -33,7 +33,7 @@ function slugFromHref(href: string | null): string | null {
 		return null;
 	}
 	try {
-		return thingSlugFromPath(new URL(href, location.origin).pathname);
+		return gadgetSlugFromPath(new URL(href, location.origin).pathname);
 	} catch {
 		return null;
 	}
@@ -57,8 +57,8 @@ function storeSlug(slug: string): void {
 
 function slugForCurrentPage(): string | null {
 	return (
-		thingSlugFromPath(location.pathname) ??
-		(isThingsIndexPath(location.pathname) ? readStoredSlug() : null)
+		gadgetSlugFromPath(location.pathname) ??
+		(isGadgetsIndexPath(location.pathname) ? readStoredSlug() : null)
 	);
 }
 
@@ -67,8 +67,8 @@ function armViewTransition(viewTransition: ViewTransitionLike): void {
 	if (slug) {
 		nameThumbnail(slug);
 	}
-	void viewTransition.finished.finally(clearThingNames);
-	window.setTimeout(clearThingNames, 800);
+	void viewTransition.finished.finally(clearGadgetNames);
+	window.setTimeout(clearGadgetNames, 800);
 }
 
 document.addEventListener(
@@ -116,13 +116,13 @@ window.addEventListener("pageswap", (event) => {
 	const toPath = swap.activation?.entry?.url
 		? new URL(swap.activation.entry.url).pathname
 		: "";
-	const toSlug = thingSlugFromPath(toPath);
-	if (isThingsIndexPath(location.pathname) && toSlug) {
+	const toSlug = gadgetSlugFromPath(toPath);
+	if (isGadgetsIndexPath(location.pathname) && toSlug) {
 		nameThumbnail(toSlug);
 		storeSlug(toSlug);
 		return;
 	}
-	const fromSlug = thingSlugFromPath(location.pathname);
+	const fromSlug = gadgetSlugFromPath(location.pathname);
 	if (fromSlug) {
 		nameThumbnail(fromSlug);
 		storeSlug(fromSlug);
@@ -131,7 +131,7 @@ window.addEventListener("pageswap", (event) => {
 
 window.setTimeout(() => {
 	for (const img of document.querySelectorAll<HTMLElement>(
-		"[data-thing-thumb]",
+		"[data-gadget-thumb]",
 	)) {
 		if (getComputedStyle(img).visibility === "hidden") {
 			img.style.removeProperty("view-transition-name");

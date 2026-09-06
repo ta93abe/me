@@ -1,22 +1,22 @@
 ---
-import type { Thing } from "@/data/things";
+import type { Gadget } from "@/data/gadgets";
 
 interface Props {
-	thing: Thing;
+	gadget: Gadget;
 	size: "grid" | "detail";
 }
 
-const { thing, size } = Astro.props;
+const { gadget, size } = Astro.props;
 ---
 
 <img
-	src={thing.image}
+	src={gadget.image}
 	alt=""
 	width="400"
 	height="400"
 	draggable="false"
 	decoding="async"
-	data-thing-thumb={thing.slug}
+	data-gadget-thumb={gadget.slug}
 	class:list={[
 		"pointer-events-none select-none object-contain",
 		size === "grid" &&

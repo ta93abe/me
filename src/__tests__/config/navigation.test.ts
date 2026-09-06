@@ -26,11 +26,11 @@ describe("NAV_LINKS", () => {
 });
 
 describe("SECONDARY_LINKS", () => {
-	it("keeps Links, Tools, Things, and Slides out of the header", () => {
+	it("keeps Links, Tools, Gadgets, and Slides out of the header", () => {
 		expect(SECONDARY_LINKS.map((link) => link.href)).toEqual([
 			"/links",
 			"/tools",
-			"/things",
+			"/gadgets",
 			"/slides",
 		]);
 
