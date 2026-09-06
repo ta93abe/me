@@ -1,0 +1,29 @@
+---
+import { thingViewTransitionName, type Thing } from "@/data/things";
+
+interface Props {
+	thing: Thing;
+	named?: boolean;
+	size: "grid" | "detail";
+}
+
+const { thing, named = false, size } = Astro.props;
+const vtName = thingViewTransitionName(thing.slug);
+---
+
+<img
+	src={thing.image}
+	alt=""
+	width="400"
+	height="400"
+	draggable="false"
+	decoding="async"
+	data-thing-thumb={thing.slug}
+	class:list={[
+		"pointer-events-none select-none object-contain",
+		size === "grid" &&
+			"h-full max-h-20 w-full max-w-20 lg:max-h-24 lg:max-w-24",
+		size === "detail" && "h-auto max-h-60 w-auto max-w-full sm:max-h-64",
+	]}
+	style={named ? `view-transition-name: ${vtName}` : undefined}
+/>

@@ -29,6 +29,7 @@ if (!modelContext) {
 				"https://ta93abe.com/contact/",
 				"https://ta93abe.com/slides/",
 				"https://ta93abe.com/tools/",
+				"https://ta93abe.com/things/",
 				"https://ta93abe.com/links/",
 			],
 			discovery: {

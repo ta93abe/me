@@ -1,0 +1,76 @@
+---
+import ThingThumb from "@/components/things/ThingThumb.astro";
+import ThingsViewTransitions from "@/components/things/ThingsViewTransitions.astro";
+import { SITE } from "@/config/site";
+import { getThing, THINGS } from "@/data/things";
+import Layout from "@/layouts/Layout.astro";
+
+export function getStaticPaths() {
+	return THINGS.map((thing) => ({
+		params: { slug: thing.slug },
+	}));
+}
+
+const slug = Astro.params.slug;
+if (!slug) {
+	throw new Error("Missing thing slug");
+}
+
+const thing = getThing(slug);
+if (!thing) {
+	throw new Error(`Unknown thing: ${slug}`);
+}
+---
+
+<Layout
+	title={`${thing.name} | Things | ${SITE.name}`}
+	description={thing.note}
+>
+	<ThingsViewTransitions />
+	<main class="mx-auto max-w-5xl px-6 py-12">
+		<div
+			class="grid grid-cols-1 md:grid-cols-[auto_minmax(0,42rem)] md:gap-x-8 lg:gap-x-12"
+		>
+			<a
+				href="/things"
+				data-astro-prefetch
+				class="mb-8 inline-flex w-fit items-baseline gap-2 text-sm text-(--text-muted) no-underline transition-colors hover:text-(--text-primary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color) md:sticky md:top-[calc(var(--header-height)+1.25rem)] md:mb-0 md:self-start"
+			>
+				<span aria-hidden="true" class="relative -top-px leading-none">↖</span>
+				Things
+			</a>
+			<article class="min-w-0 pb-8">
+				<header class="text-center">
+					<h1
+						class="text-balance font-display text-2xl font-bold leading-tight text-(--text-primary) sm:text-3xl"
+					>
+						{thing.name}
+					</h1>
+					<div
+						class="mx-auto mt-10 grid h-60 max-w-xs place-items-center sm:h-64"
+					>
+						<ThingThumb thing={thing} size="detail" named />
+					</div>
+					{
+						thing.imageSource ? (
+							<p class="mt-5 text-xs text-(--text-muted)">
+								<a
+									href={thing.imageSource.href}
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label={`${thing.name} の画像出典`}
+									class="underline decoration-(--border-color) underline-offset-4 transition-colors hover:text-(--text-primary)"
+								>
+									{thing.imageSource.label ?? "Image source"}
+								</a>
+							</p>
+						) : null
+					}
+				</header>
+				<div class="prose mx-auto mt-12 max-w-xl">
+					<p>{thing.note}</p>
+				</div>
+			</article>
+		</div>
+	</main>
+</Layout>

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const primary = ["About", "Blog", "Contact"] as const;
-const secondary = ["Links", "Tools", "Slides"] as const;
+const secondary = ["Links", "Tools", "Things", "Slides"] as const;
 const hidden = ["Gallery", "Atelier", "Bookshelf"] as const;
 
 test.describe("Navigation", () => {
