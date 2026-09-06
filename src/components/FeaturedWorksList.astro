@@ -1,0 +1,98 @@
+---
+import { FEATURED_WORKS } from "@/config/site";
+
+interface Props {
+	source: "works" | "about";
+}
+
+const { source } = Astro.props;
+
+const isExternalHref = (href: string) =>
+	href.startsWith("https://") || href.startsWith("http://");
+---
+
+<ul class="featured-works-list">
+	{
+		FEATURED_WORKS.map((work) => {
+			const external = isExternalHref(work.href);
+			return (
+				<li>
+					<a
+						href={work.href}
+						class="featured-works-link"
+						aria-label={work.title}
+						data-featured-work={source === "works" ? true : undefined}
+						target={external ? "_blank" : undefined}
+						rel={external ? "noopener noreferrer" : undefined}
+					>
+						<span class="featured-works-title">{work.title}</span>
+						<span class="featured-works-excerpt">{work.excerpt}</span>
+					</a>
+				</li>
+			);
+		})
+	}
+</ul>
+
+<style>
+	.featured-works-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-top: 1px solid var(--border-color);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.featured-works-link {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 1rem 0;
+		text-decoration: none;
+		color: inherit;
+		border-top: 1px solid var(--border-color);
+		transition: color 0.15s ease;
+	}
+
+	.featured-works-list li:first-child .featured-works-link {
+		border-top: 0;
+	}
+
+	.featured-works-title {
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--text-primary);
+	}
+
+	.featured-works-excerpt {
+		font-size: 0.875rem;
+		line-height: 1.7;
+		color: var(--text-secondary);
+	}
+
+	.featured-works-link:hover .featured-works-title,
+	.featured-works-link:focus-visible .featured-works-title {
+		color: var(--primary-color);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.featured-works-link {
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	document.querySelectorAll("[data-featured-work]").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("home_featured_clicked", {
+				title: link
+					.querySelector(".featured-works-title")
+					?.textContent?.trim(),
+				href: link.getAttribute("href"),
+				surface: "works",
+			});
+		});
+	});
+</script>

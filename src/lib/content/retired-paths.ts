@@ -2,7 +2,6 @@ export const RETIRED_SITE_PREFIXES = [
 	"/gallery",
 	"/atelier",
 	"/bookshelf",
-	"/works",
 ] as const;
 
 export function isRetiredSitePath(pathname: string): boolean {

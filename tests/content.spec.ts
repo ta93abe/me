@@ -79,7 +79,6 @@ test.describe("Published content", () => {
 			"/gallery/dbt-jobs",
 			"/atelier",
 			"/bookshelf",
-			"/works",
 		]) {
 			const response = await page.goto(path);
 			expect(response?.status(), path).toBe(200);

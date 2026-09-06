@@ -61,6 +61,7 @@ describe("derived discovery feeds", () => {
 			"https://ta93abe.com/blog/",
 			"https://ta93abe.com/blog/hello-world/",
 			"https://ta93abe.com/about/",
+			"https://ta93abe.com/works/",
 			"https://ta93abe.com/contact/",
 			"https://ta93abe.com/links/",
 			"https://ta93abe.com/slides/",

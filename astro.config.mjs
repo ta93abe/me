@@ -48,7 +48,6 @@ export default defineConfig({
 		"/gallery": "/",
 		"/atelier": "/",
 		"/bookshelf": "/",
-		"/works": "/",
 		"/careers": "/about",
 		"/jobs": "/about",
 		"/recruit": "/about",

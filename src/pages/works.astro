@@ -1,0 +1,23 @@
+---
+import FeaturedWorksList from "@/components/FeaturedWorksList.astro";
+import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout
+	title={`Works | ${SITE.name}`}
+	description="代表作。dbt-jobs、dbt-intro、enbu。"
+>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
+				Works
+			</h1>
+			<p class="text-(--text-secondary)">
+				GitHub に置いている代表作です。
+			</p>
+		</header>
+
+		<FeaturedWorksList source="works" />
+	</main>
+</Layout>

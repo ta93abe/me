@@ -1,7 +1,8 @@
 ---
+import FeaturedWorksList from "@/components/FeaturedWorksList.astro";
 import SnsLinks from "@/components/SnsLinks.astro";
 import Button from "@/components/ui/Button.astro";
-import { FEATURED_WORKS, SITE } from "@/config/site";
+import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
 import { generatePersonSchema, stringifySchema } from "@/utils/schema";
 
@@ -37,33 +38,21 @@ const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
 		</header>
 
 		<section class="mb-14" aria-labelledby="about-works-heading">
-			<h2
-				id="about-works-heading"
-				class="mb-4 font-display text-xl font-bold text-(--text-primary)"
-			>
-				代表作
-			</h2>
-			<ul
-				class="divide-y divide-(--border-color) border-y border-(--border-color)"
-			>
-				{
-					FEATURED_WORKS.map((work) => (
-						<li>
-							<a
-								href={work.href}
-								class="block py-4 no-underline"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<p class="font-bold text-(--text-primary)">{work.title}</p>
-								<p class="mt-1 text-sm text-(--text-secondary)">
-									{work.excerpt}
-								</p>
-							</a>
-						</li>
-					))
-				}
-			</ul>
+			<div class="mb-4 flex items-baseline justify-between gap-4">
+				<h2
+					id="about-works-heading"
+					class="font-display text-xl font-bold text-(--text-primary)"
+				>
+					代表作
+				</h2>
+				<a
+					href="/works"
+					class="text-sm text-(--text-muted) no-underline hover:text-(--text-primary)"
+				>
+					Works
+				</a>
+			</div>
+			<FeaturedWorksList source="about" />
 		</section>
 
 		<section class="mb-14" aria-labelledby="about-sns-heading">

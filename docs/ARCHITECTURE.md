@@ -45,7 +45,10 @@
 ```text
 src/pages/
 ├── index.astro              → /
+├── about.astro              → /about
+├── works.astro              → /works
 ├── blog/                    → /blog, /blog/:id
+├── contact.astro            → /contact
 ├── links.astro              → /links
 ├── tools.astro              → /tools
 ├── slides.astro             → /slides
@@ -54,7 +57,7 @@ src/pages/
 └── 404.astro
 ```
 
-`/gallery` `/atelier` `/bookshelf` `/works` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。Content API のコレクション契約はそのまま。
+`/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。`/works` は代表作ページ。Content API のコレクション契約はそのまま。
 
 ## データフロー
 

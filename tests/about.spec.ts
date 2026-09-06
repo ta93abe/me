@@ -22,13 +22,24 @@ test.describe("About", () => {
 			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
 		).toBeVisible();
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toBeVisible();
-		await expect(page.getByRole("link", { name: "GitHub" })).toBeVisible();
-		await expect(page.getByRole("link", { name: "X" })).toBeVisible();
-		await expect(page.getByRole("link", { name: "LinkedIn" })).toBeVisible();
-		await expect(page.getByRole("link", { name: "Contact" })).toHaveAttribute(
-			"href",
-			"/contact",
-		);
+		await expect(
+			page
+				.locator("#main-content")
+				.getByRole("link", { name: "Works", exact: true }),
+		).toHaveAttribute("href", "/works");
+		const sns = page.locator(".sns-links");
+		await expect(
+			sns.getByRole("link", { name: "GitHub", exact: true }),
+		).toBeVisible();
+		await expect(
+			sns.getByRole("link", { name: "X", exact: true }),
+		).toBeVisible();
+		await expect(
+			sns.getByRole("link", { name: "LinkedIn", exact: true }),
+		).toBeVisible();
+		await expect(
+			page.locator("#main-content").getByRole("link", { name: "Contact" }),
+		).toHaveAttribute("href", "/contact");
 
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
 		await expect(nav.getByRole("link", { name: "About" })).toHaveAttribute(

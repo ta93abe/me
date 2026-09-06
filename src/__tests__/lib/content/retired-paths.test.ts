@@ -9,8 +9,6 @@ describe("isRetiredSitePath", () => {
 		expect(isRetiredSitePath("/gallery/dbt-jobs")).toBe(true);
 		expect(isRetiredSitePath("/atelier")).toBe(true);
 		expect(isRetiredSitePath("/bookshelf/some-book")).toBe(true);
-		expect(isRetiredSitePath("/works")).toBe(true);
-		expect(isRetiredSitePath("/works/dbt-jobs")).toBe(true);
 	});
 
 	it("leaves live pages alone", () => {
@@ -20,5 +18,7 @@ describe("isRetiredSitePath", () => {
 		expect(isRetiredSitePath("/links")).toBe(false);
 		expect(isRetiredSitePath("/tools")).toBe(false);
 		expect(isRetiredSitePath("/slides")).toBe(false);
+		expect(isRetiredSitePath("/works")).toBe(false);
+		expect(isRetiredSitePath("/works/dbt-jobs")).toBe(false);
 	});
 });

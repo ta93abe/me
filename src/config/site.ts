@@ -20,12 +20,13 @@ export const SITE = {
 export type SiteConfig = typeof SITE;
 
 /**
- * トップの次の行動。Gallery は公開コンテンツができるまで出さない。
- * ナビ本整理は TA-785。
+ * トップの次の行動。リストではなく導線。Gallery は出さない。
+ * 代表作の一覧は `/works`。
  */
 export const HOME_CTAS = [
+	{ href: "/works", label: "Works", variant: "primary" },
 	{ href: "/about", label: "About", variant: "secondary" },
-	{ href: "/blog", label: "Blog", variant: "primary" },
+	{ href: "/blog", label: "Blog", variant: "secondary" },
 	{ href: "/contact", label: "Contact", variant: "secondary" },
 ] as const;
 
@@ -36,7 +37,8 @@ export type FeaturedWork = {
 };
 
 /**
- * トップに出す代表作。blog か GitHub。Gallery の URL は使わない。
+ * 代表作の正。`/works` と About がこれを読む。blog か GitHub。
+ * Gallery の URL は使わない。
  */
 export const FEATURED_WORKS: readonly FeaturedWork[] = [
 	{
