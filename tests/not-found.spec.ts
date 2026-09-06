@@ -21,6 +21,7 @@ test.describe("404 recovery", () => {
 		);
 		await expect(index.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 		await expect(index.getByRole("link", { name: "Tools" })).toHaveCount(0);
+		await expect(index.getByRole("link", { name: "Contact" })).toBeInViewport();
 
 		await index.getByRole("link", { name: "Contact" }).click();
 		await expect(page).toHaveURL(/\/contact\/?$/);

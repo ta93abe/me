@@ -295,7 +295,8 @@ export default function NotFoundPlayground() {
 					position: relative;
 					isolation: isolate;
 					min-height: 100svh;
-					overflow: hidden;
+					overflow-x: hidden;
+					overflow-y: auto;
 					padding: clamp(3.25rem, 7vw, 6rem) clamp(1rem, 4vw, 4rem);
 					background:
 						linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px) 0 0 / 72px 72px,
@@ -366,14 +367,14 @@ export default function NotFoundPlayground() {
 					display: grid;
 					grid-template-columns: minmax(0, 1.28fr) minmax(21rem, 0.72fr);
 					gap: clamp(1.25rem, 3vw, 2.5rem);
-					align-items: stretch;
+					align-items: start;
 					margin-top: clamp(1.5rem, 3vw, 2.25rem);
 				}
 
 				.nf-hero {
 					position: relative;
 					display: flex;
-					min-height: clamp(33rem, 56vw, 43rem);
+					min-height: clamp(22rem, 38vw, 28rem);
 					flex-direction: column;
 					justify-content: center;
 					padding: clamp(1.5rem, 4vw, 3rem);
@@ -527,8 +528,8 @@ export default function NotFoundPlayground() {
 				.nf-panel {
 					display: flex;
 					flex-direction: column;
-					justify-content: center;
-					min-height: clamp(33rem, 56vw, 43rem);
+					justify-content: flex-start;
+					min-height: 0;
 					padding: clamp(1.35rem, 3vw, 2rem);
 					border: 1px solid rgba(248, 243, 231, 0.35);
 					background: rgba(8, 9, 10, 0.74);
