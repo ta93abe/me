@@ -3,14 +3,30 @@ import { expect, type Page, test } from "@playwright/test";
 const HOME_CTA_NAMES = ["Works", "About", "Blog", "Contact"] as const;
 
 async function expectHeroCtasReachable(page: Page) {
-	const nav = page.getByRole("navigation", { name: "主なページ" });
+	const clip = await page.evaluate(() => {
+		const hero = document.querySelector(".hero");
+		const main = document.getElementById("main-content");
+		if (!(hero instanceof HTMLElement) || !main) {
+			return { ok: false, reason: "missing" };
+		}
+		const overflowY = getComputedStyle(hero).overflowY;
+		if (
+			(overflowY === "hidden" || overflowY === "clip") &&
+			hero.scrollHeight > hero.clientHeight + 1
+		) {
+			return { ok: false, reason: "hero-clips-content" };
+		}
+		if (
+			hero.scrollHeight > main.clientHeight + 1 &&
+			main.scrollHeight <= main.clientHeight + 1
+		) {
+			return { ok: false, reason: "main-cannot-scroll" };
+		}
+		return { ok: true, reason: "" };
+	});
+	expect(clip).toEqual({ ok: true, reason: "" });
 
 	for (const name of HOME_CTA_NAMES) {
-		const link = nav.getByRole("link", { name });
-		await link.evaluate((el) => {
-			el.scrollIntoView({ block: "center", inline: "nearest" });
-		});
-
 		const state = await page.evaluate((label) => {
 			const main = document.getElementById("main-content");
 			const footer = document.querySelector("footer");
@@ -29,21 +45,37 @@ async function expectHeroCtasReachable(page: Page) {
 				return { ok: false, reason: "missing" };
 			}
 
-			const er = target.getBoundingClientRect();
-			const hr = hero.getBoundingClientRect();
-			const mr = main.getBoundingClientRect();
-			const fr = footer.getBoundingClientRect();
+			const mainRect = () => main.getBoundingClientRect();
+			const footerTop = () => footer.getBoundingClientRect().top;
+			const visibleBottom = () => Math.min(mainRect().bottom, footerTop()) - 4;
 
-			if (er.width === 0 || er.height === 0) {
+			let rect = target.getBoundingClientRect();
+			if (rect.bottom > visibleBottom()) {
+				main.scrollTop += rect.bottom - visibleBottom();
+			}
+			rect = target.getBoundingClientRect();
+			if (rect.top < mainRect().top) {
+				main.scrollTop -= mainRect().top - rect.top;
+			}
+
+			rect = target.getBoundingClientRect();
+			const heroRect = hero.getBoundingClientRect();
+			const mainBox = mainRect();
+			const bandBottom = visibleBottom();
+
+			if (rect.width === 0 || rect.height === 0) {
 				return { ok: false, reason: "zero-size" };
 			}
-			if (er.bottom > hr.bottom + 1.5 || er.top < hr.top - 1.5) {
+			if (
+				rect.bottom > heroRect.bottom + 1.5 ||
+				rect.top < heroRect.top - 1.5
+			) {
 				return { ok: false, reason: "clipped-by-hero" };
 			}
-			if (er.bottom <= mr.top + 1 || er.top >= mr.bottom - 1) {
+			if (rect.bottom <= mainBox.top + 1 || rect.top >= bandBottom) {
 				return { ok: false, reason: "outside-main" };
 			}
-			if (er.bottom > fr.top + 1.5) {
+			if (rect.bottom > footerTop() + 1.5) {
 				return { ok: false, reason: "under-footer" };
 			}
 			return { ok: true, reason: "" };
@@ -173,14 +205,11 @@ test.describe("Home", () => {
 
 	test("keeps all home CTAs reachable at 200% browser zoom", async ({
 		page,
-		browserName,
 	}) => {
-		test.skip(browserName !== "chromium", "CSS zoom is Chromium-only");
-		await page.setViewportSize({ width: 1280, height: 800 });
+		// Chrome のページ拡大はレイアウトビューポートを縮める。
+		// 1600x900 を 200% にした幅・高さ。
+		await page.setViewportSize({ width: 800, height: 450 });
 		await page.goto("/");
-		await page.evaluate(() => {
-			document.documentElement.style.zoom = "2";
-		});
 		await expectHeroCtasReachable(page);
 	});
 
