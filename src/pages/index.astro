@@ -16,9 +16,14 @@ import Layout from "@/layouts/Layout.astro";
 </Layout>
 
 <style>
-	.home-main,
+	.home-main {
+		display: flex;
+		flex-direction: column;
+		min-height: 100%;
+	}
+
 	.home-main :global(.hero) {
-		height: 100%;
+		flex: 1 0 auto;
 		min-height: 100%;
 	}
 </style>

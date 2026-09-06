@@ -1,4 +1,57 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+const HOME_CTA_NAMES = ["Works", "About", "Blog", "Contact"] as const;
+
+async function expectHeroCtasReachable(page: Page) {
+	const nav = page.getByRole("navigation", { name: "主なページ" });
+
+	for (const name of HOME_CTA_NAMES) {
+		const link = nav.getByRole("link", { name });
+		await link.evaluate((el) => {
+			el.scrollIntoView({ block: "center", inline: "nearest" });
+		});
+
+		const state = await page.evaluate((label) => {
+			const main = document.getElementById("main-content");
+			const footer = document.querySelector("footer");
+			const hero = document.querySelector(".hero");
+			const navEl = document.querySelector('nav[aria-label="主なページ"]');
+			const target = [...(navEl?.querySelectorAll("a") ?? [])].find(
+				(anchor) => anchor.textContent?.trim() === label,
+			);
+
+			if (
+				!main ||
+				!footer ||
+				!(hero instanceof HTMLElement) ||
+				!(target instanceof HTMLElement)
+			) {
+				return { ok: false, reason: "missing" };
+			}
+
+			const er = target.getBoundingClientRect();
+			const hr = hero.getBoundingClientRect();
+			const mr = main.getBoundingClientRect();
+			const fr = footer.getBoundingClientRect();
+
+			if (er.width === 0 || er.height === 0) {
+				return { ok: false, reason: "zero-size" };
+			}
+			if (er.bottom > hr.bottom + 1.5 || er.top < hr.top - 1.5) {
+				return { ok: false, reason: "clipped-by-hero" };
+			}
+			if (er.bottom <= mr.top + 1 || er.top >= mr.bottom - 1) {
+				return { ok: false, reason: "outside-main" };
+			}
+			if (er.bottom > fr.top + 1.5) {
+				return { ok: false, reason: "under-footer" };
+			}
+			return { ok: true, reason: "" };
+		}, name);
+
+		expect(state, name).toEqual({ ok: true, reason: "" });
+	}
+}
 
 test.describe("Home", () => {
 	test("shows who and what within the first viewport", async ({ page }) => {
@@ -41,9 +94,7 @@ test.describe("Home", () => {
 		await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
 	});
 
-	test("sets the name as a full-width poster on desktop", async ({
-		page,
-	}) => {
+	test("sets the name as a full-width poster on desktop", async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto("/");
 
@@ -92,10 +143,12 @@ test.describe("Home", () => {
 		const footerBox = await footer.boundingBox();
 		expect(footerBox).not.toBeNull();
 
-		const reserved = await page.locator(".hero-copy").evaluate((el) =>
-			Number.parseFloat(getComputedStyle(el).paddingBottom),
+		const reserved = await page
+			.locator(".hero-copy")
+			.evaluate((el) => Number.parseFloat(getComputedStyle(el).paddingBottom));
+		expect(reserved).toBeGreaterThanOrEqual(
+			footerBox?.height ?? Number.POSITIVE_INFINITY,
 		);
-		expect(reserved).toBeGreaterThanOrEqual(footerBox?.height ?? Number.POSITIVE_INFINITY);
 
 		await page.locator("#main-content").evaluate((el) => {
 			el.scrollTop = el.scrollHeight;
@@ -108,6 +161,27 @@ test.describe("Home", () => {
 		if (ctaBox && footerBox) {
 			expect(ctaBox.y + ctaBox.height).toBeLessThanOrEqual(footerBox.y);
 		}
+	});
+
+	test("keeps all home CTAs reachable on a short landscape viewport", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 667, height: 360 });
+		await page.goto("/");
+		await expectHeroCtasReachable(page);
+	});
+
+	test("keeps all home CTAs reachable at 200% browser zoom", async ({
+		page,
+		browserName,
+	}) => {
+		test.skip(browserName !== "chromium", "CSS zoom is Chromium-only");
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto("/");
+		await page.evaluate(() => {
+			document.documentElement.style.zoom = "2";
+		});
+		await expectHeroCtasReachable(page);
 	});
 
 	test("keeps the intro readable on a mobile viewport", async ({ page }) => {
