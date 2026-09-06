@@ -23,7 +23,9 @@ test.describe("About", () => {
 		).toBeVisible();
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toBeVisible();
 		await expect(
-			page.getByRole("link", { name: "Works", exact: true }),
+			page
+				.locator("#main-content")
+				.getByRole("link", { name: "Works", exact: true }),
 		).toHaveAttribute("href", "/works");
 		const sns = page.locator(".sns-links");
 		await expect(
