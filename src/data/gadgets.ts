@@ -2,31 +2,13 @@ export type Gadget = {
 	readonly slug: string;
 	readonly name: string;
 	readonly note: string;
-	readonly image: string;
 	readonly imageSource?: {
 		readonly href: string;
 		readonly label?: string;
 	};
 };
 
-const gadgetImages = import.meta.glob<string>("../assets/gadgets/*.svg", {
-	eager: true,
-	query: "?url",
-	import: "default",
-});
-
-function gadgetImage(slug: string): string {
-	const match = Object.entries(gadgetImages).find(([key]) =>
-		key.endsWith(`/${slug}.svg`),
-	);
-	const url = match?.[1];
-	if (typeof url !== "string" || url.length === 0) {
-		throw new Error(`Missing gadget image: ${slug}`);
-	}
-	return url;
-}
-
-const GADGET_ENTRIES = [
+export const GADGETS: readonly Gadget[] = [
 	{
 		slug: "macbook-pro",
 		name: "MacBook Pro",
@@ -67,12 +49,7 @@ const GADGET_ENTRIES = [
 		name: "Notebook",
 		note: "タスクも設計も、いったん紙に落とす。",
 	},
-] as const;
-
-export const GADGETS: readonly Gadget[] = GADGET_ENTRIES.map((entry) => ({
-	...entry,
-	image: gadgetImage(entry.slug),
-}));
+];
 
 const gadgetsBySlug = new Map(GADGETS.map((gadget) => [gadget.slug, gadget]));
 

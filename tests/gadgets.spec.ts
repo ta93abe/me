@@ -33,7 +33,9 @@ test.describe("Gadgets page", () => {
 
 		const src = await thumb.getAttribute("src");
 		expect(isBundledGadgetSrc(src, "macbook-pro")).toBe(true);
+		expect(src?.startsWith("data:image/svg+xml")).toBe(true);
 
+		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		const naturalWidth = await thumb.evaluate(
 			(el) => (el as HTMLImageElement).naturalWidth,
 		);
@@ -75,6 +77,7 @@ test.describe("Gadgets page", () => {
 			true,
 		);
 		await expect(thumb).toBeVisible();
+		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		expect(
 			await thumb.evaluate((el) => (el as HTMLImageElement).naturalWidth),
 		).toBeGreaterThan(0);

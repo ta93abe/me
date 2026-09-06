@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { gadgetImageUrl } from "@/data/gadget-images";
 import {
 	GADGETS,
 	gadgetPath,
@@ -19,7 +20,7 @@ const assetsDir = path.resolve(
 );
 
 describe("GADGETS catalog", () => {
-	it("keeps unique kebab slugs and bundled images", () => {
+	it("keeps unique kebab slugs and on-disk images", () => {
 		const slugs = GADGETS.map((gadget) => gadget.slug);
 		expect(new Set(slugs).size).toBe(slugs.length);
 		expect(GADGETS.length).toBeGreaterThanOrEqual(6);
@@ -30,19 +31,15 @@ describe("GADGETS catalog", () => {
 			expect(gadget.name.length).toBeGreaterThan(0);
 			expect(gadget.note.length).toBeGreaterThan(0);
 			expect(existsSync(path.join(assetsDir, `${gadget.slug}.svg`))).toBe(true);
-			expect(gadget.image.length).toBeGreaterThan(0);
-			expect(gadget.image.startsWith("/gadgets/")).toBe(false);
-			expect(gadget.image.startsWith("/things/")).toBe(false);
-			expect(
-				gadget.image.startsWith("data:image/svg+xml") ||
-					(gadget.image.includes(gadget.slug) &&
-						/\.svg(?:\?.*)?$/.test(gadget.image)),
-			).toBe(true);
 			expect(getGadget(gadget.slug)).toEqual(gadget);
 			expect(gadgetPath(gadget.slug)).toBe(`/gadgets/${gadget.slug}`);
 			expect(gadgetViewTransitionName(gadget.slug)).toBe(
 				`gadget-${gadget.slug}`,
 			);
+			const image = gadgetImageUrl(gadget.slug);
+			expect(image.startsWith("data:image/svg+xml")).toBe(true);
+			expect(image.startsWith("/gadgets/")).toBe(false);
+			expect(image.startsWith("/things/")).toBe(false);
 		}
 	});
 

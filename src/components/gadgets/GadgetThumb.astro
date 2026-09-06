@@ -1,5 +1,6 @@
 ---
 import type { Gadget } from "@/data/gadgets";
+import { gadgetImageUrl } from "@/data/gadget-images";
 
 interface Props {
 	gadget: Gadget;
@@ -7,10 +8,11 @@ interface Props {
 }
 
 const { gadget, size } = Astro.props;
+const image = gadgetImageUrl(gadget.slug);
 ---
 
 <img
-	src={gadget.image}
+	src={image}
 	alt=""
 	width="400"
 	height="400"

@@ -99,12 +99,6 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 		build: {
 			cssCodeSplit: true,
-			// Keep gadget SVGs as files so /gadgets/:slug never swallows them.
-			assetsInlineLimit(filePath) {
-				return filePath.replaceAll("\\", "/").includes("/assets/gadgets/")
-					? false
-					: undefined;
-			},
 			rollupOptions: {
 				output: {},
 			},
