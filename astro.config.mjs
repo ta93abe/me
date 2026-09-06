@@ -52,7 +52,7 @@ export default defineConfig({
 		"/jobs": "/about",
 		"/recruit": "/about",
 		"/things": "/gadgets",
-		"/things/[...slug]": "/gadgets/[...slug]",
+		"/things/[slug]": "/gadgets/[slug]",
 	},
 	build: {
 		inlineStylesheets: "auto",
