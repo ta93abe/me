@@ -24,6 +24,7 @@ if (!modelContext) {
 			site: "https://ta93abe.com/",
 			sections: [
 				"https://ta93abe.com/about/",
+				"https://ta93abe.com/works/",
 				"https://ta93abe.com/blog/",
 				"https://ta93abe.com/contact/",
 				"https://ta93abe.com/slides/",

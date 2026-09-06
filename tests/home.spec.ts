@@ -16,6 +16,10 @@ test.describe("Home", () => {
 		).toBeVisible();
 
 		const ctas = page.getByRole("navigation", { name: "主なページ" });
+		await expect(ctas.getByRole("link", { name: "Works" })).toHaveAttribute(
+			"href",
+			"/works",
+		);
 		await expect(ctas.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
 			"/about",
@@ -29,11 +33,11 @@ test.describe("Home", () => {
 			"/contact",
 		);
 		await expect(ctas.getByRole("link", { name: "Gallery" })).toHaveCount(0);
+		await expect(page.getByRole("link", { name: "Atelier" })).toHaveCount(0);
+		await expect(page.getByRole("link", { name: "Bookshelf" })).toHaveCount(0);
 
-		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveAttribute(
-			"href",
-			"https://github.com/ta93abe/dbt-jobs",
-		);
+		await expect(page.getByRole("heading", { name: "代表作" })).toHaveCount(0);
+		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
 	});
 
 	test("keeps home CTAs above the fixed footer on a narrow phone", async ({
@@ -101,8 +105,11 @@ test.describe("Home", () => {
 		).toBeVisible();
 	});
 
-	test("about and contact pages return 200", async ({ page, request }) => {
-		for (const path of ["/about", "/contact"] as const) {
+	test("about, contact, and works pages return 200", async ({
+		page,
+		request,
+	}) => {
+		for (const path of ["/about", "/contact", "/works"] as const) {
 			const res = await request.get(path);
 			expect(res.status(), path).toBe(200);
 		}
@@ -125,6 +132,16 @@ test.describe("Home", () => {
 		await expect(page).toHaveURL(/\/contact\/?$/);
 		await expect(
 			page.getByRole("heading", { level: 1, name: "Contact" }),
+		).toBeVisible();
+
+		await page.goto("/");
+		await page
+			.getByRole("navigation", { name: "主なページ" })
+			.getByRole("link", { name: "Works" })
+			.click();
+		await expect(page).toHaveURL(/\/works\/?$/);
+		await expect(
+			page.getByRole("heading", { level: 1, name: "Works" }),
 		).toBeVisible();
 	});
 });

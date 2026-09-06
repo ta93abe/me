@@ -24,6 +24,7 @@ export type SitemapUrlEntry = {
 
 const STATIC_SECTION_PATHS = [
 	"/about/",
+	"/works/",
 	"/contact/",
 	"/links/",
 	"/slides/",

@@ -18,22 +18,31 @@ describe("SITE intro", () => {
 });
 
 describe("HOME_CTAS", () => {
-	it("points to About, Blog, and Contact without Gallery", () => {
+	it("points to Works, About, Blog, and Contact without unpublished collections", () => {
 		expect(HOME_CTAS.map((cta) => cta.href)).toEqual([
+			"/works",
 			"/about",
 			"/blog",
 			"/contact",
 		]);
 		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/gallery");
+		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/atelier");
+		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/bookshelf");
 	});
 });
 
 describe("FEATURED_WORKS", () => {
-	it("links to GitHub or blog, never retired Gallery paths", () => {
-		expect(FEATURED_WORKS.length).toBeGreaterThanOrEqual(2);
-		expect(FEATURED_WORKS.length).toBeLessThanOrEqual(3);
+	it("is the single source for three GitHub or blog works, never unpublished collections", () => {
+		expect(FEATURED_WORKS.map((work) => work.title)).toEqual([
+			"dbt-jobs",
+			"dbt-intro",
+			"enbu",
+		]);
 		for (const work of FEATURED_WORKS) {
 			expect(work.href.startsWith("/gallery")).toBe(false);
+			expect(work.href.startsWith("/atelier")).toBe(false);
+			expect(work.href.startsWith("/bookshelf")).toBe(false);
+			expect(work.href.startsWith("/works")).toBe(false);
 			expect(
 				work.href.startsWith("https://github.com/") ||
 					work.href.startsWith("/blog/"),

@@ -1,9 +1,6 @@
 ---
 import Button from "@/components/ui/Button.astro";
-import { FEATURED_WORKS, HOME_CTAS, SITE } from "@/config/site";
-
-const isExternalHref = (href: string) =>
-	href.startsWith("https://") || href.startsWith("http://");
+import { HOME_CTAS, SITE } from "@/config/site";
 ---
 
 <section id="hero" class="hero" aria-labelledby="hero-name">
@@ -19,48 +16,11 @@ const isExternalHref = (href: string) =>
 	<div class="hero-content">
 		<div class="hero-copy">
 			<p class="hero-handle">{SITE.handle}</p>
-			<h1 id="hero-name" class="hero-name font-display">{SITE.name}</h1>
+			<h1 id="hero-name" class="hero-name">
+				<span class="hero-name-line">Takumi</span>
+				<span class="hero-name-line">Abe</span>
+			</h1>
 			<p class="hero-tagline">{SITE.tagline}</p>
-
-			{
-				FEATURED_WORKS.length > 0 && (
-					<section
-						class="hero-featured"
-						aria-labelledby="hero-featured-heading"
-					>
-						<h2 id="hero-featured-heading" class="hero-featured-heading">
-							代表作
-						</h2>
-						<ul class="hero-featured-list">
-							{FEATURED_WORKS.map((work) => {
-								const external = isExternalHref(work.href);
-								return (
-									<li>
-										<a
-											href={work.href}
-											class="hero-featured-link"
-											data-featured-work
-											target={external ? "_blank" : undefined}
-											rel={
-												external
-													? "noopener noreferrer"
-													: undefined
-											}
-										>
-											<span class="hero-featured-title">
-												{work.title}
-											</span>
-											<span class="hero-featured-excerpt">
-												{work.excerpt}
-											</span>
-										</a>
-									</li>
-								);
-							})}
-						</ul>
-					</section>
-				)
-			}
 
 			<nav class="hero-cta" aria-label="主なページ">
 				{
@@ -129,7 +89,7 @@ const isExternalHref = (href: string) =>
 		right: -12%;
 		background: radial-gradient(
 			circle,
-			rgba(107, 76, 154, 0.14) 0%,
+			rgba(107, 76, 154, 0.1) 0%,
 			rgba(107, 76, 154, 0) 70%
 		);
 	}
@@ -141,8 +101,8 @@ const isExternalHref = (href: string) =>
 		left: -10%;
 		background: radial-gradient(
 			circle,
-			rgba(138, 109, 59, 0.12) 0%,
-			rgba(138, 109, 59, 0) 70%
+			rgba(28, 27, 25, 0.06) 0%,
+			rgba(28, 27, 25, 0) 70%
 		);
 		animation-duration: 22s;
 		animation-direction: reverse;
@@ -151,7 +111,7 @@ const isExternalHref = (href: string) =>
 	.hero-grain {
 		position: absolute;
 		inset: 0;
-		opacity: 0.22;
+		opacity: 0.18;
 		mix-blend-mode: multiply;
 		pointer-events: none;
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -170,11 +130,10 @@ const isExternalHref = (href: string) =>
 		inset: 0;
 		pointer-events: none;
 		background: linear-gradient(
-			90deg,
-			rgba(250, 249, 246, 0.92) 0%,
-			rgba(250, 249, 246, 0.62) 38%,
-			rgba(250, 249, 246, 0.18) 62%,
-			rgba(250, 249, 246, 0) 88%
+			180deg,
+			rgba(250, 249, 246, 0.88) 0%,
+			rgba(250, 249, 246, 0.72) 42%,
+			rgba(250, 249, 246, 0.4) 100%
 		);
 	}
 
@@ -183,87 +142,40 @@ const isExternalHref = (href: string) =>
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
-		width: min(100%, 42rem);
+		width: min(100%, 72rem);
 		padding: calc(var(--header-height) + 1.25rem) 1.5rem 5.75rem;
 	}
 
 	.hero-handle {
-		margin: 0 0 0.4rem;
+		margin: 0 0 0.75rem;
 		font-family: "Inter", system-ui, sans-serif;
 		font-size: 0.875rem;
 		font-weight: 500;
-		letter-spacing: 0.04em;
+		letter-spacing: 0.08em;
 		color: var(--text-muted);
 	}
 
 	.hero-name {
 		margin: 0;
-		font-size: clamp(2.25rem, 8vw, 4rem);
+		font-family: "Inter", system-ui, sans-serif;
+		font-size: clamp(3.25rem, 16vw, 8.5rem);
 		font-weight: 700;
-		line-height: 1.15;
-		letter-spacing: -0.02em;
+		line-height: 0.88;
+		letter-spacing: -0.045em;
+		text-transform: uppercase;
 		color: var(--text-primary);
+	}
+
+	.hero-name-line {
+		display: block;
 	}
 
 	.hero-tagline {
-		margin: 1rem 0 0;
-		max-width: 32rem;
+		margin: 1.5rem 0 0;
+		max-width: 28rem;
 		font-size: 1.0625rem;
 		line-height: 1.85;
 		color: var(--text-secondary);
-	}
-
-	.hero-featured {
-		margin-top: 2rem;
-	}
-
-	.hero-featured-heading {
-		margin: 0 0 0.35rem;
-		font-family: "Inter", system-ui, sans-serif;
-		font-size: 0.75rem;
-		font-weight: 600;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--text-muted);
-	}
-
-	.hero-featured-list {
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.hero-featured-link {
-		display: flex;
-		flex-direction: column;
-		gap: 0.2rem;
-		padding: 0.75rem 0;
-		text-decoration: none;
-		color: inherit;
-		border-top: 1px solid var(--border-color);
-		transition: color 0.15s ease;
-	}
-
-	.hero-featured-list li:last-child .hero-featured-link {
-		border-bottom: 1px solid var(--border-color);
-	}
-
-	.hero-featured-title {
-		font-size: 1rem;
-		font-weight: 700;
-		line-height: 1.4;
-		color: var(--text-primary);
-	}
-
-	.hero-featured-excerpt {
-		font-size: 0.875rem;
-		line-height: 1.7;
-		color: var(--text-secondary);
-	}
-
-	.hero-featured-link:hover .hero-featured-title,
-	.hero-featured-link:focus-visible .hero-featured-title {
-		color: var(--primary-color);
 	}
 
 	.hero-cta {
@@ -294,8 +206,7 @@ const isExternalHref = (href: string) =>
 
 	@media (prefers-reduced-motion: reduce) {
 		.hero-wash,
-		.hero-canvas,
-		.hero-featured-link {
+		.hero-canvas {
 			animation: none;
 			transition: none;
 			will-change: auto;
@@ -352,15 +263,6 @@ const isExternalHref = (href: string) =>
 			});
 		}
 	}
-
-	document.querySelectorAll("[data-featured-work]").forEach((link) => {
-		link.addEventListener("click", () => {
-			window.posthog?.capture("home_featured_clicked", {
-				title: link.querySelector(".hero-featured-title")?.textContent?.trim(),
-				href: link.getAttribute("href"),
-			});
-		});
-	});
 
 	document.querySelectorAll(".hero-cta a[href]").forEach((link) => {
 		link.addEventListener("click", () => {

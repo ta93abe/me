@@ -55,6 +55,7 @@ ${SITE_DESCRIPTION}
 ## Primary sections
 
 - About: ${SITE_URL}/about/
+- Works: ${SITE_URL}/works/
 - Blog: ${SITE_URL}/blog/
 - Contact: ${SITE_URL}/contact/
 - Slides: ${SITE_URL}/slides/
