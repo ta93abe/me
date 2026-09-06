@@ -36,6 +36,34 @@ test.describe("Home", () => {
 		);
 	});
 
+	test("keeps home CTAs above the fixed footer on a narrow phone", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 320, height: 568 });
+		await page.goto("/");
+
+		const footer = page.getByRole("contentinfo");
+		const footerBox = await footer.boundingBox();
+		expect(footerBox).not.toBeNull();
+
+		const reserved = await page.locator(".hero-copy").evaluate((el) =>
+			Number.parseFloat(getComputedStyle(el).paddingBottom),
+		);
+		expect(reserved).toBeGreaterThanOrEqual(footerBox?.height ?? Number.POSITIVE_INFINITY);
+
+		await page.locator("#main-content").evaluate((el) => {
+			el.scrollTop = el.scrollHeight;
+		});
+		const contact = page
+			.getByRole("navigation", { name: "主なページ" })
+			.getByRole("link", { name: "Contact" });
+		const ctaBox = await contact.boundingBox();
+		expect(ctaBox).not.toBeNull();
+		if (ctaBox && footerBox) {
+			expect(ctaBox.y + ctaBox.height).toBeLessThanOrEqual(footerBox.y);
+		}
+	});
+
 	test("keeps the intro readable on a mobile viewport", async ({ page }) => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto("/");

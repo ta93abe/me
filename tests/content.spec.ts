@@ -10,9 +10,10 @@ test.describe("Published content", () => {
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
 		await expect(nav.getByRole("link", { name: "About" })).toBeVisible();
 		await expect(nav.getByRole("link", { name: "Blog" })).toBeVisible();
-		await expect(nav.getByRole("link", { name: "Links" })).toBeVisible();
-		await expect(nav.getByRole("link", { name: "Tools" })).toBeVisible();
-		await expect(nav.getByRole("link", { name: "Slides" })).toBeVisible();
+		await expect(nav.getByRole("link", { name: "Contact" })).toBeVisible();
+		await expect(nav.getByRole("link", { name: "Links" })).toHaveCount(0);
+		await expect(nav.getByRole("link", { name: "Tools" })).toHaveCount(0);
+		await expect(nav.getByRole("link", { name: "Slides" })).toHaveCount(0);
 
 		for (const name of hiddenSections) {
 			await expect(nav.getByRole("link", { name })).toHaveCount(0);
