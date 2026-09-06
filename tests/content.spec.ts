@@ -39,6 +39,20 @@ test.describe("Published content", () => {
 		expect(response?.status()).toBe(404);
 		await expect(page).toHaveTitle(/404/);
 		await expect(page.locator("body")).not.toContainText(sampleCopy);
+
+		const index = page.getByRole("navigation", { name: "主要ページ" });
+		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
+			"href",
+			"/about",
+		);
+		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
+			"href",
+			"/blog",
+		);
+		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
+			"href",
+			"/contact",
+		);
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
 

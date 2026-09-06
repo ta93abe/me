@@ -1,23 +1,30 @@
 import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 
-const quickLinks = [
-	{ href: "/", label: "Home", meta: "Front cover" },
-	{ href: "/blog/", label: "Blog", meta: "Field notes" },
-	{ href: "/tools/", label: "Tools", meta: "Working set" },
-	{ href: "/links/", label: "Links", meta: "Elsewhere" },
-];
+import { NAV_LINKS } from "@/config/navigation";
+
+const linkMeta: Record<string, string> = {
+	About: "Intro",
+	Blog: "Field notes",
+	Contact: "SNS",
+};
+
+const quickLinks = NAV_LINKS.map((link) => ({
+	href: link.href,
+	label: link.text,
+	meta: linkMeta[link.text] ?? link.href,
+}));
 
 const fieldNotes = [
 	"Route slipped between the columns",
 	"Margin marks are still blinking",
 	"Index says: try another doorway",
-	"Signal recovered near /blog/",
+	"Signal recovered near /about/",
 ];
 
 const floatingLabels = [
 	{ text: "NO SIGNAL", className: "nf-ticket nf-ticket-a" },
-	{ text: "TRY /BLOG", className: "nf-ticket nf-ticket-b" },
+	{ text: "TRY /ABOUT", className: "nf-ticket nf-ticket-b" },
 	{ text: "LOST LINK", className: "nf-ticket nf-ticket-c" },
 	{ text: "PAGE DRIFT", className: "nf-ticket nf-ticket-d" },
 ];
@@ -206,12 +213,13 @@ export default function NotFoundPlayground() {
 							</button>
 						</div>
 
-						<nav className="nf-index" aria-label="Main sections">
+						<nav className="nf-index" aria-label="主要ページ">
 							{quickLinks.map((link, index) => (
 								<motion.a
 									key={link.href}
 									href={link.href}
 									className="nf-index-row"
+									aria-label={link.label}
 									initial={false}
 									animate={
 										prefersReducedMotion ? undefined : { opacity: 1, x: 0 }
@@ -286,9 +294,11 @@ export default function NotFoundPlayground() {
 				.nf-shell {
 					position: relative;
 					isolation: isolate;
+					height: 100svh;
 					min-height: 100svh;
-					overflow: hidden;
-					padding: clamp(3.25rem, 7vw, 6rem) clamp(1rem, 4vw, 4rem);
+					overflow-x: hidden;
+					overflow-y: auto;
+					padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1rem, 4vw, 4rem);
 					background:
 						linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px) 0 0 / 72px 72px,
 						linear-gradient(0deg, rgba(255,255,255,0.045) 1px, transparent 1px) 0 0 / 72px 72px,
@@ -358,14 +368,14 @@ export default function NotFoundPlayground() {
 					display: grid;
 					grid-template-columns: minmax(0, 1.28fr) minmax(21rem, 0.72fr);
 					gap: clamp(1.25rem, 3vw, 2.5rem);
-					align-items: stretch;
+					align-items: start;
 					margin-top: clamp(1.5rem, 3vw, 2.25rem);
 				}
 
 				.nf-hero {
 					position: relative;
 					display: flex;
-					min-height: clamp(33rem, 56vw, 43rem);
+					min-height: clamp(22rem, 38vw, 28rem);
 					flex-direction: column;
 					justify-content: center;
 					padding: clamp(1.5rem, 4vw, 3rem);
@@ -519,8 +529,8 @@ export default function NotFoundPlayground() {
 				.nf-panel {
 					display: flex;
 					flex-direction: column;
-					justify-content: center;
-					min-height: clamp(33rem, 56vw, 43rem);
+					justify-content: flex-start;
+					min-height: 0;
 					padding: clamp(1.35rem, 3vw, 2rem);
 					border: 1px solid rgba(248, 243, 231, 0.35);
 					background: rgba(8, 9, 10, 0.74);
@@ -529,7 +539,7 @@ export default function NotFoundPlayground() {
 
 				.nf-panel-label {
 					width: max-content;
-					margin-bottom: 1.25rem;
+					margin-bottom: 0.75rem;
 					padding: 0.35rem 0.62rem;
 					background: #cffc54;
 					color: #08090a;
@@ -542,31 +552,31 @@ export default function NotFoundPlayground() {
 				.nf-panel h1 {
 					margin: 0;
 					font-family: "Shippori Mincho", "Noto Serif JP", serif;
-					font-size: clamp(2.6rem, 4.8vw, 5.2rem);
+					font-size: clamp(1.85rem, 3.2vw, 3.1rem);
 					font-weight: 700;
-					line-height: 1.05;
+					line-height: 1.15;
 					letter-spacing: 0;
 				}
 
 				.nf-panel p {
-					margin: 1.2rem 0 0;
+					margin: 0.75rem 0 0;
 					color: rgba(248, 243, 231, 0.72);
 					font-size: 1rem;
-					line-height: 1.85;
+					line-height: 1.7;
 				}
 
 				.nf-actions {
 					display: grid;
 					grid-template-columns: repeat(2, minmax(0, 1fr));
 					gap: 0.75rem;
-					margin-top: 1.65rem;
+					margin-top: 1rem;
 				}
 
 				.nf-action {
 					display: inline-flex;
 					align-items: center;
 					justify-content: center;
-					min-height: 3.2rem;
+					min-height: 2.75rem;
 					padding: 0.75rem 1rem;
 					border: 1px solid rgba(248, 243, 231, 0.54);
 					border-radius: 0;
@@ -600,7 +610,7 @@ export default function NotFoundPlayground() {
 				}
 
 				.nf-index {
-					margin-top: 1.5rem;
+					margin-top: 0.85rem;
 					border-top: 1px solid rgba(248, 243, 231, 0.24);
 				}
 
@@ -609,7 +619,7 @@ export default function NotFoundPlayground() {
 					grid-template-columns: 3rem 1fr;
 					gap: 0.9rem;
 					align-items: center;
-					padding: 1rem 0.2rem;
+					padding: 0.65rem 0.2rem;
 					border-bottom: 1px solid rgba(248, 243, 231, 0.16);
 					color: inherit;
 					text-decoration: none;
