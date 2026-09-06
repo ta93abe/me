@@ -64,6 +64,24 @@ test.describe("Home", () => {
 		expect(metrics.textWidth).toBeGreaterThan(metrics.viewportWidth * 0.72);
 	});
 
+	test("stacks the name on two lines on a phone", async ({ page }) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto("/");
+
+		const stacked = await page.locator(".hero-name").evaluate((el) => {
+			const given = el.querySelector(".hero-name-given");
+			const family = el.querySelector(".hero-name-family");
+			if (!(given instanceof HTMLElement) || !(family instanceof HTMLElement)) {
+				return false;
+			}
+			const givenBox = given.getBoundingClientRect();
+			const familyBox = family.getBoundingClientRect();
+			return familyBox.top >= givenBox.bottom - 1;
+		});
+
+		expect(stacked).toBe(true);
+	});
+
 	test("keeps home CTAs above the fixed footer on a narrow phone", async ({
 		page,
 	}) => {
