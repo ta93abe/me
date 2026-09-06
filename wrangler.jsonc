@@ -20,7 +20,9 @@
     "IMAGES_PUBLIC_ORIGIN": "https://images.ta93abe.com",
     "CONTACT_FROM_ADDRESS": "contact@ta93abe.com",
     "CONTACT_FROM_NAME": "Takumi Abe",
+    "TURNSTILE_HOSTNAMES": "ta93abe.com",
   },
+  // TURNSTILE_HOSTNAMES は本番ホストのみ。localhost は .dev.vars で上書きする。
   // EMAIL_INBOX は検証済み受信箱向け。ダッシュボードで受信箱を検証したあと
   // destination_address を同じアドレスに固定する。
   // CONTACT_INBOX_EMAIL は Worker var / .dev.vars で渡す（個人アドレスをリポジトリに置かない）。

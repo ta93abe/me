@@ -8,6 +8,7 @@ declare module "cloudflare:workers" {
 		DEPLOY_HOOK_URL?: string;
 		CONTENT_EVENTS?: Queue;
 		TURNSTILE_SECRET?: string;
+		TURNSTILE_HOSTNAMES?: string;
 		SLACK_WEBHOOK_URL?: string;
 		CONTACT_INBOX_EMAIL?: string;
 		CONTACT_FROM_ADDRESS?: string;

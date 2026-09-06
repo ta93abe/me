@@ -5,8 +5,11 @@ import {
 	buildInboxEmail,
 	buildSlackPayload,
 	CONTACT_LIMITS,
+	CONTACT_TURNSTILE_ACTION,
 	handleContactRequest,
 	parseContactFields,
+	parseTurnstileHostnames,
+	TURNSTILE_TOKEN_MAX_LENGTH,
 } from "../contact.ts";
 
 const validFields = {
@@ -24,6 +27,30 @@ function jsonRequest(body: unknown, init: RequestInit = {}): Request {
 		headers: { "Content-Type": "application/json", ...headers },
 		body: JSON.stringify(body),
 		...rest,
+	});
+}
+
+function contactEnv(
+	create = vi.fn(),
+	overrides: { TURNSTILE_SECRET?: string; TURNSTILE_HOSTNAMES?: string } = {},
+) {
+	return {
+		TURNSTILE_SECRET: "secret",
+		TURNSTILE_HOSTNAMES: "ta93abe.com",
+		CONTACT_WORKFLOW: { create },
+		...overrides,
+	};
+}
+
+function stubSiteverify(outcome: unknown) {
+	return vi.fn().mockResolvedValue(Response.json(outcome));
+}
+
+function passingSiteverify() {
+	return stubSiteverify({
+		success: true,
+		action: CONTACT_TURNSTILE_ACTION,
+		hostname: "ta93abe.com",
 	});
 }
 
@@ -67,6 +94,14 @@ describe("parseContactFields", () => {
 	it("requires a Turnstile token and does not create a workflow payload without it", () => {
 		const result = parseContactFields({ ...validFields, turnstileToken: "" });
 		expect(result).toMatchObject({ ok: false, error: "turnstile_required" });
+	});
+
+	it("rejects an over-long Turnstile token", () => {
+		const result = parseContactFields({
+			...validFields,
+			turnstileToken: "t".repeat(TURNSTILE_TOKEN_MAX_LENGTH + 1),
+		});
+		expect(result).toMatchObject({ ok: false, error: "invalid_payload" });
 	});
 
 	it("allows an empty subject", () => {
@@ -154,6 +189,19 @@ describe("email and slack payloads", () => {
 	});
 });
 
+describe("parseTurnstileHostnames", () => {
+	it("splits and trims a comma-separated allowlist", () => {
+		expect(parseTurnstileHostnames("ta93abe.com, localhost")).toEqual(
+			new Set(["ta93abe.com", "localhost"]),
+		);
+	});
+
+	it("returns an empty set when unset", () => {
+		expect(parseTurnstileHostnames(undefined).size).toBe(0);
+		expect(parseTurnstileHostnames("").size).toBe(0);
+	});
+});
+
 describe("handleContactRequest", () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
@@ -164,10 +212,7 @@ describe("handleContactRequest", () => {
 		const create = vi.fn();
 		const response = await handleContactRequest(
 			jsonRequest({ email: "a@b.com", message: "hi", turnstileToken: "t" }),
-			{
-				TURNSTILE_SECRET: "secret",
-				CONTACT_WORKFLOW: { create },
-			},
+			contactEnv(create),
 		);
 
 		expect(response.status).toBe(400);
@@ -178,33 +223,65 @@ describe("handleContactRequest", () => {
 	it("returns 403 without creating a workflow when Turnstile fails", async () => {
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue(
-				Response.json({
-					success: false,
-					"error-codes": ["invalid-input-response"],
-				}),
-			),
+			stubSiteverify({
+				success: false,
+				"error-codes": ["invalid-input-response"],
+			}),
 		);
 		const create = vi.fn();
-		const response = await handleContactRequest(jsonRequest(validFields), {
-			TURNSTILE_SECRET: "secret",
-			CONTACT_WORKFLOW: { create },
-		});
+		const response = await handleContactRequest(
+			jsonRequest(validFields),
+			contactEnv(create),
+		);
 
 		expect(response.status).toBe(403);
 		expect(create).not.toHaveBeenCalled();
 	});
 
-	it("creates a workflow and returns 200 immediately when validation passes", async () => {
+	it("returns 403 when siteverify hostname is not allowed", async () => {
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue(Response.json({ success: true })),
+			stubSiteverify({
+				success: true,
+				action: CONTACT_TURNSTILE_ACTION,
+				hostname: "evil.example",
+			}),
 		);
+		const create = vi.fn();
+		const response = await handleContactRequest(
+			jsonRequest(validFields),
+			contactEnv(create),
+		);
+		expect(response.status).toBe(403);
+		expect(create).not.toHaveBeenCalled();
+	});
+
+	it("returns 403 when siteverify action does not match", async () => {
+		vi.stubGlobal(
+			"fetch",
+			stubSiteverify({
+				success: true,
+				action: "login",
+				hostname: "ta93abe.com",
+			}),
+		);
+		const create = vi.fn();
+		const response = await handleContactRequest(
+			jsonRequest(validFields),
+			contactEnv(create),
+		);
+		expect(response.status).toBe(403);
+		expect(create).not.toHaveBeenCalled();
+	});
+
+	it("creates a workflow and returns 200 immediately when validation passes", async () => {
+		const fetchMock = passingSiteverify();
+		vi.stubGlobal("fetch", fetchMock);
 		const create = vi.fn().mockResolvedValue({ id: "wf-1" });
-		const response = await handleContactRequest(jsonRequest(validFields), {
-			TURNSTILE_SECRET: "secret",
-			CONTACT_WORKFLOW: { create },
-		});
+		const response = await handleContactRequest(
+			jsonRequest(validFields),
+			contactEnv(create),
+		);
 
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ ok: true });
@@ -218,16 +295,20 @@ describe("handleContactRequest", () => {
 		expect(create.mock.calls[0]?.[0].params.submittedAt).toEqual(
 			expect.any(String),
 		);
+		expect(fetchMock).toHaveBeenCalledWith(
+			"https://challenges.cloudflare.com/turnstile/v0/siteverify",
+			expect.objectContaining({
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			}),
+		);
 	});
 
 	it("returns 405 for GET and does not create a workflow", async () => {
 		const create = vi.fn();
 		const response = await handleContactRequest(
 			new Request("https://ta93abe.com/api/contact", { method: "GET" }),
-			{
-				TURNSTILE_SECRET: "secret",
-				CONTACT_WORKFLOW: { create },
-			},
+			contactEnv(create),
 		);
 		expect(response.status).toBe(405);
 		expect(response.headers.get("Allow")).toContain("POST");
@@ -244,16 +325,23 @@ describe("handleContactRequest", () => {
 		expect(create).not.toHaveBeenCalled();
 	});
 
-	it("returns 503 when workflow create throws", async () => {
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue(Response.json({ success: true })),
+	it("returns 503 when TURNSTILE_HOSTNAMES is empty", async () => {
+		const create = vi.fn();
+		const response = await handleContactRequest(
+			jsonRequest(validFields),
+			contactEnv(create, { TURNSTILE_HOSTNAMES: "" }),
 		);
+		expect(response.status).toBe(503);
+		expect(create).not.toHaveBeenCalled();
+	});
+
+	it("returns 503 when workflow create throws", async () => {
+		vi.stubGlobal("fetch", passingSiteverify());
 		const create = vi.fn().mockRejectedValue(new Error("workflow down"));
-		const response = await handleContactRequest(jsonRequest(validFields), {
-			TURNSTILE_SECRET: "secret",
-			CONTACT_WORKFLOW: { create },
-		});
+		const response = await handleContactRequest(
+			jsonRequest(validFields),
+			contactEnv(create),
+		);
 		expect(response.status).toBe(503);
 		expect(await response.json()).toMatchObject({ error: "workflow_failed" });
 	});

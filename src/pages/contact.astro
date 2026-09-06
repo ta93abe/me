@@ -4,9 +4,13 @@ import Button from "@/components/ui/Button.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
 
+const PRODUCTION_TURNSTILE_SITE_KEY = "0x4AAAAAAEqE8YTM-3QHbpaP";
+const DEV_TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
 const turnstileSiteKey =
-	import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ??
-	(import.meta.env.DEV ? "1x00000000000000000000AA" : "");
+	import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ||
+	(import.meta.env.DEV
+		? DEV_TURNSTILE_SITE_KEY
+		: PRODUCTION_TURNSTILE_SITE_KEY);
 ---
 
 <Layout
@@ -103,6 +107,7 @@ const turnstileSiteKey =
 						<div
 							class="cf-turnstile"
 							data-sitekey={turnstileSiteKey}
+							data-action="contact"
 							data-theme="light"
 						></div>
 

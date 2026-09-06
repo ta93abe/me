@@ -41,6 +41,9 @@ test.describe("Contact Page", () => {
 		await expect(formSection).toBeVisible();
 		await expect(sns.locator(".sns-links")).toBeVisible();
 		await expect(formSection.locator("#contact-form")).toBeVisible();
+		const widget = formSection.locator(".cf-turnstile");
+		await expect(widget).toHaveAttribute("data-action", "contact");
+		await expect(widget).toHaveAttribute("data-sitekey", /.+/);
 
 		const snsBox = await sns.boundingBox();
 		const formBox = await formSection.boundingBox();

@@ -6,6 +6,8 @@ export const CONTACT_LIMITS = {
 } as const;
 
 export const CONTACT_MAX_BODY_BYTES = 32_768;
+export const CONTACT_TURNSTILE_ACTION = "contact";
+export const TURNSTILE_TOKEN_MAX_LENGTH = 2048;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TURNSTILE_SITEVERIFY =
@@ -51,6 +53,7 @@ export type ContactParseResult =
 
 export type ContactBindings = {
 	TURNSTILE_SECRET: string;
+	TURNSTILE_HOSTNAMES?: string;
 	CONTACT_WORKFLOW: {
 		create: (options: {
 			params: ContactWorkflowParams;
@@ -115,6 +118,9 @@ export function parseContactFields(input: unknown): ContactParseResult {
 	}
 	if (!turnstileToken) {
 		return { ok: false, status: 400, error: "turnstile_required" };
+	}
+	if (turnstileToken.length > TURNSTILE_TOKEN_MAX_LENGTH) {
+		return { ok: false, status: 400, error: "invalid_payload" };
 	}
 
 	return {
@@ -270,31 +276,53 @@ export function buildSlackPayload(input: {
 	};
 }
 
+export function parseTurnstileHostnames(
+	value: string | undefined,
+): Set<string> {
+	if (!value) {
+		return new Set();
+	}
+	return new Set(
+		value
+			.split(",")
+			.map((hostname) => hostname.trim())
+			.filter(Boolean),
+	);
+}
+
+type TurnstileSiteverifyOutcome = {
+	success?: boolean;
+	action?: string;
+	hostname?: string;
+};
+
 export async function verifyTurnstile(input: {
 	secret: string;
 	token: string;
 	remoteIp?: string | null;
-}): Promise<boolean> {
-	const payload: Record<string, string> = {
+}): Promise<TurnstileSiteverifyOutcome | null> {
+	const body = new URLSearchParams({
 		secret: input.secret,
 		response: input.token,
-	};
-	if (input.remoteIp) {
-		payload.remoteip = input.remoteIp;
-	}
-
-	const response = await fetch(TURNSTILE_SITEVERIFY, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(payload),
 	});
-
-	if (!response.ok) {
-		return false;
+	if (input.remoteIp) {
+		body.set("remoteip", input.remoteIp);
 	}
 
-	const outcome = (await response.json()) as { success?: boolean };
-	return outcome.success === true;
+	try {
+		const response = await fetch(TURNSTILE_SITEVERIFY, {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			signal: AbortSignal.timeout(10_000),
+			body,
+		});
+		if (!response.ok) {
+			return null;
+		}
+		return (await response.json()) as TurnstileSiteverifyOutcome;
+	} catch {
+		return null;
+	}
 }
 
 function jsonResponse(
@@ -392,8 +420,9 @@ export async function handleContactRequest(
 		});
 	}
 
-	if (!env.TURNSTILE_SECRET) {
-		console.error("TURNSTILE_SECRET is not configured");
+	const expectedHostnames = parseTurnstileHostnames(env.TURNSTILE_HOSTNAMES);
+	if (!env.TURNSTILE_SECRET || expectedHostnames.size === 0) {
+		console.error("TURNSTILE_SECRET or TURNSTILE_HOSTNAMES is not configured");
 		return errorResponse(request, "misconfigured", 503);
 	}
 
@@ -409,12 +438,17 @@ export async function handleContactRequest(
 
 	const { fields } = parsed;
 	const remoteIp = request.headers.get("CF-Connecting-IP");
-	const turnstileOk = await verifyTurnstile({
+	const outcome = await verifyTurnstile({
 		secret: env.TURNSTILE_SECRET,
 		token: fields.turnstileToken,
 		remoteIp,
 	});
-	if (!turnstileOk) {
+	if (
+		!outcome?.success ||
+		outcome.action !== CONTACT_TURNSTILE_ACTION ||
+		!outcome.hostname ||
+		!expectedHostnames.has(outcome.hostname)
+	) {
 		return errorResponse(request, "turnstile_failed", 403);
 	}
 
