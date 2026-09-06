@@ -1,23 +1,30 @@
 import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 
-const quickLinks = [
-	{ href: "/", label: "Home", meta: "Front cover" },
-	{ href: "/blog/", label: "Blog", meta: "Field notes" },
-	{ href: "/tools/", label: "Tools", meta: "Working set" },
-	{ href: "/links/", label: "Links", meta: "Elsewhere" },
-];
+import { NAV_LINKS } from "@/config/navigation";
+
+const linkMeta: Record<string, string> = {
+	About: "Intro",
+	Blog: "Field notes",
+	Contact: "SNS",
+};
+
+const quickLinks = NAV_LINKS.map((link) => ({
+	href: link.href,
+	label: link.text,
+	meta: linkMeta[link.text] ?? link.href,
+}));
 
 const fieldNotes = [
 	"Route slipped between the columns",
 	"Margin marks are still blinking",
 	"Index says: try another doorway",
-	"Signal recovered near /blog/",
+	"Signal recovered near /about/",
 ];
 
 const floatingLabels = [
 	{ text: "NO SIGNAL", className: "nf-ticket nf-ticket-a" },
-	{ text: "TRY /BLOG", className: "nf-ticket nf-ticket-b" },
+	{ text: "TRY /ABOUT", className: "nf-ticket nf-ticket-b" },
 	{ text: "LOST LINK", className: "nf-ticket nf-ticket-c" },
 	{ text: "PAGE DRIFT", className: "nf-ticket nf-ticket-d" },
 ];
@@ -206,12 +213,13 @@ export default function NotFoundPlayground() {
 							</button>
 						</div>
 
-						<nav className="nf-index" aria-label="Main sections">
+						<nav className="nf-index" aria-label="主要ページ">
 							{quickLinks.map((link, index) => (
 								<motion.a
 									key={link.href}
 									href={link.href}
 									className="nf-index-row"
+									aria-label={link.label}
 									initial={false}
 									animate={
 										prefersReducedMotion ? undefined : { opacity: 1, x: 0 }
