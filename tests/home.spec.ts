@@ -38,6 +38,30 @@ test.describe("Home", () => {
 
 		await expect(page.getByRole("heading", { name: "代表作" })).toHaveCount(0);
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
+		await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
+	});
+
+	test("sets the name as a full-width poster on desktop", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto("/");
+
+		const metrics = await page.locator(".hero-name").evaluate((el) => {
+			const given = el.querySelector(".hero-name-given");
+			const family = el.querySelector(".hero-name-family");
+			if (!(given instanceof HTMLElement) || !(family instanceof HTMLElement)) {
+				return { textWidth: 0, viewportWidth: window.innerWidth };
+			}
+			return {
+				textWidth:
+					given.getBoundingClientRect().width +
+					family.getBoundingClientRect().width,
+				viewportWidth: window.innerWidth,
+			};
+		});
+
+		expect(metrics.textWidth).toBeGreaterThan(metrics.viewportWidth * 0.72);
 	});
 
 	test("keeps home CTAs above the fixed footer on a narrow phone", async ({
