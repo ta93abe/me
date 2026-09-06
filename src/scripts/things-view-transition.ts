@@ -6,6 +6,10 @@ import {
 
 const STORAGE_KEY = "things-view-transition-slug";
 
+type ViewTransitionLike = {
+	finished: Promise<unknown>;
+};
+
 function nameThumbnail(slug: string): void {
 	const img = document.querySelector<HTMLElement>(
 		`[data-thing-thumb="${CSS.escape(slug)}"]`,
@@ -14,6 +18,14 @@ function nameThumbnail(slug: string): void {
 		return;
 	}
 	img.style.viewTransitionName = thingViewTransitionName(slug);
+}
+
+function clearThingNames(): void {
+	for (const img of document.querySelectorAll<HTMLElement>(
+		"[data-thing-thumb]",
+	)) {
+		img.style.removeProperty("view-transition-name");
+	}
 }
 
 function slugFromHref(href: string | null): string | null {
@@ -43,6 +55,22 @@ function storeSlug(slug: string): void {
 	}
 }
 
+function slugForCurrentPage(): string | null {
+	return (
+		thingSlugFromPath(location.pathname) ??
+		(isThingsIndexPath(location.pathname) ? readStoredSlug() : null)
+	);
+}
+
+function armViewTransition(viewTransition: ViewTransitionLike): void {
+	const slug = slugForCurrentPage();
+	if (slug) {
+		nameThumbnail(slug);
+	}
+	void viewTransition.finished.finally(clearThingNames);
+	window.setTimeout(clearThingNames, 800);
+}
+
 document.addEventListener(
 	"click",
 	(event) => {
@@ -70,22 +98,16 @@ document.addEventListener(
 );
 
 window.addEventListener("pagereveal", (event) => {
-	const reveal = event as Event & { viewTransition?: unknown };
+	const reveal = event as Event & { viewTransition?: ViewTransitionLike };
 	if (!reveal.viewTransition) {
 		return;
 	}
-	if (!isThingsIndexPath(location.pathname)) {
-		return;
-	}
-	const slug = readStoredSlug();
-	if (slug) {
-		nameThumbnail(slug);
-	}
+	armViewTransition(reveal.viewTransition);
 });
 
 window.addEventListener("pageswap", (event) => {
 	const swap = event as Event & {
-		viewTransition?: unknown;
+		viewTransition?: ViewTransitionLike;
 		activation?: { entry?: { url?: string } };
 	};
 	if (!swap.viewTransition) {
@@ -101,7 +123,18 @@ window.addEventListener("pageswap", (event) => {
 		return;
 	}
 	const fromSlug = thingSlugFromPath(location.pathname);
-	if (fromSlug && isThingsIndexPath(toPath)) {
+	if (fromSlug) {
+		nameThumbnail(fromSlug);
 		storeSlug(fromSlug);
 	}
 });
+
+window.setTimeout(() => {
+	for (const img of document.querySelectorAll<HTMLElement>(
+		"[data-thing-thumb]",
+	)) {
+		if (getComputedStyle(img).visibility === "hidden") {
+			img.style.removeProperty("view-transition-name");
+		}
+	}
+}, 1000);

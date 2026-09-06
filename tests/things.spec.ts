@@ -50,11 +50,8 @@ test.describe("Things page", () => {
 		await expect(page.getByText("Nix の土台")).toBeVisible();
 
 		const thumb = page.locator("[data-thing-thumb='macbook-pro']");
+		await expect(thumb).toHaveAttribute("src", "/things/macbook-pro.svg");
 		await expect(thumb).toBeVisible();
-		const name = await thumb.evaluate(
-			(el) => getComputedStyle(el).viewTransitionName,
-		);
-		expect(name).toBe("thing-macbook-pro");
 
 		await page.locator("main").getByRole("link", { name: "Things" }).click();
 		await expect(page).toHaveURL(/\/things\/?$/);
