@@ -35,6 +35,7 @@ test.describe("404 recovery", () => {
 		expect(response?.status()).toBe(404);
 
 		const index = page.getByRole("navigation", { name: "主要ページ" });
+		await expect(index.getByRole("link", { name: "About" })).toBeInViewport();
 		await index.getByRole("link", { name: "About" }).click();
 		await expect(page).toHaveURL(/\/about\/?$/);
 		await expect(
