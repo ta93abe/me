@@ -3,30 +3,13 @@ import { HOME_CTAS, SITE } from "@/config/site";
 ---
 
 <section id="hero" class="hero" aria-labelledby="hero-name">
-	<div class="hero-paper" aria-hidden="true">
-		<div class="hero-grain"></div>
-	</div>
-
 	<div class="hero-copy">
-		<p class="hero-handle">{SITE.handle}</p>
-		<h1 id="hero-name" class="hero-name" aria-label={SITE.name}>
-			<span class="hero-name-given">Takumi</span>
-			<span class="hero-name-space"> </span>
-			<span class="hero-name-family">Abe</span>
-		</h1>
-		<p class="hero-rule" aria-hidden="true"></p>
-		<p class="hero-tagline">{SITE.tagline}</p>
+		<h1 id="hero-name" class="hero-name">{SITE.name}</h1>
 
 		<nav class="hero-cta" aria-label="主なページ">
 			{
 				HOME_CTAS.map((cta) => (
-					<a
-						href={cta.href}
-						class:list={[
-							"hero-cta-link",
-							cta.variant === "primary" && "hero-cta-link--primary",
-						]}
-					>
+					<a href={cta.href} class="hero-cta-link">
 						{cta.label}
 					</a>
 				))
@@ -38,143 +21,56 @@ import { HOME_CTAS, SITE } from "@/config/site";
 <style>
 	.hero {
 		position: relative;
-		isolation: isolate;
 		display: flex;
 		flex-direction: column;
 		min-height: 100%;
-		background: #faf9f6;
-	}
-
-	.hero-paper {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-		pointer-events: none;
-	}
-
-	.hero-grain {
-		position: absolute;
-		inset: 0;
-		opacity: 0.2;
-		mix-blend-mode: multiply;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-		background-size: 160px 160px;
+		background: var(--bg-primary);
 	}
 
 	.hero-copy {
-		position: relative;
-		z-index: 1;
 		display: flex;
 		flex: 1 0 auto;
 		flex-direction: column;
-		justify-content: flex-end;
+		align-items: center;
+		justify-content: center;
 		box-sizing: border-box;
 		width: 100%;
-		padding: calc(var(--header-height) + 1.25rem)
-			clamp(1rem, 4vw, 2.25rem) 5.75rem;
-	}
-
-	.hero-handle {
-		margin: 0 0 0.85rem;
-		font-family: "Inter", system-ui, sans-serif;
-		font-size: 0.8125rem;
-		font-weight: 500;
-		letter-spacing: 0.18em;
-		color: var(--text-muted);
+		padding: calc(var(--header-height) + 1rem) 1.5rem 5.75rem;
+		text-align: center;
 	}
 
 	.hero-name {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
 		margin: 0;
-		max-width: 100%;
-		font-family: "Inter", system-ui, sans-serif;
-		font-size: clamp(2.75rem, calc((100vw - 2rem) / 3.9), 6.5rem);
-		font-weight: 700;
-		line-height: 0.82;
-		letter-spacing: -0.055em;
-		text-transform: uppercase;
+		font-size: 1.25rem;
+		font-weight: 400;
+		letter-spacing: 0.02em;
+		line-height: 1.4;
 		color: var(--text-primary);
-	}
-
-	.hero-name-given,
-	.hero-name-family {
-		display: block;
-		flex: 0 0 auto;
-	}
-
-	.hero-name-space {
-		display: none;
-	}
-
-	.hero-rule {
-		width: min(7.5rem, 28vw);
-		height: 2px;
-		margin: 1.35rem 0 0;
-		background: var(--primary-color);
-	}
-
-	.hero-tagline {
-		margin: 1rem 0 0;
-		max-width: 28rem;
-		font-size: 1.0625rem;
-		line-height: 1.85;
-		color: var(--text-secondary);
 	}
 
 	.hero-cta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.15rem 1.75rem;
-		margin-top: 1.75rem;
+		justify-content: center;
+		gap: 0.15rem 1.35rem;
+		margin-top: 1rem;
 	}
 
 	.hero-cta-link {
 		display: inline-flex;
 		align-items: center;
-		min-height: 2.75rem;
-		padding: 0.35rem 0;
-		font-family: "Inter", system-ui, sans-serif;
-		font-size: 0.8125rem;
-		font-weight: 600;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
+		min-height: 2.5rem;
+		padding: 0.2rem 0;
+		font-size: 0.875rem;
+		font-weight: 400;
 		text-decoration: none;
-		color: var(--text-primary);
+		color: var(--text-secondary);
 		transition: color 0.15s ease;
-	}
-
-	.hero-cta-link--primary {
-		color: var(--primary-color);
 	}
 
 	.hero-cta-link:hover,
 	.hero-cta-link:focus-visible {
-		color: var(--primary-color);
-	}
-
-	@media (min-width: 768px) {
-		.hero-copy {
-			justify-content: center;
-		}
-
-		.hero-name {
-			flex-wrap: nowrap;
-			column-gap: 0.16em;
-			font-size: clamp(3.25rem, calc((100vw - 4.5rem) / 6.15), 12rem);
-		}
-
-		.hero-name-space {
-			display: inline;
-			width: 0;
-			overflow: hidden;
-		}
-
-		.hero-tagline {
-			margin-top: 1.25rem;
-			font-size: 1.125rem;
-		}
+		color: var(--text-primary);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

@@ -86,18 +86,14 @@ async function expectHeroCtasReachable(page: Page) {
 }
 
 test.describe("Home", () => {
-	test("shows who and what within the first viewport", async ({ page }) => {
+	test("shows the name and CTAs without a poster or tagline", async ({
+		page,
+	}) => {
 		await page.goto("/");
 
 		await expect(page).toHaveTitle(/Takumi Abe/);
 		await expect(
 			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
-		).toBeVisible();
-		await expect(
-			page.getByText("ta93abe", { exact: true }).first(),
-		).toBeVisible();
-		await expect(
-			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
 		).toBeVisible();
 
 		const ctas = page.getByRole("navigation", { name: "主なページ" });
@@ -124,45 +120,27 @@ test.describe("Home", () => {
 		await expect(page.getByRole("heading", { name: "代表作" })).toHaveCount(0);
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
 		await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
+		await expect(
+			page
+				.locator("main")
+				.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
+		).toHaveCount(0);
 	});
 
-	test("sets the name as a full-width poster on desktop", async ({ page }) => {
+	test("keeps the name at a quiet size", async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto("/");
 
 		const metrics = await page.locator(".hero-name").evaluate((el) => {
-			const given = el.querySelector(".hero-name-given");
-			const family = el.querySelector(".hero-name-family");
-			if (!(given instanceof HTMLElement) || !(family instanceof HTMLElement)) {
-				return { textWidth: 0, viewportWidth: window.innerWidth };
-			}
+			const style = getComputedStyle(el);
 			return {
-				textWidth:
-					given.getBoundingClientRect().width +
-					family.getBoundingClientRect().width,
-				viewportWidth: window.innerWidth,
+				fontSize: Number.parseFloat(style.fontSize),
+				width: el.getBoundingClientRect().width,
 			};
 		});
 
-		expect(metrics.textWidth).toBeGreaterThan(metrics.viewportWidth * 0.72);
-	});
-
-	test("stacks the name on two lines on a phone", async ({ page }) => {
-		await page.setViewportSize({ width: 390, height: 844 });
-		await page.goto("/");
-
-		const stacked = await page.locator(".hero-name").evaluate((el) => {
-			const given = el.querySelector(".hero-name-given");
-			const family = el.querySelector(".hero-name-family");
-			if (!(given instanceof HTMLElement) || !(family instanceof HTMLElement)) {
-				return false;
-			}
-			const givenBox = given.getBoundingClientRect();
-			const familyBox = family.getBoundingClientRect();
-			return familyBox.top >= givenBox.bottom - 1;
-		});
-
-		expect(stacked).toBe(true);
+		expect(metrics.fontSize).toBeLessThanOrEqual(24);
+		expect(metrics.width).toBeLessThan(320);
 	});
 
 	test("keeps home CTAs above the fixed footer on a narrow phone", async ({
@@ -231,8 +209,10 @@ test.describe("Home", () => {
 		}
 
 		await expect(
-			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
-		).toBeVisible();
+			page
+				.locator("main")
+				.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
+		).toHaveCount(0);
 	});
 
 	test("keeps the intro readable with reduced motion", async ({ page }) => {
@@ -243,11 +223,13 @@ test.describe("Home", () => {
 			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
 		).toBeVisible();
 		await expect(
-			page.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
-		).toBeVisible();
-		await expect(
 			page.getByRole("navigation", { name: "主なページ" }),
 		).toBeVisible();
+		await expect(
+			page
+				.locator("main")
+				.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
+		).toHaveCount(0);
 	});
 
 	test("about, contact, and works pages return 200", async ({

@@ -24,10 +24,10 @@ export type SiteConfig = typeof SITE;
  * 代表作の一覧は `/works`。
  */
 export const HOME_CTAS = [
-	{ href: "/works", label: "Works", variant: "primary" },
-	{ href: "/about", label: "About", variant: "secondary" },
-	{ href: "/blog", label: "Blog", variant: "secondary" },
-	{ href: "/contact", label: "Contact", variant: "secondary" },
+	{ href: "/works", label: "Works" },
+	{ href: "/about", label: "About" },
+	{ href: "/blog", label: "Blog" },
+	{ href: "/contact", label: "Contact" },
 ] as const;
 
 export type FeaturedWork = {
