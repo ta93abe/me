@@ -5,7 +5,4 @@
 interface Env {
 	DEPLOY_HOOK_URL: string;
 	CONTENT_HMAC_SECRET: string;
-	TURNSTILE_SECRET: string;
-	SLACK_WEBHOOK_URL: string;
-	CONTACT_INBOX_EMAIL?: string;
 }

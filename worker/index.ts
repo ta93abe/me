@@ -1,7 +1,6 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
-import { handleContactRequest } from "./contact.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -640,10 +639,6 @@ export default {
 			return contentResponse;
 		}
 
-		if (pathname === "/api/contact") {
-			return handleContactRequest(request, env);
-		}
-
 		if (
 			isRetiredSitePath(pathname) &&
 			(request.method === "GET" || request.method === "HEAD")
@@ -826,5 +821,3 @@ export default {
 		}
 	},
 } satisfies ExportedHandler<Env>;
-
-export { ContactWorkflow } from "./contact-workflow.ts";

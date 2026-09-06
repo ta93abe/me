@@ -28,7 +28,6 @@ const cspScriptResources = [
 	{ resource: "https://us-assets.i.posthog.com", kind: "element" },
 	{ resource: "https://eu-assets.i.posthog.com", kind: "element" },
 	{ resource: "https://static.cloudflareinsights.com", kind: "element" },
-	{ resource: "https://challenges.cloudflare.com", kind: "element" },
 ];
 
 // https://astro.build/config
@@ -82,8 +81,7 @@ export default defineConfig({
 				"img-src 'self' data: blob: https:",
 				"font-src 'self' data:",
 				"media-src 'self' blob:",
-				"connect-src 'self' https://*.i.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://cloudflareinsights.com https://challenges.cloudflare.com",
-				"frame-src https://challenges.cloudflare.com",
+				"connect-src 'self' https://*.i.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://cloudflareinsights.com",
 				"base-uri 'self'",
 				"form-action 'self'",
 				"worker-src 'self' blob:",
