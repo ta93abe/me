@@ -20,6 +20,7 @@ const isExternalHref = (href: string) =>
 					<a
 						href={work.href}
 						class="featured-works-link"
+						aria-label={work.title}
 						data-featured-work={source === "works" ? true : undefined}
 						target={external ? "_blank" : undefined}
 						rel={external ? "noopener noreferrer" : undefined}
