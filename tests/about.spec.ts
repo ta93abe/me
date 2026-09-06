@@ -35,10 +35,9 @@ test.describe("About", () => {
 		await expect(
 			sns.getByRole("link", { name: "LinkedIn", exact: true }),
 		).toBeVisible();
-		await expect(page.getByRole("link", { name: "Contact" })).toHaveAttribute(
-			"href",
-			"/contact",
-		);
+		await expect(
+			page.locator("#main-content").getByRole("link", { name: "Contact" }),
+		).toHaveAttribute("href", "/contact");
 
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
 		await expect(nav.getByRole("link", { name: "About" })).toHaveAttribute(
