@@ -7,7 +7,7 @@ const apiHost =
 if (import.meta.env.PROD && apiKey) {
 	posthog.init(apiKey, {
 		api_host: apiHost,
-		defaults: "2026-01-30",
+		defaults: "2026-08-30",
 	});
 	window.posthog = posthog;
 }
