@@ -1,8 +1,9 @@
-import rehypeShiki from "@shikijs/rehype";
+import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
+import { createHighlighter, createJavaScriptRegexEngine } from "shiki";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
@@ -31,6 +32,13 @@ const SLIDE_SHIKI_LANGS = [
 	"toml",
 ] as const;
 
+const highlighterPromise = createHighlighter({
+	themes: ["min-dark", "min-light"],
+	langs: [...SLIDE_SHIKI_LANGS],
+	// Cloudflare / workerd は Oniguruma の WASM を instantiate できない
+	engine: createJavaScriptRegexEngine(),
+});
+
 type ImageNode = {
 	type: "image";
 	url: string;
@@ -55,17 +63,19 @@ export async function markdownToHtml(
 	slug: string,
 	theme: ColorTheme = "dark",
 ): Promise<string> {
-	const highlighter = theme === "light" ? "min-light" : "min-dark";
+	const highlighter = await highlighterPromise;
+	const themeName = theme === "light" ? "min-light" : "min-dark";
 	const file = await unified()
 		.use(remarkParse)
 		.use(remarkGfm)
 		.use(rewriteRelativeImages(slug))
 		.use(remarkRehype, { allowDangerousHtml: false })
-		.use(rehypeShiki, {
-			theme: highlighter,
-			langs: [...SLIDE_SHIKI_LANGS],
-			fallbackLanguage: "javascript",
-		})
+		.use(() =>
+			rehypeShikiFromHighlighter(highlighter, {
+				theme: themeName,
+				fallbackLanguage: "javascript",
+			}),
+		)
 		.use(rehypeShikiToClasses)
 		.use(rehypeStringify)
 		.process(markdown);
