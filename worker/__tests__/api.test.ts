@@ -49,8 +49,32 @@ describe("content api", () => {
 			env,
 		);
 		expect(response?.status).toBe(200);
-		const json = (await response!.json()) as { collections: string[] };
+		const json = (await response!.json()) as {
+			collections: string[];
+			frontmatter: { blog: { required: string[] } };
+		};
 		expect(json.collections).toContain("blog");
+		expect(json.frontmatter.blog.required).toContain("publish_date");
+		expect(json.frontmatter.blog.required).not.toContain("date");
+	});
+
+	it("puts a note that only has publish_date", async () => {
+		const env = createContentEnv({ CONTENT_HMAC_SECRET: secret });
+		const markdown = `---
+title: Canonical
+excerpt: new keys
+publish_date: 2026-09-07
+revise_date: 2026-09-08
+---
+
+Published with canonical dates.
+`;
+		const put = await handleContentApi(
+			await signedRequest("PUT", "/api/content/blog/canonical", markdown),
+			env,
+		);
+		expect(put?.status).toBe(200);
+		expect(await env.CONTENT.get("md/blog/canonical.md")).not.toBeNull();
 	});
 
 	it("rejects an invalid slug before writing", async () => {
@@ -106,10 +130,20 @@ describe("content api", () => {
 		);
 		expect(index?.status).toBe(200);
 		const listed = (await index!.json()) as {
-			entries: Array<{ slug: string; title: string }>;
+			entries: Array<{
+				slug: string;
+				title: string;
+				frontmatter: { publish_date?: string };
+			}>;
 		};
 		expect(listed.entries).toEqual([
-			expect.objectContaining({ slug: "hello", title: "Hello Workers" }),
+			expect.objectContaining({
+				slug: "hello",
+				title: "Hello Workers",
+				frontmatter: expect.objectContaining({
+					publish_date: "2026-08-30",
+				}),
+			}),
 		]);
 
 		const all = await handleContentApi(

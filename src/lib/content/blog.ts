@@ -1,4 +1,9 @@
 import { isValidSlug } from "../../../worker/content/collections.ts";
+import {
+	publishDateValue,
+	reviseDateValue,
+	toDate,
+} from "../../../worker/content/dates.ts";
 import type { FeedPost } from "../../../worker/content/derived.ts";
 import {
 	looksLikeMdx,
@@ -12,12 +17,14 @@ import { markdownKey } from "../../../worker/content/keys.ts";
 import { validateFrontmatter } from "../../../worker/content/schema.ts";
 import { renderBlogMarkdown } from "./markdown.ts";
 
+export { toDate };
+
 export type BlogListItem = {
 	slug: string;
 	title: string;
 	excerpt: string;
-	date: Date;
-	updatedDate?: Date;
+	publish_date: Date;
+	revise_date?: Date;
 	tags: string[];
 };
 
@@ -31,22 +38,9 @@ export function toFeedPost(post: BlogListItem): FeedPost {
 		slug: post.slug,
 		title: post.title,
 		excerpt: post.excerpt,
-		date: post.date,
-		updatedDate: post.updatedDate,
+		publish_date: post.publish_date,
+		revise_date: post.revise_date,
 	};
-}
-
-export function toDate(value: unknown): Date | undefined {
-	if (value instanceof Date && !Number.isNaN(value.getTime())) {
-		return value;
-	}
-	if (typeof value === "string" && value.length > 0) {
-		const parsed = new Date(value);
-		if (!Number.isNaN(parsed.getTime())) {
-			return parsed;
-		}
-	}
-	return undefined;
 }
 
 function tagsFrom(value: unknown): string[] {
@@ -59,8 +53,8 @@ function tagsFrom(value: unknown): string[] {
 export function indexEntryToListItem(
 	entry: ContentIndexEntry,
 ): BlogListItem | null {
-	const date = toDate(entry.frontmatter.date);
-	if (!date) {
+	const publish_date = toDate(publishDateValue(entry.frontmatter));
+	if (!publish_date) {
 		return null;
 	}
 
@@ -68,8 +62,8 @@ export function indexEntryToListItem(
 		slug: entry.slug,
 		title: entry.title,
 		excerpt: entry.excerpt,
-		date,
-		updatedDate: toDate(entry.frontmatter.updatedDate),
+		publish_date,
+		revise_date: toDate(reviseDateValue(entry.frontmatter)),
 		tags: tagsFrom(entry.frontmatter.tags),
 	};
 }
@@ -77,7 +71,7 @@ export function indexEntryToListItem(
 export function sortBlogList(posts: BlogListItem[]): BlogListItem[] {
 	return posts.toSorted(
 		(left, right) =>
-			right.date.getTime() - left.date.getTime() ||
+			right.publish_date.getTime() - left.publish_date.getTime() ||
 			left.slug.localeCompare(right.slug),
 	);
 }
@@ -116,8 +110,8 @@ export async function loadBlogPost(
 			return null;
 		}
 
-		const date = toDate(validated.data.date);
-		if (!date) {
+		const publish_date = toDate(publishDateValue(validated.data));
+		if (!publish_date) {
 			return null;
 		}
 
@@ -125,8 +119,8 @@ export async function loadBlogPost(
 			slug,
 			title: validated.data.title,
 			excerpt: validated.data.excerpt,
-			date,
-			updatedDate: toDate(validated.data.updatedDate),
+			publish_date,
+			revise_date: toDate(reviseDateValue(validated.data)),
 			tags: tagsFrom(validated.data.tags),
 			body: parsed.body,
 			html: renderBlogMarkdown(parsed.body),
