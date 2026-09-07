@@ -1,0 +1,75 @@
+export type Gadget = {
+	readonly slug: string;
+	readonly name: string;
+	readonly note: string;
+	readonly imageSource?: {
+		readonly href: string;
+		readonly label?: string;
+	};
+};
+
+export const GADGETS: readonly Gadget[] = [
+	{
+		slug: "macbook-pro",
+		name: "MacBook Pro",
+		note: "Nix の土台。CLI は全部入れ直せる。GUI だけ Homebrew。",
+	},
+	{
+		slug: "keyboard",
+		name: "Keyboard",
+		note: "いちばん長く触っているもの。打感が仕事のリズムになる。",
+	},
+	{
+		slug: "headphones",
+		name: "Headphones",
+		note: "集中するときの蓋。音を置くときもここから出す。",
+	},
+	{
+		slug: "sketchbook",
+		name: "Sketchbook",
+		note: "コードの前に線を引く。サイトに出す絵はだいたいここから。",
+	},
+	{
+		slug: "fountain-pen",
+		name: "Fountain Pen",
+		note: "キーボードより遅い。だから残る。",
+	},
+	{
+		slug: "camera",
+		name: "Camera",
+		note: "写真を置くための機械。上手く撮れた日だけ出す。",
+	},
+	{
+		slug: "audio-interface",
+		name: "Audio Interface",
+		note: "音をファイルにする箱。置く前の入口。",
+	},
+	{
+		slug: "notebook",
+		name: "Notebook",
+		note: "タスクも設計も、いったん紙に落とす。",
+	},
+];
+
+const gadgetsBySlug = new Map(GADGETS.map((gadget) => [gadget.slug, gadget]));
+
+export function getGadget(slug: string): Gadget | undefined {
+	return gadgetsBySlug.get(slug);
+}
+
+export function gadgetPath(slug: string): string {
+	return `/gadgets/${slug}`;
+}
+
+export function gadgetViewTransitionName(slug: string): string {
+	return `gadget-${slug}`;
+}
+
+export function gadgetSlugFromPath(pathname: string): string | null {
+	const match = pathname.replace(/\/+$/, "").match(/^\/gadgets\/([^/]+)$/);
+	return match?.[1] ?? null;
+}
+
+export function isGadgetsIndexPath(pathname: string): boolean {
+	return pathname.replace(/\/+$/, "") === "/gadgets";
+}

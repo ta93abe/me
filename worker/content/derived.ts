@@ -29,6 +29,7 @@ const STATIC_SECTION_PATHS = [
 	"/links/",
 	"/slides/",
 	"/tools/",
+	"/gadgets/",
 ] as const;
 
 function originBase(origin: string): string {
