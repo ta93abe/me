@@ -10,6 +10,7 @@ const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
 <Layout
 	title={`${SITE.name} (ta93abe) | Software Engineer`}
 	description={SITE.description}
+	ogImageAlt={SITE.tagline}
 	flushTop
 	lockViewport
 >

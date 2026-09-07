@@ -24,7 +24,7 @@ describe("generateWebSiteSchema", () => {
 
 		expect(schema["@context"]).toBe("https://schema.org");
 		expect(schema["@type"]).toBe("WebSite");
-		expect(schema.url).toBe(siteUrl);
+		expect(schema.url).toBe("https://example.com/");
 	});
 
 	it("should include author information", () => {
@@ -32,7 +32,7 @@ describe("generateWebSiteSchema", () => {
 
 		expect(schema.author["@type"]).toBe("Person");
 		expect(schema.author.name).toBe("Takumi Abe");
-		expect(schema.author.url).toBe(`${siteUrl}/about`);
+		expect(schema.author.url).toBe(`${siteUrl}/about/`);
 		expect(schema.author.jobTitle).toBe("Software Engineer");
 		expect(schema.author.sameAs).toEqual(
 			expect.arrayContaining([
@@ -65,7 +65,7 @@ describe("generatePersonSchema", () => {
 
 		expect(schema["@type"]).toBe("Person");
 		expect(schema.name).toBe("Takumi Abe");
-		expect(schema.url).toBe("https://example.com/about");
+		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.jobTitle).toBe("Software Engineer");
 		expect(schema.description).toContain(
 			"データ基盤と CI を書くソフトウェアエンジニア",
@@ -133,7 +133,7 @@ describe("generateProfilePageSchema", () => {
 		expect(schema["@type"]).toBe("ProfilePage");
 		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.mainEntity["@type"]).toBe("Person");
-		expect(schema.mainEntity.url).toBe("https://example.com/about");
+		expect(schema.mainEntity.url).toBe("https://example.com/about/");
 	});
 });
 
@@ -221,7 +221,7 @@ describe("generateBlogPostingSchema", () => {
 		});
 		expect(schema["@type"]).toBe("BlogPosting");
 		expect(schema.url).toBe("https://example.com/blog/hello-world/");
-		expect(schema.author.url).toBe("https://example.com/about");
+		expect(schema.author.url).toBe("https://example.com/about/");
 		expect(schema.publisher.name).toBe("Takumi Abe");
 		expect(schema.isPartOf.url).toBe("https://example.com/blog/");
 		expect(schema.keywords).toBe("ci");
