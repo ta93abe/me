@@ -2,6 +2,9 @@
 import HeroSection from "@/components/landing/HeroSection.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { generatePersonSchema, stringifySchema } from "@/utils/schema";
+
+const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
 ---
 
 <Layout
@@ -10,6 +13,12 @@ import Layout from "@/layouts/Layout.astro";
 	flushTop
 	lockViewport
 >
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(personSchema)}
+		/>
+	</Fragment>
 	<main class="home-main">
 		<HeroSection />
 	</main>

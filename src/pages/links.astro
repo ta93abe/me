@@ -2,12 +2,37 @@
 import SnsLinks from "@/components/SnsLinks.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { ogSectionPath } from "@/utils/og/sections";
+import {
+	generateBreadcrumbSchema,
+	generateLinksCollectionSchema,
+	LINKS_COLLECTION_DESCRIPTION,
+	stringifySchema,
+} from "@/utils/schema";
+
+const site = Astro.site?.href || SITE.url;
+const collectionSchema = generateLinksCollectionSchema(site);
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Links", path: "/links/" },
+]);
 ---
 
 <Layout
 	title={`Links | ${SITE.name}`}
-	description="いま更新している場所。GitHub、Zenn、X、LinkedIn、Speaker Deck、connpass、Substack。"
+	description={LINKS_COLLECTION_DESCRIPTION}
+	ogImage={ogSectionPath("links")}
+	ogImageAlt="Links"
 >
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(collectionSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
+	</Fragment>
 	<main class="mx-auto max-w-3xl px-6 py-16">
 		<header class="mb-12">
 			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">

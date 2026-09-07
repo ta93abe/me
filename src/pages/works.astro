@@ -2,12 +2,37 @@
 import FeaturedWorksList from "@/components/FeaturedWorksList.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { ogSectionPath } from "@/utils/og/sections";
+import {
+	generateBreadcrumbSchema,
+	generateWorksCollectionSchema,
+	stringifySchema,
+	WORKS_COLLECTION_DESCRIPTION,
+} from "@/utils/schema";
+
+const site = Astro.site?.href || SITE.url;
+const collectionSchema = generateWorksCollectionSchema(site);
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Works", path: "/works/" },
+]);
 ---
 
 <Layout
 	title={`Works | ${SITE.name}`}
-	description="代表作。dbt-jobs、dbt-intro、enbu。"
+	description={WORKS_COLLECTION_DESCRIPTION}
+	ogImage={ogSectionPath("works")}
+	ogImageAlt="Works"
 >
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(collectionSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
+	</Fragment>
 	<main class="mx-auto max-w-3xl px-6 py-16">
 		<header class="mb-12">
 			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">

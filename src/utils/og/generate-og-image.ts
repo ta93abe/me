@@ -31,10 +31,12 @@ async function loadFont(): Promise<ArrayBuffer> {
 	return fontData;
 }
 
+export type OgImageType = "blog" | "works" | "slides" | "default";
+
 interface OgImageOptions {
 	title: string;
 	subtitle?: string;
-	type?: "blog" | "works" | "slides" | "default";
+	type?: OgImageType;
 }
 
 export async function generateOgImage(

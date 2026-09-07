@@ -26,7 +26,7 @@ if (!prevPost && !nextPost) {
     {
       prevPost ? (
         <a
-          href={`${basePath}/${prevPost.id}`}
+          href={`${basePath}/${prevPost.id}/`}
           class="group flex flex-col rounded-lg bg-(--bg-secondary) p-4 transition-colors hover:bg-(--bg-elevated)"
         >
           <span class="mb-1 text-sm text-(--text-muted)">← 前の記事</span>
@@ -39,7 +39,7 @@ if (!prevPost && !nextPost) {
     {
       nextPost ? (
         <a
-          href={`${basePath}/${nextPost.id}`}
+          href={`${basePath}/${nextPost.id}/`}
           class="group flex flex-col rounded-lg bg-(--bg-secondary) p-4 text-right transition-colors hover:bg-(--bg-elevated) sm:col-start-2"
         >
           <span class="mb-1 text-sm text-(--text-muted)">次の記事 →</span>
