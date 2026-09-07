@@ -1,27 +1,28 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { parseDeck } from "./parser/parse-deck.ts";
 import type { Deck } from "./parser/types.ts";
 
-const decksDir = path.resolve(
-	path.dirname(fileURLToPath(import.meta.url)),
-	"decks",
-);
+/**
+ * Cloudflare / workerd 上の `astro dev` では Node の `fs` + `import.meta.url`
+ * が実ファイルパスにならない。Vite がビルド時に中身を埋め込む glob を使う。
+ */
+const deckModules = import.meta.glob("./decks/*.md", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+}) as Record<string, string>;
 
-export function decksDirectory(): string {
-	return decksDir;
+function filenameFromGlobKey(key: string): string {
+	const slash = key.lastIndexOf("/");
+	return slash === -1 ? key : key.slice(slash + 1);
 }
 
 export async function loadDecks(): Promise<Deck[]> {
-	const names = (await readdir(decksDir))
-		.filter((name) => name.endsWith(".md"))
-		.toSorted();
 	const decks: Deck[] = [];
-	for (const name of names) {
-		const filename = path.join(decksDir, name);
-		const markdown = await readFile(filename, "utf8");
+	for (const [key, markdown] of Object.entries(deckModules)) {
+		const filename = filenameFromGlobKey(key);
+		if (!filename.endsWith(".md")) {
+			continue;
+		}
 		decks.push(await parseDeck(markdown, { filename }));
 	}
 
