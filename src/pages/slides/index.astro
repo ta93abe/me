@@ -1,52 +1,10 @@
 ---
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { loadDecks } from "@/slides/load-decks";
 import { formatDate } from "@/utils/date";
 
-interface Slide {
-	url: string;
-	date: string;
-	title: string;
-	description?: string;
-}
-
-interface SlidesResponse {
-	slides?: Slide[];
-}
-
-function isSlide(value: unknown): value is Slide {
-	if (typeof value !== "object" || value === null) return false;
-	const slide = value as Record<string, unknown>;
-	return (
-		typeof slide.url === "string" &&
-		typeof slide.date === "string" &&
-		typeof slide.title === "string" &&
-		(slide.description === undefined || typeof slide.description === "string")
-	);
-}
-
-function parseSlidesResponse(value: unknown): Slide[] {
-	if (typeof value !== "object" || value === null) return [];
-	const slides = (value as SlidesResponse).slides;
-	if (!Array.isArray(slides)) return [];
-	return slides.filter(isSlide);
-}
-
-let slides: Slide[] = [];
-let error: string | null = null;
-
-try {
-	const res = await fetch(`${SITE.slidesUrl}/slides.json`, {
-		signal: AbortSignal.timeout(10000),
-	});
-	if (res.ok) {
-		slides = parseSlidesResponse(await res.json());
-	} else {
-		error = "スライドを取得できませんでした";
-	}
-} catch {
-	error = "スライドを取得できませんでした";
-}
+const decks = await loadDecks();
 ---
 
 <Layout
@@ -58,17 +16,13 @@ try {
     <p class="mb-12 text-(--text-secondary)">登壇やLTで使用したスライドの一覧です。</p>
 
     {
-      error ? (
-        <p class="text-neutral-400">{error}</p>
-      ) : slides.length === 0 ? (
+      decks.length === 0 ? (
         <p class="text-neutral-400">スライドがありません。</p>
       ) : (
         <div class="space-y-6">
-          {slides.map((slide) => (
+          {decks.map((deck) => (
             <a
-              href={`${SITE.slidesUrl}${slide.url}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/slides/${deck.frontmatter.slug}/`}
               class="group block py-6 transition-colors hover:text-(--primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
             >
               <div class="mb-2 flex items-center gap-2 text-sm text-(--text-muted)">
@@ -84,14 +38,12 @@ try {
                     clip-rule="evenodd"
                   />
                 </svg>
-                <time>{formatDate(slide.date)}</time>
+                <time>{formatDate(deck.frontmatter.date)}</time>
               </div>
               <h2 class="mb-2 text-xl font-bold text-(--text-primary)">
-                {slide.title}
+                {deck.frontmatter.title}
               </h2>
-              {slide.description && (
-                <p class="text-(--text-secondary)">{slide.description}</p>
-              )}
+              <p class="text-(--text-secondary)">{deck.frontmatter.description}</p>
             </a>
           ))}
         </div>

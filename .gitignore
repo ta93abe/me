@@ -26,6 +26,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# Generated slide media copied from src/slides/decks/<slug>/
+/public/slides/media/
+
 # Playwright
 /test-results/
 /playwright-report/

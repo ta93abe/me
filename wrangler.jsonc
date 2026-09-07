@@ -23,6 +23,9 @@
     { "binding": "CONTENT", "bucket_name": "me-content" },
     { "binding": "IMAGES", "bucket_name": "me-images" },
   ],
+  "browser": {
+    "binding": "BROWSER",
+  },
   "queues": {
     "consumers": [
       {
@@ -30,9 +33,24 @@
         "max_batch_size": 16,
         "max_batch_timeout": 5,
       },
+      {
+        "queue": "me-slides-pdf",
+        "max_batch_size": 1,
+        "max_batch_timeout": 1,
+        "max_retries": 5,
+        "max_concurrency": 1,
+      },
     ],
     "producers": [
       { "binding": "CONTENT_EVENTS", "queue": "content-events" },
+      { "binding": "PDF_QUEUE", "queue": "me-slides-pdf" },
     ],
   },
+  "workflows": [
+    {
+      "binding": "PDF_WORKFLOW",
+      "name": "me-slides-pdf",
+      "class_name": "PdfWorkflow",
+    },
+  ],
 }

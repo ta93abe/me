@@ -1,0 +1,92 @@
+---
+import PostHog from "@/components/posthog.astro";
+import { SITE } from "@/config/site";
+import type { Deck } from "@/slides/parser/types";
+import { renderSlideSections } from "@/slides/render";
+import "@/slides/design-system/tokens.css";
+import "@/slides/design-system/typography.css";
+import "@/slides/design-system/layouts.css";
+import "@/slides/design-system/shiki.css";
+import "@/slides/player/player.css";
+
+interface Props {
+	deck: Deck;
+	print?: boolean;
+}
+
+const { deck, print = false } = Astro.props;
+const { title, description, slug, theme } = deck.frontmatter;
+const canonicalURL = new URL(
+	print ? `/slides/${slug}/print/` : `/slides/${slug}/`,
+	Astro.site ?? SITE.url,
+);
+const pdfHref = `/slides/${slug}.pdf`;
+const sections = renderSlideSections(deck, { print });
+---
+
+<!doctype html>
+<html
+	lang="ja"
+	data-theme={theme}
+	data-print-ready={print ? true : undefined}
+	class:list={[{ "is-print": print }]}
+>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta name="robots" content={print ? "noindex, nofollow" : "index, follow"} />
+		<link rel="canonical" href={canonicalURL} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:locale" content={SITE.locale} />
+		{
+			!print && (
+				<link rel="alternate" type="application/pdf" href={pdfHref} />
+			)
+		}
+		<PostHog />
+	</head>
+	<body>
+		<div class="stage-wrap">
+			<article
+				class="deck"
+				data-slug={slug}
+				data-length={deck.slides.length}
+				set:html={sections}
+			/>
+		</div>
+		{
+			!print && (
+				<div class="player-ui">
+					<div
+						class="progress"
+						role="progressbar"
+						aria-valuemin="1"
+						aria-valuemax={deck.slides.length}
+						aria-valuenow="1"
+					>
+						<i></i>
+					</div>
+					<p class="counter" aria-live="polite">
+						<span data-current>1</span> / {deck.slides.length}
+					</p>
+					<a class="pdf-link" href={pdfHref}>
+						PDF
+					</a>
+				</div>
+			)
+		}
+		{
+			!print && (
+				<script>
+					import "../slides/player/player.js";
+				</script>
+			)
+		}
+	</body>
+</html>
