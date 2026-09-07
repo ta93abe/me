@@ -52,6 +52,28 @@ describe("content schema", () => {
 		}
 	});
 
+	it("rejects an unparseable publish_date", () => {
+		const result = validateFrontmatter("blog", {
+			title: "Hello",
+			excerpt: "short",
+			publish_date: "soon",
+		});
+		expect(result.ok).toBe(false);
+	});
+
+	it("falls back to date when publish_date is unparseable", () => {
+		const result = validateFrontmatter("blog", {
+			title: "Hello",
+			excerpt: "short",
+			publish_date: "soon",
+			date: "2026-08-30",
+		});
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			expect(result.data.publish_date).toBe("2026-08-30");
+		}
+	});
+
 	it("requires publish_date on blog", () => {
 		const result = validateFrontmatter("blog", {
 			title: "Hello",

@@ -123,10 +123,24 @@ describe("derived discovery feeds", () => {
 				updatedAt: "2026-08-30T00:00:00.000Z",
 				frontmatter: { title: "No", excerpt: "no" },
 			},
+			{
+				collection: "blog",
+				slug: "mixed",
+				title: "Mixed",
+				excerpt: "bad canonical",
+				updatedAt: "2026-08-15T00:00:00.000Z",
+				frontmatter: {
+					title: "Mixed",
+					excerpt: "bad canonical",
+					publish_date: "soon",
+					date: "2026-08-15",
+				},
+			},
 		]);
 		expect(posts.map((post) => post.slug)).toEqual([
 			"canonical",
 			"hello-world",
+			"mixed",
 		]);
 	});
 

@@ -167,4 +167,23 @@ describe("blog content helpers", () => {
 			new Date("2026-08-30").toISOString(),
 		);
 	});
+
+	it("falls back to date when the index publish_date is unparseable", () => {
+		const itemFromIndex = indexEntryToListItem({
+			collection: "blog",
+			slug: "mixed",
+			title: "Mixed",
+			excerpt: "bad canonical",
+			updatedAt: new Date(0).toISOString(),
+			frontmatter: {
+				title: "Mixed",
+				excerpt: "bad canonical",
+				publish_date: "soon",
+				date: "2026-08-30",
+			},
+		});
+		expect(itemFromIndex?.publish_date.toISOString()).toBe(
+			new Date("2026-08-30").toISOString(),
+		);
+	});
 });

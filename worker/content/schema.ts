@@ -1,12 +1,16 @@
 import { z } from "zod";
 
 import { CONTENT_COLLECTIONS, type ContentCollection } from "./collections.ts";
-import { applyDateAliases } from "./dates.ts";
+import { applyDateAliases, toDate } from "./dates.ts";
 import type { FrontmatterValue } from "./frontmatter.ts";
 
 const tagsSchema = z.array(z.string()).optional();
 const urlString = z.string().min(1);
-const dateValue = z.union([z.string().min(1), z.date()]);
+const dateValue = z
+	.union([z.string().min(1), z.date()])
+	.refine((value) => toDate(value) !== undefined, {
+		message: "invalid date",
+	});
 const dateLike = dateValue.optional();
 
 const contentDates = {

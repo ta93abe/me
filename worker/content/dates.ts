@@ -1,16 +1,5 @@
 import type { FrontmatterValue } from "./frontmatter.ts";
 
-export function hasDateValue(value: unknown): boolean {
-	if (value instanceof Date) {
-		return !Number.isNaN(value.getTime());
-	}
-	return typeof value === "string" && value.length > 0;
-}
-
-export function firstDateValue(...values: unknown[]): unknown {
-	return values.find((value) => hasDateValue(value));
-}
-
 export function toDate(value: unknown): Date | undefined {
 	if (value instanceof Date && !Number.isNaN(value.getTime())) {
 		return value;
@@ -22,6 +11,14 @@ export function toDate(value: unknown): Date | undefined {
 		}
 	}
 	return undefined;
+}
+
+export function hasDateValue(value: unknown): boolean {
+	return toDate(value) !== undefined;
+}
+
+export function firstDateValue(...values: unknown[]): unknown {
+	return values.find((value) => hasDateValue(value));
 }
 
 export function toIso(value: unknown): string | undefined {
