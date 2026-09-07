@@ -33,11 +33,14 @@ const displayDigits = [
 	{ id: "first-four", value: "4" },
 	{ id: "zero", value: "0" },
 	{ id: "last-four", value: "4" },
-];
+] as const;
 
-const smoothEase = [0.22, 1, 0.36, 1] as const;
-const loopEase = "easeInOut" as const;
+const idleFaces = displayDigits.map((digit) => digit.value);
+
+const glitchGlyphs = ["4", "0", "#", "/", "X", "%", "?", "■"] as const;
+const smashEase = [0.18, 1.4, 0.28, 1] as const;
 const linearEase = "linear" as const;
+const SMASH_MS = 240;
 
 const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
 	event.preventDefault();
@@ -57,31 +60,79 @@ const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
 	window.location.href = "/";
 };
 
+const pickGlyph = (seed: number) =>
+	glitchGlyphs[Math.abs(seed) % glitchGlyphs.length];
+
 export default function NotFoundPlayground() {
 	const prefersReducedMotion = useReducedMotion();
 	const titleId = React.useId();
+	const [smashing, setSmashing] = React.useState(false);
+	const [smashTick, setSmashTick] = React.useState(0);
+	const [faces, setFaces] = React.useState<string[]>(idleFaces);
+
+	React.useEffect(() => {
+		if (smashTick === 0) return;
+
+		const timeoutId = window.setTimeout(() => {
+			setFaces(idleFaces);
+			setSmashing(false);
+		}, SMASH_MS);
+
+		return () => {
+			window.clearTimeout(timeoutId);
+		};
+	}, [smashTick]);
+
+	const smash = React.useCallback(() => {
+		if (prefersReducedMotion) return;
+
+		const now = Date.now();
+		setSmashing(true);
+		setFaces([pickGlyph(now), pickGlyph(now + 3), pickGlyph(now + 7)]);
+		setSmashTick((tick) => tick + 1);
+	}, [prefersReducedMotion]);
 
 	const entrance = prefersReducedMotion
 		? {}
 		: {
-				initial: false,
+				initial: { opacity: 0, y: 28 },
 				animate: { opacity: 1, y: 0 },
-				transition: { duration: 0.72, ease: smoothEase },
+				transition: {
+					duration: 0.42,
+					ease: smashEase,
+				},
 			};
 
 	const digitMotion = (index: number) =>
 		prefersReducedMotion
 			? {}
 			: {
+					initial: {
+						opacity: 0,
+						y: -220,
+						scale: 1.35,
+						rotate: index === 1 ? 18 : -16,
+					},
 					animate: {
-						y: [0, -16 - index * 4, 0],
-						rotate: [0, index % 2 === 0 ? 1.5 : -1.5, 0],
+						opacity: 1,
+						y: 0,
+						scale: 1,
+						rotate: 0,
 					},
 					transition: {
-						duration: 4.8 + index * 0.5,
-						delay: index * 0.22,
-						ease: loopEase,
-						repeat: Infinity,
+						type: "spring" as const,
+						stiffness: 420,
+						damping: 14,
+						mass: 1.15,
+						delay: 0.06 + index * 0.11,
+					},
+					whileHover: {
+						scale: 1.08,
+						rotate: index === 1 ? 10 : -10,
+					},
+					whileTap: {
+						scale: 0.84,
+						rotate: index === 1 ? -14 : 14,
 					},
 				};
 
@@ -90,18 +141,18 @@ export default function NotFoundPlayground() {
 			? {}
 			: {
 					animate: {
-						x: [0, index % 2 === 0 ? 12 : -12, 0],
-						y: [0, index % 2 === 0 ? -18 : 18, 0],
+						x: [0, index % 2 === 0 ? 26 : -26, 0],
+						y: [0, index % 2 === 0 ? -34 : 34, 0],
 						rotate: [
-							index % 2 === 0 ? -4 : 4,
-							index % 2 === 0 ? 5 : -5,
-							index % 2 === 0 ? -4 : 4,
+							index % 2 === 0 ? -14 : 12,
+							index % 2 === 0 ? 18 : -16,
+							index % 2 === 0 ? -14 : 12,
 						],
 					},
 					transition: {
-						duration: 6.4 + index,
-						delay: index * 0.35,
-						ease: loopEase,
+						duration: 1.05 + index * 0.18,
+						delay: index * 0.08,
+						ease: smashEase,
 						repeat: Infinity,
 					},
 				};
@@ -116,7 +167,7 @@ export default function NotFoundPlayground() {
 					: {
 							animate: { x: ["0%", "-50%"] },
 							transition: {
-								duration: 18,
+								duration: 5.5,
 								ease: linearEase,
 								repeat: Infinity,
 							},
@@ -129,12 +180,20 @@ export default function NotFoundPlayground() {
 			<section className="nf-stage" aria-label="404 playground">
 				<motion.div className="nf-masthead" {...entrance}>
 					<span>TA93ABE.COM</span>
-					<span>Issue 404</span>
+					<span className="nf-flicker">Issue 404</span>
 					<span>Broken route special</span>
 				</motion.div>
 
 				<div className="nf-layout">
-					<section className="nf-hero" aria-label="404 animated poster">
+					<section
+						className={`nf-hero${smashing ? " is-smashing" : ""}`}
+						aria-label="404 animated poster"
+					>
+						<div className="nf-hero-fx" aria-hidden="true">
+							<div className="nf-shock" />
+							<div className="nf-scan" />
+							<div className="nf-noise" />
+						</div>
 						<div
 							className="nf-print-mark nf-print-mark-left"
 							aria-hidden="true"
@@ -157,36 +216,43 @@ export default function NotFoundPlayground() {
 
 						<div className="nf-number" aria-hidden="true">
 							{displayDigits.map((digit, index) => (
-								<motion.span
+								<motion.button
 									key={digit.id}
+									type="button"
 									className={`nf-digit nf-digit-${index + 1}`}
+									tabIndex={-1}
+									onClick={smash}
 									{...digitMotion(index)}
-									whileHover={
-										prefersReducedMotion
-											? undefined
-											: { rotate: index === 1 ? 8 : -8, scale: 1.04 }
-									}
-									whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
 								>
-									{digit.value}
-								</motion.span>
+									<span className="nf-digit-layer">
+										<span className="nf-digit-ghost nf-digit-r">
+											{faces[index]}
+										</span>
+										<span className="nf-digit-ghost nf-digit-c">
+											{faces[index]}
+										</span>
+										<span className="nf-digit-face">{faces[index]}</span>
+									</span>
+								</motion.button>
 							))}
 						</div>
 
-						<motion.div
-							className="nf-signal"
-							aria-hidden="true"
-							{...(prefersReducedMotion
-								? {}
-								: {
-										animate: { scaleX: [0.7, 1, 0.78] },
-										transition: {
-											duration: 2.8,
-											ease: loopEase,
-											repeat: Infinity,
-										},
-									})}
-						/>
+						<div className="nf-signal" aria-hidden="true">
+							<motion.span
+								className="nf-signal-bar"
+								{...(prefersReducedMotion
+									? {}
+									: {
+											animate: { x: ["-120%", "180%"] },
+											transition: {
+												duration: 0.62,
+												repeat: Infinity,
+												repeatDelay: 0.55,
+												ease: linearEase,
+											},
+										})}
+							/>
+						</div>
 						<p className="nf-caption">
 							The requested page stepped out of the layout grid.
 						</p>
@@ -228,15 +294,18 @@ export default function NotFoundPlayground() {
 										prefersReducedMotion
 											? undefined
 											: {
-													delay: 0.42 + index * 0.08,
-													duration: 0.5,
-													ease: smoothEase,
+													delay: 0.28 + index * 0.06,
+													duration: 0.32,
+													ease: smashEase,
 												}
 									}
 									whileHover={
 										prefersReducedMotion
 											? undefined
-											: { x: 8, backgroundColor: "rgba(255, 255, 255, 0.08)" }
+											: {
+													x: 10,
+													backgroundColor: "rgba(255, 255, 255, 0.08)",
+												}
 									}
 								>
 									<span className="nf-index-number">
@@ -258,9 +327,9 @@ export default function NotFoundPlayground() {
 					{...(prefersReducedMotion
 						? {}
 						: {
-								initial: false,
+								initial: { opacity: 0, y: 18 },
 								animate: { opacity: 1, y: 0 },
-								transition: { delay: 0.25, duration: 0.6 },
+								transition: { delay: 0.18, duration: 0.36 },
 							})}
 				>
 					{fieldNotes.map((note, index) => (
@@ -280,7 +349,7 @@ export default function NotFoundPlayground() {
 					: {
 							animate: { x: ["-50%", "0%"] },
 							transition: {
-								duration: 22,
+								duration: 6.2,
 								ease: linearEase,
 								repeat: Infinity,
 							},
@@ -317,6 +386,7 @@ export default function NotFoundPlayground() {
 					mix-blend-mode: screen;
 					opacity: 0.75;
 					pointer-events: none;
+					animation: nf-grid-drift 0.72s steps(4) infinite;
 				}
 
 				.nf-shell::after {
@@ -327,6 +397,7 @@ export default function NotFoundPlayground() {
 					background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 5px);
 					opacity: 0.18;
 					pointer-events: none;
+					animation: nf-scan-film 1.4s linear infinite;
 				}
 
 				.nf-stage {
@@ -364,6 +435,10 @@ export default function NotFoundPlayground() {
 					text-align: right;
 				}
 
+				.nf-flicker {
+					animation: nf-flicker 1.65s steps(2, jump-none) infinite;
+				}
+
 				.nf-layout {
 					display: grid;
 					grid-template-columns: minmax(0, 1.28fr) minmax(21rem, 0.72fr);
@@ -384,6 +459,11 @@ export default function NotFoundPlayground() {
 						linear-gradient(125deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 52%),
 						linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
 					box-shadow: 18px 18px 0 #cffc54;
+					animation: nf-hero-jitter 2.4s steps(2, jump-none) infinite;
+				}
+
+				.nf-hero.is-smashing {
+					animation: nf-smash 0.24s steps(4) both;
 				}
 
 				.nf-print-mark {
@@ -425,6 +505,58 @@ export default function NotFoundPlayground() {
 					bottom: 1rem;
 				}
 
+				.nf-hero-fx {
+					position: absolute;
+					inset: 0;
+					z-index: 0;
+					overflow: hidden;
+					pointer-events: none;
+				}
+
+				.nf-shock,
+				.nf-scan,
+				.nf-noise {
+					position: absolute;
+					inset: 0;
+					pointer-events: none;
+				}
+
+				.nf-shock {
+					z-index: 0;
+					background: repeating-conic-gradient(
+						from 0deg at 50% 48%,
+						transparent 0deg 8deg,
+						rgba(255, 255, 255, 0.09) 8deg 9deg
+					);
+					opacity: 0.22;
+					mix-blend-mode: overlay;
+					transform-origin: 50% 48%;
+					animation: nf-shock-pulse 1.1s steps(3, jump-none) infinite;
+				}
+
+				.nf-scan {
+					z-index: 3;
+					background: linear-gradient(
+						180deg,
+						transparent 0%,
+						rgba(207, 252, 84, 0.0) 42%,
+						rgba(207, 252, 84, 0.28) 50%,
+						rgba(34, 211, 238, 0.16) 54%,
+						transparent 62%
+					);
+					mix-blend-mode: screen;
+					animation: nf-scan-bar 1.15s linear infinite;
+				}
+
+				.nf-noise {
+					z-index: 3;
+					background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+					background-size: 180px 180px;
+					mix-blend-mode: overlay;
+					opacity: 0.18;
+					animation: nf-noise-shift 0.18s steps(2) infinite;
+				}
+
 				.nf-number {
 					position: relative;
 					z-index: 1;
@@ -440,6 +572,9 @@ export default function NotFoundPlayground() {
 					width: clamp(6.6rem, 16vw, 15rem);
 					aspect-ratio: 0.82;
 					place-items: center;
+					padding: 0;
+					appearance: none;
+					overflow: visible;
 					border: 2px solid rgba(8, 9, 10, 0.9);
 					font-family: "Inter", system-ui, sans-serif;
 					font-size: clamp(7.8rem, 20vw, 20rem);
@@ -450,6 +585,58 @@ export default function NotFoundPlayground() {
 					box-shadow: 0 18px 0 rgba(0, 0, 0, 0.32);
 					cursor: crosshair;
 					user-select: none;
+				}
+
+				.nf-digit-layer {
+					position: relative;
+					display: grid;
+					width: 100%;
+					height: 100%;
+					overflow: hidden;
+					place-items: center;
+					animation: nf-digit-tear 1.7s steps(2, jump-none) infinite;
+				}
+
+				.nf-digit-1 .nf-digit-layer {
+					animation-duration: 1.45s;
+				}
+
+				.nf-digit-2 .nf-digit-layer {
+					animation-duration: 1.95s;
+					animation-delay: 0.18s;
+				}
+
+				.nf-digit-3 .nf-digit-layer {
+					animation-duration: 1.6s;
+					animation-delay: 0.36s;
+				}
+
+				.nf-digit-ghost,
+				.nf-digit-face {
+					grid-area: 1 / 1;
+					display: grid;
+					place-items: center;
+				}
+
+				.nf-digit-ghost {
+					pointer-events: none;
+					opacity: 0.55;
+				}
+
+				.nf-digit-r {
+					color: #ff1e2d;
+					animation: nf-rgb-r 0.2s steps(2) infinite;
+				}
+
+				.nf-digit-c {
+					color: #00e5ff;
+					animation: nf-rgb-c 0.22s steps(2) infinite;
+					animation-delay: 0.04s;
+				}
+
+				.nf-digit-face {
+					position: relative;
+					z-index: 1;
 				}
 
 				.nf-digit-1 {
@@ -510,12 +697,28 @@ export default function NotFoundPlayground() {
 				}
 
 				.nf-signal {
+					position: relative;
 					width: min(100%, 42rem);
 					height: 0.7rem;
 					margin: clamp(1.5rem, 4vw, 3rem) auto 1rem;
-					transform-origin: left center;
-					background:
-						linear-gradient(90deg, transparent 0 4%, #cffc54 4% 18%, transparent 18% 23%, #22d3ee 23% 48%, transparent 48% 55%, #ff5a4f 55% 100%);
+					overflow: hidden;
+					background: rgba(248, 243, 231, 0.12);
+				}
+
+				.nf-signal-bar {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 42%;
+					height: 100%;
+					background: linear-gradient(
+						90deg,
+						transparent,
+						#cffc54 18%,
+						#22d3ee 52%,
+						#ff5a4f 88%,
+						transparent
+					);
 				}
 
 				.nf-caption {
@@ -698,6 +901,78 @@ export default function NotFoundPlayground() {
 					bottom: 1rem;
 				}
 
+				@keyframes nf-grid-drift {
+					0% { background-position: 0 0, 0 0; }
+					25% { background-position: 17px -8px, -10px 13px; }
+					50% { background-position: -9px 14px, 12px -6px; }
+					75% { background-position: 6px -11px, -14px 8px; }
+					100% { background-position: 0 0, 0 0; }
+				}
+
+				@keyframes nf-scan-film {
+					0% { background-position: 0 0; }
+					100% { background-position: 0 12px; }
+				}
+
+				@keyframes nf-flicker {
+					0%, 76%, 100% { opacity: 1; }
+					78% { opacity: 0.15; }
+					80% { opacity: 1; }
+					84% { opacity: 0.45; }
+					86% { opacity: 1; }
+				}
+
+				@keyframes nf-hero-jitter {
+					0%, 90%, 100% { transform: translate(0, 0); }
+					92% { transform: translate(-6px, 3px); }
+					94% { transform: translate(8px, -4px); }
+					96% { transform: translate(-3px, 2px); }
+				}
+
+				@keyframes nf-smash {
+					0% { transform: translate(-18px, 8px) rotate(-1.2deg); filter: contrast(1.55) saturate(1.7); }
+					25% { transform: translate(16px, -10px) rotate(1.1deg); }
+					50% { transform: translate(-10px, 5px) rotate(-0.6deg); }
+					75% { transform: translate(6px, -3px); }
+					100% { transform: none; filter: none; }
+				}
+
+				@keyframes nf-shock-pulse {
+					0%, 100% { opacity: 0.08; transform: scale(0.92); }
+					30% { opacity: 0.32; transform: scale(1); }
+					58% { opacity: 0.12; transform: scale(1.06); }
+				}
+
+				@keyframes nf-scan-bar {
+					0% { transform: translateY(-110%); }
+					100% { transform: translateY(110%); }
+				}
+
+				@keyframes nf-noise-shift {
+					0% { transform: translate(0, 0); opacity: 0.12; }
+					50% { transform: translate(-2%, 1.5%); opacity: 0.28; }
+					100% { transform: translate(1.5%, -2%); opacity: 0.16; }
+				}
+
+				@keyframes nf-digit-tear {
+					0%, 86%, 100% { clip-path: inset(0); transform: translate(0, 0) skewX(0); }
+					88% { clip-path: inset(10% 0 58% 0); transform: translate(12px, -5px) skewX(16deg); }
+					91% { clip-path: inset(46% 0 8% 0); transform: translate(-16px, 7px) skewX(-12deg); }
+					94% { clip-path: inset(22% 0 30% 0); transform: translate(7px, -2px) skewX(7deg); }
+				}
+
+				@keyframes nf-rgb-r {
+					0%, 70%, 100% { transform: translate(0, 0); }
+					75% { transform: translate(8px, -3px); }
+					85% { transform: translate(-6px, 2px); }
+				}
+
+				@keyframes nf-rgb-c {
+					0%, 70%, 100% { transform: translate(0, 0); }
+					78% { transform: translate(-9px, 3px); }
+					88% { transform: translate(5px, -4px); }
+				}
+
 				@media (max-width: 960px) {
 					.nf-layout {
 						grid-template-columns: 1fr;
@@ -778,6 +1053,19 @@ export default function NotFoundPlayground() {
 				}
 
 				@media (prefers-reduced-motion: reduce) {
+					.nf-shell::before,
+					.nf-shell::after,
+					.nf-flicker,
+					.nf-hero,
+					.nf-shock,
+					.nf-scan,
+					.nf-noise,
+					.nf-digit-layer,
+					.nf-digit-r,
+					.nf-digit-c {
+						animation: none;
+					}
+
 					.nf-action {
 						transition: none;
 					}
