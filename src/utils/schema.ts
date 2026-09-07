@@ -101,6 +101,116 @@ export const generatePersonSchema = (siteUrl: string): PersonSchema => ({
 	...personFields(siteUrl),
 });
 
+export type SlideDeckListItem = {
+	slug: string;
+	title: string;
+	description: string;
+	date: string;
+};
+
+interface CollectionPageSchema {
+	"@context": "https://schema.org";
+	"@type": "CollectionPage";
+	name: string;
+	description: string;
+	url: string;
+	inLanguage: string;
+	isPartOf: {
+		"@type": "WebSite";
+		name: string;
+		url: string;
+	};
+	hasPart: Array<{
+		"@type": "PresentationDigitalDocument";
+		name: string;
+		description: string;
+		url: string;
+		datePublished: string;
+	}>;
+}
+
+interface SlideDeckSchema {
+	"@context": "https://schema.org";
+	"@type": "PresentationDigitalDocument";
+	name: string;
+	description: string;
+	url: string;
+	inLanguage: string;
+	datePublished: string;
+	author: PersonFields;
+	image: string;
+	isPartOf: {
+		"@type": "CollectionPage";
+		name: string;
+		url: string;
+	};
+	encoding: {
+		"@type": "MediaObject";
+		encodingFormat: "application/pdf";
+		contentUrl: string;
+	};
+}
+
+export const SLIDES_COLLECTION_DESCRIPTION =
+	"登壇やLTで使用したスライドの一覧です。";
+
+export const generateSlidesCollectionSchema = (
+	siteUrl: string,
+	decks: readonly SlideDeckListItem[],
+	description: string = SLIDES_COLLECTION_DESCRIPTION,
+): CollectionPageSchema => {
+	const origin = originBase(siteUrl);
+	return {
+		"@context": "https://schema.org",
+		"@type": "CollectionPage",
+		name: "Slides",
+		description,
+		url: `${origin}/slides/`,
+		inLanguage: SITE.lang,
+		isPartOf: {
+			"@type": "WebSite",
+			name: SITE.name,
+			url: origin,
+		},
+		hasPart: decks.map((deck) => ({
+			"@type": "PresentationDigitalDocument",
+			name: deck.title,
+			description: deck.description,
+			url: `${origin}/slides/${deck.slug}/`,
+			datePublished: deck.date,
+		})),
+	};
+};
+
+export const generateSlideDeckSchema = (
+	siteUrl: string,
+	deck: SlideDeckListItem,
+): SlideDeckSchema => {
+	const origin = originBase(siteUrl);
+	const url = `${origin}/slides/${deck.slug}/`;
+	return {
+		"@context": "https://schema.org",
+		"@type": "PresentationDigitalDocument",
+		name: deck.title,
+		description: deck.description,
+		url,
+		inLanguage: SITE.lang,
+		datePublished: deck.date,
+		author: personFields(siteUrl),
+		image: `${origin}/og/slides/${deck.slug}.png`,
+		isPartOf: {
+			"@type": "CollectionPage",
+			name: "Slides",
+			url: `${origin}/slides/`,
+		},
+		encoding: {
+			"@type": "MediaObject",
+			encodingFormat: "application/pdf",
+			contentUrl: `${origin}/slides/${deck.slug}.pdf`,
+		},
+	};
+};
+
 /**
  * Safely stringify JSON-LD for embedding in HTML
  * Escapes < characters to prevent script injection

@@ -96,8 +96,10 @@ pnpm dev
 
 - `https://ta93abe.com/slides` が一覧
 - `https://ta93abe.com/slides/<slug>/` が発表面
-- `https://ta93abe.com/slides/<slug>/print/` が印刷 HTML
+- `https://ta93abe.com/slides/<slug>/print/` が印刷 HTML（`noindex`。canonical は発表面）
 - `https://ta93abe.com/slides/<slug>.pdf` が PDF
+- `https://ta93abe.com/og/slides.png` が一覧の OG 画像
+- `https://ta93abe.com/og/slides/<slug>.png` がデッキの OG 画像
 - `#3` が 3 枚目
 
 紙面の決め方は [docs/slides-pdf.md](slides-pdf.md)。

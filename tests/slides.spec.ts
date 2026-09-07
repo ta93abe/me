@@ -40,6 +40,58 @@ test.describe("Slides", () => {
 		);
 	});
 
+	test("listing exposes Open Graph, Twitter, and CollectionPage JSON-LD", async ({
+		page,
+	}) => {
+		await page.goto("/slides");
+		await expect(page).toHaveTitle("Slides | Takumi Abe");
+		await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+			"content",
+			"https://ta93abe.com/og/slides.png",
+		);
+		await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+			"content",
+			"summary_large_image",
+		);
+		const jsonLd = await page
+			.locator('script[type="application/ld+json"]')
+			.allTextContents();
+		expect(jsonLd.some((text) => text.includes("CollectionPage"))).toBe(true);
+		expect(jsonLd.some((text) => text.includes("/slides/showcase/"))).toBe(
+			true,
+		);
+	});
+
+	test("player exposes deck Open Graph, Twitter, and JSON-LD", async ({
+		page,
+	}) => {
+		await page.goto("/slides/showcase/");
+		await expect(page).toHaveTitle(
+			"デザインシステム ショーケース | Slides | Takumi Abe",
+		);
+		await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+			"href",
+			"https://ta93abe.com/slides/showcase/",
+		);
+		await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+			"content",
+			"https://ta93abe.com/og/slides/showcase.png",
+		);
+		await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+			"content",
+			"summary_large_image",
+		);
+		await expect(page.locator('link[rel="alternate"]')).toHaveAttribute(
+			"href",
+			"/slides/showcase.pdf",
+		);
+		const jsonLd = await page
+			.locator('script[type="application/ld+json"]')
+			.textContent();
+		expect(jsonLd).toContain("PresentationDigitalDocument");
+		expect(jsonLd).toContain("/slides/showcase.pdf");
+	});
+
 	test("print page shows every slide and skips the player", async ({
 		page,
 	}) => {
@@ -48,6 +100,17 @@ test.describe("Slides", () => {
 		await expect(page.locator(".slide")).toHaveCount(7);
 		await expect(page.locator("html")).toHaveClass(/is-print/);
 		await expect(page.locator(".player-ui")).toHaveCount(0);
+		await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+			"content",
+			"noindex, nofollow",
+		);
+		await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+			"href",
+			"https://ta93abe.com/slides/showcase/",
+		);
+		await expect(
+			page.locator('script[type="application/ld+json"]'),
+		).toHaveCount(0);
 	});
 
 	test("unknown slug is 404", async ({ page }) => {

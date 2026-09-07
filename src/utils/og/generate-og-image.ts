@@ -34,7 +34,7 @@ async function loadFont(): Promise<ArrayBuffer> {
 interface OgImageOptions {
 	title: string;
 	subtitle?: string;
-	type?: "blog" | "works" | "default";
+	type?: "blog" | "works" | "slides" | "default";
 }
 
 export async function generateOgImage(
@@ -54,6 +54,11 @@ export async function generateOgImage(
 		works: {
 			background: "linear-gradient(135deg, #ffffff 0%, #eeeeeb 100%)",
 			accent: "#8a6d3b",
+			text: "#1c1b19",
+		},
+		slides: {
+			background: "linear-gradient(135deg, #ffffff 0%, #f0eef6 100%)",
+			accent: "#6b4c9a",
 			text: "#1c1b19",
 		},
 		default: {

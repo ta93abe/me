@@ -50,7 +50,8 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
-			filter: (page) => !page.includes("/print"),
+			filter: (page) =>
+				!page.includes("/print") && !page.includes("/og/"),
 		}),
 		react(),
 		{

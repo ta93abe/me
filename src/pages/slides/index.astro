@@ -3,51 +3,73 @@ import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
 import { loadDecks } from "@/slides/load-decks";
 import { formatDate } from "@/utils/date";
+import {
+	generateSlidesCollectionSchema,
+	SLIDES_COLLECTION_DESCRIPTION,
+	stringifySchema,
+} from "@/utils/schema";
 
 const decks = await loadDecks();
+const collectionSchema = generateSlidesCollectionSchema(
+	Astro.site?.href || SITE.url,
+	decks.map((deck) => ({
+		slug: deck.frontmatter.slug,
+		title: deck.frontmatter.title,
+		description: deck.frontmatter.description,
+		date: deck.frontmatter.date,
+	})),
+);
 ---
 
 <Layout
-  title={`Slides | ${SITE.name}`}
-  description="登壇やLTで使用したスライドの一覧です。"
+	title={`Slides | ${SITE.name}`}
+	description={SLIDES_COLLECTION_DESCRIPTION}
+	ogImage="/og/slides.png"
+	ogImageAlt="Slides"
 >
-  <main class="mx-auto max-w-4xl px-6 py-12">
-    <h1 class="mb-4 text-4xl font-bold text-(--text-primary)">Slides</h1>
-    <p class="mb-12 text-(--text-secondary)">登壇やLTで使用したスライドの一覧です。</p>
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(collectionSchema)}
+		/>
+	</Fragment>
+	<main class="mx-auto max-w-4xl px-6 py-12">
+		<h1 class="mb-4 text-4xl font-bold text-(--text-primary)">Slides</h1>
+		<p class="mb-12 text-(--text-secondary)">{SLIDES_COLLECTION_DESCRIPTION}</p>
 
-    {
-      decks.length === 0 ? (
-        <p class="text-neutral-400">スライドがありません。</p>
-      ) : (
-        <div class="space-y-6">
-          {decks.map((deck) => (
-            <a
-              href={`/slides/${deck.frontmatter.slug}/`}
-              class="group block py-6 transition-colors hover:text-(--primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
-            >
-              <div class="mb-2 flex items-center gap-2 text-sm text-(--text-muted)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="size-4"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <time>{formatDate(deck.frontmatter.date)}</time>
-              </div>
-              <h2 class="mb-2 text-xl font-bold text-(--text-primary)">
-                {deck.frontmatter.title}
-              </h2>
-              <p class="text-(--text-secondary)">{deck.frontmatter.description}</p>
-            </a>
-          ))}
-        </div>
-      )
-    }
-  </main>
+		{
+			decks.length === 0 ? (
+				<p class="text-neutral-400">スライドがありません。</p>
+			) : (
+				<div class="space-y-6">
+					{decks.map((deck) => (
+						<a
+							href={`/slides/${deck.frontmatter.slug}/`}
+							class="group block py-6 transition-colors hover:text-(--primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+						>
+							<div class="mb-2 flex items-center gap-2 text-sm text-(--text-muted)">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 20 20"
+									fill="currentColor"
+									class="size-4"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z"
+										clip-rule="evenodd"
+									/>
+								</svg>
+								<time>{formatDate(deck.frontmatter.date)}</time>
+							</div>
+							<h2 class="mb-2 text-xl font-bold text-(--text-primary)">
+								{deck.frontmatter.title}
+							</h2>
+							<p class="text-(--text-secondary)">{deck.frontmatter.description}</p>
+						</a>
+					))}
+				</div>
+			)
+		}
+	</main>
 </Layout>

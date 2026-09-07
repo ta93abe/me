@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
 	generatePersonSchema,
+	generateSlideDeckSchema,
+	generateSlidesCollectionSchema,
 	generateWebSiteSchema,
 	stringifySchema,
 } from "@/utils/schema";
@@ -67,6 +69,53 @@ describe("generatePersonSchema", () => {
 				"https://linkedin.com/in/ta93abe",
 			]),
 		);
+	});
+});
+
+describe("generateSlidesCollectionSchema", () => {
+	it("lists decks as PresentationDigitalDocument parts", () => {
+		const schema = generateSlidesCollectionSchema("https://example.com/", [
+			{
+				slug: "showcase",
+				title: "デザインシステム ショーケース",
+				description: "全スライド型の見本。",
+				date: "2026-09-06",
+			},
+		]);
+
+		expect(schema["@type"]).toBe("CollectionPage");
+		expect(schema.url).toBe("https://example.com/slides/");
+		expect(schema.hasPart).toEqual([
+			{
+				"@type": "PresentationDigitalDocument",
+				name: "デザインシステム ショーケース",
+				description: "全スライド型の見本。",
+				url: "https://example.com/slides/showcase/",
+				datePublished: "2026-09-06",
+			},
+		]);
+	});
+});
+
+describe("generateSlideDeckSchema", () => {
+	it("points image and PDF encoding at the same-origin deck", () => {
+		const schema = generateSlideDeckSchema("https://example.com/", {
+			slug: "showcase",
+			title: "デザインシステム ショーケース",
+			description: "全スライド型の見本。",
+			date: "2026-09-06",
+		});
+
+		expect(schema["@type"]).toBe("PresentationDigitalDocument");
+		expect(schema.url).toBe("https://example.com/slides/showcase/");
+		expect(schema.image).toBe("https://example.com/og/slides/showcase.png");
+		expect(schema.author.name).toBe("Takumi Abe");
+		expect(schema.isPartOf.url).toBe("https://example.com/slides/");
+		expect(schema.encoding).toEqual({
+			"@type": "MediaObject",
+			encodingFormat: "application/pdf",
+			contentUrl: "https://example.com/slides/showcase.pdf",
+		});
 	});
 });
 
