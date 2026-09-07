@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	buildBlogOgSvg,
-	ogTitleFromEntries,
-	parseOgBlogPath,
-} from "../content/og.ts";
+import { ogTitleFontSize, wrapOgTitle } from "../../src/utils/og/card.ts";
+import { ogTitleFromEntries, parseOgBlogPath } from "../content/og.ts";
 
 describe("blog OG from index", () => {
 	it("parses /og/blog/:slug.png", () => {
@@ -35,12 +32,36 @@ describe("blog OG from index", () => {
 		).toBe("Hello");
 		expect(ogTitleFromEntries([], "hello-world")).toBeNull();
 	});
+});
 
-	it("embeds the title in an SVG card", () => {
-		const svg = buildBlogOgSvg("Hello & Friends");
-		expect(svg).toContain("Hello &amp; Friends");
-		expect(svg).toContain("Takumi Abe");
-		expect(svg).toContain("ta93abe.com");
-		expect(svg).not.toContain("Hello & Friends");
+describe("OG title wrapping", () => {
+	it("keeps a short title on one line", () => {
+		expect(wrapOgTitle("Hello")).toEqual(["Hello"]);
+	});
+
+	it("wraps a long Japanese title onto multiple lines", () => {
+		const title =
+			"Cloudflare Workers でブログ記事の OGP 画像にタイトルを載せる";
+		const lines = wrapOgTitle(title, ogTitleFontSize(title));
+		expect(lines.length).toBeGreaterThan(1);
+		expect(lines.join("")).not.toContain("\n");
+		expect(lines.join("")).toContain("OGP");
+	});
+
+	it("ellipsizes titles that exceed three lines", () => {
+		const title = "あ".repeat(120);
+		const lines = wrapOgTitle(title, 48);
+		expect(lines).toHaveLength(3);
+		expect(lines.at(-1)).toMatch(/…$/);
+	});
+
+	it("breaks Latin titles on word boundaries", () => {
+		const title = "Generating beautiful Open Graph images for every blog post";
+		const lines = wrapOgTitle(title, 48);
+		expect(lines.length).toBeGreaterThan(1);
+		for (const line of lines) {
+			expect(line.startsWith(" ")).toBe(false);
+			expect(line.endsWith(" ")).toBe(false);
+		}
 	});
 });

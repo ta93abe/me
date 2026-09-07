@@ -12,6 +12,14 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": srcDir,
+			"@cf-wasm/resvg": path.resolve(
+				path.dirname(fileURLToPath(import.meta.url)),
+				"node_modules/@cf-wasm/resvg/dist/node.js",
+			),
+			"@cf-wasm/satori": path.resolve(
+				path.dirname(fileURLToPath(import.meta.url)),
+				"node_modules/@cf-wasm/satori/dist/node.js",
+			),
 			"cloudflare:workers": path.resolve(
 				path.dirname(fileURLToPath(import.meta.url)),
 				"worker/__tests__/cloudflare-workers-stub.ts",
