@@ -51,8 +51,6 @@ export default defineConfig({
 		"/careers": "/about",
 		"/jobs": "/about",
 		"/recruit": "/about",
-		"/things": "/gadgets",
-		"/things/[slug]": "/gadgets/[slug]",
 	},
 	build: {
 		inlineStylesheets: "auto",

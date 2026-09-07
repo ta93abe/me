@@ -86,16 +86,4 @@ test.describe("Gadgets page", () => {
 		await expect(page).toHaveURL(/\/gadgets\/?$/);
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
 	});
-
-	test("old /things URLs send people to /gadgets", async ({ page }) => {
-		await page.goto("/things");
-		await expect(page).toHaveURL(/\/gadgets\/?$/);
-		await expect(page.locator("h1").first()).toContainText("Gadgets");
-
-		await page.goto("/things/macbook-pro");
-		await expect(page).toHaveURL(/\/gadgets\/macbook-pro\/?$/);
-		await expect(
-			page.getByRole("heading", { level: 1, name: "MacBook Pro" }),
-		).toBeVisible();
-	});
 });
