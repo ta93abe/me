@@ -4,6 +4,7 @@
  * - me-images: 公開メディア（images.ta93abe.com）
  * - me-content: 非公開本文（Worker binding のみ。カスタムドメインなし）
  * - content-events: R2 md/ の create/delete で index を再構築する Queue
+ * - me-slides-pdf: スライド PDF を Browser Run で焼く Queue（max_concurrency は wrangler）
  * - sveltia-cms-auth: 既存 GitHub OAuth プロキシ（サイトの /admin は外した。本番破壊を避けるため Worker は残す）
  *
  * HMAC シークレットは wrangler secret:
@@ -33,6 +34,10 @@ export default Alchemy.Stack(
 
 		const contentEvents = yield* Cloudflare.Queues.Queue("ContentEvents", {
 			name: "content-events",
+		});
+
+		const slidesPdf = yield* Cloudflare.Queues.Queue("SlidesPdf", {
+			name: "me-slides-pdf",
 		});
 
 		yield* Cloudflare.R2.BucketEventNotification("ContentMarkdownEvents", {
@@ -88,6 +93,7 @@ export default Alchemy.Stack(
 			imagesPublicUrl: `https://${IMAGES_DOMAIN}`,
 			contentBucket: content.bucketName,
 			contentEventsQueue: contentEvents.queueName,
+			slidesPdfQueue: slidesPdf.queueName,
 		};
 	}),
 );

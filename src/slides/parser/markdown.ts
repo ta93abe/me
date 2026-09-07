@@ -9,6 +9,28 @@ import { visit } from "unist-util-visit";
 import { rehypeShikiToClasses } from "./shiki-classes.ts";
 import type { ColorTheme } from "./types.ts";
 
+/**
+ * 全 bundledLanguages を読むと CI の 5s timeout を超える。
+ * デッキで使う言語だけ渡し、未知は javascript に落とす。
+ */
+const SLIDE_SHIKI_LANGS = [
+	"typescript",
+	"javascript",
+	"tsx",
+	"jsx",
+	"json",
+	"bash",
+	"shellscript",
+	"html",
+	"css",
+	"markdown",
+	"python",
+	"go",
+	"rust",
+	"yaml",
+	"toml",
+] as const;
+
 type ImageNode = {
 	type: "image";
 	url: string;
@@ -41,6 +63,8 @@ export async function markdownToHtml(
 		.use(remarkRehype, { allowDangerousHtml: false })
 		.use(rehypeShiki, {
 			theme: highlighter,
+			langs: [...SLIDE_SHIKI_LANGS],
+			fallbackLanguage: "javascript",
 		})
 		.use(rehypeShikiToClasses)
 		.use(rehypeStringify)
