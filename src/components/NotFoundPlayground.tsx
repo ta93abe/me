@@ -1,4 +1,3 @@
-import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 
 import { NAV_LINKS } from "@/config/navigation";
@@ -38,8 +37,6 @@ const displayDigits = [
 const idleFaces = displayDigits.map((digit) => digit.value);
 
 const glitchGlyphs = ["4", "0", "#", "/", "X", "%", "?", "■"] as const;
-const smashEase = [0.18, 1.4, 0.28, 1] as const;
-const linearEase = "linear" as const;
 const SMASH_MS = 240;
 
 const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -64,7 +61,6 @@ const pickGlyph = (seed: number) =>
 	glitchGlyphs[Math.abs(seed) % glitchGlyphs.length];
 
 export default function NotFoundPlayground() {
-	const prefersReducedMotion = useReducedMotion();
 	const titleId = React.useId();
 	const [smashing, setSmashing] = React.useState(false);
 	const [smashTick, setSmashTick] = React.useState(0);
@@ -84,105 +80,29 @@ export default function NotFoundPlayground() {
 	}, [smashTick]);
 
 	const smash = React.useCallback(() => {
-		if (prefersReducedMotion) return;
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			return;
+		}
 
 		const now = Date.now();
 		setSmashing(true);
 		setFaces([pickGlyph(now), pickGlyph(now + 3), pickGlyph(now + 7)]);
 		setSmashTick((tick) => tick + 1);
-	}, [prefersReducedMotion]);
-
-	const entrance = prefersReducedMotion
-		? {}
-		: {
-				initial: { opacity: 0, y: 28 },
-				animate: { opacity: 1, y: 0 },
-				transition: {
-					duration: 0.42,
-					ease: smashEase,
-				},
-			};
-
-	const digitMotion = (index: number) =>
-		prefersReducedMotion
-			? {}
-			: {
-					initial: {
-						opacity: 0,
-						y: -220,
-						scale: 1.35,
-						rotate: index === 1 ? 18 : -16,
-					},
-					animate: {
-						opacity: 1,
-						y: 0,
-						scale: 1,
-						rotate: 0,
-					},
-					transition: {
-						type: "spring" as const,
-						stiffness: 420,
-						damping: 14,
-						mass: 1.15,
-						delay: 0.06 + index * 0.11,
-					},
-					whileHover: {
-						scale: 1.08,
-						rotate: index === 1 ? 10 : -10,
-					},
-					whileTap: {
-						scale: 0.84,
-						rotate: index === 1 ? -14 : 14,
-					},
-				};
-
-	const ticketMotion = (index: number) =>
-		prefersReducedMotion
-			? {}
-			: {
-					animate: {
-						x: [0, index % 2 === 0 ? 26 : -26, 0],
-						y: [0, index % 2 === 0 ? -34 : 34, 0],
-						rotate: [
-							index % 2 === 0 ? -14 : 12,
-							index % 2 === 0 ? 18 : -16,
-							index % 2 === 0 ? -14 : 12,
-						],
-					},
-					transition: {
-						duration: 1.05 + index * 0.18,
-						delay: index * 0.08,
-						ease: smashEase,
-						repeat: Infinity,
-					},
-				};
+	}, []);
 
 	return (
 		<main className="nf-shell" aria-labelledby={titleId}>
-			<motion.div
-				className="nf-ruler nf-ruler-top"
-				aria-hidden="true"
-				{...(prefersReducedMotion
-					? {}
-					: {
-							animate: { x: ["0%", "-50%"] },
-							transition: {
-								duration: 5.5,
-								ease: linearEase,
-								repeat: Infinity,
-							},
-						})}
-			>
+			<div className="nf-ruler nf-ruler-top" aria-hidden="true">
 				<span>404 / missing folio / 404 / misplaced page /</span>
 				<span>404 / missing folio / 404 / misplaced page /</span>
-			</motion.div>
+			</div>
 
 			<section className="nf-stage" aria-label="404 playground">
-				<motion.div className="nf-masthead" {...entrance}>
+				<div className="nf-masthead">
 					<span>TA93ABE.COM</span>
 					<span className="nf-flicker">Issue 404</span>
 					<span>Broken route special</span>
-				</motion.div>
+				</div>
 
 				<div className="nf-layout">
 					<section
@@ -203,62 +123,49 @@ export default function NotFoundPlayground() {
 							aria-hidden="true"
 						/>
 
-						{floatingLabels.map((item, index) => (
-							<motion.span
+						{floatingLabels.map((item) => (
+							<span
 								key={item.text}
 								className={item.className}
 								aria-hidden="true"
-								{...ticketMotion(index)}
 							>
 								{item.text}
-							</motion.span>
+							</span>
 						))}
 
 						<div className="nf-number" aria-hidden="true">
 							{displayDigits.map((digit, index) => (
-								<motion.button
+								<button
 									key={digit.id}
 									type="button"
-									className={`nf-digit nf-digit-${index + 1}`}
+									className={`nf-digit-hit nf-digit-hit-${index + 1}`}
 									tabIndex={-1}
 									onClick={smash}
-									{...digitMotion(index)}
 								>
-									<span className="nf-digit-layer">
-										<span className="nf-digit-ghost nf-digit-r">
-											{faces[index]}
+									<span className={`nf-digit nf-digit-${index + 1}`}>
+										<span className="nf-digit-layer">
+											<span className="nf-digit-ghost nf-digit-r">
+												{faces[index]}
+											</span>
+											<span className="nf-digit-ghost nf-digit-c">
+												{faces[index]}
+											</span>
+											<span className="nf-digit-face">{faces[index]}</span>
 										</span>
-										<span className="nf-digit-ghost nf-digit-c">
-											{faces[index]}
-										</span>
-										<span className="nf-digit-face">{faces[index]}</span>
 									</span>
-								</motion.button>
+								</button>
 							))}
 						</div>
 
 						<div className="nf-signal" aria-hidden="true">
-							<motion.span
-								className="nf-signal-bar"
-								{...(prefersReducedMotion
-									? {}
-									: {
-											animate: { x: ["-120%", "180%"] },
-											transition: {
-												duration: 0.62,
-												repeat: Infinity,
-												repeatDelay: 0.55,
-												ease: linearEase,
-											},
-										})}
-							/>
+							<span className="nf-signal-bar" />
 						</div>
 						<p className="nf-caption">
 							The requested page stepped out of the layout grid.
 						</p>
 					</section>
 
-					<motion.section className="nf-panel" {...entrance}>
+					<section className="nf-panel">
 						<div className="nf-panel-label">Page recovery desk</div>
 						<h1 id={titleId}>ページが街角で迷子です。</h1>
 						<p>
@@ -281,32 +188,11 @@ export default function NotFoundPlayground() {
 
 						<nav className="nf-index" aria-label="主要ページ">
 							{quickLinks.map((link, index) => (
-								<motion.a
+								<a
 									key={link.href}
 									href={link.href}
 									className="nf-index-row"
 									aria-label={link.label}
-									initial={false}
-									animate={
-										prefersReducedMotion ? undefined : { opacity: 1, x: 0 }
-									}
-									transition={
-										prefersReducedMotion
-											? undefined
-											: {
-													delay: 0.28 + index * 0.06,
-													duration: 0.32,
-													ease: smashEase,
-												}
-									}
-									whileHover={
-										prefersReducedMotion
-											? undefined
-											: {
-													x: 10,
-													backgroundColor: "rgba(255, 255, 255, 0.08)",
-												}
-									}
 								>
 									<span className="nf-index-number">
 										{String(index + 1).padStart(2, "0")}
@@ -315,49 +201,26 @@ export default function NotFoundPlayground() {
 										<strong>{link.label}</strong>
 										<small>{link.meta}</small>
 									</span>
-								</motion.a>
+								</a>
 							))}
 						</nav>
-					</motion.section>
+					</section>
 				</div>
 
-				<motion.aside
-					className="nf-ticker"
-					aria-label="Route diagnostics"
-					{...(prefersReducedMotion
-						? {}
-						: {
-								initial: { opacity: 0, y: 18 },
-								animate: { opacity: 1, y: 0 },
-								transition: { delay: 0.18, duration: 0.36 },
-							})}
-				>
+				<aside className="nf-ticker" aria-label="Route diagnostics">
 					{fieldNotes.map((note, index) => (
 						<span key={note}>
 							<b>{String(index + 1).padStart(2, "0")}</b>
 							{note}
 						</span>
 					))}
-				</motion.aside>
+				</aside>
 			</section>
 
-			<motion.div
-				className="nf-ruler nf-ruler-bottom"
-				aria-hidden="true"
-				{...(prefersReducedMotion
-					? {}
-					: {
-							animate: { x: ["-50%", "0%"] },
-							transition: {
-								duration: 6.2,
-								ease: linearEase,
-								repeat: Infinity,
-							},
-						})}
-			>
+			<div className="nf-ruler nf-ruler-bottom" aria-hidden="true">
 				<span>return home / recalibrate / open archive /</span>
 				<span>return home / recalibrate / open archive /</span>
-			</motion.div>
+			</div>
 
 			<style>{`
 				.nf-shell {
@@ -425,6 +288,7 @@ export default function NotFoundPlayground() {
 					border-top: 2px solid rgba(248, 243, 231, 0.92);
 					border-bottom: 1px solid rgba(248, 243, 231, 0.32);
 					color: rgba(248, 243, 231, 0.78);
+					animation: nf-enter 0.42s cubic-bezier(0.18, 1.4, 0.28, 1) both;
 				}
 
 				.nf-masthead span:nth-child(2) {
@@ -462,7 +326,8 @@ export default function NotFoundPlayground() {
 					animation: nf-hero-jitter 2.4s steps(2, jump-none) infinite;
 				}
 
-				.nf-hero.is-smashing {
+				.nf-hero.is-smashing,
+				.nf-hero:has(.nf-digit-hit:active) {
 					animation: nf-smash 0.24s steps(4) both;
 				}
 
@@ -539,7 +404,7 @@ export default function NotFoundPlayground() {
 					background: linear-gradient(
 						180deg,
 						transparent 0%,
-						rgba(207, 252, 84, 0.0) 42%,
+						rgba(207, 252, 84, 0) 42%,
 						rgba(207, 252, 84, 0.28) 50%,
 						rgba(34, 211, 238, 0.16) 54%,
 						transparent 62%
@@ -561,30 +426,59 @@ export default function NotFoundPlayground() {
 					position: relative;
 					z-index: 1;
 					display: flex;
-					flex-wrap: wrap;
+					flex-wrap: nowrap;
 					gap: clamp(0.65rem, 1.6vw, 1rem);
 					align-items: center;
 					justify-content: center;
 				}
 
+				.nf-digit-hit {
+					display: inline-grid;
+					padding: 0;
+					appearance: none;
+					border: 0;
+					background: transparent;
+					cursor: crosshair;
+					transition: transform 120ms cubic-bezier(0.18, 1.4, 0.28, 1);
+				}
+
+				.nf-digit-hit:hover {
+					transform: scale(1.08) rotate(-8deg);
+				}
+
+				.nf-digit-hit-2:hover {
+					transform: scale(1.08) rotate(8deg);
+				}
+
+				.nf-digit-hit:active {
+					transform: scale(0.86) rotate(12deg);
+				}
+
 				.nf-digit {
 					display: inline-grid;
-					width: clamp(6.6rem, 16vw, 15rem);
+					width: clamp(6rem, 13vw, 12.5rem);
 					aspect-ratio: 0.82;
 					place-items: center;
 					padding: 0;
-					appearance: none;
 					overflow: visible;
 					border: 2px solid rgba(8, 9, 10, 0.9);
 					font-family: "Inter", system-ui, sans-serif;
-					font-size: clamp(7.8rem, 20vw, 20rem);
+					font-size: clamp(7rem, 16vw, 16rem);
 					font-weight: 700;
 					line-height: 0.78;
 					letter-spacing: 0;
 					text-shadow: 5px 5px 0 rgba(8, 9, 10, 0.18);
 					box-shadow: 0 18px 0 rgba(0, 0, 0, 0.32);
-					cursor: crosshair;
 					user-select: none;
+					animation: nf-slam 0.7s cubic-bezier(0.16, 1.45, 0.28, 1) both;
+				}
+
+				.nf-digit-2 {
+					animation-delay: 0.11s;
+				}
+
+				.nf-digit-3 {
+					animation-delay: 0.22s;
 				}
 
 				.nf-digit-layer {
@@ -594,7 +488,7 @@ export default function NotFoundPlayground() {
 					height: 100%;
 					overflow: hidden;
 					place-items: center;
-					animation: nf-digit-tear 1.7s steps(2, jump-none) infinite;
+					animation: nf-digit-tear 1.7s steps(2, jump-none) 0.7s infinite;
 				}
 
 				.nf-digit-1 .nf-digit-layer {
@@ -603,12 +497,12 @@ export default function NotFoundPlayground() {
 
 				.nf-digit-2 .nf-digit-layer {
 					animation-duration: 1.95s;
-					animation-delay: 0.18s;
+					animation-delay: 0.88s;
 				}
 
 				.nf-digit-3 .nf-digit-layer {
 					animation-duration: 1.6s;
-					animation-delay: 0.36s;
+					animation-delay: 1.06s;
 				}
 
 				.nf-digit-ghost,
@@ -677,23 +571,27 @@ export default function NotFoundPlayground() {
 					top: 13%;
 					left: 11%;
 					background: #cffc54;
+					animation: nf-ticket-a 1.05s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-ticket-b {
 					top: 20%;
 					right: 8%;
 					background: #22d3ee;
+					animation: nf-ticket-b 1.23s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-ticket-c {
 					right: 15%;
 					bottom: 23%;
 					background: #ff5a4f;
+					animation: nf-ticket-c 1.41s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-ticket-d {
 					bottom: 17%;
 					left: 7%;
+					animation: nf-ticket-d 1.59s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-signal {
@@ -719,6 +617,7 @@ export default function NotFoundPlayground() {
 						#ff5a4f 88%,
 						transparent
 					);
+					animation: nf-signal-run 1.17s linear infinite;
 				}
 
 				.nf-caption {
@@ -738,6 +637,7 @@ export default function NotFoundPlayground() {
 					border: 1px solid rgba(248, 243, 231, 0.35);
 					background: rgba(8, 9, 10, 0.74);
 					backdrop-filter: blur(16px);
+					animation: nf-enter 0.42s cubic-bezier(0.18, 1.4, 0.28, 1) 0.08s both;
 				}
 
 				.nf-panel-label {
@@ -826,6 +726,12 @@ export default function NotFoundPlayground() {
 					border-bottom: 1px solid rgba(248, 243, 231, 0.16);
 					color: inherit;
 					text-decoration: none;
+					transition: transform 160ms cubic-bezier(0.18, 1.4, 0.28, 1), background 160ms ease;
+				}
+
+				.nf-index-row:hover {
+					transform: translateX(10px);
+					background: rgba(255, 255, 255, 0.08);
 				}
 
 				.nf-index-number {
@@ -858,6 +764,7 @@ export default function NotFoundPlayground() {
 					margin-top: 1.5rem;
 					border: 1px solid rgba(248, 243, 231, 0.28);
 					background: rgba(248, 243, 231, 0.18);
+					animation: nf-enter 0.36s cubic-bezier(0.18, 1.4, 0.28, 1) 0.16s both;
 				}
 
 				.nf-ticker span {
@@ -895,10 +802,24 @@ export default function NotFoundPlayground() {
 
 				.nf-ruler-top {
 					top: 1rem;
+					animation: nf-marquee-left 5.5s linear infinite;
 				}
 
 				.nf-ruler-bottom {
 					bottom: 1rem;
+					animation: nf-marquee-right 6.2s linear infinite;
+				}
+
+				@keyframes nf-enter {
+					from { opacity: 0; transform: translateY(22px); }
+					to { opacity: 1; transform: none; }
+				}
+
+				@keyframes nf-slam {
+					0% { opacity: 0; transform: translateY(-240px) rotate(-16deg) scale(1.38); }
+					58% { opacity: 1; transform: translateY(18px) rotate(3deg) scale(0.94); }
+					78% { transform: translateY(-8px) rotate(-1.4deg) scale(1.05); }
+					100% { opacity: 1; transform: none; }
 				}
 
 				@keyframes nf-grid-drift {
@@ -962,15 +883,50 @@ export default function NotFoundPlayground() {
 				}
 
 				@keyframes nf-rgb-r {
-					0%, 70%, 100% { transform: translate(0, 0); }
-					75% { transform: translate(8px, -3px); }
-					85% { transform: translate(-6px, 2px); }
+					0%, 70%, 100% { transform: translate(6px, -2px); }
+					75% { transform: translate(14px, -5px); }
+					85% { transform: translate(-8px, 3px); }
 				}
 
 				@keyframes nf-rgb-c {
-					0%, 70%, 100% { transform: translate(0, 0); }
-					78% { transform: translate(-9px, 3px); }
-					88% { transform: translate(5px, -4px); }
+					0%, 70%, 100% { transform: translate(-6px, 2px); }
+					78% { transform: translate(-12px, 4px); }
+					88% { transform: translate(7px, -4px); }
+				}
+
+				@keyframes nf-ticket-a {
+					0%, 100% { transform: translate(0, 0) rotate(-14deg); }
+					50% { transform: translate(26px, -34px) rotate(18deg); }
+				}
+
+				@keyframes nf-ticket-b {
+					0%, 100% { transform: translate(0, 0) rotate(12deg); }
+					50% { transform: translate(-26px, 34px) rotate(-16deg); }
+				}
+
+				@keyframes nf-ticket-c {
+					0%, 100% { transform: translate(0, 0) rotate(-10deg); }
+					50% { transform: translate(22px, 28px) rotate(14deg); }
+				}
+
+				@keyframes nf-ticket-d {
+					0%, 100% { transform: translate(0, 0) rotate(8deg); }
+					50% { transform: translate(-24px, -30px) rotate(-12deg); }
+				}
+
+				@keyframes nf-signal-run {
+					0% { transform: translateX(-120%); }
+					100% { transform: translateX(180%); }
+				}
+
+				@keyframes nf-marquee-left {
+					from { transform: translateX(0); }
+					to { transform: translateX(-50%); }
+				}
+
+				@keyframes nf-marquee-right {
+					from { transform: translateX(-50%); }
+					to { transform: translateX(0); }
 				}
 
 				@media (max-width: 960px) {
@@ -1012,12 +968,12 @@ export default function NotFoundPlayground() {
 					}
 
 					.nf-number {
-						gap: 0.45rem;
+						gap: 0.35rem;
 					}
 
 					.nf-digit {
-						width: clamp(5.25rem, 28vw, 7rem);
-						font-size: clamp(6rem, 31vw, 8rem);
+						width: clamp(4.6rem, 26vw, 6.4rem);
+						font-size: clamp(5.2rem, 28vw, 7.2rem);
 					}
 
 					.nf-ticket {
@@ -1060,17 +1016,33 @@ export default function NotFoundPlayground() {
 					.nf-shock,
 					.nf-scan,
 					.nf-noise,
+					.nf-digit,
 					.nf-digit-layer,
 					.nf-digit-r,
-					.nf-digit-c {
+					.nf-digit-c,
+					.nf-ticket-a,
+					.nf-ticket-b,
+					.nf-ticket-c,
+					.nf-ticket-d,
+					.nf-signal-bar,
+					.nf-ruler-top,
+					.nf-ruler-bottom,
+					.nf-masthead,
+					.nf-panel,
+					.nf-ticker {
 						animation: none;
 					}
 
-					.nf-action {
+					.nf-digit-hit,
+					.nf-action,
+					.nf-index-row {
 						transition: none;
 					}
 
-					.nf-action:hover {
+					.nf-digit-hit:hover,
+					.nf-digit-hit:active,
+					.nf-action:hover,
+					.nf-index-row:hover {
 						transform: none;
 					}
 				}
