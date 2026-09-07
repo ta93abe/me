@@ -1,269 +1,86 @@
 ---
-import Button from "@/components/ui/Button.astro";
 import { HOME_CTAS, SITE } from "@/config/site";
 ---
 
 <section id="hero" class="hero" aria-labelledby="hero-name">
-	<div class="hero-atmosphere" aria-hidden="true">
-		<canvas class="hero-canvas" data-hero-canvas></canvas>
-		<div class="hero-fallback">
-			<div class="hero-wash hero-wash--a"></div>
-			<div class="hero-wash hero-wash--b"></div>
-		</div>
-		<div class="hero-grain"></div>
-	</div>
+	<div class="hero-copy">
+		<h1 id="hero-name" class="hero-name">{SITE.name}</h1>
 
-	<div class="hero-content">
-		<div class="hero-copy">
-			<p class="hero-handle">{SITE.handle}</p>
-			<h1 id="hero-name" class="hero-name">
-				<span class="hero-name-line">Takumi</span>
-				<span class="hero-name-line">Abe</span>
-			</h1>
-			<p class="hero-tagline">{SITE.tagline}</p>
-
-			<nav class="hero-cta" aria-label="主なページ">
-				{
-					HOME_CTAS.map((cta) => (
-						<Button href={cta.href} variant={cta.variant} size="md">
-							{cta.label}
-						</Button>
-					))
-				}
-			</nav>
-		</div>
+		<nav class="hero-cta" aria-label="主なページ">
+			{
+				HOME_CTAS.map((cta) => (
+					<a href={cta.href} class="hero-cta-link">
+						{cta.label}
+					</a>
+				))
+			}
+		</nav>
 	</div>
 </section>
 
 <style>
 	.hero {
 		position: relative;
-		isolation: isolate;
+		display: flex;
+		flex-direction: column;
 		min-height: 100%;
-		overflow: hidden;
-		background: #faf9f6;
-	}
-
-	.hero-atmosphere {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-	}
-
-	.hero-canvas {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		display: block;
-		opacity: 0;
-		transition: opacity 0.8s ease;
-	}
-
-	.hero.is-webgl .hero-canvas {
-		opacity: 1;
-	}
-
-	.hero.is-webgl .hero-fallback {
-		opacity: 0;
-	}
-
-	.hero-fallback {
-		position: absolute;
-		inset: 0;
-		transition: opacity 0.5s ease;
-	}
-
-	.hero-wash {
-		position: absolute;
-		border-radius: 50%;
-		filter: blur(80px);
-		will-change: transform;
-		animation: wash-drift 18s ease-in-out infinite;
-	}
-
-	.hero-wash--a {
-		width: min(70vw, 42rem);
-		height: min(70vw, 42rem);
-		top: -18%;
-		right: -12%;
-		background: radial-gradient(
-			circle,
-			rgba(107, 76, 154, 0.1) 0%,
-			rgba(107, 76, 154, 0) 70%
-		);
-	}
-
-	.hero-wash--b {
-		width: min(55vw, 32rem);
-		height: min(55vw, 32rem);
-		bottom: -20%;
-		left: -10%;
-		background: radial-gradient(
-			circle,
-			rgba(28, 27, 25, 0.06) 0%,
-			rgba(28, 27, 25, 0) 70%
-		);
-		animation-duration: 22s;
-		animation-direction: reverse;
-	}
-
-	.hero-grain {
-		position: absolute;
-		inset: 0;
-		opacity: 0.18;
-		mix-blend-mode: multiply;
-		pointer-events: none;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-		background-size: 160px 160px;
-	}
-
-	.hero-content {
-		position: relative;
-		z-index: 1;
-		min-height: 100%;
-	}
-
-	.hero-content::before {
-		content: "";
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		background: linear-gradient(
-			180deg,
-			rgba(250, 249, 246, 0.88) 0%,
-			rgba(250, 249, 246, 0.72) 42%,
-			rgba(250, 249, 246, 0.4) 100%
-		);
+		background: var(--bg-primary);
 	}
 
 	.hero-copy {
-		position: relative;
 		display: flex;
+		flex: 1 0 auto;
 		flex-direction: column;
-		justify-content: flex-start;
-		width: min(100%, 72rem);
-		padding: calc(var(--header-height) + 1.25rem) 1.5rem 5.75rem;
-	}
-
-	.hero-handle {
-		margin: 0 0 0.75rem;
-		font-family: "Inter", system-ui, sans-serif;
-		font-size: 0.875rem;
-		font-weight: 500;
-		letter-spacing: 0.08em;
-		color: var(--text-muted);
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		width: 100%;
+		padding: calc(var(--header-height) + 1rem) 1.5rem 5.75rem;
+		text-align: center;
 	}
 
 	.hero-name {
 		margin: 0;
-		font-family: "Inter", system-ui, sans-serif;
-		font-size: clamp(3.25rem, 16vw, 8.5rem);
-		font-weight: 700;
-		line-height: 0.88;
-		letter-spacing: -0.045em;
-		text-transform: uppercase;
+		font-size: 1.25rem;
+		font-weight: 400;
+		letter-spacing: 0.02em;
+		line-height: 1.4;
 		color: var(--text-primary);
-	}
-
-	.hero-name-line {
-		display: block;
-	}
-
-	.hero-tagline {
-		margin: 1.5rem 0 0;
-		max-width: 28rem;
-		font-size: 1.0625rem;
-		line-height: 1.85;
-		color: var(--text-secondary);
 	}
 
 	.hero-cta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.75rem;
-		margin-top: 2rem;
+		justify-content: center;
+		gap: 0.15rem 1.35rem;
+		margin-top: 1rem;
 	}
 
-	@keyframes wash-drift {
-		0%,
-		100% {
-			transform: translate(0, 0) scale(1);
-		}
-		50% {
-			transform: translate(-3%, 4%) scale(1.06);
-		}
+	.hero-cta-link {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.5rem;
+		padding: 0.2rem 0;
+		font-size: 0.875rem;
+		font-weight: 400;
+		text-decoration: none;
+		color: var(--text-secondary);
+		transition: color 0.15s ease;
 	}
 
-	@media (min-width: 768px) {
-		.hero-copy {
-			justify-content: center;
-			min-height: 100%;
-			padding-left: clamp(1.5rem, 6vw, 4.5rem);
-			padding-right: 1.5rem;
-		}
+	.hero-cta-link:hover,
+	.hero-cta-link:focus-visible {
+		color: var(--text-primary);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.hero-wash,
-		.hero-canvas {
-			animation: none;
+		.hero-cta-link {
 			transition: none;
-			will-change: auto;
 		}
 	}
 </style>
 
 <script>
-	const hero = document.querySelector(".hero");
-	const canvas = document.querySelector<HTMLCanvasElement>("[data-hero-canvas]");
-
-	if (hero instanceof HTMLElement && canvas) {
-		const reduceMotion = window.matchMedia(
-			"(prefers-reduced-motion: reduce)",
-		).matches;
-
-		let starting = false;
-
-		const startWebGL = async () => {
-			if (reduceMotion || starting || hero.classList.contains("is-webgl")) {
-				return;
-			}
-			starting = true;
-			const { initHeroWebGL } = await import("@/scripts/hero-webgl");
-			const handle = initHeroWebGL(canvas);
-			if (!handle) {
-				starting = false;
-				return;
-			}
-
-			hero.classList.add("is-webgl");
-			document.addEventListener(
-				"astro:before-swap",
-				() => {
-					handle.destroy();
-				},
-				{ once: true },
-			);
-		};
-
-		// Lab SI must see a stable CSS hero. Upgrade to WebGL only after real input.
-		const onInteract = () => {
-			window.removeEventListener("pointerdown", onInteract);
-			window.removeEventListener("pointermove", onInteract);
-			void startWebGL();
-		};
-
-		if (!reduceMotion) {
-			window.addEventListener("pointerdown", onInteract, {
-				passive: true,
-			});
-			window.addEventListener("pointermove", onInteract, {
-				passive: true,
-			});
-		}
-	}
-
 	document.querySelectorAll(".hero-cta a[href]").forEach((link) => {
 		link.addEventListener("click", () => {
 			window.posthog?.capture("home_cta_clicked", {
