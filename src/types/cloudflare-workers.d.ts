@@ -7,5 +7,13 @@ declare module "cloudflare:workers" {
 		ASSETS?: Fetcher;
 		DEPLOY_HOOK_URL?: string;
 		CONTENT_EVENTS?: Queue;
+		BROWSER?: {
+			quickAction(
+				action: "pdf",
+				options: Record<string, unknown>,
+			): Promise<Response>;
+		};
+		PDF_QUEUE?: Queue;
+		PDF_WORKFLOW?: Workflow;
 	};
 }

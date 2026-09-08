@@ -1,10 +1,15 @@
 // @ts-check
 
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
+
+import { copySlideMedia } from "./src/slides/copy-media.ts";
 
 /**
  * Astro の CspResourceEntry 相当。
@@ -43,7 +48,28 @@ export default defineConfig({
 	session: {
 		driver: sessionDrivers.lruCache(),
 	},
-	integrations: [sitemap(), react()],
+	integrations: [
+		sitemap({
+			filter: (page) =>
+				!page.includes("/print") && !page.includes("/og/"),
+		}),
+		react(),
+		{
+			name: "slide-deck-media",
+			hooks: {
+				"astro:server:setup": async () => {
+					await copySlideMedia(
+						path.join(path.dirname(fileURLToPath(import.meta.url)), "public"),
+					);
+				},
+				"astro:build:start": async () => {
+					await copySlideMedia(
+						path.join(path.dirname(fileURLToPath(import.meta.url)), "public"),
+					);
+				},
+			},
+		},
+	],
 	redirects: {
 		"/gallery": "/",
 		"/atelier": "/",

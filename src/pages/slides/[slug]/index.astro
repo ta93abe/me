@@ -1,0 +1,21 @@
+---
+import SlideDeck from "@/layouts/SlideDeck.astro";
+import { loadDecks } from "@/slides/load-decks";
+import type { Deck } from "@/slides/parser/types";
+
+export async function getStaticPaths() {
+	const decks = await loadDecks();
+	return decks.map((deck) => ({
+		params: { slug: deck.frontmatter.slug },
+		props: { deck },
+	}));
+}
+
+interface Props {
+	deck: Deck;
+}
+
+const { deck } = Astro.props;
+---
+
+<SlideDeck deck={deck} />

@@ -8,7 +8,13 @@ import {
 	readLlmsBlogSection,
 } from "./content/derived.ts";
 import { buildBlogOgSvg, loadOgTitle, parseOgBlogPath } from "./content/og.ts";
-import { handleContentQueue } from "./content/queue.ts";
+import { dispatchWorkerQueue } from "./queue-dispatch.ts";
+import {
+	isPrintQuery,
+	parseSlideDeckSlug,
+	parseSlidePdfSlug,
+} from "./slides/pdf.ts";
+import { servePdf } from "./slides/pdf-route.ts";
 
 type CacheStore = { default: Cache };
 
@@ -47,6 +53,8 @@ const SECURITY_HEADERS = {
 	"Content-Security-Policy":
 		"default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
 } as const;
+
+export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
 const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
 
@@ -641,6 +649,26 @@ export default {
 			return contentResponse;
 		}
 
+		const pdfSlug = parseSlidePdfSlug(pathname);
+		if (
+			pdfSlug &&
+			(request.method === "GET" || request.method === "HEAD")
+		) {
+			return servePdf(request, env, pdfSlug);
+		}
+
+		const printSlug = parseSlideDeckSlug(pathname);
+		if (
+			printSlug &&
+			isPrintQuery(url.searchParams.get("print")) &&
+			(request.method === "GET" || request.method === "HEAD")
+		) {
+			return Response.redirect(
+				new URL(`/slides/${printSlug}/print/`, request.url),
+				301,
+			);
+		}
+
 		if (
 			isRetiredSitePath(pathname) &&
 			(request.method === "GET" || request.method === "HEAD")
@@ -804,7 +832,7 @@ export default {
 	},
 
 	async queue(batch, env): Promise<void> {
-		await handleContentQueue(batch, env.CONTENT, {
+		await dispatchWorkerQueue(batch, env, {
 			origin: SITE_URL,
 			purge: async (urls) => {
 				await Promise.all(urls.map((target) => defaultCache().delete(target)));

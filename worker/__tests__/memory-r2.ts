@@ -2,9 +2,10 @@ type StoredObject = {
 	body: Uint8Array;
 	uploaded: Date;
 	httpMetadata?: R2HTTPMetadata;
+	customMetadata?: Record<string, string>;
 };
 
-function toBytes(value: unknown): Uint8Array {
+async function toBytes(value: unknown): Promise<Uint8Array> {
 	if (typeof value === "string") {
 		return new TextEncoder().encode(value);
 	}
@@ -18,6 +19,12 @@ function toBytes(value: unknown): Uint8Array {
 		return new Uint8Array(
 			value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength),
 		);
+	}
+	if (value instanceof ReadableStream) {
+		return new Uint8Array(await new Response(value).arrayBuffer());
+	}
+	if (value instanceof Blob) {
+		return new Uint8Array(await value.arrayBuffer());
 	}
 	throw new Error("unsupported r2 put value in tests");
 }
@@ -37,7 +44,7 @@ class MemoryR2Object {
 	readonly size: number;
 	readonly httpEtag: string;
 	readonly httpMetadata?: R2HTTPMetadata;
-	readonly body: ReadableStream<Uint8Array> | null = null;
+	readonly customMetadata?: Record<string, string>;
 	private readonly bytes: Uint8Array;
 
 	constructor(key: string, stored: StoredObject) {
@@ -47,6 +54,17 @@ class MemoryR2Object {
 		this.size = stored.body.byteLength;
 		this.httpEtag = `"${stored.body.byteLength}"`;
 		this.httpMetadata = stored.httpMetadata;
+		this.customMetadata = stored.customMetadata;
+	}
+
+	get body(): ReadableStream<Uint8Array> {
+		const copy = Uint8Array.from(this.bytes);
+		return new ReadableStream({
+			start(controller) {
+				controller.enqueue(copy);
+				controller.close();
+			},
+		});
 	}
 
 	async text(): Promise<string> {
@@ -75,11 +93,12 @@ export function createMemoryR2(): R2Bucket {
 			return stored ? new MemoryR2Object(key, stored) : null;
 		},
 		async put(key: string, value: unknown, options?: R2PutOptions) {
-			const body = toBytes(value);
+			const body = await toBytes(value);
 			const stored: StoredObject = {
 				body,
 				uploaded: new Date(),
 				httpMetadata: asHttpMetadata(options?.httpMetadata),
+				customMetadata: options?.customMetadata,
 			};
 			store.set(key, stored);
 			return new MemoryR2Object(key, stored);

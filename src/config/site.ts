@@ -6,7 +6,6 @@ export const SITE = {
 		"データ基盤と CI を書くソフトウェアエンジニア、Takumi Abe (ta93abe) のポートフォリオ。絵と音楽も置く。",
 	author: "Takumi Abe",
 	url: "https://ta93abe.com",
-	slidesUrl: "https://slides.ta93abe.com",
 	locale: "ja_JP",
 	lang: "ja",
 	/** X (Twitter) @handle — meta twitter:site / creator 用 */

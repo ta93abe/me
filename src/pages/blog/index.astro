@@ -10,25 +10,56 @@ import { listBlogPosts } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils/date";
+import { ogSectionPath } from "@/utils/og/sections";
+import {
+	BLOG_COLLECTION_DESCRIPTION,
+	generateBlogCollectionSchema,
+	generateBreadcrumbSchema,
+	stringifySchema,
+} from "@/utils/schema";
 
 const bucket = await getContentBucket();
 const sortedPosts = bucket ? await listBlogPosts(bucket) : [];
 const allTags = sortedPosts.flatMap((post) => post.tags);
+const site = Astro.site?.href || SITE.url;
+const collectionSchema = generateBlogCollectionSchema(
+	site,
+	sortedPosts.map((post) => ({
+		slug: post.slug,
+		title: post.title,
+		excerpt: post.excerpt,
+		date: post.publish_date,
+	})),
+);
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Blog", path: "/blog/" },
+]);
 
 Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
 ---
 
 <Layout
-  title={`Blog | ${SITE.name}`}
-  description="技術ブログ。日々の学びや開発の記録を共有しています。"
+	title={`Blog | ${SITE.name}`}
+	description={BLOG_COLLECTION_DESCRIPTION}
+	ogImage={ogSectionPath("blog")}
+	ogImageAlt="Blog"
 >
-  <link
-    slot="head"
-    rel="alternate"
-    type="application/rss+xml"
-    title="ta93abe | Blog RSS Feed"
-    href="/rss.xml"
-  />
+	<Fragment slot="head">
+		<link
+			rel="alternate"
+			type="application/rss+xml"
+			title="ta93abe | Blog RSS Feed"
+			href="/rss.xml"
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(collectionSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
+	</Fragment>
   <main class="mx-auto max-w-3xl px-6 py-12">
     <div class="mb-12 flex items-center justify-between">
       <div>
@@ -73,7 +104,7 @@ Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
               data-title={post.title}
             >
               <a
-                href={`/blog/${post.slug}`}
+                href={`/blog/${post.slug}/`}
                 class="block py-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
               >
                 <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">

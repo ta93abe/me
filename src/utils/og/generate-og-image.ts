@@ -31,10 +31,12 @@ async function loadFont(): Promise<ArrayBuffer> {
 	return fontData;
 }
 
+export type OgImageType = "blog" | "works" | "slides" | "default";
+
 interface OgImageOptions {
 	title: string;
 	subtitle?: string;
-	type?: "blog" | "works" | "default";
+	type?: OgImageType;
 }
 
 export async function generateOgImage(
@@ -54,6 +56,11 @@ export async function generateOgImage(
 		works: {
 			background: "linear-gradient(135deg, #ffffff 0%, #eeeeeb 100%)",
 			accent: "#8a6d3b",
+			text: "#1c1b19",
+		},
+		slides: {
+			background: "linear-gradient(135deg, #ffffff 0%, #f0eef6 100%)",
+			accent: "#6b4c9a",
 			text: "#1c1b19",
 		},
 		default: {

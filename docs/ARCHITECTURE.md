@@ -28,8 +28,9 @@
 ├── src/
 │   ├── components/          # UI / landing / blog / creative
 │   ├── config/              # site.ts / navigation.ts
-│   ├── layouts/Layout.astro
+│   ├── layouts/Layout.astro, SlideDeck.astro
 │   ├── pages/               # ファイルベースルーティング
+│   ├── slides/              # デッキ Markdown / parser / プレイヤー
 │   ├── styles/global.css
 │   └── utils/               # schema / OG 生成など
 ├── worker/                  # Cloudflare Worker エントリ
@@ -51,7 +52,7 @@ src/pages/
 ├── contact.astro            → /contact
 ├── links.astro              → /links
 ├── tools.astro              → /tools
-├── slides.astro             → /slides
+├── slides/                  → /slides, /slides/:slug, /slides/:slug/print
 ├── og/                      → 動的 OG 画像
 ├── rss.xml.ts               → /rss.xml
 └── 404.astro
@@ -101,7 +102,9 @@ gallery / atelier / books のサイトページはいったん外している。
 
 ### 4. Worker 拡張
 
-`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）を担当する。`run_worker_first: true`。
+`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）とスライド PDF（`/slides/<slug>.pdf`）を担当する。`run_worker_first: true`。
+
+デッキ Markdown は Git `src/slides/decks/`。書き方は `docs/slides-authoring.md`、PDF は `docs/slides-pdf.md`。
 
 ## 依存関係の流れ
 

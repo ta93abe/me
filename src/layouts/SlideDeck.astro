@@ -1,0 +1,128 @@
+---
+import PostHog from "@/components/posthog.astro";
+import { SITE } from "@/config/site";
+import type { Deck } from "@/slides/parser/types";
+import { renderSlideSections } from "@/slides/render";
+import { generateSlideDeckSchema, stringifySchema } from "@/utils/schema";
+import "@/slides/design-system/tokens.css";
+import "@/slides/design-system/typography.css";
+import "@/slides/design-system/layouts.css";
+import "@/slides/design-system/shiki.css";
+import "@/slides/player/player.css";
+
+interface Props {
+	deck: Deck;
+	print?: boolean;
+}
+
+const { deck, print = false } = Astro.props;
+const { title, description, slug, theme, date } = deck.frontmatter;
+const siteBase = Astro.site?.href || SITE.url;
+const playerURL = new URL(`/slides/${slug}/`, siteBase);
+const ogImageURL = new URL(`/og/slides/${slug}.png`, siteBase);
+const pdfHref = `/slides/${slug}.pdf`;
+const pageTitle = `${title} | Slides | ${SITE.name}`;
+const robotsContent = print ? "noindex, nofollow" : "index, follow";
+const deckSchema = generateSlideDeckSchema(siteBase, {
+	slug,
+	title,
+	description,
+	date,
+});
+const sections = renderSlideSections(deck, { print });
+---
+
+<!doctype html>
+<html
+	lang="ja"
+	data-theme={theme}
+	data-print-ready={print ? true : undefined}
+	class:list={[{ "is-print": print }]}
+>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{pageTitle}</title>
+		<meta name="title" content={pageTitle} />
+		<meta name="description" content={description} />
+		<meta name="author" content={SITE.author} />
+		<meta name="robots" content={robotsContent} />
+		<link rel="canonical" href={playerURL} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={playerURL} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:image:alt" content={title} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:site_name" content={SITE.name} />
+		<meta property="og:locale" content={SITE.locale} />
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content={SITE.twitter} />
+		<meta name="twitter:creator" content={SITE.twitter} />
+		<meta name="twitter:url" content={playerURL} />
+		<meta name="twitter:title" content={pageTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageURL} />
+		<meta name="twitter:image:alt" content={title} />
+
+		{
+			!print && (
+				<link rel="alternate" type="application/pdf" href={pdfHref} />
+			)
+		}
+		{
+			!print && (
+				<script
+					type="application/ld+json"
+					set:html={stringifySchema(deckSchema)}
+				/>
+			)
+		}
+		<PostHog />
+	</head>
+	<body>
+		<div class="stage-wrap">
+			<article
+				class="deck"
+				data-slug={slug}
+				data-length={deck.slides.length}
+				set:html={sections}
+			/>
+		</div>
+		{
+			!print && (
+				<div class="player-ui">
+					<div
+						class="progress"
+						role="progressbar"
+						aria-valuemin="1"
+						aria-valuemax={deck.slides.length}
+						aria-valuenow="1"
+					>
+						<i></i>
+					</div>
+					<p class="counter" aria-live="polite">
+						<span data-current>1</span> / {deck.slides.length}
+					</p>
+					<a class="pdf-link" href={pdfHref}>
+						PDF
+					</a>
+				</div>
+			)
+		}
+		{
+			!print && (
+				<script>
+					import "../slides/player/player.js";
+				</script>
+			)
+		}
+	</body>
+</html>

@@ -60,3 +60,9 @@ describe("SITE newsletter", () => {
 		expect(SITE.substackSubscribeUrl.startsWith(SITE.substackUrl)).toBe(true);
 	});
 });
+
+describe("SITE slides", () => {
+	it("does not keep an external slides host", () => {
+		expect("slidesUrl" in SITE).toBe(false);
+	});
+});

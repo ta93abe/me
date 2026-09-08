@@ -14,7 +14,11 @@ import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
-import { stringifySchema } from "@/utils/schema";
+import {
+	generateBlogPostingSchema,
+	generateBreadcrumbSchema,
+	stringifySchema,
+} from "@/utils/schema";
 
 const slug = Astro.params.id ?? "";
 const bucket = await getContentBucket();
@@ -35,29 +39,25 @@ const tags = post?.tags ?? [];
 const body = post?.body ?? "";
 const html = post?.html ?? "";
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const readingTime = getReadingTime(body);
 const readingTimeText = formatReadingTime(readingTime);
 const publishedTime = publish_date.toISOString();
 const modifiedTime = revise_date ? revise_date.toISOString() : publishedTime;
 const ogImageURL = new URL(`/og/blog/${slug}.png`, Astro.site);
-const blogSchema = {
-	"@context": "https://schema.org",
-	"@type": "BlogPosting",
-	headline: title,
-	description: excerpt,
-	datePublished: publishedTime,
-	dateModified: modifiedTime,
-	author: {
-		"@type": "Person",
-		name: SITE.author,
-		url: Astro.site?.href,
-	},
+const site = Astro.site?.href || SITE.url;
+const blogSchema = generateBlogPostingSchema(site, {
+	slug,
+	title,
+	excerpt,
+	date: publish_date,
+	updatedDate: revise_date,
+	tags,
 	image: ogImageURL.href,
-	mainEntityOfPage: canonicalURL.href,
-	inLanguage: SITE.lang,
-	...(tags.length > 0 ? { keywords: tags.join(", ") } : {}),
-};
+});
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Blog", path: "/blog/" },
+	{ name: title || "Blog", path: `/blog/${slug}/` },
+]);
 
 if (post) {
 	Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
@@ -83,6 +83,7 @@ if (post) {
   ogType="article"
   ogImage={ogImageURL.href}
   ogImageAlt={title}
+  canonicalURL={`/blog/${slug}/`}
 >
   <Fragment slot="head">
     <meta property="article:author" content={SITE.author} />
@@ -96,6 +97,10 @@ if (post) {
     <script
       type="application/ld+json"
       set:html={stringifySchema(blogSchema)}
+    />
+    <script
+      type="application/ld+json"
+      set:html={stringifySchema(breadcrumbSchema)}
     />
   </Fragment>
   <main class="mx-auto max-w-3xl px-6 py-12">

@@ -4,19 +4,35 @@ import SnsLinks from "@/components/SnsLinks.astro";
 import Button from "@/components/ui/Button.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
-import { generatePersonSchema, stringifySchema } from "@/utils/schema";
+import { ogSectionPath } from "@/utils/og/sections";
+import {
+	ABOUT_DESCRIPTION,
+	generateBreadcrumbSchema,
+	generateProfilePageSchema,
+	stringifySchema,
+} from "@/utils/schema";
 
-const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
+const site = Astro.site?.href || SITE.url;
+const profileSchema = generateProfilePageSchema(site);
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "About", path: "/about/" },
+]);
 ---
 
 <Layout
 	title={`About | ${SITE.name}`}
-	description={SITE.description}
+	description={ABOUT_DESCRIPTION}
+	ogImage={ogSectionPath("about")}
+	ogImageAlt="About"
 >
 	<Fragment slot="head">
 		<script
 			type="application/ld+json"
-			set:html={stringifySchema(personSchema)}
+			set:html={stringifySchema(profileSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
 		/>
 	</Fragment>
 	<main class="mx-auto max-w-3xl px-6 py-16">

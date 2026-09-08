@@ -2,12 +2,37 @@
 import SnsLinks from "@/components/SnsLinks.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { ogSectionPath } from "@/utils/og/sections";
+import {
+	CONTACT_DESCRIPTION,
+	generateBreadcrumbSchema,
+	generateContactPageSchema,
+	stringifySchema,
+} from "@/utils/schema";
+
+const site = Astro.site?.href || SITE.url;
+const contactSchema = generateContactPageSchema(site);
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Contact", path: "/contact/" },
+]);
 ---
 
 <Layout
 	title={`Contact | ${SITE.name}`}
-	description="SNS から連絡できます。"
+	description={CONTACT_DESCRIPTION}
+	ogImage={ogSectionPath("contact")}
+	ogImageAlt="Contact"
 >
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(contactSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
+	</Fragment>
 	<main class="mx-auto max-w-3xl px-6 py-16">
 		<header class="mb-12">
 			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
