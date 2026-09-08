@@ -7,10 +7,16 @@ function isBundledGadgetSrc(src: string | null, slug: string): boolean {
 	if (src.startsWith("/gadgets/") || src.startsWith("/things/")) {
 		return false;
 	}
-	if (src.startsWith("data:image/svg+xml")) {
-		return true;
+	if (src.startsWith("data:")) {
+		return false;
 	}
-	return src.includes(slug) && /\.svg(?:\?.*)?$/.test(src);
+	const isRaster = /\.(webp|png|jpe?g)(?:\?.*)?$/i.test(src);
+	return (
+		isRaster &&
+		(src.includes(slug) ||
+			src.includes("/_astro/") ||
+			src.includes("/src/assets/gadgets/"))
+	);
 }
 
 test.describe("Gadgets page", () => {
@@ -33,7 +39,7 @@ test.describe("Gadgets page", () => {
 
 		const src = await thumb.getAttribute("src");
 		expect(isBundledGadgetSrc(src, "mac-studio")).toBe(true);
-		expect(src?.startsWith("data:image/svg+xml")).toBe(true);
+		expect(src?.startsWith("data:")).toBe(false);
 
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		const naturalWidth = await thumb.evaluate(
@@ -81,6 +87,16 @@ test.describe("Gadgets page", () => {
 		expect(
 			await thumb.evaluate((el) => (el as HTMLImageElement).naturalWidth),
 		).toBeGreaterThan(0);
+
+		const source = page.getByRole("link", {
+			name: "Mac Studio M1 Max の画像出典",
+		});
+		await expect(source).toBeVisible();
+		await expect(source).toHaveText("Yasu / CC BY-SA 3.0");
+		await expect(source).toHaveAttribute(
+			"href",
+			"https://commons.wikimedia.org/wiki/File:Mac_Studio_(2022)_front.jpg",
+		);
 
 		await page.locator("main").getByRole("link", { name: "Gadgets" }).click();
 		await expect(page).toHaveURL(/\/gadgets\/?$/);

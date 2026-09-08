@@ -30,14 +30,19 @@ describe("GADGETS catalog", () => {
 			expect(gadget.slug).toMatch(/^[a-z][a-z0-9-]*$/);
 			expect(gadget.name.length).toBeGreaterThan(0);
 			expect(gadget.note.length).toBeGreaterThan(0);
-			expect(existsSync(path.join(assetsDir, `${gadget.slug}.svg`))).toBe(true);
+			expect(existsSync(path.join(assetsDir, `${gadget.slug}.webp`))).toBe(
+				true,
+			);
+			expect(gadget.imageSource?.href.startsWith("https://")).toBe(true);
 			expect(getGadget(gadget.slug)).toEqual(gadget);
 			expect(gadgetPath(gadget.slug)).toBe(`/gadgets/${gadget.slug}`);
 			expect(gadgetViewTransitionName(gadget.slug)).toBe(
 				`gadget-${gadget.slug}`,
 			);
 			const image = gadgetImageUrl(gadget.slug);
-			expect(image.startsWith("data:image/svg+xml")).toBe(true);
+			expect(image.includes(gadget.slug)).toBe(true);
+			expect(/\.(webp|png|jpe?g)(?:\?.*)?$/i.test(image)).toBe(true);
+			expect(image.startsWith("data:")).toBe(false);
 			expect(image.startsWith("/gadgets/")).toBe(false);
 			expect(image.startsWith("/things/")).toBe(false);
 		}
