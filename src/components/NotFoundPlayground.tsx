@@ -1,4 +1,3 @@
-import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 
 import { NAV_LINKS } from "@/config/navigation";
@@ -33,11 +32,12 @@ const displayDigits = [
 	{ id: "first-four", value: "4" },
 	{ id: "zero", value: "0" },
 	{ id: "last-four", value: "4" },
-];
+] as const;
 
-const smoothEase = [0.22, 1, 0.36, 1] as const;
-const loopEase = "easeInOut" as const;
-const linearEase = "linear" as const;
+const idleFaces = displayDigits.map((digit) => digit.value);
+
+const glitchGlyphs = ["4", "0", "#", "/", "X", "%", "?", "■"] as const;
+const SMASH_MS = 240;
 
 const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
 	event.preventDefault();
@@ -57,84 +57,63 @@ const handleBack = (event: React.MouseEvent<HTMLButtonElement>) => {
 	window.location.href = "/";
 };
 
+const pickGlyph = (seed: number) =>
+	glitchGlyphs[Math.abs(seed) % glitchGlyphs.length];
+
 export default function NotFoundPlayground() {
-	const prefersReducedMotion = useReducedMotion();
 	const titleId = React.useId();
+	const [smashing, setSmashing] = React.useState(false);
+	const [smashTick, setSmashTick] = React.useState(0);
+	const [faces, setFaces] = React.useState<string[]>(idleFaces);
 
-	const entrance = prefersReducedMotion
-		? {}
-		: {
-				initial: false,
-				animate: { opacity: 1, y: 0 },
-				transition: { duration: 0.72, ease: smoothEase },
-			};
+	React.useEffect(() => {
+		if (smashTick === 0) return;
 
-	const digitMotion = (index: number) =>
-		prefersReducedMotion
-			? {}
-			: {
-					animate: {
-						y: [0, -16 - index * 4, 0],
-						rotate: [0, index % 2 === 0 ? 1.5 : -1.5, 0],
-					},
-					transition: {
-						duration: 4.8 + index * 0.5,
-						delay: index * 0.22,
-						ease: loopEase,
-						repeat: Infinity,
-					},
-				};
+		const timeoutId = window.setTimeout(() => {
+			setFaces(idleFaces);
+			setSmashing(false);
+		}, SMASH_MS);
 
-	const ticketMotion = (index: number) =>
-		prefersReducedMotion
-			? {}
-			: {
-					animate: {
-						x: [0, index % 2 === 0 ? 12 : -12, 0],
-						y: [0, index % 2 === 0 ? -18 : 18, 0],
-						rotate: [
-							index % 2 === 0 ? -4 : 4,
-							index % 2 === 0 ? 5 : -5,
-							index % 2 === 0 ? -4 : 4,
-						],
-					},
-					transition: {
-						duration: 6.4 + index,
-						delay: index * 0.35,
-						ease: loopEase,
-						repeat: Infinity,
-					},
-				};
+		return () => {
+			window.clearTimeout(timeoutId);
+		};
+	}, [smashTick]);
+
+	const smash = React.useCallback(() => {
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			return;
+		}
+
+		const now = Date.now();
+		setSmashing(true);
+		setFaces([pickGlyph(now), pickGlyph(now + 3), pickGlyph(now + 7)]);
+		setSmashTick((tick) => tick + 1);
+	}, []);
 
 	return (
 		<main className="nf-shell" aria-labelledby={titleId}>
-			<motion.div
-				className="nf-ruler nf-ruler-top"
-				aria-hidden="true"
-				{...(prefersReducedMotion
-					? {}
-					: {
-							animate: { x: ["0%", "-50%"] },
-							transition: {
-								duration: 18,
-								ease: linearEase,
-								repeat: Infinity,
-							},
-						})}
-			>
+			<div className="nf-ruler nf-ruler-top" aria-hidden="true">
 				<span>404 / missing folio / 404 / misplaced page /</span>
 				<span>404 / missing folio / 404 / misplaced page /</span>
-			</motion.div>
+			</div>
 
 			<section className="nf-stage" aria-label="404 playground">
-				<motion.div className="nf-masthead" {...entrance}>
+				<div className="nf-masthead">
 					<span>TA93ABE.COM</span>
-					<span>Issue 404</span>
+					<span className="nf-flicker">Issue 404</span>
 					<span>Broken route special</span>
-				</motion.div>
+				</div>
 
 				<div className="nf-layout">
-					<section className="nf-hero" aria-label="404 animated poster">
+					<section
+						className={`nf-hero${smashing ? " is-smashing" : ""}`}
+						aria-label="404 animated poster"
+					>
+						<div className="nf-hero-fx" aria-hidden="true">
+							<div className="nf-shock" />
+							<div className="nf-scan" />
+							<div className="nf-noise" />
+						</div>
 						<div
 							className="nf-print-mark nf-print-mark-left"
 							aria-hidden="true"
@@ -144,55 +123,49 @@ export default function NotFoundPlayground() {
 							aria-hidden="true"
 						/>
 
-						{floatingLabels.map((item, index) => (
-							<motion.span
+						{floatingLabels.map((item) => (
+							<span
 								key={item.text}
 								className={item.className}
 								aria-hidden="true"
-								{...ticketMotion(index)}
 							>
 								{item.text}
-							</motion.span>
+							</span>
 						))}
 
 						<div className="nf-number" aria-hidden="true">
 							{displayDigits.map((digit, index) => (
-								<motion.span
+								<button
 									key={digit.id}
-									className={`nf-digit nf-digit-${index + 1}`}
-									{...digitMotion(index)}
-									whileHover={
-										prefersReducedMotion
-											? undefined
-											: { rotate: index === 1 ? 8 : -8, scale: 1.04 }
-									}
-									whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+									type="button"
+									className={`nf-digit-hit nf-digit-hit-${index + 1}`}
+									tabIndex={-1}
+									onClick={smash}
 								>
-									{digit.value}
-								</motion.span>
+									<span className={`nf-digit nf-digit-${index + 1}`}>
+										<span className="nf-digit-layer">
+											<span className="nf-digit-ghost nf-digit-r">
+												{faces[index]}
+											</span>
+											<span className="nf-digit-ghost nf-digit-c">
+												{faces[index]}
+											</span>
+											<span className="nf-digit-face">{faces[index]}</span>
+										</span>
+									</span>
+								</button>
 							))}
 						</div>
 
-						<motion.div
-							className="nf-signal"
-							aria-hidden="true"
-							{...(prefersReducedMotion
-								? {}
-								: {
-										animate: { scaleX: [0.7, 1, 0.78] },
-										transition: {
-											duration: 2.8,
-											ease: loopEase,
-											repeat: Infinity,
-										},
-									})}
-						/>
+						<div className="nf-signal" aria-hidden="true">
+							<span className="nf-signal-bar" />
+						</div>
 						<p className="nf-caption">
 							The requested page stepped out of the layout grid.
 						</p>
 					</section>
 
-					<motion.section className="nf-panel" {...entrance}>
+					<section className="nf-panel">
 						<div className="nf-panel-label">Page recovery desk</div>
 						<h1 id={titleId}>ページが街角で迷子です。</h1>
 						<p>
@@ -215,29 +188,11 @@ export default function NotFoundPlayground() {
 
 						<nav className="nf-index" aria-label="主要ページ">
 							{quickLinks.map((link, index) => (
-								<motion.a
+								<a
 									key={link.href}
 									href={link.href}
 									className="nf-index-row"
 									aria-label={link.label}
-									initial={false}
-									animate={
-										prefersReducedMotion ? undefined : { opacity: 1, x: 0 }
-									}
-									transition={
-										prefersReducedMotion
-											? undefined
-											: {
-													delay: 0.42 + index * 0.08,
-													duration: 0.5,
-													ease: smoothEase,
-												}
-									}
-									whileHover={
-										prefersReducedMotion
-											? undefined
-											: { x: 8, backgroundColor: "rgba(255, 255, 255, 0.08)" }
-									}
 								>
 									<span className="nf-index-number">
 										{String(index + 1).padStart(2, "0")}
@@ -246,49 +201,26 @@ export default function NotFoundPlayground() {
 										<strong>{link.label}</strong>
 										<small>{link.meta}</small>
 									</span>
-								</motion.a>
+								</a>
 							))}
 						</nav>
-					</motion.section>
+					</section>
 				</div>
 
-				<motion.aside
-					className="nf-ticker"
-					aria-label="Route diagnostics"
-					{...(prefersReducedMotion
-						? {}
-						: {
-								initial: false,
-								animate: { opacity: 1, y: 0 },
-								transition: { delay: 0.25, duration: 0.6 },
-							})}
-				>
+				<aside className="nf-ticker" aria-label="Route diagnostics">
 					{fieldNotes.map((note, index) => (
 						<span key={note}>
 							<b>{String(index + 1).padStart(2, "0")}</b>
 							{note}
 						</span>
 					))}
-				</motion.aside>
+				</aside>
 			</section>
 
-			<motion.div
-				className="nf-ruler nf-ruler-bottom"
-				aria-hidden="true"
-				{...(prefersReducedMotion
-					? {}
-					: {
-							animate: { x: ["-50%", "0%"] },
-							transition: {
-								duration: 22,
-								ease: linearEase,
-								repeat: Infinity,
-							},
-						})}
-			>
+			<div className="nf-ruler nf-ruler-bottom" aria-hidden="true">
 				<span>return home / recalibrate / open archive /</span>
 				<span>return home / recalibrate / open archive /</span>
-			</motion.div>
+			</div>
 
 			<style>{`
 				.nf-shell {
@@ -317,6 +249,7 @@ export default function NotFoundPlayground() {
 					mix-blend-mode: screen;
 					opacity: 0.75;
 					pointer-events: none;
+					animation: nf-grid-drift 0.72s steps(4) infinite;
 				}
 
 				.nf-shell::after {
@@ -327,6 +260,7 @@ export default function NotFoundPlayground() {
 					background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 5px);
 					opacity: 0.18;
 					pointer-events: none;
+					animation: nf-scan-film 1.4s linear infinite;
 				}
 
 				.nf-stage {
@@ -354,6 +288,7 @@ export default function NotFoundPlayground() {
 					border-top: 2px solid rgba(248, 243, 231, 0.92);
 					border-bottom: 1px solid rgba(248, 243, 231, 0.32);
 					color: rgba(248, 243, 231, 0.78);
+					animation: nf-enter 0.42s cubic-bezier(0.18, 1.4, 0.28, 1) both;
 				}
 
 				.nf-masthead span:nth-child(2) {
@@ -362,6 +297,10 @@ export default function NotFoundPlayground() {
 
 				.nf-masthead span:last-child {
 					text-align: right;
+				}
+
+				.nf-flicker {
+					animation: nf-flicker 1.65s steps(2, jump-none) infinite;
 				}
 
 				.nf-layout {
@@ -384,6 +323,12 @@ export default function NotFoundPlayground() {
 						linear-gradient(125deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 52%),
 						linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
 					box-shadow: 18px 18px 0 #cffc54;
+					animation: nf-hero-jitter 2.4s steps(2, jump-none) infinite;
+				}
+
+				.nf-hero.is-smashing,
+				.nf-hero:has(.nf-digit-hit:active) {
+					animation: nf-smash 0.24s steps(4) both;
 				}
 
 				.nf-print-mark {
@@ -425,31 +370,167 @@ export default function NotFoundPlayground() {
 					bottom: 1rem;
 				}
 
+				.nf-hero-fx {
+					position: absolute;
+					inset: 0;
+					z-index: 0;
+					overflow: hidden;
+					pointer-events: none;
+				}
+
+				.nf-shock,
+				.nf-scan,
+				.nf-noise {
+					position: absolute;
+					inset: 0;
+					pointer-events: none;
+				}
+
+				.nf-shock {
+					z-index: 0;
+					background: repeating-conic-gradient(
+						from 0deg at 50% 48%,
+						transparent 0deg 8deg,
+						rgba(255, 255, 255, 0.09) 8deg 9deg
+					);
+					opacity: 0.22;
+					mix-blend-mode: overlay;
+					transform-origin: 50% 48%;
+					animation: nf-shock-pulse 1.1s steps(3, jump-none) infinite;
+				}
+
+				.nf-scan {
+					z-index: 3;
+					background: linear-gradient(
+						180deg,
+						transparent 0%,
+						rgba(207, 252, 84, 0) 42%,
+						rgba(207, 252, 84, 0.28) 50%,
+						rgba(34, 211, 238, 0.16) 54%,
+						transparent 62%
+					);
+					mix-blend-mode: screen;
+					animation: nf-scan-bar 1.15s linear infinite;
+				}
+
+				.nf-noise {
+					z-index: 3;
+					background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+					background-size: 180px 180px;
+					mix-blend-mode: overlay;
+					opacity: 0.18;
+					animation: nf-noise-shift 0.18s steps(2) infinite;
+				}
+
 				.nf-number {
 					position: relative;
 					z-index: 1;
 					display: flex;
-					flex-wrap: wrap;
+					flex-wrap: nowrap;
 					gap: clamp(0.65rem, 1.6vw, 1rem);
 					align-items: center;
 					justify-content: center;
 				}
 
+				.nf-digit-hit {
+					display: inline-grid;
+					padding: 0;
+					appearance: none;
+					border: 0;
+					background: transparent;
+					cursor: crosshair;
+					transition: transform 120ms cubic-bezier(0.18, 1.4, 0.28, 1);
+				}
+
+				.nf-digit-hit:hover {
+					transform: scale(1.08) rotate(-8deg);
+				}
+
+				.nf-digit-hit-2:hover {
+					transform: scale(1.08) rotate(8deg);
+				}
+
+				.nf-digit-hit:active {
+					transform: scale(0.86) rotate(12deg);
+				}
+
 				.nf-digit {
 					display: inline-grid;
-					width: clamp(6.6rem, 16vw, 15rem);
+					width: clamp(6rem, 13vw, 12.5rem);
 					aspect-ratio: 0.82;
 					place-items: center;
+					padding: 0;
+					overflow: visible;
 					border: 2px solid rgba(8, 9, 10, 0.9);
 					font-family: "Inter", system-ui, sans-serif;
-					font-size: clamp(7.8rem, 20vw, 20rem);
+					font-size: clamp(7rem, 16vw, 16rem);
 					font-weight: 700;
 					line-height: 0.78;
 					letter-spacing: 0;
 					text-shadow: 5px 5px 0 rgba(8, 9, 10, 0.18);
 					box-shadow: 0 18px 0 rgba(0, 0, 0, 0.32);
-					cursor: crosshair;
 					user-select: none;
+					animation: nf-slam 0.7s cubic-bezier(0.16, 1.45, 0.28, 1) both;
+				}
+
+				.nf-digit-2 {
+					animation-delay: 0.11s;
+				}
+
+				.nf-digit-3 {
+					animation-delay: 0.22s;
+				}
+
+				.nf-digit-layer {
+					position: relative;
+					display: grid;
+					width: 100%;
+					height: 100%;
+					overflow: hidden;
+					place-items: center;
+					animation: nf-digit-tear 1.7s steps(2, jump-none) 0.7s infinite;
+				}
+
+				.nf-digit-1 .nf-digit-layer {
+					animation-duration: 1.45s;
+				}
+
+				.nf-digit-2 .nf-digit-layer {
+					animation-duration: 1.95s;
+					animation-delay: 0.88s;
+				}
+
+				.nf-digit-3 .nf-digit-layer {
+					animation-duration: 1.6s;
+					animation-delay: 1.06s;
+				}
+
+				.nf-digit-ghost,
+				.nf-digit-face {
+					grid-area: 1 / 1;
+					display: grid;
+					place-items: center;
+				}
+
+				.nf-digit-ghost {
+					pointer-events: none;
+					opacity: 0.55;
+				}
+
+				.nf-digit-r {
+					color: #ff1e2d;
+					animation: nf-rgb-r 0.2s steps(2) infinite;
+				}
+
+				.nf-digit-c {
+					color: #00e5ff;
+					animation: nf-rgb-c 0.22s steps(2) infinite;
+					animation-delay: 0.04s;
+				}
+
+				.nf-digit-face {
+					position: relative;
+					z-index: 1;
 				}
 
 				.nf-digit-1 {
@@ -490,32 +571,53 @@ export default function NotFoundPlayground() {
 					top: 13%;
 					left: 11%;
 					background: #cffc54;
+					animation: nf-ticket-a 1.05s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-ticket-b {
 					top: 20%;
 					right: 8%;
 					background: #22d3ee;
+					animation: nf-ticket-b 1.23s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-ticket-c {
 					right: 15%;
 					bottom: 23%;
 					background: #ff5a4f;
+					animation: nf-ticket-c 1.41s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-ticket-d {
 					bottom: 17%;
 					left: 7%;
+					animation: nf-ticket-d 1.59s cubic-bezier(0.18, 1.4, 0.28, 1) infinite;
 				}
 
 				.nf-signal {
+					position: relative;
 					width: min(100%, 42rem);
 					height: 0.7rem;
 					margin: clamp(1.5rem, 4vw, 3rem) auto 1rem;
-					transform-origin: left center;
-					background:
-						linear-gradient(90deg, transparent 0 4%, #cffc54 4% 18%, transparent 18% 23%, #22d3ee 23% 48%, transparent 48% 55%, #ff5a4f 55% 100%);
+					overflow: hidden;
+					background: rgba(248, 243, 231, 0.12);
+				}
+
+				.nf-signal-bar {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 42%;
+					height: 100%;
+					background: linear-gradient(
+						90deg,
+						transparent,
+						#cffc54 18%,
+						#22d3ee 52%,
+						#ff5a4f 88%,
+						transparent
+					);
+					animation: nf-signal-run 1.17s linear infinite;
 				}
 
 				.nf-caption {
@@ -535,6 +637,7 @@ export default function NotFoundPlayground() {
 					border: 1px solid rgba(248, 243, 231, 0.35);
 					background: rgba(8, 9, 10, 0.74);
 					backdrop-filter: blur(16px);
+					animation: nf-enter 0.42s cubic-bezier(0.18, 1.4, 0.28, 1) 0.08s both;
 				}
 
 				.nf-panel-label {
@@ -623,6 +726,12 @@ export default function NotFoundPlayground() {
 					border-bottom: 1px solid rgba(248, 243, 231, 0.16);
 					color: inherit;
 					text-decoration: none;
+					transition: transform 160ms cubic-bezier(0.18, 1.4, 0.28, 1), background 160ms ease;
+				}
+
+				.nf-index-row:hover {
+					transform: translateX(10px);
+					background: rgba(255, 255, 255, 0.08);
 				}
 
 				.nf-index-number {
@@ -655,6 +764,7 @@ export default function NotFoundPlayground() {
 					margin-top: 1.5rem;
 					border: 1px solid rgba(248, 243, 231, 0.28);
 					background: rgba(248, 243, 231, 0.18);
+					animation: nf-enter 0.36s cubic-bezier(0.18, 1.4, 0.28, 1) 0.16s both;
 				}
 
 				.nf-ticker span {
@@ -692,10 +802,131 @@ export default function NotFoundPlayground() {
 
 				.nf-ruler-top {
 					top: 1rem;
+					animation: nf-marquee-left 5.5s linear infinite;
 				}
 
 				.nf-ruler-bottom {
 					bottom: 1rem;
+					animation: nf-marquee-right 6.2s linear infinite;
+				}
+
+				@keyframes nf-enter {
+					from { opacity: 0; transform: translateY(22px); }
+					to { opacity: 1; transform: none; }
+				}
+
+				@keyframes nf-slam {
+					0% { opacity: 0; transform: translateY(-240px) rotate(-16deg) scale(1.38); }
+					58% { opacity: 1; transform: translateY(18px) rotate(3deg) scale(0.94); }
+					78% { transform: translateY(-8px) rotate(-1.4deg) scale(1.05); }
+					100% { opacity: 1; transform: none; }
+				}
+
+				@keyframes nf-grid-drift {
+					0% { background-position: 0 0, 0 0; }
+					25% { background-position: 17px -8px, -10px 13px; }
+					50% { background-position: -9px 14px, 12px -6px; }
+					75% { background-position: 6px -11px, -14px 8px; }
+					100% { background-position: 0 0, 0 0; }
+				}
+
+				@keyframes nf-scan-film {
+					0% { background-position: 0 0; }
+					100% { background-position: 0 12px; }
+				}
+
+				@keyframes nf-flicker {
+					0%, 76%, 100% { opacity: 1; }
+					78% { opacity: 0.15; }
+					80% { opacity: 1; }
+					84% { opacity: 0.45; }
+					86% { opacity: 1; }
+				}
+
+				@keyframes nf-hero-jitter {
+					0%, 90%, 100% { transform: translate(0, 0); }
+					92% { transform: translate(-6px, 3px); }
+					94% { transform: translate(8px, -4px); }
+					96% { transform: translate(-3px, 2px); }
+				}
+
+				@keyframes nf-smash {
+					0% { transform: translate(-18px, 8px) rotate(-1.2deg); filter: contrast(1.55) saturate(1.7); }
+					25% { transform: translate(16px, -10px) rotate(1.1deg); }
+					50% { transform: translate(-10px, 5px) rotate(-0.6deg); }
+					75% { transform: translate(6px, -3px); }
+					100% { transform: none; filter: none; }
+				}
+
+				@keyframes nf-shock-pulse {
+					0%, 100% { opacity: 0.08; transform: scale(0.92); }
+					30% { opacity: 0.32; transform: scale(1); }
+					58% { opacity: 0.12; transform: scale(1.06); }
+				}
+
+				@keyframes nf-scan-bar {
+					0% { transform: translateY(-110%); }
+					100% { transform: translateY(110%); }
+				}
+
+				@keyframes nf-noise-shift {
+					0% { transform: translate(0, 0); opacity: 0.12; }
+					50% { transform: translate(-2%, 1.5%); opacity: 0.28; }
+					100% { transform: translate(1.5%, -2%); opacity: 0.16; }
+				}
+
+				@keyframes nf-digit-tear {
+					0%, 86%, 100% { clip-path: inset(0); transform: translate(0, 0) skewX(0); }
+					88% { clip-path: inset(10% 0 58% 0); transform: translate(12px, -5px) skewX(16deg); }
+					91% { clip-path: inset(46% 0 8% 0); transform: translate(-16px, 7px) skewX(-12deg); }
+					94% { clip-path: inset(22% 0 30% 0); transform: translate(7px, -2px) skewX(7deg); }
+				}
+
+				@keyframes nf-rgb-r {
+					0%, 70%, 100% { transform: translate(6px, -2px); }
+					75% { transform: translate(14px, -5px); }
+					85% { transform: translate(-8px, 3px); }
+				}
+
+				@keyframes nf-rgb-c {
+					0%, 70%, 100% { transform: translate(-6px, 2px); }
+					78% { transform: translate(-12px, 4px); }
+					88% { transform: translate(7px, -4px); }
+				}
+
+				@keyframes nf-ticket-a {
+					0%, 100% { transform: translate(0, 0) rotate(-14deg); }
+					50% { transform: translate(26px, -34px) rotate(18deg); }
+				}
+
+				@keyframes nf-ticket-b {
+					0%, 100% { transform: translate(0, 0) rotate(12deg); }
+					50% { transform: translate(-26px, 34px) rotate(-16deg); }
+				}
+
+				@keyframes nf-ticket-c {
+					0%, 100% { transform: translate(0, 0) rotate(-10deg); }
+					50% { transform: translate(22px, 28px) rotate(14deg); }
+				}
+
+				@keyframes nf-ticket-d {
+					0%, 100% { transform: translate(0, 0) rotate(8deg); }
+					50% { transform: translate(-24px, -30px) rotate(-12deg); }
+				}
+
+				@keyframes nf-signal-run {
+					0% { transform: translateX(-120%); }
+					100% { transform: translateX(180%); }
+				}
+
+				@keyframes nf-marquee-left {
+					from { transform: translateX(0); }
+					to { transform: translateX(-50%); }
+				}
+
+				@keyframes nf-marquee-right {
+					from { transform: translateX(-50%); }
+					to { transform: translateX(0); }
 				}
 
 				@media (max-width: 960px) {
@@ -737,12 +968,12 @@ export default function NotFoundPlayground() {
 					}
 
 					.nf-number {
-						gap: 0.45rem;
+						gap: 0.35rem;
 					}
 
 					.nf-digit {
-						width: clamp(5.25rem, 28vw, 7rem);
-						font-size: clamp(6rem, 31vw, 8rem);
+						width: clamp(4.6rem, 26vw, 6.4rem);
+						font-size: clamp(5.2rem, 28vw, 7.2rem);
 					}
 
 					.nf-ticket {
@@ -778,11 +1009,40 @@ export default function NotFoundPlayground() {
 				}
 
 				@media (prefers-reduced-motion: reduce) {
-					.nf-action {
+					.nf-shell::before,
+					.nf-shell::after,
+					.nf-flicker,
+					.nf-hero,
+					.nf-shock,
+					.nf-scan,
+					.nf-noise,
+					.nf-digit,
+					.nf-digit-layer,
+					.nf-digit-r,
+					.nf-digit-c,
+					.nf-ticket-a,
+					.nf-ticket-b,
+					.nf-ticket-c,
+					.nf-ticket-d,
+					.nf-signal-bar,
+					.nf-ruler-top,
+					.nf-ruler-bottom,
+					.nf-masthead,
+					.nf-panel,
+					.nf-ticker {
+						animation: none;
+					}
+
+					.nf-digit-hit,
+					.nf-action,
+					.nf-index-row {
 						transition: none;
 					}
 
-					.nf-action:hover {
+					.nf-digit-hit:hover,
+					.nf-digit-hit:active,
+					.nf-action:hover,
+					.nf-index-row:hover {
 						transform: none;
 					}
 				}
