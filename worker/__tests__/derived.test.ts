@@ -12,22 +12,22 @@ import {
 	writeDerivedDiscovery,
 	type FeedPost,
 } from "../content/derived.ts";
-import { handleContentQueue } from "../content/queue.ts";
 import { rebuildContentIndexes } from "../content/index-store.ts";
+import { handleContentQueue } from "../content/queue.ts";
 import { createMemoryR2 } from "./memory-r2.ts";
 
 const HELLO: FeedPost = {
 	slug: "hello-world",
 	title: "Hello & Friends",
 	excerpt: "最初の <投稿>",
-	date: new Date("2026-08-30T00:00:00.000Z"),
+	publish_date: new Date("2026-08-30T00:00:00.000Z"),
 };
 
 const OLDER: FeedPost = {
 	slug: "older-note",
 	title: "Older",
 	excerpt: "before",
-	date: new Date("2026-01-01T00:00:00.000Z"),
+	publish_date: new Date("2026-01-01T00:00:00.000Z"),
 };
 
 const SAMPLE = `---
@@ -68,16 +68,18 @@ describe("derived discovery feeds", () => {
 			"https://ta93abe.com/tools/",
 			"https://ta93abe.com/gadgets/",
 		]);
-		expect(urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod).toBe(
-			"2026-08-30",
-		);
+		expect(
+			urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod,
+		).toBe("2026-08-30");
 		expect(locs.join(" ")).not.toMatch(/gallery|atelier|bookshelf/);
 	});
 
 	it("lists published posts in the llms blog section", () => {
 		const section = buildLlmsBlogSection([HELLO], "https://ta93abe.com");
 		expect(section).toContain("## Blog");
-		expect(section).toContain("[Hello & Friends](https://ta93abe.com/blog/hello-world/)");
+		expect(section).toContain(
+			"[Hello & Friends](https://ta93abe.com/blog/hello-world/)",
+		);
 		expect(section).toContain("最初の <投稿>");
 	});
 
@@ -103,14 +105,43 @@ describe("derived discovery feeds", () => {
 			},
 			{
 				collection: "blog",
+				slug: "canonical",
+				title: "Canonical",
+				excerpt: "new key",
+				updatedAt: "2026-09-07T00:00:00.000Z",
+				frontmatter: {
+					title: "Canonical",
+					excerpt: "new key",
+					publish_date: "2026-09-07",
+				},
+			},
+			{
+				collection: "blog",
 				slug: "no-date",
 				title: "No",
 				excerpt: "no",
 				updatedAt: "2026-08-30T00:00:00.000Z",
 				frontmatter: { title: "No", excerpt: "no" },
 			},
+			{
+				collection: "blog",
+				slug: "mixed",
+				title: "Mixed",
+				excerpt: "bad canonical",
+				updatedAt: "2026-08-15T00:00:00.000Z",
+				frontmatter: {
+					title: "Mixed",
+					excerpt: "bad canonical",
+					publish_date: "soon",
+					date: "2026-08-15",
+				},
+			},
 		]);
-		expect(posts.map((post) => post.slug)).toEqual(["hello-world"]);
+		expect(posts.map((post) => post.slug)).toEqual([
+			"canonical",
+			"hello-world",
+			"mixed",
+		]);
 	});
 
 	it("writes derived RSS, sitemap, and llms after rebuilding indexes", async () => {

@@ -9,7 +9,7 @@ import {
 
 function item(
 	partial: Partial<BlogListItem> &
-		Pick<BlogListItem, "slug" | "title" | "date">,
+		Pick<BlogListItem, "slug" | "title" | "publish_date">,
 ): BlogListItem {
 	return {
 		excerpt: partial.excerpt ?? "",
@@ -25,7 +25,7 @@ describe("request-time feeds", () => {
 				slug: "hello-world",
 				title: "Hello",
 				excerpt: "from r2",
-				date: new Date("2026-08-30"),
+				publish_date: new Date("2026-08-30"),
 			}),
 		].map(toFeedPost);
 

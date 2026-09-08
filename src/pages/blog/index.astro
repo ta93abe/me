@@ -69,7 +69,7 @@ Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
               class="group border-b border-(--border-color) last:border-b-0"
               data-item
               data-tags={post.tags.join(",")}
-              data-date={post.date.toISOString()}
+              data-date={post.publish_date.toISOString()}
               data-title={post.title}
             >
               <a
@@ -78,10 +78,10 @@ Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
               >
                 <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">
                   <time class="shrink-0 font-sans text-sm tracking-wide text-(--text-muted) sm:w-28 sm:pt-1">
-                    {formatDate(post.date)}
-                    {post.updatedDate && (
+                    {formatDate(post.publish_date)}
+                    {post.revise_date && (
                       <span class="mt-1 block text-xs">
-                        更新 {formatDate(post.updatedDate)}
+                        更新 {formatDate(post.revise_date)}
                       </span>
                     )}
                   </time>
