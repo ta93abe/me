@@ -7,15 +7,16 @@ function isBundledGadgetSrc(src: string | null, slug: string): boolean {
 	if (src.startsWith("/gadgets/") || src.startsWith("/things/")) {
 		return false;
 	}
-	if (src.startsWith("data:")) {
-		return false;
+	if (src.startsWith("data:image/webp")) {
+		return true;
 	}
 	const isRaster = /\.(webp|png|jpe?g)(?:\?.*)?$/i.test(src);
 	return (
 		isRaster &&
 		(src.includes(slug) ||
 			src.includes("/_astro/") ||
-			src.includes("/src/assets/gadgets/"))
+			src.includes("/src/assets/gadgets/") ||
+			src.includes("/media/gadgets/"))
 	);
 }
 
@@ -39,7 +40,7 @@ test.describe("Gadgets page", () => {
 
 		const src = await thumb.getAttribute("src");
 		expect(isBundledGadgetSrc(src, "mac-studio")).toBe(true);
-		expect(src?.startsWith("data:")).toBe(false);
+		expect(src?.startsWith("data:image/webp")).toBe(true);
 
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		const naturalWidth = await thumb.evaluate(

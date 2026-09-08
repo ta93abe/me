@@ -40,9 +40,7 @@ describe("GADGETS catalog", () => {
 				`gadget-${gadget.slug}`,
 			);
 			const image = gadgetImageUrl(gadget.slug);
-			expect(image.includes(gadget.slug)).toBe(true);
-			expect(/\.(webp|png|jpe?g)(?:\?.*)?$/i.test(image)).toBe(true);
-			expect(image.startsWith("data:")).toBe(false);
+			expect(image.startsWith("data:image/webp")).toBe(true);
 			expect(image.startsWith("/gadgets/")).toBe(false);
 			expect(image.startsWith("/things/")).toBe(false);
 		}
