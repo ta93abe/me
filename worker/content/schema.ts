@@ -1,10 +1,24 @@
 import { z } from "zod";
 
 import { CONTENT_COLLECTIONS, type ContentCollection } from "./collections.ts";
+import { applyDateAliases, toDate } from "./dates.ts";
 import type { FrontmatterValue } from "./frontmatter.ts";
 
 const tagsSchema = z.array(z.string()).optional();
 const urlString = z.string().min(1);
+const dateValue = z
+	.union([z.string().min(1), z.date()])
+	.refine((value) => toDate(value) !== undefined, {
+		message: "invalid date",
+	});
+const dateLike = dateValue.optional();
+
+const contentDates = {
+	publish_date: dateValue,
+	revise_date: dateLike,
+	date: dateLike,
+	updatedDate: dateLike,
+};
 
 const creativeMediaTypeSchema = z.enum(["drawing", "photo", "music"]);
 const galleryMediaTypeSchema = z.enum(["drawing", "photo", "music", "project"]);
@@ -40,13 +54,10 @@ const refineCreativeMedia = (
 	}
 };
 
-const dateLike = z.union([z.string().min(1), z.date()]).optional();
-
 export const blogFrontmatterSchema = z.object({
 	title: z.string().min(1),
 	excerpt: z.string().min(1),
-	date: z.union([z.string().min(1), z.date()]),
-	updatedDate: dateLike,
+	...contentDates,
 	tags: tagsSchema,
 });
 
@@ -54,6 +65,7 @@ export const galleryFrontmatterSchema = z
 	.object({
 		title: z.string().min(1),
 		excerpt: z.string().min(1),
+		...contentDates,
 		mediaType: galleryMediaTypeSchema.default("drawing"),
 		coverImage: urlString.optional(),
 		audio: urlString.optional(),
@@ -66,18 +78,19 @@ export const atelierFrontmatterSchema = z
 	.object({
 		title: z.string().min(1),
 		excerpt: z.string().min(1),
+		...contentDates,
 		mediaType: creativeMediaTypeSchema.default("drawing"),
 		coverImage: urlString.optional(),
 		audio: urlString.optional(),
 		tags: tagsSchema,
 		status: z.enum(["wip", "practice", "sketch"]).default("wip"),
-		date: dateLike,
 	})
 	.superRefine(refineCreativeMedia);
 
 export const booksFrontmatterSchema = z.object({
 	title: z.string().min(1),
 	excerpt: z.string().min(1),
+	...contentDates,
 	author: z.string().min(1),
 	coverImage: urlString,
 	status: z.enum(["read", "reading", "stacked"]),
@@ -96,6 +109,8 @@ const collectionSchemas = {
 export type ValidatedFrontmatter = {
 	title: string;
 	excerpt: string;
+	publish_date?: string | Date;
+	revise_date?: string | Date;
 	[key: string]: unknown;
 };
 
@@ -105,7 +120,9 @@ export function validateFrontmatter(
 ):
 	| { ok: true; data: ValidatedFrontmatter }
 	| { ok: false; error: string; issues: string[] } {
-	const parsed = collectionSchemas[collection].safeParse(frontmatter);
+	const parsed = collectionSchemas[collection].safeParse(
+		applyDateAliases(frontmatter),
+	);
 	if (!parsed.success) {
 		const issues = parsed.error.issues.map((issue) => {
 			const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
@@ -127,10 +144,20 @@ const optionalStringArray = {
 	items: { type: "string" },
 } as const;
 
+function dateProperties() {
+	return {
+		publish_date: stringProperty,
+		revise_date: stringProperty,
+		date: stringProperty,
+		updatedDate: stringProperty,
+	};
+}
+
 function creativeProperties(mediaTypes: string[]) {
 	return {
 		title: stringProperty,
 		excerpt: stringProperty,
+		...dateProperties(),
 		mediaType: { type: "string", enum: mediaTypes, default: "drawing" },
 		coverImage: stringProperty,
 		audio: stringProperty,
@@ -151,19 +178,18 @@ export function contentJsonSchema() {
 			blog: {
 				type: "object",
 				additionalProperties: true,
-				required: ["title", "excerpt", "date"],
+				required: ["title", "excerpt", "publish_date"],
 				properties: {
 					title: stringProperty,
 					excerpt: stringProperty,
-					date: stringProperty,
-					updatedDate: stringProperty,
+					...dateProperties(),
 					tags: optionalStringArray,
 				},
 			},
 			gallery: {
 				type: "object",
 				additionalProperties: true,
-				required: ["title", "excerpt"],
+				required: ["title", "excerpt", "publish_date"],
 				properties: {
 					...creativeProperties(["drawing", "photo", "music", "project"]),
 					completedDate: stringProperty,
@@ -172,7 +198,7 @@ export function contentJsonSchema() {
 			atelier: {
 				type: "object",
 				additionalProperties: true,
-				required: ["title", "excerpt"],
+				required: ["title", "excerpt", "publish_date"],
 				properties: {
 					...creativeProperties(["drawing", "photo", "music"]),
 					status: {
@@ -180,16 +206,23 @@ export function contentJsonSchema() {
 						enum: ["wip", "practice", "sketch"],
 						default: "wip",
 					},
-					date: stringProperty,
 				},
 			},
 			books: {
 				type: "object",
 				additionalProperties: true,
-				required: ["title", "excerpt", "author", "coverImage", "status"],
+				required: [
+					"title",
+					"excerpt",
+					"author",
+					"coverImage",
+					"status",
+					"publish_date",
+				],
 				properties: {
 					title: stringProperty,
 					excerpt: stringProperty,
+					...dateProperties(),
 					author: stringProperty,
 					coverImage: stringProperty,
 					status: { type: "string", enum: ["read", "reading", "stacked"] },

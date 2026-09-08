@@ -1,7 +1,5 @@
-import {
-	readCollectionIndex,
-	type ContentIndexEntry,
-} from "./index-store.ts";
+import { publishDateValue, reviseDateValue, toDate } from "./dates.ts";
+import { readCollectionIndex, type ContentIndexEntry } from "./index-store.ts";
 
 export const BLOG_RSS_KEY = "derived/rss-blog.xml";
 export const SITEMAP_URLS_KEY = "derived/sitemap-urls.json";
@@ -13,8 +11,8 @@ export type FeedPost = {
 	slug: string;
 	title: string;
 	excerpt: string;
-	date: Date;
-	updatedDate?: Date;
+	publish_date: Date;
+	revise_date?: Date;
 };
 
 export type SitemapUrlEntry = {
@@ -29,23 +27,11 @@ const STATIC_SECTION_PATHS = [
 	"/links/",
 	"/slides/",
 	"/tools/",
+	"/gadgets/",
 ] as const;
 
 function originBase(origin: string): string {
 	return origin.replace(/\/+$/, "");
-}
-
-function toDate(value: unknown): Date | undefined {
-	if (value instanceof Date && !Number.isNaN(value.getTime())) {
-		return value;
-	}
-	if (typeof value === "string" && value.length > 0) {
-		const parsed = new Date(value);
-		if (!Number.isNaN(parsed.getTime())) {
-			return parsed;
-		}
-	}
-	return undefined;
 }
 
 function escapeXml(value: string): string {
@@ -60,26 +46,24 @@ function escapeXml(value: string): string {
 export function sortFeedPosts(posts: FeedPost[]): FeedPost[] {
 	return posts.toSorted(
 		(left, right) =>
-			right.date.getTime() - left.date.getTime() ||
+			right.publish_date.getTime() - left.publish_date.getTime() ||
 			left.slug.localeCompare(right.slug),
 	);
 }
 
-export function feedPostsFromEntries(
-	entries: ContentIndexEntry[],
-): FeedPost[] {
+export function feedPostsFromEntries(entries: ContentIndexEntry[]): FeedPost[] {
 	const posts: FeedPost[] = [];
 	for (const entry of entries) {
-		const date = toDate(entry.frontmatter.date);
-		if (!date) {
+		const publish_date = toDate(publishDateValue(entry.frontmatter));
+		if (!publish_date) {
 			continue;
 		}
 		posts.push({
 			slug: entry.slug,
 			title: entry.title,
 			excerpt: entry.excerpt,
-			date,
-			updatedDate: toDate(entry.frontmatter.updatedDate),
+			publish_date,
+			revise_date: toDate(reviseDateValue(entry.frontmatter)),
 		});
 	}
 	return sortFeedPosts(posts);
@@ -98,7 +82,7 @@ export function buildBlogRssXml(
 				`      <title>${escapeXml(post.title)}</title>`,
 				`      <link>${escapeXml(link)}</link>`,
 				`      <guid>${escapeXml(link)}</guid>`,
-				`      <pubDate>${post.date.toUTCString()}</pubDate>`,
+				`      <pubDate>${post.publish_date.toUTCString()}</pubDate>`,
 				`      <description>${escapeXml(post.excerpt)}</description>`,
 				"    </item>",
 			].join("\n");
@@ -125,7 +109,7 @@ export function sitemapUrlEntries(
 	const base = originBase(origin);
 	const blogUrls = sortFeedPosts(posts).map((post) => ({
 		loc: `${base}/blog/${post.slug}/`,
-		lastmod: post.date.toISOString().slice(0, 10),
+		lastmod: (post.revise_date ?? post.publish_date).toISOString().slice(0, 10),
 	}));
 
 	return [
@@ -145,7 +129,9 @@ export function buildBlogSitemapXml(
 		{ loc: `${base}/blog/` },
 		...sortFeedPosts(posts).map((post) => ({
 			loc: `${base}/blog/${post.slug}/`,
-			lastmod: post.date.toISOString().slice(0, 10),
+			lastmod: (post.revise_date ?? post.publish_date)
+				.toISOString()
+				.slice(0, 10),
 		})),
 	];
 
@@ -165,9 +151,7 @@ ${body}
 `;
 }
 
-export function buildSitemapIndexXml(
-	origin: string = DEFAULT_ORIGIN,
-): string {
+export function buildSitemapIndexXml(origin: string = DEFAULT_ORIGIN): string {
 	const base = originBase(origin);
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -191,8 +175,7 @@ export function buildLlmsBlogSection(
 	}
 
 	const lines = sortFeedPosts(posts).map(
-		(post) =>
-			`- [${post.title}](${base}/blog/${post.slug}/) — ${post.excerpt}`,
+		(post) => `- [${post.title}](${base}/blog/${post.slug}/) — ${post.excerpt}`,
 	);
 	return `## Blog\n\n${lines.join("\n")}\n`;
 }
@@ -240,7 +223,10 @@ export async function writeDerivedDiscovery(
 	await bucket.put(
 		SITEMAP_URLS_KEY,
 		JSON.stringify(
-			{ generatedAt: index.generatedAt, urls: sitemapUrlEntries(posts, origin) },
+			{
+				generatedAt: index.generatedAt,
+				urls: sitemapUrlEntries(posts, origin),
+			},
 			null,
 			2,
 		),

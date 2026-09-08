@@ -1,0 +1,28 @@
+---
+import type { Gadget } from "@/data/gadgets";
+import { gadgetImageUrl } from "@/data/gadget-images";
+
+interface Props {
+	gadget: Gadget;
+	size: "grid" | "detail";
+}
+
+const { gadget, size } = Astro.props;
+const image = gadgetImageUrl(gadget.slug);
+---
+
+<img
+	src={image}
+	alt=""
+	width="400"
+	height="400"
+	draggable="false"
+	decoding="async"
+	data-gadget-thumb={gadget.slug}
+	class:list={[
+		"pointer-events-none select-none object-contain",
+		size === "grid" &&
+			"h-full max-h-20 w-full max-w-20 lg:max-h-24 lg:max-w-24",
+		size === "detail" && "h-full w-full object-contain",
+	]}
+/>

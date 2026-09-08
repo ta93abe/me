@@ -22,6 +22,8 @@ Linear: [TA-790](https://linear.app/ta93abe/issue/TA-790)
 スラッグ: `^[a-z0-9][a-z0-9-]{0,80}$`  
 v1 は `.md` のみ。MDX は 400。
 
+日付の正は `publish_date`（必須）と `revise_date`（任意）。PUT は過渡中 `date` / `updatedDate` も受け付け、検証後は `publish_date` / `revise_date` に寄せる。`completedDate`（gallery）と `finishedDate`（books）はそのまま。
+
 ## HMAC
 
 署名対象は **時刻 + パス + 本文**（UTF-8 連結）。時計ずれは 5 分。
@@ -72,7 +74,7 @@ PATHNAME='/api/content/blog/hello'
 BODY='---
 title: Hello Workers
 excerpt: Stage 1 note
-date: 2026-08-30
+publish_date: 2026-08-30
 ---
 
 Published from curl.

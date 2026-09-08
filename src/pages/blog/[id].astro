@@ -33,24 +33,24 @@ if (!post) {
 const neighbors = post ? blogNeighbors(allPosts, slug) : undefined;
 const title = post?.title ?? "";
 const excerpt = post?.excerpt ?? "";
-const date = post?.date ?? new Date(0);
-const updatedDate = post?.updatedDate;
+const publish_date = post?.publish_date ?? new Date(0);
+const revise_date = post?.revise_date;
 const tags = post?.tags ?? [];
 const body = post?.body ?? "";
 const html = post?.html ?? "";
 
 const readingTime = getReadingTime(body);
 const readingTimeText = formatReadingTime(readingTime);
-const publishedTime = date.toISOString();
-const modifiedTime = updatedDate ? updatedDate.toISOString() : publishedTime;
+const publishedTime = publish_date.toISOString();
+const modifiedTime = revise_date ? revise_date.toISOString() : publishedTime;
 const ogImageURL = new URL(`/og/blog/${slug}.png`, Astro.site);
 const site = Astro.site?.href || SITE.url;
 const blogSchema = generateBlogPostingSchema(site, {
 	slug,
 	title,
 	excerpt,
-	date,
-	updatedDate,
+	date: publish_date,
+	updatedDate: revise_date,
 	tags,
 	image: ogImageURL.href,
 });
@@ -89,7 +89,7 @@ if (post) {
     <meta property="article:author" content={SITE.author} />
     <meta property="article:published_time" content={publishedTime} />
     {
-      updatedDate && (
+      revise_date && (
         <meta property="article:modified_time" content={modifiedTime} />
       )
     }
@@ -114,13 +114,13 @@ if (post) {
     <header class="mb-12 pb-10">
       <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
         <time class="font-medium">
-          {formatDate(date)}
+          {formatDate(publish_date)}
         </time>
         {
-          updatedDate && (
+          revise_date && (
             <>
               <span class="text-(--text-muted)">|</span>
-              <span>更新: {formatDate(updatedDate)}</span>
+              <span>更新: {formatDate(revise_date)}</span>
             </>
           )
         }

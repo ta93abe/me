@@ -11,7 +11,7 @@ PATHNAME="/api/content/${COLLECTION}/${SLUG}"
 BODY="${BODY:----
 title: Hello Workers
 excerpt: Stage 1 note
-date: 2026-08-30
+publish_date: 2026-08-30
 ---
 
 Published from curl.

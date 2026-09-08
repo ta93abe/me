@@ -1,4 +1,5 @@
 import { CONTENT_COLLECTIONS, type ContentCollection } from "./collections.ts";
+import { publishDateValue, reviseDateValue, toIso } from "./dates.ts";
 import { looksLikeMdx, parseMarkdownDocument } from "./frontmatter.ts";
 import { ALL_INDEX_KEY, collectionIndexKey, markdownKey } from "./keys.ts";
 import { validateFrontmatter, type ValidatedFrontmatter } from "./schema.ts";
@@ -23,25 +24,12 @@ export type AllIndex = {
 	collections: Record<ContentCollection, ContentIndexEntry[]>;
 };
 
-function toIso(value: unknown): string | undefined {
-	if (value instanceof Date && !Number.isNaN(value.getTime())) {
-		return value.toISOString();
-	}
-	if (typeof value === "string" && value.length > 0) {
-		const parsed = new Date(value);
-		if (!Number.isNaN(parsed.getTime())) {
-			return parsed.toISOString();
-		}
-	}
-	return undefined;
-}
-
 function entryUpdatedAt(frontmatter: ValidatedFrontmatter): string {
 	return (
-		toIso(frontmatter.updatedDate) ??
+		toIso(reviseDateValue(frontmatter)) ??
 		toIso(frontmatter.completedDate) ??
 		toIso(frontmatter.finishedDate) ??
-		toIso(frontmatter.date) ??
+		toIso(publishDateValue(frontmatter)) ??
 		new Date(0).toISOString()
 	);
 }

@@ -5,6 +5,10 @@ test.describe("404 recovery", () => {
 		const response = await page.goto("/this-page-does-not-exist");
 		expect(response?.status()).toBe(404);
 		await expect(page).toHaveTitle(/404/);
+		await expect(
+			page.getByRole("region", { name: "404 animated poster" }),
+		).toBeVisible();
+		await expect(page.locator(".nf-digit")).toHaveCount(3);
 
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(

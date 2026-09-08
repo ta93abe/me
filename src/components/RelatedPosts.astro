@@ -25,7 +25,12 @@ if (posts.length === 0) {
           class="group flex flex-col rounded-lg bg-(--bg-secondary) p-4 transition-colors hover:bg-(--bg-elevated)"
         >
           <span class="mb-2 text-sm text-(--text-muted)">
-            {formatDate(post.date)}
+            {formatDate(post.publish_date)}
+            {post.revise_date && (
+              <span class="mt-1 block text-xs">
+                更新 {formatDate(post.revise_date)}
+              </span>
+            )}
           </span>
           <span class="mb-2 font-medium text-(--text-primary) transition-colors group-hover:text-(--primary-color)">
             {post.title}
