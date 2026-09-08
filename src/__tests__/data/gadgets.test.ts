@@ -24,7 +24,7 @@ describe("GADGETS catalog", () => {
 		const slugs = GADGETS.map((gadget) => gadget.slug);
 		expect(new Set(slugs).size).toBe(slugs.length);
 		expect(GADGETS.length).toBeGreaterThanOrEqual(6);
-		expect(GADGETS.length).toBeLessThanOrEqual(12);
+		expect(GADGETS.length).toBeLessThanOrEqual(20);
 
 		for (const gadget of GADGETS) {
 			expect(gadget.slug).toMatch(/^[a-z][a-z0-9-]*$/);
@@ -46,10 +46,10 @@ describe("GADGETS catalog", () => {
 	it("distinguishes the index from item paths", () => {
 		expect(isGadgetsIndexPath("/gadgets")).toBe(true);
 		expect(isGadgetsIndexPath("/gadgets/")).toBe(true);
-		expect(isGadgetsIndexPath("/gadgets/macbook-pro")).toBe(false);
+		expect(isGadgetsIndexPath("/gadgets/mac-studio")).toBe(false);
 		expect(gadgetSlugFromPath("/gadgets")).toBeNull();
-		expect(gadgetSlugFromPath("/gadgets/macbook-pro")).toBe("macbook-pro");
-		expect(gadgetSlugFromPath("/gadgets/macbook-pro/")).toBe("macbook-pro");
+		expect(gadgetSlugFromPath("/gadgets/mac-studio")).toBe("mac-studio");
+		expect(gadgetSlugFromPath("/gadgets/mac-studio/")).toBe("mac-studio");
 		expect(getGadget("missing")).toBeUndefined();
 	});
 
@@ -57,6 +57,26 @@ describe("GADGETS catalog", () => {
 		const names = GADGETS.map((gadget) => gadget.name);
 		expect(names).not.toEqual(
 			expect.arrayContaining(["Cursor", "Nix", "Fish"]),
+		);
+		expect(names).toEqual(
+			expect.arrayContaining([
+				"Mac Studio M1 Max",
+				"HHKB Type-S",
+				"Shure SM7B",
+				"Volt 276",
+				"Philips Hue",
+				"Nature Remo Lapis",
+				"Novation Launchkey 49",
+				"Novation Launchpad Pro",
+				"Sony MDR-7506",
+				"Oura Ring 5",
+				"Pebble Index 01",
+				"Evering",
+				"Eufy Robot Vacuum Omni E25",
+				"holo オーブ L X-PAC",
+				"Nike ACG ゼガマ ハイク",
+				"milestone MS-i1",
+			]),
 		);
 	});
 });

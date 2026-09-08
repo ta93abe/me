@@ -25,14 +25,14 @@ test.describe("Gadgets page", () => {
 			page.getByRole("link", { name: "Tools" }).first(),
 		).toHaveAttribute("href", "/tools");
 
-		const macbook = page.getByRole("link", { name: "MacBook Pro" });
-		await expect(macbook).toBeVisible();
-		const thumb = macbook.locator("[data-gadget-thumb='macbook-pro']");
+		const studio = page.getByRole("link", { name: "Mac Studio M1 Max" });
+		await expect(studio).toBeVisible();
+		const thumb = studio.locator("[data-gadget-thumb='mac-studio']");
 		await expect(thumb).toHaveCount(1);
 		await expect(thumb).toBeVisible();
 
 		const src = await thumb.getAttribute("src");
-		expect(isBundledGadgetSrc(src, "macbook-pro")).toBe(true);
+		expect(isBundledGadgetSrc(src, "mac-studio")).toBe(true);
 		expect(src?.startsWith("data:image/svg+xml")).toBe(true);
 
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
@@ -63,17 +63,17 @@ test.describe("Gadgets page", () => {
 		page,
 	}) => {
 		await page.goto("/gadgets");
-		await page.getByRole("link", { name: "MacBook Pro" }).click();
+		await page.getByRole("link", { name: "Mac Studio M1 Max" }).click();
 
-		await expect(page).toHaveURL(/\/gadgets\/macbook-pro\/?$/);
-		await expect(page).toHaveTitle(/MacBook Pro/);
+		await expect(page).toHaveURL(/\/gadgets\/mac-studio\/?$/);
+		await expect(page).toHaveTitle(/Mac Studio M1 Max/);
 		await expect(
-			page.getByRole("heading", { level: 1, name: "MacBook Pro" }),
+			page.getByRole("heading", { level: 1, name: "Mac Studio M1 Max" }),
 		).toBeVisible();
 		await expect(page.getByText("Nix の土台")).toBeVisible();
 
-		const thumb = page.locator("[data-gadget-thumb='macbook-pro']");
-		expect(isBundledGadgetSrc(await thumb.getAttribute("src"), "macbook-pro")).toBe(
+		const thumb = page.locator("[data-gadget-thumb='mac-studio']");
+		expect(isBundledGadgetSrc(await thumb.getAttribute("src"), "mac-studio")).toBe(
 			true,
 		);
 		await expect(thumb).toBeVisible();
