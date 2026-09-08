@@ -46,6 +46,7 @@ const canonicalURL = canonicalOverride
 	: canonicalPageUrl(Astro.url.pathname, Astro.site ?? SITE.url);
 const ogImageURL = new URL(ogImage, Astro.site);
 const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
+const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 ---
 
 <!doctype html>
@@ -75,6 +76,7 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 		<meta property="og:image:alt" content={ogImageAlt} />
 		<meta property="og:image:width" content="1200" />
 		<meta property="og:image:height" content="630" />
+		<meta property="og:image:type" content="image/png" />
 		<meta property="og:site_name" content={ogSiteName} />
 		<meta property="og:locale" content={SITE.locale} />
 
@@ -90,7 +92,7 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 
 		<!-- 構造化データ (JSON-LD) -->
 		{
-			!noindex && (
+			includeSiteSchema && (
 				<script
 					type="application/ld+json"
 					set:html={stringifySchema(

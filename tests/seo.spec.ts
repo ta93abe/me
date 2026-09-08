@@ -1,8 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-async function pageHtml(request: {
-	get: (url: string) => Promise<{ text: () => Promise<string> }>;
-}, path: string) {
+async function pageHtml(
+	request: {
+		get: (url: string) => Promise<{ text: () => Promise<string> }>;
+	},
+	path: string,
+) {
 	return (await request.get(path)).text();
 }
 
@@ -16,6 +19,7 @@ test.describe("Sitewide SEO", () => {
 		expect(html).toContain("/og/default.png");
 		expect(html).toContain("summary_large_image");
 		expect(html).toContain('href="https://ta93abe.com/"');
+		expect(html).toContain('property="og:image:type" content="image/png"');
 	});
 
 	test("section pages have dedicated OG images and page JSON-LD", async ({
@@ -67,6 +71,9 @@ test.describe("Sitewide SEO", () => {
 			expect(html, item.path).toContain('"@type":"BreadcrumbList"');
 			expect(html, item.path).toContain(item.canonical);
 			expect(html, item.path).toContain("summary_large_image");
+			expect(html, item.path).toContain(
+				'property="og:image:type" content="image/png"',
+			);
 		}
 	});
 

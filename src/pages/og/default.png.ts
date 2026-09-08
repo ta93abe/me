@@ -7,8 +7,8 @@ export const prerender = true;
 
 export const GET: APIRoute = async () => {
 	const png = await generateOgImage({
-		title: SITE.name,
-		subtitle: "Software Engineer",
+		title: SITE.tagline,
+		subtitle: SITE.name,
 		type: "default",
 	});
 

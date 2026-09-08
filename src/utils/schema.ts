@@ -48,16 +48,17 @@ export const generateWebSiteSchema = (
 	siteUrl: string,
 	options: WebSiteSchemaOptions = {},
 ): WebSiteSchema => {
+	const origin = originBase(siteUrl);
 	const {
 		includeSearchAction = false,
-		searchUrlTemplate = `${siteUrl}search?q={search_term_string}`,
+		searchUrlTemplate = `${origin}/search?q={search_term_string}`,
 	} = options;
 
 	const schema: WebSiteSchema = {
 		"@context": "https://schema.org",
 		"@type": "WebSite",
 		name: SITE.name,
-		url: siteUrl,
+		url: `${origin}/`,
 		description: SITE.description,
 		author: personFields(siteUrl),
 		inLanguage: SITE.lang,
@@ -90,7 +91,7 @@ function personFields(siteUrl: string): PersonFields {
 	return {
 		"@type": "Person",
 		name: SITE.author,
-		url: `${origin}/about`,
+		url: `${origin}/about/`,
 		jobTitle: "Software Engineer",
 		description: SITE.tagline,
 		sameAs: linksData.links.map((link) => link.url),

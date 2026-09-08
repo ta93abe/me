@@ -7,14 +7,15 @@ import {
 	buildSitemapIndexXml,
 	readLlmsBlogSection,
 } from "./content/derived.ts";
-import { buildBlogOgSvg, loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import { renderBlogOgPng } from "./content/og-png.ts";
+import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
+import { servePdf } from "./slides/pdf-route.ts";
 import {
 	isPrintQuery,
 	parseSlideDeckSlug,
 	parseSlidePdfSlug,
 } from "./slides/pdf.ts";
-import { servePdf } from "./slides/pdf-route.ts";
 
 type CacheStore = { default: Cache };
 
@@ -233,6 +234,26 @@ function textResponse(
 	setGeneratedHeaders(headers);
 
 	return new Response(isHead(request) ? null : body, {
+		...init,
+		headers,
+	});
+}
+
+function binaryResponse(
+	request: Request,
+	body: Uint8Array,
+	contentType: string,
+	init: ResponseInit = {},
+): Response {
+	const headers = new Headers(init.headers);
+	headers.set("Content-Type", contentType);
+	headers.set("Content-Length", String(body.byteLength));
+	setGeneratedHeaders(headers);
+
+	const payload = new ArrayBuffer(body.byteLength);
+	new Uint8Array(payload).set(body);
+
+	return new Response(isHead(request) ? null : payload, {
 		...init,
 		headers,
 	});
@@ -650,10 +671,7 @@ export default {
 		}
 
 		const pdfSlug = parseSlidePdfSlug(pathname);
-		if (
-			pdfSlug &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
+		if (pdfSlug && (request.method === "GET" || request.method === "HEAD")) {
 			return servePdf(request, env, pdfSlug);
 		}
 
@@ -732,20 +750,23 @@ export default {
 		}
 
 		const ogSlug = parseOgBlogPath(pathname);
-		if (
-			ogSlug &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
+		if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
 			const title = await loadOgTitle(env.CONTENT, ogSlug);
 			if (title) {
-				return textResponse(
-					request,
-					buildBlogOgSvg(title),
-					"image/svg+xml; charset=utf-8",
-					{
-						headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-					},
-				);
+				if (shouldCacheBlogHtml(request)) {
+					const cached = await defaultCache().match(request);
+					if (cached) {
+						return cached;
+					}
+				}
+				const png = await renderBlogOgPng(title);
+				const response = binaryResponse(request, png, "image/png", {
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				});
+				if (shouldCacheBlogHtml(request) && request.method === "GET") {
+					ctx.waitUntil(defaultCache().put(request, response.clone()));
+				}
+				return response;
 			}
 		}
 
