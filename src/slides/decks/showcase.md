@@ -1,7 +1,7 @@
 ---
 title: デザインシステム ショーケース
 date: 2026-09-06
-description: 全スライド型と日本語本文の見本。基盤の受け入れに使う。
+description: 全スライド型とクリック・数式・日本語本文の見本。基盤の受け入れに使う。
 slug: showcase
 theme: dark
 ---
@@ -65,9 +65,17 @@ theme: dark
 
 # フェンスはそのまま
 
-```ts
+```ts {1}
 type SlideType =
-	"cover" | "section" | "body" | "split" | "quote" | "code" | "figure";
+	| "cover"
+	| "section"
+	| "body"
+	| "split"
+	| "quote"
+	| "code"
+	| "figure"
+	| "center"
+	| "end";
 ```
 
 ---
@@ -77,3 +85,64 @@ type SlideType =
 ![16:9 のキャンバス](./frame.svg)
 
 図はキャンバスの中央に置き、キャプションは短くする。
+
+---
+
+<!-- type: center -->
+
+# 短い一文を中央に
+
+余白で止める
+
+---
+
+# クリックで出す
+
+最初に見えること。
+
+<!-- click -->
+
+矢印のあとに出ること。
+
+---
+
+# リストも順に
+
+<!-- notes
+1 項目ずつ進めて、契約を復唱する。
+-->
+
+<!-- clicks -->
+
+- Markdown の本文だけ書く
+- 見た目はデザインシステム
+- クリックは HTML コメント
+
+---
+
+<!-- type: code -->
+
+# 行を順に指す
+
+```ts {2|4}
+const visible = true;
+const next = "click";
+const then = "again";
+const done = true;
+```
+
+---
+
+# 数式
+
+インラインは $e^{i\pi}+1=0$。
+
+$$
+\sum_{n=1}^{N} n = \frac{N(N+1)}{2}
+$$
+
+---
+
+<!-- type: end -->
+
+# ありがとうございました
