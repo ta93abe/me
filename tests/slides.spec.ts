@@ -5,7 +5,9 @@ test.describe("Slides", () => {
 		page,
 	}) => {
 		await page.goto("/slides");
-		await expect(page.getByRole("heading", { name: "Slides", level: 1 })).toBeVisible();
+		await expect(
+			page.getByRole("heading", { name: "Slides", level: 1 }),
+		).toBeVisible();
 
 		const showcase = page.getByRole("link", {
 			name: /デザインシステム ショーケース/,
@@ -97,7 +99,7 @@ test.describe("Slides", () => {
 	}) => {
 		await page.goto("/slides/showcase/print/");
 		await expect(page.locator("html")).toHaveAttribute("data-print-ready");
-		await expect(page.locator(".slide")).toHaveCount(7);
+		await expect(page.locator(".slide")).toHaveCount(13);
 		await expect(page.locator("html")).toHaveClass(/is-print/);
 		await expect(page.locator(".player-ui")).toHaveCount(0);
 		await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
@@ -111,6 +113,33 @@ test.describe("Slides", () => {
 		await expect(
 			page.locator('script[type="application/ld+json"]'),
 		).toHaveCount(0);
+	});
+
+	test("advances click fragments before the next slide", async ({ page }) => {
+		await page.goto("/slides/showcase/");
+		const index = await page
+			.locator(".slide[data-clicks]:not([data-clicks='0'])")
+			.first()
+			.getAttribute("data-index");
+		expect(index).toBeTruthy();
+		await page.goto(`/slides/showcase/#${index}`);
+		const fragment = page.locator(".slide.is-active .fragment").first();
+		await expect(fragment).toHaveCount(1);
+		await expect(fragment).not.toHaveClass(/is-visible/);
+		await page.keyboard.press("ArrowRight");
+		await expect(fragment).toHaveClass(/is-visible/);
+		await expect(page).toHaveURL(new RegExp(`#${index}\\.1`));
+	});
+
+	test("opens presenter notes with p", async ({ page }) => {
+		await page.goto("/slides/showcase/#5");
+		await page.keyboard.press("p");
+		const presenter = page.locator("[data-presenter]");
+		await expect(presenter).toBeVisible();
+		await expect(presenter.locator("[data-presenter-notes]")).toContainText(
+			"引用は短く止めて",
+		);
+		await expect(page.locator("html")).toHaveClass(/is-presenter/);
 	});
 
 	test("unknown slug is 404", async ({ page }) => {

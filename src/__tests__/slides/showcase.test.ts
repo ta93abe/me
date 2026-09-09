@@ -25,12 +25,23 @@ describe("showcase deck", () => {
 			"quote",
 			"code",
 			"figure",
+			"center",
+			"body",
+			"body",
+			"code",
+			"body",
+			"end",
 		]);
 		expect(deck.frontmatter.theme).toBe("dark");
 		expect(deck.slides[5]?.html).toContain("shiki");
 		expect(deck.slides[5]?.html).toContain("min-dark");
 		expect(deck.slides[5]?.html).not.toMatch(/\sstyle=/i);
+		expect(deck.slides[5]?.html).toContain("line-highlighted");
 		expect(deck.slides[6]?.html).toContain("/slides/media/showcase/frame.svg");
+		expect(deck.slides[8]?.clicks).toBe(1);
+		expect(deck.slides[9]?.clicks).toBe(3);
+		expect(deck.slides[10]?.clicks).toBe(1);
+		expect(deck.slides[11]?.html).toContain("katex");
 	});
 });
 

@@ -4,6 +4,7 @@ import { SITE } from "@/config/site";
 import type { Deck } from "@/slides/parser/types";
 import { renderSlideSections } from "@/slides/render";
 import { generateSlideDeckSchema, stringifySchema } from "@/utils/schema";
+import "katex/dist/katex.min.css";
 import "@/slides/design-system/tokens.css";
 import "@/slides/design-system/typography.css";
 import "@/slides/design-system/layouts.css";
@@ -109,12 +110,57 @@ const sections = renderSlideSections(deck, { print });
 						<i></i>
 					</div>
 					<p class="counter" aria-live="polite">
-						<span data-current>1</span> / {deck.slides.length}
+						<span data-current>1</span><span data-click-label hidden
+							>.<span data-click>0</span></span
+						>
+						 / {deck.slides.length}
 					</p>
 					<a class="pdf-link" href={pdfHref}>
 						PDF
 					</a>
 				</div>
+			)
+		}
+		{
+			!print && (
+				<aside class="presenter" hidden data-presenter>
+					<div class="presenter-grid">
+						<section>
+							<h2 class="presenter-label">ノート</h2>
+							<p class="presenter-notes" data-presenter-notes></p>
+						</section>
+						<section>
+							<h2 class="presenter-label">次</h2>
+							<p class="presenter-next" data-presenter-next></p>
+							<p class="presenter-clock" data-presenter-timer>
+								00:00
+							</p>
+						</section>
+					</div>
+				</aside>
+			)
+		}
+		{
+			!print && (
+				<dialog class="player-help" data-help>
+					<h2>操作</h2>
+					<dl>
+						<dt>→ Space</dt>
+						<dd>次のクリック、なければ次の枚</dd>
+						<dt>←</dt>
+						<dd>前のクリック、なければ前の枚</dd>
+						<dt>Home / End</dt>
+						<dd>最初 / 最後</dd>
+						<dt>f</dt>
+						<dd>フルスクリーン</dd>
+						<dt>o</dt>
+						<dd>概要グリッド</dd>
+						<dt>p</dt>
+						<dd>発表者ノート</dd>
+						<dt>?</dt>
+						<dd>この一覧</dd>
+					</dl>
+				</dialog>
 			)
 		}
 		{

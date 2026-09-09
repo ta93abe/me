@@ -20,7 +20,7 @@ export function renderSlideSections(
 				: "";
 			const active = print || index === 0 ? " is-active" : "";
 			const hidden = print || index === 0 ? "" : " hidden inert";
-			return `<section class="slide${active}" data-type="${slide.type}" data-index="${index + 1}" id="s${index + 1}" aria-label="${index + 1} / ${deck.slides.length}"${hidden}>
+			return `<section class="slide${active}" data-type="${slide.type}" data-index="${index + 1}" data-clicks="${slide.clicks}" id="s${index + 1}" aria-label="${index + 1} / ${deck.slides.length}"${hidden}>
   <div class="slide-body">${slide.html}</div>
   ${notes}
 </section>`;

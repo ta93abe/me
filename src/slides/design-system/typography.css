@@ -105,6 +105,39 @@
 	margin: 0;
 }
 
+.slide-body .katex {
+	font-size: 1.12em;
+}
+
+.slide-body .katex-display {
+	margin: 0 0 var(--space-4);
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.slide-body pre.has-highlight .line,
+.slide-body pre.has-click-highlight .line {
+	display: inline-block;
+	width: 100%;
+	padding: 0 0.45em;
+	margin: 0 -0.45em;
+	border-radius: 0.25em;
+	box-decoration-break: clone;
+}
+
+.slide-body pre.has-click-highlight .line {
+	opacity: 0.42;
+	transition:
+		opacity 0.22s ease,
+		background-color 0.22s ease;
+}
+
+.slide-body pre.has-highlight .line.line-highlighted,
+.slide-body pre.has-click-highlight .line.is-highlighted {
+	opacity: 1;
+	background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
 .speaker-notes {
 	display: none;
 }
