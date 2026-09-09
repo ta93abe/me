@@ -69,6 +69,15 @@ function checkBudgets(audits, categories, budgets) {
 	return failures;
 }
 
+function isTtfbOnlyFailure(failures) {
+	return failures.length > 0 && failures.every((item) => item.startsWith("ttfb="));
+}
+
+async function warmup(url) {
+	const response = await fetch(url);
+	await response.arrayBuffer();
+}
+
 async function main() {
 	const config = await loadBudgets();
 	await mkdir(outDir, { recursive: true });
@@ -80,48 +89,67 @@ async function main() {
 
 	const summary = [];
 	const allFailures = [];
+	const lighthouseOptions = {
+		port: chrome.port,
+		output: ["json", "html"],
+		logLevel: "error",
+		onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
+		formFactor: "desktop",
+		screenEmulation: {
+			mobile: false,
+			width: 1350,
+			height: 940,
+			deviceScaleFactor: 1,
+			disabled: false,
+		},
+		// preview / localhost は実ネットワーク遅延がほぼ無いので、
+		// mobile 3G シミュレーションではなく provided（スロットルなし）で計測し、
+		// コード変更によるラボ指標のデグレを検知する。
+		throttlingMethod: "provided",
+	};
 
 	try {
 		for (const pathname of config.urls) {
 			const url = `${baseUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 			console.log(`[lh] Auditing ${url}`);
+			// /blog/ は prerender=false。preview の workerd 初回 SSR が TTFB 800ms
+			// を超えることがあるので、計測前に一度温める。
+			await warmup(url);
 
-			// preview / localhost は実ネットワーク遅延がほぼ無いので、
-			// mobile 3G シミュレーションではなく provided（スロットルなし）で計測し、
-			// コード変更によるラボ指標のデグレを検知する。
-			const result = await lighthouse(url, {
-				port: chrome.port,
-				output: ["json", "html"],
-				logLevel: "error",
-				onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
-				formFactor: "desktop",
-				screenEmulation: {
-					mobile: false,
-					width: 1350,
-					height: 940,
-					deviceScaleFactor: 1,
-					disabled: false,
-				},
-				throttlingMethod: "provided",
-			});
+			let result = await lighthouse(url, lighthouseOptions);
 
 			if (!result?.lhr) {
 				allFailures.push(`${pathname}: lighthouse returned no result`);
 				continue;
 			}
 
-			const { lhr, report } = result;
+			let { lhr, report } = result;
 			const slug = pathname.replaceAll("/", "_") || "home";
 			const jsonPath = path.join(outDir, `lighthouse-${slug}.json`);
 			const htmlPath = path.join(outDir, `lighthouse-${slug}.html`);
 
-			await writeFile(jsonPath, JSON.stringify(lhr, null, "\t"));
-			const html = Array.isArray(report) ? report[1] : report;
-			if (typeof html === "string") {
-				await writeFile(htmlPath, html);
-			}
+			const persist = async () => {
+				await writeFile(jsonPath, JSON.stringify(lhr, null, "\t"));
+				const html = Array.isArray(report) ? report[1] : report;
+				if (typeof html === "string") {
+					await writeFile(htmlPath, html);
+				}
+			};
+			await persist();
 
-			const failures = checkBudgets(lhr.audits, lhr.categories, config.budgets);
+			let failures = checkBudgets(lhr.audits, lhr.categories, config.budgets);
+			if (isTtfbOnlyFailure(failures)) {
+				console.warn(`[lh] ${pathname} TTFB only; retrying once after warmup`);
+				await warmup(url);
+				result = await lighthouse(url, lighthouseOptions);
+				if (!result?.lhr) {
+					allFailures.push(`${pathname}: lighthouse returned no result`);
+					continue;
+				}
+				({ lhr, report } = result);
+				await persist();
+				failures = checkBudgets(lhr.audits, lhr.categories, config.budgets);
+			}
 			const row = {
 				url,
 				performanceScore: lhr.categories.performance?.score ?? null,
