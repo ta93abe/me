@@ -55,7 +55,9 @@ describe("parseDeck", () => {
 		const deck = await parse("# 本文\n\n```ts\nconst n = 1;\n```");
 		expect(deck.frontmatter.theme).toBe("dark");
 		expect(deck.slides[0]?.html).toContain("min-dark");
+		expect(deck.slides[0]?.html).toContain("shiki-fg-");
 		expect(deck.slides[0]?.html).not.toMatch(/\sstyle=/i);
+		expect(deck.slides[0]?.html).not.toMatch(/class="[^"]*"[^>]*\sclass="/);
 	});
 
 	it("accepts theme light", async () => {
