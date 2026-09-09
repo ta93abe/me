@@ -2,12 +2,17 @@ import type { Element } from "hast";
 import { SKIP, visit } from "unist-util-visit";
 
 function classTokens(node: Element): string[] {
-	const value = node.properties?.className;
-	const raw = Array.isArray(value)
-		? value.map(String)
-		: typeof value === "string"
-			? [value]
-			: [];
+	const raw = [node.properties?.className, node.properties?.class].flatMap(
+		(value) => {
+			if (Array.isArray(value)) {
+				return value.map(String);
+			}
+			if (typeof value === "string") {
+				return [value];
+			}
+			return [];
+		},
+	);
 	return raw.flatMap((item) => item.split(/\s+/)).filter(Boolean);
 }
 
@@ -83,4 +88,5 @@ function rewriteShikiStyle(node: Element) {
 
 	node.properties.className = classes;
 	delete node.properties.style;
+	delete node.properties.class;
 }
