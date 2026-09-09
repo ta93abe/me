@@ -42,6 +42,7 @@ describe("showcase deck", () => {
 		expect(deck.slides[9]?.clicks).toBe(3);
 		expect(deck.slides[10]?.clicks).toBe(1);
 		expect(deck.slides[11]?.html).toContain("katex");
+		expect(deck.slides[11]?.html).toMatch(/style="/);
 	});
 });
 

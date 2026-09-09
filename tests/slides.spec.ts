@@ -128,6 +128,7 @@ test.describe("Slides", () => {
 		await expect(fragment).not.toHaveClass(/is-visible/);
 		await page.keyboard.press("ArrowRight");
 		await expect(fragment).toHaveClass(/is-visible/);
+		await expect(fragment).toContainText("矢印のあとに出ること");
 		await expect(page).toHaveURL(new RegExp(`#${index}\\.1`));
 	});
 

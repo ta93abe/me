@@ -145,6 +145,15 @@ describe("parseDeck", () => {
 	it("renders katex math", async () => {
 		const deck = await parse("式は $e=mc^2$。");
 		expect(deck.slides[0]?.html).toContain("katex");
+		expect(deck.slides[0]?.html).toMatch(/strut[^>]*style="/);
+	});
+
+	it("keeps katex strut styles while stripping shiki styles", async () => {
+		const deck = await parse("式は $e=mc^2$。\n\n```ts\nconst n = 1;\n```");
+		const html = deck.slides[0]?.html ?? "";
+		expect(html).toMatch(/strut[^>]*style="/);
+		expect(html).not.toMatch(/<pre[^>]*style=/i);
+		expect(html).toContain("shiki-fg-");
 	});
 
 	it("accepts center and end types", async () => {
