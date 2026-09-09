@@ -1,5 +1,6 @@
 import { basename } from "node:path";
 
+import { materializeSlideHtml } from "./clicks.ts";
 import { findForbidden } from "./forbidden.ts";
 import { markdownToHtml } from "./markdown.ts";
 import { splitSlides } from "./split-slides.ts";
@@ -137,35 +138,49 @@ async function parseSlide(
 	const extracted = extractNotes(rest);
 	rest = extracted.body;
 
-	const columnParts = rest.split(COLUMN_MARK);
-	if (type === "split") {
-		if (columnParts.length !== 2) {
+	const toHtml = (markdown: string) => markdownToHtml(markdown, slug, theme);
+
+	try {
+		const columnParts = rest.split(COLUMN_MARK);
+		if (type === "split") {
+			if (columnParts.length !== 2) {
+				throw new DeckError(
+					`スライド ${index + 1}: split は <!-- column --> を 1 つだけ使って左右を分けます`,
+				);
+			}
+			const left = await materializeSlideHtml(columnParts[0].trim(), toHtml);
+			const right = await materializeSlideHtml(columnParts[1].trim(), toHtml);
+			return {
+				type,
+				html: `<div class="split-pane">${left.html}</div><div class="split-pane">${right.html}</div>`,
+				notes: extracted.notes,
+				clicks: Math.max(left.clicks, right.clicks),
+				columns: [left.html, right.html],
+			};
+		}
+
+		if (columnParts.length > 1) {
 			throw new DeckError(
-				`スライド ${index + 1}: split は <!-- column --> を 1 つだけ使って左右を分けます`,
+				`スライド ${index + 1}: <!-- column --> は split 型だけで使います`,
 			);
 		}
-		const left = await markdownToHtml(columnParts[0].trim(), slug, theme);
-		const right = await markdownToHtml(columnParts[1].trim(), slug, theme);
+
+		const rendered = await materializeSlideHtml(rest, toHtml);
 		return {
 			type,
-			html: `<div class="split-pane">${left}</div><div class="split-pane">${right}</div>`,
+			html: rendered.html,
 			notes: extracted.notes,
-			columns: [left, right],
+			clicks: rendered.clicks,
 		};
+	} catch (error) {
+		if (error instanceof DeckError) {
+			if (error.message.startsWith("スライド ")) {
+				throw error;
+			}
+			throw new DeckError(`スライド ${index + 1}: ${error.message}`);
+		}
+		throw error;
 	}
-
-	if (columnParts.length > 1) {
-		throw new DeckError(
-			`スライド ${index + 1}: <!-- column --> は split 型だけで使います`,
-		);
-	}
-
-	const html = await markdownToHtml(rest, slug, theme);
-	if (!html) {
-		throw new DeckError(`スライド ${index + 1}: 本文が空です`);
-	}
-
-	return { type, html, notes: extracted.notes };
 }
 
 export async function parseDeck(

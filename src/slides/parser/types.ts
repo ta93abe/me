@@ -6,6 +6,8 @@ export const SLIDE_TYPES = [
 	"quote",
 	"code",
 	"figure",
+	"center",
+	"end",
 ] as const;
 
 export type SlideType = (typeof SLIDE_TYPES)[number];
@@ -38,6 +40,7 @@ export type Slide = {
 	type: SlideType;
 	html: string;
 	notes: string;
+	clicks: number;
 	columns?: [string, string];
 };
 

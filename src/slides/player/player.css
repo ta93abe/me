@@ -43,6 +43,127 @@
 	color: var(--color-accent);
 }
 
+.fragment {
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(0.35rem);
+	transition:
+		opacity 0.28s ease,
+		transform 0.28s ease,
+		visibility 0s linear 0.28s;
+}
+
+.fragment.is-visible,
+html.is-print .fragment,
+.deck.is-overview .fragment {
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+	transition-delay: 0s;
+}
+
+.counter [data-click-label][hidden] {
+	display: none;
+}
+
+.presenter {
+	pointer-events: auto;
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 12;
+	max-height: 28vh;
+	overflow: auto;
+	padding: 0.9rem 1.25rem 1.1rem;
+	background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+	border-top: 1px solid var(--color-line);
+	backdrop-filter: blur(10px);
+}
+
+.presenter[hidden] {
+	display: none;
+}
+
+.presenter-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.6fr) minmax(12rem, 0.8fr);
+	gap: var(--space-5);
+	align-items: start;
+}
+
+.presenter-label {
+	margin: 0 0 0.35rem;
+	color: var(--color-ink-dim);
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+}
+
+.presenter-notes {
+	margin: 0;
+	white-space: pre-wrap;
+	font-size: 0.92rem;
+	line-height: 1.55;
+}
+
+.presenter-next,
+.presenter-clock {
+	margin: 0;
+	font-size: 0.92rem;
+}
+
+.presenter-clock {
+	margin-top: var(--space-3);
+	color: var(--color-accent);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.06em;
+}
+
+html.is-presenter .stage-wrap {
+	min-height: 72vh;
+	align-items: start;
+	padding-top: var(--space-4);
+	padding-bottom: 30vh;
+}
+
+.player-help {
+	width: min(28rem, calc(100vw - 2rem));
+	border: 1px solid var(--color-line);
+	border-radius: var(--radius);
+	background: var(--color-bg);
+	color: var(--color-ink);
+	padding: 1.2rem 1.4rem;
+}
+
+.player-help::backdrop {
+	background: rgb(9 7 14 / 0.55);
+}
+
+.player-help h2 {
+	margin: 0 0 0.8rem;
+	font-size: 1rem;
+}
+
+.player-help dl {
+	margin: 0;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 0.4rem 1rem;
+	font-size: 0.9rem;
+}
+
+.player-help dt {
+	color: var(--color-accent);
+	font-family: var(--font-mono);
+	font-size: 0.82rem;
+}
+
+.player-help dd {
+	margin: 0;
+	color: var(--color-ink-dim);
+}
+
 html.is-print,
 html.is-print body,
 html.is-print .stage-wrap,
@@ -74,7 +195,9 @@ html.is-print .slide:last-child {
 	page-break-after: auto;
 }
 
-html.is-print .player-ui {
+html.is-print .player-ui,
+html.is-print .presenter,
+html.is-print .player-help {
 	display: none !important;
 }
 
@@ -116,6 +239,8 @@ html.is-print .player-ui {
 	}
 
 	.player-ui,
+	.presenter,
+	.player-help,
 	.deck.is-overview {
 		display: none !important;
 	}
