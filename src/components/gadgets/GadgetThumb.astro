@@ -14,15 +14,16 @@ const image = gadgetImageUrl(gadget.slug);
 <img
 	src={image}
 	alt=""
-	width="400"
-	height="400"
+	width="640"
+	height="640"
 	draggable="false"
 	decoding="async"
+	loading={size === "grid" ? "lazy" : "eager"}
 	data-gadget-thumb={gadget.slug}
 	class:list={[
 		"pointer-events-none select-none object-contain",
 		size === "grid" &&
-			"h-full max-h-20 w-full max-w-20 lg:max-h-24 lg:max-w-24",
+			"h-full max-h-28 w-full max-w-full lg:max-h-32",
 		size === "detail" && "h-full w-full object-contain",
 	]}
 />

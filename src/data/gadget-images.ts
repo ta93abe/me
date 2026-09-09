@@ -1,16 +1,16 @@
-const gadgetSvgs = import.meta.glob<string>("../assets/gadgets/*.svg", {
+const gadgetPhotos = import.meta.glob<string>("../assets/gadgets/*.webp", {
 	eager: true,
-	query: "?raw",
+	query: "?inline",
 	import: "default",
 });
 
 export function gadgetImageUrl(slug: string): string {
-	const match = Object.entries(gadgetSvgs).find(([key]) =>
-		key.endsWith(`/${slug}.svg`),
+	const match = Object.entries(gadgetPhotos).find(([key]) =>
+		key.endsWith(`/${slug}.webp`),
 	);
-	const svg = match?.[1];
-	if (typeof svg !== "string" || svg.length === 0) {
+	const url = match?.[1];
+	if (typeof url !== "string" || url.length === 0) {
 		throw new Error(`Missing gadget image: ${slug}`);
 	}
-	return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+	return url;
 }

@@ -21,6 +21,6 @@ describe("isRetiredSitePath", () => {
 		expect(isRetiredSitePath("/works")).toBe(false);
 		expect(isRetiredSitePath("/works/dbt-jobs")).toBe(false);
 		expect(isRetiredSitePath("/gadgets")).toBe(false);
-		expect(isRetiredSitePath("/gadgets/macbook-pro")).toBe(false);
+		expect(isRetiredSitePath("/gadgets/mac-studio")).toBe(false);
 	});
 });
