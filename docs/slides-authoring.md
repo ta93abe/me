@@ -4,6 +4,8 @@
 
 契約の決定: [ADR-0010](https://linear.app/ta93abe/document/adr-0010-スライド型は-html-コメントで指定する-e347dd843d49) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)
 
+リンクの使い方は未決。[未決: スライド内リンクの使い方](https://linear.app/ta93abe/document/未決-スライド内リンクの使い方-9f3970a9fe22)
+
 ブログ本文（`marked` + Prism）とは別経路。スライドは remark + ビルド時 Shiki。
 
 ## 置き場
@@ -79,6 +81,21 @@ theme: dark
 ```
 
 パスは `src/slides/decks/<slug>/` 配下からの相対。
+
+### リンク（未決）
+
+使い方はまだ決めない。今の実装を契約にしない。メモ: [未決: スライド内リンクの使い方](https://linear.app/ta93abe/document/未決-スライド内リンクの使い方-9f3970a9fe22)
+
+今は `[文言](https://example.com)` が `<a href>` になり、発表モードではクリックで遷移する。`target="_blank"` は付かない。生の HTML `<a>` は通らない。
+
+決めること:
+
+- 許可するか、禁止するか
+- 外部を同じタブで出すか、新しいタブか
+- `#3` とプレイヤーのハッシュが衝突すること
+- 相対リンク（画像と違い書き換えない）
+- 概要グリッド（`o`）上のクリック
+- 印刷 / PDF にリンクを残すか
 
 ## 禁止（ビルドが失敗する）
 
