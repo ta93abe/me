@@ -180,13 +180,6 @@ body:not(.lock-viewport)::after {
 	font-weight: 700;
 }
 
-/* Lead paragraph */
-.prose > p:first-of-type {
-	font-size: 1.1875rem;
-	line-height: 1.9;
-	color: var(--text-primary);
-}
-
 /* Code block styles */
 .prose pre {
 	position: relative;
