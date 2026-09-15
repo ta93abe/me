@@ -98,3 +98,26 @@ curl -sS "$ORIGIN/api/content/index/blog"
 ```
 
 `scripts/content-api-curl.sh` が同じ手順をまとめる。
+
+## ブログ本文の X ポスト埋め込み
+
+ポスト URL を単独行に貼ると、公開時に Worker が内容を取得して静的カードにする（widgets.js は使わない）。
+
+```md
+https://x.com/jack/status/20
+```
+
+Markdown リンクやプロトコルなしでも同じ。
+
+```md
+[https://x.com/jack/status/20](https://x.com/jack/status/20)
+x.com/jack/status/20
+```
+
+Zenn 記法も使える。
+
+```md
+@[tweet](https://x.com/jack/status/20)
+```
+
+`twitter.com` / `x.com` / `mobile.` / `www.` / `/i/status/` に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときは「Xでポストを見る」リンクカードになる。

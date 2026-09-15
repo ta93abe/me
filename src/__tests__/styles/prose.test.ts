@@ -24,4 +24,16 @@ describe("blog article prose", () => {
 			"color: var(--text-primary)",
 		);
 	});
+
+	it("styles X post embeds as bordered sans-serif cards", () => {
+		expect(declarations(".prose .tweet-embed")).toContain(
+			'font-family: "Inter", system-ui, sans-serif',
+		);
+		expect(declarations(".prose .tweet-embed")).toContain(
+			"border: 1px solid var(--border-color)",
+		);
+		expect(declarations(".prose .tweet-embed a")).toContain(
+			"text-decoration: none",
+		);
+	});
 });

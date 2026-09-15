@@ -123,7 +123,7 @@ export async function loadBlogPost(
 			revise_date: toDate(reviseDateValue(validated.data)),
 			tags: tagsFrom(validated.data.tags),
 			body: parsed.body,
-			html: renderBlogMarkdown(parsed.body),
+			html: await renderBlogMarkdown(parsed.body),
 		};
 	} catch {
 		return null;
