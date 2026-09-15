@@ -21,7 +21,7 @@ Astro、Tailwind CSS、TypeScript で書き、Cloudflare Workers で配信して
 
 ## ローカルで動かす
 
-Node.js 22 以上と pnpm が必要です。
+Node.js 22.12 以上と pnpm が必要です。
 
 ```sh
 pnpm install
