@@ -15,10 +15,13 @@ function declarations(selector: string): string {
 }
 
 describe("blog article prose", () => {
-	it("keeps the opening paragraph the same ink color as the rest of the body", () => {
-		expect(declarations(".prose")).toContain("color: var(--text-secondary)");
+	it("paints the article body with primary ink, including the opening paragraph", () => {
+		expect(declarations(".prose")).toContain("color: var(--text-primary)");
 		expect(declarations(".prose > p:first-of-type")).not.toMatch(
-			/color:\s*var\(--text-primary\)/,
+			/color:\s*var\(--text-secondary\)/,
+		);
+		expect(declarations(".prose blockquote p")).toContain(
+			"color: var(--text-primary)",
 		);
 	});
 });

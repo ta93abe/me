@@ -122,7 +122,7 @@ body:not(.lock-viewport)::after {
 	font-family: "Shippori Mincho", "Noto Serif JP", serif;
 	font-size: 1.0625rem;
 	line-height: 2;
-	color: var(--text-secondary);
+	color: var(--text-primary);
 	letter-spacing: 0.02em;
 }
 
@@ -334,7 +334,7 @@ body:not(.lock-viewport)::after {
 
 .prose blockquote p {
 	margin: 0;
-	color: var(--text-secondary);
+	color: var(--text-primary);
 }
 
 /* Table styling */
