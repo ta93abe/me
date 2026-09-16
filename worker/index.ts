@@ -9,6 +9,7 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import { findMcpTool, mcpServerCard, mcpToolList } from "./mcp-catalog.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -29,7 +30,6 @@ const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
 	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
 const DISCOVERY_LINKS = [
@@ -363,33 +363,6 @@ function apiCatalog() {
 	};
 }
 
-function mcpServerCard() {
-	return {
-		serverInfo: {
-			name: `${SITE_HOST} site discovery`,
-			version: "1.0.0",
-		},
-		description:
-			"Read-only discovery endpoint for the public ta93abe.com portfolio site.",
-		url: MCP_ENDPOINT,
-		transport: {
-			type: "streamable-http",
-		},
-		capabilities: {
-			tools: true,
-			resources: true,
-		},
-		resources: [
-			{
-				name: "site_overview",
-				uri: `${SITE_URL}/llms.txt`,
-				mimeType: "text/plain",
-				description: "Concise overview of the public site.",
-			},
-		],
-	};
-}
-
 function a2aAgentCard() {
 	return {
 		name: SITE_TITLE,
@@ -489,21 +462,6 @@ async function agentSkillsIndex() {
 	};
 }
 
-function mcpToolList() {
-	return [
-		{
-			name: "get_site_overview",
-			description:
-				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
-			inputSchema: {
-				type: "object",
-				properties: {},
-				additionalProperties: false,
-			},
-		},
-	];
-}
-
 async function handleMcp(request: Request, env: Env): Promise<Response> {
 	if (request.method.toUpperCase() !== "POST") {
 		return jsonResponse(
@@ -572,8 +530,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
 	}
 
 	if (payload.method === "tools/call") {
-		const toolName = payload.params?.name;
-		if (toolName !== "get_site_overview") {
+		if (!findMcpTool(payload.params?.name)) {
 			return jsonResponse(request, {
 				jsonrpc: "2.0",
 				id,
