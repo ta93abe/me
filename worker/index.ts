@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -310,57 +311,6 @@ async function sha256Digest(value: string): Promise<string> {
 	return `sha256:${[...new Uint8Array(digest)]
 		.map((byte) => byte.toString(16).padStart(2, "0"))
 		.join("")}`;
-}
-
-function apiCatalog() {
-	return {
-		linkset: [
-			{
-				anchor: SITE_URL,
-				"service-doc": [
-					{
-						href: `${SITE_URL}/llms.txt`,
-						type: "text/plain",
-					},
-					{
-						href: `${SITE_URL}/llms-full.txt`,
-						type: "text/plain",
-					},
-					{
-						href: `${SITE_URL}/auth.md`,
-						type: "text/markdown",
-					},
-				],
-				"auth-endpoint": [
-					{
-						href: `${SITE_URL}/agent/auth`,
-						type: "application/json",
-					},
-				],
-				"service-desc": [
-					{
-						href: `${SITE_URL}/.well-known/mcp/server-card.json`,
-						type: "application/json",
-					},
-					{
-						href: `${SITE_URL}/.well-known/agent-card.json`,
-						type: "application/json",
-					},
-				],
-				describedby: [
-					{
-						href: `${SITE_URL}/.well-known/agent-skills/index.json`,
-						type: "application/json",
-					},
-				],
-				status: [
-					{
-						href: SITE_URL,
-					},
-				],
-			},
-		],
-	};
 }
 
 function mcpServerCard() {
@@ -793,8 +743,8 @@ export default {
 		if (pathname === "/.well-known/api-catalog") {
 			return textResponse(
 				request,
-				JSON.stringify(apiCatalog(), null, 2),
-				"application/linkset+json; charset=utf-8",
+				JSON.stringify(buildApiCatalog(SITE_URL), null, 2),
+				API_CATALOG_MEDIA_TYPE,
 			);
 		}
 
