@@ -10,6 +10,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
 import { copySlideMedia } from "./src/slides/copy-media.ts";
+import { optionalFontDisplayPlugin } from "./src/utils/optional-font-display.ts";
 
 /**
  * Astro の CspResourceEntry 相当。
@@ -128,7 +129,7 @@ export default defineConfig({
 		},
 	},
 	vite: {
-		plugins: [tailwindcss()],
+		plugins: [optionalFontDisplayPlugin(), tailwindcss()],
 		build: {
 			cssCodeSplit: true,
 			rollupOptions: {

@@ -156,7 +156,7 @@ export default function MobileNav({ links, currentPath }: Props) {
 
 			<dialog
 				ref={dialogRef}
-				className="mobile-nav-dialog m-0 h-dvh max-h-dvh w-full max-w-none border-0 bg-(--bg-primary) p-0 text-(--text-primary)"
+				className="mobile-nav-dialog m-0 max-w-none border-0 bg-(--bg-primary) p-0 text-(--text-primary)"
 				aria-label="メニュー"
 			>
 				<div className="flex h-(--header-height) items-center justify-end px-6">
@@ -220,9 +220,16 @@ export default function MobileNav({ links, currentPath }: Props) {
 					box-shadow: none;
 				}
 
+				.mobile-nav-dialog:not([open]) {
+					display: none;
+				}
+
 				.mobile-nav-dialog[open] {
 					display: flex;
 					flex-direction: column;
+					width: 100%;
+					height: 100svh;
+					max-height: 100svh;
 				}
 
 				.mobile-nav-dialog::backdrop {
