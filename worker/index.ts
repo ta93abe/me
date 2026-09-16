@@ -33,6 +33,15 @@ const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
+const AI_CATALOG_PATHS = new Set([
+	"/.well-known/ai-catalog.json",
+	"/.well-known/ard.json",
+]);
+const AI_CATALOG_CORS_HEADERS = {
+	"Access-Control-Allow-Origin": "*",
+	"Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+} as const;
+
 const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
 	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
@@ -700,6 +709,16 @@ export default {
 		}
 
 		if (
+			AI_CATALOG_PATHS.has(pathname) &&
+			request.method.toUpperCase() === "OPTIONS"
+		) {
+			return new Response(null, {
+				status: 204,
+				headers: AI_CATALOG_CORS_HEADERS,
+			});
+		}
+
+		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
 			pathname !== "/mcp"
@@ -803,11 +822,10 @@ export default {
 			);
 		}
 
-		if (
-			pathname === "/.well-known/ai-catalog.json" ||
-			pathname === "/.well-known/ard.json"
-		) {
-			return jsonResponse(request, aiCatalog());
+		if (AI_CATALOG_PATHS.has(pathname)) {
+			return jsonResponse(request, aiCatalog(), {
+				headers: AI_CATALOG_CORS_HEADERS,
+			});
 		}
 
 		if (

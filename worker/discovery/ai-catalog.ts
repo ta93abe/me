@@ -17,6 +17,7 @@ export type AiCatalogManifest = {
 	specVersion: "1.0";
 	host: {
 		displayName: string;
+		identifier: string;
 		documentationUrl: string;
 	};
 	entries: AiCatalogEntry[];
@@ -27,6 +28,7 @@ export function aiCatalog(): AiCatalogManifest {
 		specVersion: "1.0",
 		host: {
 			displayName: SITE_TITLE,
+			identifier: `did:web:${SITE_HOST}`,
 			documentationUrl: `${SITE_URL}/llms.txt`,
 		},
 		entries: [
@@ -40,6 +42,8 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["mcp", "portfolio", "discovery"],
 				capabilities: ["get_site_overview"],
 				representativeQueries: [
+					"ta93abe のサイト概要を MCP で取る",
+					"MCP の入口は？",
 					"What is ta93abe.com?",
 					"Give me a concise overview of this site.",
 				],
@@ -54,6 +58,7 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["skill", "portfolio", "discovery"],
 				capabilities: ["site-overview"],
 				representativeQueries: [
+					"エージェントはどう ta93abe.com を読むべき？",
 					"How should an agent crawl ta93abe.com?",
 					"Where are the public sections and discovery URLs?",
 				],
@@ -68,6 +73,8 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["llms.txt", "portfolio"],
 				capabilities: ["site-overview"],
 				representativeQueries: [
+					"ta93abe のブログは？",
+					"About はどこ？",
 					"Summarize ta93abe.com for an LLM.",
 					"List the public pages on this site.",
 				],
@@ -82,6 +89,7 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["auth", "anonymous"],
 				capabilities: ["anonymous-access"],
 				representativeQueries: [
+					"ta93abe.com の閲覧に認証は必要？",
 					"Does ta93abe.com require authentication?",
 					"How should an agent register for public access?",
 				],
@@ -96,6 +104,7 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["a2a", "portfolio"],
 				capabilities: ["site-overview"],
 				representativeQueries: [
+					"ta93abe.com のエージェントは何ができる？",
 					"What can the ta93abe.com agent do?",
 					"List the public sections of this site.",
 				],
