@@ -18,11 +18,17 @@ import { createContentEnv } from "./memory-r2.ts";
 
 const HTML_404_TITLE = "404 - ページが見つかりません";
 
+type WorkerFetch = (
+	request: Request,
+	env: Env,
+	ctx: ExecutionContext,
+) => Promise<Response>;
+
 function testEnv(): Env {
 	return {
 		...createContentEnv(),
 		DEPLOY_HOOK_URL: "https://example.com/deploy-hook",
-	} as Env;
+	} as unknown as Env;
 }
 
 function testCtx(): ExecutionContext {
@@ -30,7 +36,7 @@ function testCtx(): ExecutionContext {
 		waitUntil() {},
 		passThroughOnException() {},
 		props: {},
-	} as ExecutionContext;
+	} as unknown as ExecutionContext;
 }
 
 function discoveryRequest(path: string, init: RequestInit = {}): Request {
@@ -48,7 +54,11 @@ async function fetchWorker(
 	path: string,
 	init: RequestInit = {},
 ): Promise<Response> {
-	return worker.fetch(discoveryRequest(path, init), testEnv(), testCtx());
+	return (worker.fetch as WorkerFetch)(
+		discoveryRequest(path, init),
+		testEnv(),
+		testCtx(),
+	);
 }
 
 beforeEach(() => {
