@@ -10,6 +10,10 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
 import { copySlideMedia } from "./src/slides/copy-media.ts";
+import {
+	SITEMAP_INDEX_PATH,
+	SITEMAP_XML_ALIAS_PATH,
+} from "./src/utils/sitemap.ts";
 
 /**
  * Astro の CspResourceEntry 相当。
@@ -71,6 +75,7 @@ export default defineConfig({
 		},
 	],
 	redirects: {
+		[SITEMAP_XML_ALIAS_PATH]: SITEMAP_INDEX_PATH,
 		"/gallery": "/",
 		"/atelier": "/",
 		"/bookshelf": "/",

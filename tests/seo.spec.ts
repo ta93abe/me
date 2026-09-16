@@ -89,4 +89,21 @@ test.describe("Sitewide SEO", () => {
 			page.locator('.sns-links a[href*="github.com"]').first(),
 		).toHaveAttribute("rel", /me/);
 	});
+
+	test("robots.txt uses only standard directives and points at the sitemap index", async ({
+		request,
+	}) => {
+		const response = await request.get("/robots.txt");
+		expect(response.ok()).toBeTruthy();
+		const body = await response.text();
+		expect(body).not.toMatch(/^\s*Content-Signal\s*:/im);
+		expect(body).toContain("Sitemap: https://ta93abe.com/sitemap-index.xml");
+		expect(body).toMatch(/User-agent:\s*\*/i);
+	});
+
+	test("/sitemap.xml redirects to the sitemap index", async ({ request }) => {
+		const response = await request.get("/sitemap.xml", { maxRedirects: 0 });
+		expect(response.status()).toBe(301);
+		expect(response.headers().location).toMatch(/\/sitemap-index\.xml\/?$/);
+	});
 });

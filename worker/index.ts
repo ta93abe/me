@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { sitemapIndexLocation } from "../src/utils/sitemap.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -738,6 +739,12 @@ export default {
 			);
 		}
 
+		const sitemapAlias = sitemapIndexLocation(pathname);
+		if (sitemapAlias) {
+			return Response.redirect(new URL(sitemapAlias, url), 301);
+		}
+
+		// robots.txt is public/robots.txt (static asset). Do not generate it here.
 		if (pathname === "/sitemap-index.xml") {
 			return textResponse(
 				request,

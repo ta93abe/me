@@ -1,4 +1,7 @@
 # robots.txt
+# Source of truth: this static file (Astro public/ → Workers ASSETS).
+# The Worker does not generate robots.txt. Content-Signal is an HTTP header
+# (public/_headers and Worker responses), not a robots.txt directive.
 User-agent: *
 Allow: /
 
@@ -26,5 +29,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Content-Signal: ai-train=no, search=yes, ai-input=yes
 Sitemap: https://ta93abe.com/sitemap-index.xml
