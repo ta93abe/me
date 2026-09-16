@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
 	mcpGetSiteOverviewResult,
@@ -46,14 +46,31 @@ describe("WebMCP site overview", () => {
 });
 
 describe("site overview wiring", () => {
-	it("registers the shared overview from the page-side WebMCP tool", () => {
-		const source = readFileSync(
-			join(repoRoot, "src/scripts/model-context.ts"),
-			"utf8",
-		);
+	it("registers get_site_overview whose execute returns the agent card", async () => {
+		vi.resetModules();
+		const tools: Array<{
+			name: string;
+			execute: () => Promise<{ discovery: { agentCard?: string } }>;
+		}> = [];
 
-		expect(source).toContain("SITE_OVERVIEW");
-		expect(source).toContain("execute: async () => ({ ...SITE_OVERVIEW })");
+		Object.defineProperty(navigator, "modelContext", {
+			configurable: true,
+			value: {
+				registerTool(tool: (typeof tools)[number]) {
+					tools.push(tool);
+				},
+			},
+		});
+
+		await import("@/scripts/model-context");
+
+		const tool = tools.find((item) => item.name === "get_site_overview");
+		expect(tool).toBeDefined();
+		await expect(tool?.execute()).resolves.toMatchObject({
+			discovery: {
+				agentCard: "https://ta93abe.com/.well-known/agent-card.json",
+			},
+		});
 	});
 
 	it("returns the shared overview from HTTP MCP get_site_overview", () => {

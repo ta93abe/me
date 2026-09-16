@@ -1,4 +1,4 @@
-import { SITE_OVERVIEW } from "@/config/site-overview";
+import { SITE_OVERVIEW } from "../config/site-overview";
 
 type ModelContext = {
 	registerTool?: (tool: unknown) => void;
