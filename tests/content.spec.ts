@@ -34,6 +34,16 @@ test.describe("Published content", () => {
 		);
 	});
 
+	test("blog index lists titles without dates or excerpts", async ({
+		page,
+	}) => {
+		await page.goto("/blog");
+
+		await expect(page.locator("main time")).toHaveCount(0);
+		await expect(page.locator("#blog-list").getByText("更新")).toHaveCount(0);
+		await expect(page.locator("#blog-list article p")).toHaveCount(0);
+	});
+
 	test("missing blog slug returns the 404 playground", async ({ page }) => {
 		const response = await page.goto("/blog/does-not-exist");
 
