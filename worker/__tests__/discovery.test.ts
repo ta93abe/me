@@ -37,7 +37,7 @@ async function fetchPath(
 	init: RequestInit = {},
 ): Promise<Response> {
 	return worker.fetch(
-		new Request(`https://ta93abe.com${path}`, init),
+		new Request(`https://ta93abe.com${path}`, init) as never,
 		env,
 		ctx,
 	);
