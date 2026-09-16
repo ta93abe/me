@@ -79,7 +79,7 @@ src/pages/
 4. 添付は公開 R2 `me-images` の `content/{collection}/{slug}/...`
 5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
 6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge
-7. RSS / sitemap-blog / llms / OG は blog index と `derived/` に接続する。全文再ビルドはコード変更のときだけ
+7. RSS / sitemap-blog / `llms.txt` / OG は blog index と `derived/` に接続する。`/llms-full.txt` はリクエスト時に About・Works・公開ブログ本文を統合する。全文再ビルドはコード変更のときだけ
 8. Git の `src/content`、Sveltia `/admin`、MDX 記事は外した。既存 Git 記事は移行せず捨てた
 
 gallery / atelier / books のサイトページはいったん外している。Worker Content API のコレクション契約は残す。契約は `docs/CONTENT_API.md`。

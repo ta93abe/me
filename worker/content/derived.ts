@@ -1,9 +1,14 @@
+import { FEATURED_WORKS, SITE } from "../../src/config/site.ts";
+import linksData from "../../src/data/links.json";
 import { publishDateValue, reviseDateValue, toDate } from "./dates.ts";
+import { looksLikeMdx, parseMarkdownDocument } from "./frontmatter.ts";
 import { readCollectionIndex, type ContentIndexEntry } from "./index-store.ts";
+import { markdownKey } from "./keys.ts";
 
 export const BLOG_RSS_KEY = "derived/rss-blog.xml";
 export const SITEMAP_URLS_KEY = "derived/sitemap-urls.json";
 export const LLMS_BLOG_KEY = "derived/llms-blog.txt";
+export const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 
 const DEFAULT_ORIGIN = "https://ta93abe.com";
 
@@ -13,6 +18,10 @@ export type FeedPost = {
 	excerpt: string;
 	publish_date: Date;
 	revise_date?: Date;
+};
+
+export type LlmsFullPost = FeedPost & {
+	body: string;
 };
 
 export type SitemapUrlEntry = {
@@ -43,7 +52,7 @@ function escapeXml(value: string): string {
 		.replaceAll("'", "&apos;");
 }
 
-export function sortFeedPosts(posts: FeedPost[]): FeedPost[] {
+export function sortFeedPosts<T extends FeedPost>(posts: T[]): T[] {
 	return posts.toSorted(
 		(left, right) =>
 			right.publish_date.getTime() - left.publish_date.getTime() ||
@@ -178,6 +187,117 @@ export function buildLlmsBlogSection(
 		(post) => `- [${post.title}](${base}/blog/${post.slug}/) — ${post.excerpt}`,
 	);
 	return `## Blog\n\n${lines.join("\n")}\n`;
+}
+
+function featuredWorksMarkdown(): string {
+	return FEATURED_WORKS.map(
+		(work) => `- [${work.title}](${work.href}) — ${work.excerpt}`,
+	).join("\n");
+}
+
+function snsMarkdown(): string {
+	return linksData.links
+		.map((link) => `- [${link.name}](${link.url})`)
+		.join("\n");
+}
+
+export function buildAboutMarkdown(): string {
+	return `# About
+
+${SITE.handle}
+
+${SITE.name}
+
+${SITE.tagline}
+
+## 代表作
+
+${featuredWorksMarkdown()}
+
+## SNS
+
+${snsMarkdown()}
+
+連絡は Contact からどうぞ。
+`;
+}
+
+export function buildWorksMarkdown(): string {
+	return `# Works
+
+GitHub に置いている代表作です。
+
+${featuredWorksMarkdown()}
+`;
+}
+
+function originHost(origin: string): string {
+	return new URL(originBase(origin)).host;
+}
+
+function llmsFullPage(url: string, markdown: string): string {
+	return `## ${url}\n\n${markdown.trim()}\n`;
+}
+
+export function buildLlmsFullDocument(
+	posts: LlmsFullPost[],
+	origin: string = DEFAULT_ORIGIN,
+): string {
+	const base = originBase(origin);
+	const pages = [
+		llmsFullPage(`${base}/about/`, buildAboutMarkdown()),
+		llmsFullPage(`${base}/works/`, buildWorksMarkdown()),
+		...sortFeedPosts(posts).map((post) =>
+			llmsFullPage(
+				`${base}/blog/${post.slug}/`,
+				`# ${post.title}\n\n${post.body.trim()}`,
+			),
+		),
+	];
+
+	return [
+		`# ${originHost(origin)}, full content`,
+		"",
+		`Content-Signal: ${CONTENT_SIGNAL}`,
+		"",
+		pages.join("\n---\n\n"),
+	].join("\n");
+}
+
+async function loadPublishedBlogBodies(
+	bucket: R2Bucket,
+): Promise<LlmsFullPost[]> {
+	const index = await readCollectionIndex(bucket, "blog");
+	const posts = feedPostsFromEntries(index.entries);
+	const result: LlmsFullPost[] = [];
+
+	for (const post of posts) {
+		const object = await bucket.get(markdownKey("blog", post.slug));
+		if (!object) {
+			continue;
+		}
+
+		const markdown = await object.text();
+		if (looksLikeMdx(markdown)) {
+			continue;
+		}
+
+		try {
+			const parsed = parseMarkdownDocument(markdown);
+			result.push({ ...post, body: parsed.body });
+		} catch {
+			continue;
+		}
+	}
+
+	return result;
+}
+
+export async function buildLlmsFullText(
+	bucket: R2Bucket,
+	origin: string = DEFAULT_ORIGIN,
+): Promise<string> {
+	return buildLlmsFullDocument(await loadPublishedBlogBodies(bucket), origin);
 }
 
 export function discoveryCacheUrls(

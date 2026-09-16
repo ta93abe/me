@@ -4,7 +4,9 @@ import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
+	buildLlmsFullText,
 	buildSitemapIndexXml,
+	CONTENT_SIGNAL,
 	readLlmsBlogSection,
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
@@ -28,7 +30,6 @@ const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
 	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
@@ -82,25 +83,13 @@ ${SITE_DESCRIPTION}
 - Authentication notes: ${SITE_URL}/auth.md
 `;
 
-const LLMS_GUIDANCE = `## Agent guidance
-
-- This is a public content site. No authentication is required to read the public pages.
-- Prefer canonical URLs on ${SITE_HOST}.
-- Use the sitemap at ${SITE_URL}/sitemap-index.xml for crawl discovery.
-- Respect robots.txt and Content-Signal directives.
-
-## Content usage preference
-
-Content-Signal: ${CONTENT_SIGNAL}
-`;
-
 async function siteOverviewMarkdown(env: Env): Promise<string> {
 	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
 	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
+	return buildLlmsFullText(env.CONTENT, SITE_URL);
 }
 
 const AUTH_MD = `# Auth.md
