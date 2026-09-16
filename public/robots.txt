@@ -1,6 +1,7 @@
 # robots.txt
 User-agent: *
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 User-agent: GPTBot
 Allow: /
@@ -26,5 +27,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Content-Signal: ai-train=no, search=yes, ai-input=yes
 Sitemap: https://ta93abe.com/sitemap-index.xml

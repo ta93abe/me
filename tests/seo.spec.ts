@@ -83,6 +83,23 @@ test.describe("Sitewide SEO", () => {
 		expect(html).not.toContain("application/ld+json");
 	});
 
+	test("robots.txt puts Content-Signal under User-agent: *", async ({
+		request,
+	}) => {
+		const body = await (await request.get("/robots.txt")).text();
+		expect(body).toMatch(
+			/^User-agent: \*\nAllow: \/\nContent-Signal: ai-train=no, search=yes, ai-input=yes\n/m,
+		);
+		expect(body).not.toMatch(
+			/User-agent: CCBot\nAllow: \/\n\nContent-Signal:/,
+		);
+		expect(
+			body
+				.trimEnd()
+				.endsWith("Sitemap: https://ta93abe.com/sitemap-index.xml"),
+		).toBe(true);
+	});
+
 	test("SNS profile links advertise rel=me", async ({ page }) => {
 		await page.goto("/links");
 		await expect(
