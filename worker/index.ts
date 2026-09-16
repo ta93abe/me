@@ -10,6 +10,11 @@ import {
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
+import {
+	SECURITY_TXT,
+	SECURITY_TXT_CONTENT_TYPE,
+	SECURITY_TXT_PATH,
+} from "./security-txt.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
 	isPrintQuery,
@@ -80,6 +85,7 @@ ${SITE_DESCRIPTION}
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
 - Authentication notes: ${SITE_URL}/auth.md
+- security.txt: ${SITE_URL}/.well-known/security.txt
 `;
 
 const LLMS_GUIDANCE = `## Agent guidance
@@ -161,6 +167,7 @@ There is nothing to revoke for anonymous public read access.
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
+- security.txt: ${SITE_URL}/.well-known/security.txt
 `;
 
 /** WorkOS auth.md / agent_auth block (shared by AS metadata + docs). */
@@ -329,6 +336,10 @@ function apiCatalog() {
 					{
 						href: `${SITE_URL}/auth.md`,
 						type: "text/markdown",
+					},
+					{
+						href: `${SITE_URL}${SECURITY_TXT_PATH}`,
+						type: "text/plain",
 					},
 				],
 				"auth-endpoint": [
@@ -788,6 +799,14 @@ export default {
 				);
 			}
 			return jsonResponse(request, agentAuthRegisterResponse());
+		}
+
+		if (pathname === SECURITY_TXT_PATH) {
+			return textResponse(
+				request,
+				SECURITY_TXT,
+				SECURITY_TXT_CONTENT_TYPE,
+			);
 		}
 
 		if (pathname === "/.well-known/api-catalog") {

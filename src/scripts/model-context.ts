@@ -38,6 +38,7 @@ if (!modelContext) {
 				mcpServerCard: "https://ta93abe.com/.well-known/mcp/server-card.json",
 				agentSkills: "https://ta93abe.com/.well-known/agent-skills/index.json",
 				auth: "https://ta93abe.com/auth.md",
+				securityTxt: "https://ta93abe.com/.well-known/security.txt",
 			},
 		}),
 		annotations: {
