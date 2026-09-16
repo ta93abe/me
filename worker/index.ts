@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { A2A_PATH, a2aAgentCard, a2aEndpoint, handleA2a } from "./a2a.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -30,15 +31,17 @@ const SITE_DESCRIPTION =
 	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
+const A2A_ENDPOINT = a2aEndpoint(SITE_URL);
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
+const JSON_RPC_PATHS = new Set(["/mcp", A2A_PATH]);
 
 const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
 	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
 	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
+	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"; title="MCP Server Card"`,
 	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
+	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"; title="A2A Agent Card"`,
 ].join(", ");
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
@@ -78,6 +81,9 @@ ${SITE_DESCRIPTION}
 - Full agent notes: ${SITE_URL}/llms-full.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
+- MCP JSON-RPC: ${MCP_ENDPOINT}
+- A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
+- A2A JSON-RPC: ${A2A_ENDPOINT}
 - Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
 - Authentication notes: ${SITE_URL}/auth.md
 `;
@@ -159,8 +165,10 @@ There is nothing to revoke for anonymous public read access.
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
+- MCP JSON-RPC: ${MCP_ENDPOINT}
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
+- A2A JSON-RPC: ${A2A_ENDPOINT}
 `;
 
 /** WorkOS auth.md / agent_auth block (shared by AS metadata + docs). */
@@ -341,10 +349,12 @@ function apiCatalog() {
 					{
 						href: `${SITE_URL}/.well-known/mcp/server-card.json`,
 						type: "application/json",
+						title: "MCP Server Card",
 					},
 					{
 						href: `${SITE_URL}/.well-known/agent-card.json`,
 						type: "application/json",
+						title: "A2A Agent Card",
 					},
 				],
 				describedby: [
@@ -385,44 +395,6 @@ function mcpServerCard() {
 				uri: `${SITE_URL}/llms.txt`,
 				mimeType: "text/plain",
 				description: "Concise overview of the public site.",
-			},
-		],
-	};
-}
-
-function a2aAgentCard() {
-	return {
-		name: SITE_TITLE,
-		description: SITE_DESCRIPTION,
-		url: SITE_URL,
-		version: "1.0.0",
-		capabilities: {
-			streaming: false,
-			pushNotifications: false,
-			stateTransitionHistory: false,
-		},
-		authentication: {
-			schemes: ["none"],
-		},
-		defaultInputModes: ["text"],
-		defaultOutputModes: ["text"],
-		supportedInterfaces: [
-			{
-				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
-				url: `${SITE_URL}/mcp`,
-			},
-		],
-		skills: [
-			{
-				id: "site-overview",
-				name: "Site Overview",
-				description:
-					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
-				tags: ["portfolio", "blog", "discovery"],
-				examples: [
-					"What is ta93abe.com?",
-					"List the public sections of this site.",
-				],
 			},
 		],
 	};
@@ -697,7 +669,7 @@ export default {
 		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
-			pathname !== "/mcp"
+			!JSON_RPC_PATHS.has(pathname)
 		) {
 			return handle(request, env, ctx);
 		}
@@ -818,7 +790,14 @@ export default {
 		}
 
 		if (pathname === "/.well-known/agent-card.json") {
-			return jsonResponse(request, a2aAgentCard());
+			return jsonResponse(
+				request,
+				a2aAgentCard({
+					url: SITE_URL,
+					title: SITE_TITLE,
+					description: SITE_DESCRIPTION,
+				}),
+			);
 		}
 
 		if (
@@ -834,6 +813,14 @@ export default {
 
 		if (pathname === "/mcp") {
 			return handleMcp(request, env);
+		}
+
+		if (pathname === A2A_PATH) {
+			const result = await handleA2a(request, () => siteOverviewMarkdown(env));
+			return jsonResponse(request, result.body, {
+				...(result.status === undefined ? {} : { status: result.status }),
+				headers: result.headers,
+			});
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
