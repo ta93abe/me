@@ -1,5 +1,6 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { aiCatalogHttpLink } from "../src/config/ai-catalog.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
@@ -36,6 +37,7 @@ const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
 	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
 	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
+	aiCatalogHttpLink(),
 	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
 	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
 	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,

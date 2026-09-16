@@ -3,6 +3,11 @@ import "../styles/global.css";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 import PostHog from "@/components/posthog.astro";
+import {
+	AI_CATALOG_REL,
+	AI_CATALOG_TYPE,
+	aiCatalogUrl,
+} from "@/config/ai-catalog";
 import { SITE } from "@/config/site";
 import { canonicalPageUrl } from "@/utils/canonical";
 import { generateWebSiteSchema, stringifySchema } from "@/utils/schema";
@@ -47,6 +52,7 @@ const canonicalURL = canonicalOverride
 const ogImageURL = new URL(ogImage, Astro.site);
 const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
+const aiCatalogHref = aiCatalogUrl(Astro.site?.href || SITE.url);
 ---
 
 <!doctype html>
@@ -66,6 +72,9 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Agent discovery: ARD capability catalog（TA-955） -->
+		<link rel={AI_CATALOG_REL} href={aiCatalogHref} type={AI_CATALOG_TYPE} />
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={ogType} />
