@@ -27,6 +27,8 @@ if (import.meta.env.PROD && apiKey) {
 					window.posthog = client;
 				},
 				queue,
+			}).catch(() => {
+				// posthog-js の読み込みに失敗してもページ動作は止めない
 			});
 		},
 		window as unknown as IdleSchedulerHost,
