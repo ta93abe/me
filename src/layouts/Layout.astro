@@ -47,6 +47,10 @@ const canonicalURL = canonicalOverride
 const ogImageURL = new URL(ogImage, Astro.site);
 const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
+const aiCatalogURL = new URL(
+	"/.well-known/ai-catalog.json",
+	Astro.site ?? SITE.url,
+);
 ---
 
 <!doctype html>
@@ -66,6 +70,9 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Agent discovery: ARD capability catalog -->
+		<link rel="ai-catalog" href={aiCatalogURL} type="application/json" />
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={ogType} />

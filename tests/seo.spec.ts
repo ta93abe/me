@@ -9,7 +9,21 @@ async function pageHtml(
 	return (await request.get(path)).text();
 }
 
+const AI_CATALOG_LINK =
+	'rel="ai-catalog" href="https://ta93abe.com/.well-known/ai-catalog.json" type="application/json"';
+
 test.describe("Sitewide SEO", () => {
+	test("home and main pages advertise the ARD catalog in HTML head", async ({
+		request,
+	}) => {
+		for (const path of ["/", "/about", "/blog", "/contact", "/works"]) {
+			const html = await pageHtml(request, path);
+			expect(html, `${path} missing rel=ai-catalog`).toContain(
+				AI_CATALOG_LINK,
+			);
+		}
+	});
+
 	test("home has WebSite, Person, and the default OG image", async ({
 		request,
 	}) => {
