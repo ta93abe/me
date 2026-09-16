@@ -23,7 +23,7 @@ const ctx = {
 	waitUntil() {},
 	passThroughOnException() {},
 	props: {},
-} as ExecutionContext;
+} as unknown as ExecutionContext;
 
 function agentAuthRequest(method: string, headers?: HeadersInit): Request {
 	return new Request("https://ta93abe.com/agent/auth", { method, headers });
@@ -33,7 +33,13 @@ async function agentAuth(
 	method: string,
 	headers?: HeadersInit,
 ): Promise<Response> {
-	return worker.fetch(agentAuthRequest(method, headers), env, ctx);
+	return worker.fetch(
+		agentAuthRequest(method, headers) as Parameters<
+			NonNullable<typeof worker.fetch>
+		>[0],
+		env,
+		ctx,
+	);
 }
 
 describe("POST /agent/auth", () => {
