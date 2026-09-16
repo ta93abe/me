@@ -9,6 +9,11 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	CONTENT_SIGNAL,
+	DISCOVERY_LINKS,
+	addPublicHtmlDiscoveryHeaders,
+} from "./discovery-headers.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -28,18 +33,8 @@ const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
 	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
-
-const DISCOVERY_LINKS = [
-	`</llms.txt>; rel="describedby"; type="text/plain"`,
-	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
-	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
-	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
-].join(", ");
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -203,19 +198,6 @@ function acceptsMarkdown(request: Request): boolean {
 	);
 }
 
-function appendHeaderToken(value: string | null, token: string): string {
-	if (!value) {
-		return token;
-	}
-
-	const tokens = value
-		.split(",")
-		.map((part) => part.trim().toLowerCase())
-		.filter(Boolean);
-
-	return tokens.includes(token.toLowerCase()) ? value : `${value}, ${token}`;
-}
-
 function setGeneratedHeaders(headers: Headers): void {
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
 		headers.set(name, value);
@@ -275,32 +257,6 @@ function jsonResponse(
 function notFoundResponse(request: Request): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
-	});
-}
-
-function addHomepageDiscoveryHeaders(
-	request: Request,
-	response: Response,
-): Response {
-	const url = new URL(request.url);
-	if (url.pathname !== "/" && url.pathname !== "/index.html") {
-		return response;
-	}
-
-	const headers = new Headers(response.headers);
-	headers.set(
-		"Link",
-		headers.get("Link")
-			? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
-			: DISCOVERY_LINKS,
-	);
-	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
-	headers.set("Content-Signal", CONTENT_SIGNAL);
-
-	return new Response(response.body, {
-		status: response.status,
-		statusText: response.statusText,
-		headers,
 	});
 }
 
@@ -849,7 +805,7 @@ export default {
 		}
 
 		const response = await fetchAstro(request, env, ctx);
-		return addHomepageDiscoveryHeaders(request, response);
+		return addPublicHtmlDiscoveryHeaders(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
