@@ -7,6 +7,12 @@ import {
 	buildSitemapIndexXml,
 	readLlmsBlogSection,
 } from "./content/derived.ts";
+import {
+	LLMS_SITE_DESCRIPTION,
+	LLMS_SITE_TITLE,
+	buildLlmsFullText,
+	buildLlmsOverviewMarkdown,
+} from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
@@ -25,9 +31,8 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = "Takumi Abe / ta93abe";
-const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
+const SITE_TITLE = LLMS_SITE_TITLE;
+const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
@@ -57,50 +62,17 @@ const SECURITY_HEADERS = {
 
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
-const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
-
-${SITE_DESCRIPTION}
-
-## Primary sections
-
-- About: ${SITE_URL}/about/
-- Works: ${SITE_URL}/works/
-- Blog: ${SITE_URL}/blog/
-- Contact: ${SITE_URL}/contact/
-- Slides: ${SITE_URL}/slides/
-- Tools: ${SITE_URL}/tools/
-- Gadgets: ${SITE_URL}/gadgets/
-- Links: ${SITE_URL}/links/
-
-## Machine-readable resources
-
-- llms.txt: ${SITE_URL}/llms.txt
-- Full agent notes: ${SITE_URL}/llms-full.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
-- Authentication notes: ${SITE_URL}/auth.md
-`;
-
-const LLMS_GUIDANCE = `## Agent guidance
-
-- This is a public content site. No authentication is required to read the public pages.
-- Prefer canonical URLs on ${SITE_HOST}.
-- Use the sitemap at ${SITE_URL}/sitemap-index.xml for crawl discovery.
-- Respect robots.txt and Content-Signal directives.
-
-## Content usage preference
-
-Content-Signal: ${CONTENT_SIGNAL}
-`;
-
 async function siteOverviewMarkdown(env: Env): Promise<string> {
 	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
-	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
+	return buildLlmsOverviewMarkdown(SITE_URL, blogSection);
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
+	return buildLlmsFullText(await siteOverviewMarkdown(env), {
+		siteUrl: SITE_URL,
+		siteHost: SITE_HOST,
+		contentSignal: CONTENT_SIGNAL,
+	});
 }
 
 const AUTH_MD = `# Auth.md
