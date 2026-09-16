@@ -22,6 +22,25 @@ test.describe("Sitewide SEO", () => {
 		expect(html).toContain('property="og:image:type" content="image/png"');
 	});
 
+	test("pages advertise a small PNG favicon and a separate apple-touch-icon", async ({
+		request,
+	}) => {
+		for (const path of ["/", "/about"]) {
+			const html = await pageHtml(request, path);
+			expect(html, path).toContain('rel="icon" type="image/png"');
+			expect(html, path).toContain('href="/favicon.png"');
+			expect(html, path).toContain('rel="apple-touch-icon"');
+			expect(html, path).toContain('href="/apple-touch-icon.png"');
+		}
+
+		const favicon = await request.get("/favicon.png");
+		const apple = await request.get("/apple-touch-icon.png");
+		expect(favicon.ok()).toBe(true);
+		expect(apple.ok()).toBe(true);
+		expect((await favicon.body()).byteLength).toBeLessThanOrEqual(8 * 1024);
+		expect((await apple.body()).byteLength).toBeLessThanOrEqual(32 * 1024);
+	});
+
 	test("section pages have dedicated OG images and page JSON-LD", async ({
 		request,
 	}) => {
