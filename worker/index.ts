@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { buildRobotsTxt } from "../src/utils/robots.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -714,6 +715,17 @@ export default {
 					),
 				},
 			});
+		}
+
+		if (pathname === "/robots.txt") {
+			return textResponse(
+				request,
+				buildRobotsTxt(SITE_URL),
+				"text/plain; charset=utf-8",
+				{
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				},
+			);
 		}
 
 		if (pathname === "/llms.txt") {

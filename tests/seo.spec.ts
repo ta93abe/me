@@ -89,4 +89,25 @@ test.describe("Sitewide SEO", () => {
 			page.locator('.sns-links a[href*="github.com"]').first(),
 		).toHaveAttribute("rel", /me/);
 	});
+
+	test("robots.txt allows major AI crawlers and keeps the wildcard allow", async ({
+		request,
+	}) => {
+		const response = await request.get("/robots.txt");
+		expect(response.ok()).toBe(true);
+		const text = await response.text();
+		expect(text).toMatch(/User-agent:\s*\*\s*\nAllow:\s*\//);
+		for (const userAgent of [
+			"Applebot-Extended",
+			"Applebot",
+			"Amazonbot",
+			"meta-externalagent",
+			"GPTBot",
+		]) {
+			expect(text, userAgent).toMatch(
+				new RegExp(`User-agent:\\s*${userAgent}\\s*\\nAllow:\\s*/`),
+			);
+		}
+		expect(text).not.toMatch(/User-agent:\s*Bytespider/i);
+	});
 });
