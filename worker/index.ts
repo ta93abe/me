@@ -697,7 +697,8 @@ export default {
 		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
-			pathname !== "/mcp"
+			pathname !== "/mcp" &&
+			pathname !== "/agent/auth"
 		) {
 			return handle(request, env, ctx);
 		}
