@@ -50,4 +50,21 @@ describe("request-time feeds", () => {
 		expect(sitemap).toContain("/blog/");
 		expect(sitemap).not.toContain("/blog/hello-world/");
 	});
+
+	it("carries tags onto feed posts for RSS categories", () => {
+		const posts = [
+			item({
+				slug: "snowflake",
+				title: "Snowflake",
+				excerpt: "warehouse",
+				publish_date: new Date("2026-08-20"),
+				tags: ["snowflake", "data"],
+			}),
+		].map(toFeedPost);
+
+		expect(posts[0]?.tags).toEqual(["snowflake", "data"]);
+		const rss = buildBlogRssXml(posts, "https://ta93abe.com");
+		expect(rss).toContain("<category>snowflake</category>");
+		expect(rss).toContain("<dc:creator>Takumi Abe</dc:creator>");
+	});
 });
