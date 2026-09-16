@@ -9,7 +9,6 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
-import { copyGadgetImages } from "./src/data/copy-gadget-images.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
 
 /**
@@ -59,20 +58,14 @@ export default defineConfig({
 			name: "slide-deck-media",
 			hooks: {
 				"astro:server:setup": async () => {
-					const publicDir = path.join(
-						path.dirname(fileURLToPath(import.meta.url)),
-						"public",
+					await copySlideMedia(
+						path.join(path.dirname(fileURLToPath(import.meta.url)), "public"),
 					);
-					await copySlideMedia(publicDir);
-					await copyGadgetImages(publicDir);
 				},
 				"astro:build:start": async () => {
-					const publicDir = path.join(
-						path.dirname(fileURLToPath(import.meta.url)),
-						"public",
+					await copySlideMedia(
+						path.join(path.dirname(fileURLToPath(import.meta.url)), "public"),
 					);
-					await copySlideMedia(publicDir);
-					await copyGadgetImages(publicDir);
 				},
 			},
 		},

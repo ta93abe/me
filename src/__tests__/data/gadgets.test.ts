@@ -1,13 +1,10 @@
 import { existsSync } from "node:fs";
-import { mkdtemp } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { copyGadgetImages } from "@/data/copy-gadget-images";
-import { gadgetImageUrl } from "@/data/gadget-images";
+import { gadgetImageBytes, gadgetImageUrl } from "@/data/gadget-images";
 import {
 	GADGETS,
 	gadgetPath,
@@ -48,18 +45,9 @@ describe("GADGETS catalog", () => {
 			expect(image.startsWith("data:")).toBe(false);
 			expect(image.startsWith("/gadgets/")).toBe(false);
 			expect(image.startsWith("/things/")).toBe(false);
-		}
-	});
-
-	it("copies photos to a stable public media path", async () => {
-		const publicDir = await mkdtemp(path.join(os.tmpdir(), "gadget-images-"));
-		await copyGadgetImages(publicDir);
-		for (const gadget of GADGETS) {
-			expect(
-				existsSync(
-					path.join(publicDir, "media", "gadgets", `${gadget.slug}.webp`),
-				),
-			).toBe(true);
+			const bytes = gadgetImageBytes(gadget.slug);
+			expect(bytes.byteLength).toBeGreaterThan(0);
+			expect(String.fromCharCode(...bytes.slice(0, 4))).toBe("RIFF");
 		}
 	});
 
