@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 import PostHog from "@/components/posthog.astro";
+import { htmlDiscoveryLinks } from "@/config/agent-discovery";
 import { SITE } from "@/config/site";
 import { canonicalPageUrl } from "@/utils/canonical";
 import { generateWebSiteSchema, stringifySchema } from "@/utils/schema";
@@ -47,6 +48,7 @@ const canonicalURL = canonicalOverride
 const ogImageURL = new URL(ogImage, Astro.site);
 const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
+const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 ---
 
 <!doctype html>
@@ -66,6 +68,18 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Agent discovery（HTTP Link と同じ rel / href / type） -->
+		{
+			discoveryLinks.map((link) => (
+				<link
+					rel={link.rel}
+					href={link.href}
+					type={link.type}
+					title={link.title}
+				/>
+			))
+		}
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={ogType} />

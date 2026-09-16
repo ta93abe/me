@@ -9,7 +9,28 @@ async function pageHtml(
 	return (await request.get(path)).text();
 }
 
+const AGENT_DISCOVERY_SNIPPETS = [
+	'rel="describedby" href="https://ta93abe.com/llms.txt" type="text/plain"',
+	'rel="describedby" href="https://ta93abe.com/llms-full.txt" type="text/plain"',
+	'rel="api-catalog" href="https://ta93abe.com/.well-known/api-catalog" type="application/linkset+json"',
+	'rel="service-desc" href="https://ta93abe.com/.well-known/mcp/server-card.json" type="application/json"',
+	'rel="describedby" href="https://ta93abe.com/.well-known/agent-skills/index.json" type="application/json"',
+	'rel="service-desc" href="https://ta93abe.com/.well-known/agent-card.json" type="application/json"',
+	'rel="alternate" href="https://ta93abe.com/rss.xml" type="application/rss+xml"',
+] as const;
+
 test.describe("Sitewide SEO", () => {
+	test("home, about, and blog HTML advertise agent discovery links", async ({
+		request,
+	}) => {
+		for (const path of ["/", "/about", "/blog", "/blog/hello-world"]) {
+			const html = await pageHtml(request, path);
+			for (const snippet of AGENT_DISCOVERY_SNIPPETS) {
+				expect(html, `${path} missing ${snippet}`).toContain(snippet);
+			}
+		}
+	});
+
 	test("home has WebSite, Person, and the default OG image", async ({
 		request,
 	}) => {

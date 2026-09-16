@@ -45,12 +45,6 @@ Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
 	ogImageAlt="Blog"
 >
 	<Fragment slot="head">
-		<link
-			rel="alternate"
-			type="application/rss+xml"
-			title="ta93abe | Blog RSS Feed"
-			href="/rss.xml"
-		/>
 		<script
 			type="application/ld+json"
 			set:html={stringifySchema(collectionSchema)}

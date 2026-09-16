@@ -1,5 +1,6 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { AGENT_DISCOVERY_HTTP_LINK_HEADER } from "../src/config/agent-discovery.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
@@ -32,14 +33,7 @@ const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
-const DISCOVERY_LINKS = [
-	`</llms.txt>; rel="describedby"; type="text/plain"`,
-	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
-	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
-	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
-].join(", ");
+const DISCOVERY_LINKS = AGENT_DISCOVERY_HTTP_LINK_HEADER;
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
