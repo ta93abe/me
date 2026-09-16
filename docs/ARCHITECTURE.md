@@ -104,6 +104,8 @@ gallery / atelier / books のサイトページはいったん外している。
 
 `worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）とスライド PDF（`/slides/<slug>.pdf`）を担当する。`run_worker_first: true`。
 
+`Accept: text/markdown` のとき、ホームページに加えて `/blog` `/blog/:slug` `/about` `/works` `/contact` `/links` が本文中心の Markdown を返す（`Vary: Accept`）。ブログ記事は R2 の原稿から組み立て、ナビ・Newsletter は含めない。HTML 応答にも同じ `Vary` を付け、キャッシュが HTML と Markdown を混同しないようにする。
+
 デッキ Markdown は Git `src/slides/decks/`。書き方は `docs/slides-authoring.md`、PDF は `docs/slides-pdf.md`。
 
 ## 依存関係の流れ

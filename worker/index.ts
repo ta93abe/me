@@ -9,6 +9,12 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	acceptsMarkdown,
+	isMarkdownNegotiablePath,
+	loadNegotiatedMarkdown,
+	markdownTokenCount,
+} from "./content/page-markdown.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -196,13 +202,6 @@ function isHead(request: Request): boolean {
 	return request.method.toUpperCase() === "HEAD";
 }
 
-function acceptsMarkdown(request: Request): boolean {
-	return (
-		request.headers.get("Accept")?.toLowerCase().includes("text/markdown") ??
-		false
-	);
-}
-
 function appendHeaderToken(value: string | null, token: string): string {
 	if (!value) {
 		return token;
@@ -278,24 +277,52 @@ function notFoundResponse(request: Request): Response {
 	});
 }
 
-function addHomepageDiscoveryHeaders(
+function markdownPageResponse(
+	request: Request,
+	markdown: string,
+	extraHeaders: Record<string, string> = {},
+): Response {
+	return textResponse(request, markdown, "text/markdown; charset=utf-8", {
+		headers: {
+			Vary: "Accept",
+			"Cache-Control": BLOG_HTML_CACHE_CONTROL,
+			"X-Markdown-Tokens": String(markdownTokenCount(markdown)),
+			...extraHeaders,
+		},
+	});
+}
+
+function decoratePublicResponse(
 	request: Request,
 	response: Response,
 ): Response {
 	const url = new URL(request.url);
-	if (url.pathname !== "/" && url.pathname !== "/index.html") {
-		return response;
+	const pathname = url.pathname.replace(/\/+$/, "") || "/";
+	const headers = new Headers(response.headers);
+	const contentType = headers.get("Content-Type") ?? "";
+	let changed = false;
+
+	if (pathname === "/" || pathname === "/index.html") {
+		headers.set(
+			"Link",
+			headers.get("Link")
+				? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
+				: DISCOVERY_LINKS,
+		);
+		headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
+		headers.set("Content-Signal", CONTENT_SIGNAL);
+		changed = true;
+	} else if (
+		isMarkdownNegotiablePath(pathname) &&
+		contentType.toLowerCase().includes("text/html")
+	) {
+		headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
+		changed = true;
 	}
 
-	const headers = new Headers(response.headers);
-	headers.set(
-		"Link",
-		headers.get("Link")
-			? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
-			: DISCOVERY_LINKS,
-	);
-	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
-	headers.set("Content-Signal", CONTENT_SIGNAL);
+	if (!changed) {
+		return response;
+	}
 
 	return new Response(response.body, {
 		status: response.status,
@@ -704,16 +731,23 @@ export default {
 
 		if (pathname === "/" && acceptsMarkdown(request)) {
 			const overview = await siteOverviewMarkdown(env);
-			return textResponse(request, overview, "text/markdown; charset=utf-8", {
-				headers: {
-					Link: DISCOVERY_LINKS,
-					Vary: "Accept",
-					"Cache-Control": BLOG_HTML_CACHE_CONTROL,
-					"X-Markdown-Tokens": String(
-						overview.split(/\s+/).filter(Boolean).length,
-					),
-				},
+			return markdownPageResponse(request, overview, {
+				Link: DISCOVERY_LINKS,
 			});
+		}
+
+		if (acceptsMarkdown(request)) {
+			const negotiated = await loadNegotiatedMarkdown(
+				pathname,
+				env.CONTENT,
+				SITE_URL,
+			);
+			if (negotiated.kind === "markdown") {
+				return markdownPageResponse(request, negotiated.body);
+			}
+			if (negotiated.kind === "not-found") {
+				return notFoundResponse(request);
+			}
 		}
 
 		if (pathname === "/llms.txt") {
@@ -849,7 +883,7 @@ export default {
 		}
 
 		const response = await fetchAstro(request, env, ctx);
-		return addHomepageDiscoveryHeaders(request, response);
+		return decoratePublicResponse(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
