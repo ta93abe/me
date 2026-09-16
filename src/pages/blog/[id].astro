@@ -12,7 +12,7 @@ import { getContentBucket } from "@/lib/content/bindings";
 import { blogNeighbors, listBlogPosts, loadBlogPost } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
-import { formatDate } from "@/utils/date";
+import { formatDate, toDatetimeAttr } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
 import {
 	generateBlogPostingSchema,
@@ -41,8 +41,8 @@ const html = post?.html ?? "";
 
 const readingTime = getReadingTime(body);
 const readingTimeText = formatReadingTime(readingTime);
-const publishedTime = publish_date.toISOString();
-const modifiedTime = revise_date ? revise_date.toISOString() : publishedTime;
+const publishedTime = toDatetimeAttr(publish_date);
+const modifiedTime = revise_date ? toDatetimeAttr(revise_date) : publishedTime;
 const ogImageURL = new URL(`/og/blog/${slug}.png`, Astro.site);
 const site = Astro.site?.href || SITE.url;
 const blogSchema = generateBlogPostingSchema(site, {
@@ -113,17 +113,27 @@ if (post) {
 
     <header class="mb-12 pb-10">
       <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
-        <time class="font-medium">
+        <time class="font-medium" datetime={publishedTime}>
           {formatDate(publish_date)}
         </time>
         {
           revise_date && (
             <>
               <span class="text-(--text-muted)">|</span>
-              <span>更新: {formatDate(revise_date)}</span>
+              <span>
+                更新: <time datetime={modifiedTime}>{formatDate(revise_date)}</time>
+              </span>
             </>
           )
         }
+        <span class="text-(--text-muted)">|</span>
+        <a
+          href={SITE.authorPath}
+          rel="author"
+          class="hover:text-(--text-primary)"
+        >
+          {SITE.author}
+        </a>
         <span class="text-(--text-muted)">|</span>
         <span>{readingTimeText}</span>
       </div>
