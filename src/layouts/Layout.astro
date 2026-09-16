@@ -66,6 +66,22 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+		{
+			!noindex && (
+				<>
+					<link
+						rel="ai-catalog"
+						type="application/json"
+						href={`${SITE.url}/.well-known/ai-catalog.json`}
+					/>
+					<link
+						rel="ard"
+						type="application/json"
+						href={`${SITE.url}/.well-known/ard.json`}
+					/>
+				</>
+			)
+		}
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={ogType} />

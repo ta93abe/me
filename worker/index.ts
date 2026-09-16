@@ -9,6 +9,14 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	AGENT_CATALOG_LINKS,
+	AI_CATALOG_CORS_HEADERS,
+	AI_CATALOG_PATH,
+	ARD_MANIFEST_PATH,
+	aiCatalog,
+	isAiCatalogPath,
+} from "./discovery/ai-catalog.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -39,6 +47,7 @@ const DISCOVERY_LINKS = [
 	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
 	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
 	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
+	AGENT_CATALOG_LINKS,
 ].join(", ");
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
@@ -77,6 +86,8 @@ ${SITE_DESCRIPTION}
 - llms.txt: ${SITE_URL}/llms.txt
 - Full agent notes: ${SITE_URL}/llms-full.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
+- AI catalog: ${SITE_URL}${AI_CATALOG_PATH}
+- ARD manifest: ${SITE_URL}${ARD_MANIFEST_PATH}
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
 - Authentication notes: ${SITE_URL}/auth.md
@@ -158,6 +169,8 @@ There is nothing to revoke for anonymous public read access.
 - Sitemap: ${SITE_URL}/sitemap-index.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
+- AI catalog: ${SITE_URL}${AI_CATALOG_PATH}
+- ARD manifest: ${SITE_URL}${ARD_MANIFEST_PATH}
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
@@ -692,6 +705,25 @@ export default {
 			(request.method === "GET" || request.method === "HEAD")
 		) {
 			return Response.redirect(new URL("/", url), 301);
+		}
+
+		if (isAiCatalogPath(pathname)) {
+			const method = request.method.toUpperCase();
+			if (method === "OPTIONS") {
+				return new Response(null, {
+					status: 204,
+					headers: {
+						...AI_CATALOG_CORS_HEADERS,
+						"Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+						"Access-Control-Allow-Headers": "Accept, Content-Type",
+					},
+				});
+			}
+			if (method === "GET" || method === "HEAD") {
+				return jsonResponse(request, aiCatalog(), {
+					headers: AI_CATALOG_CORS_HEADERS,
+				});
+			}
 		}
 
 		if (
