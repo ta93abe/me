@@ -16,6 +16,7 @@ test.describe("Sitewide SEO", () => {
 		const html = await pageHtml(request, "/");
 		expect(html).toContain('"@type":"WebSite"');
 		expect(html).toContain('"@type":"Person"');
+		expect(html).toContain('"image":"https://ta93abe.com/og/about.png"');
 		expect(html).toContain("/og/default.png");
 		expect(html).toContain("summary_large_image");
 		expect(html).toContain('href="https://ta93abe.com/"');
@@ -75,6 +76,12 @@ test.describe("Sitewide SEO", () => {
 				'property="og:image:type" content="image/png"',
 			);
 		}
+	});
+
+	test("Person image URL returns a PNG", async ({ request }) => {
+		const res = await request.get("/og/about.png");
+		expect(res.status()).toBe(200);
+		expect(res.headers()["content-type"]).toMatch(/image\/png/);
 	});
 
 	test("404 is noindex and has no JSON-LD", async ({ request }) => {
