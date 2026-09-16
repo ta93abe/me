@@ -1,5 +1,6 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { mcpGetSiteOverviewResult } from "../src/config/site-overview.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
@@ -587,14 +588,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
 		return jsonResponse(request, {
 			jsonrpc: "2.0",
 			id,
-			result: {
-				content: [
-					{
-						type: "text",
-						text: await siteOverviewMarkdown(env),
-					},
-				],
-			},
+			result: mcpGetSiteOverviewResult(await siteOverviewMarkdown(env)),
 		});
 	}
 

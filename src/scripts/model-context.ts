@@ -1,3 +1,5 @@
+import { SITE_OVERVIEW } from "@/config/site-overview";
+
 type ModelContext = {
 	registerTool?: (tool: unknown) => void;
 	provideContext?: (context: { tools: unknown[] }) => void;
@@ -20,26 +22,7 @@ if (!modelContext) {
 			properties: {},
 			additionalProperties: false,
 		},
-		execute: async () => ({
-			site: "https://ta93abe.com/",
-			sections: [
-				"https://ta93abe.com/about/",
-				"https://ta93abe.com/works/",
-				"https://ta93abe.com/blog/",
-				"https://ta93abe.com/contact/",
-				"https://ta93abe.com/slides/",
-				"https://ta93abe.com/tools/",
-				"https://ta93abe.com/gadgets/",
-				"https://ta93abe.com/links/",
-			],
-			discovery: {
-				llms: "https://ta93abe.com/llms.txt",
-				apiCatalog: "https://ta93abe.com/.well-known/api-catalog",
-				mcpServerCard: "https://ta93abe.com/.well-known/mcp/server-card.json",
-				agentSkills: "https://ta93abe.com/.well-known/agent-skills/index.json",
-				auth: "https://ta93abe.com/auth.md",
-			},
-		}),
+		execute: async () => ({ ...SITE_OVERVIEW }),
 		annotations: {
 			readOnlyHint: true,
 		},
