@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { authMarkdown } from "./auth-md.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -103,65 +104,7 @@ async function llmsFullText(env: Env): Promise<string> {
 	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
 }
 
-const AUTH_MD = `# Auth.md
-
-You are an agent. This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
-
-## Step 1 — Discover
-
-Fetch Authorization Server and Protected Resource metadata:
-
-\`\`\`http
-GET ${SITE_URL}/.well-known/oauth-authorization-server
-GET ${SITE_URL}/.well-known/oauth-protected-resource
-\`\`\`
-
-The Authorization Server metadata includes an \`agent_auth\` object. The \`skill\` field points back to this document.
-
-## Step 2 — Pick a method
-
-Supported identity type: **anonymous**.
-
-No claim ceremony or long-lived credential is required to read public content. Prefer the anonymous path.
-
-## Step 3 — Register
-
-Call the registration endpoint declared in metadata:
-
-\`\`\`http
-POST ${SITE_URL}/agent/auth
-Accept: application/json
-\`\`\`
-
-The response confirms anonymous public access. You may proceed without storing a secret.
-
-## Step 4 — Claim ceremony
-
-Not required for anonymous public read access.
-
-## Step 5 — Use the credential
-
-No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${SITE_HOST}.
-
-## Errors
-
-- \`404\` — endpoint or resource does not exist
-- \`405\` — unsupported HTTP method on \`/agent/auth\`
-
-## Revocation
-
-There is nothing to revoke for anonymous public read access.
-
-## Public resources
-
-- Homepage: ${SITE_URL}/
-- Sitemap: ${SITE_URL}/sitemap-index.xml
-- llms.txt: ${SITE_URL}/llms.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
-- A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
-`;
+const AUTH_MD = authMarkdown(SITE_URL, SITE_HOST);
 
 /** WorkOS auth.md / agent_auth block (shared by AS metadata + docs). */
 function agentAuthMetadata() {
