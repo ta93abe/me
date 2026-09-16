@@ -1,6 +1,11 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import {
+	AGENT_SKILL_MARKDOWN,
+	AGENT_SKILL_PATH,
+	agentSkillsIndex,
+} from "./agent-skills.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -30,7 +35,6 @@ const SITE_DESCRIPTION =
 	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
-const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
 const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
@@ -175,23 +179,6 @@ function agentAuthMetadata() {
 	};
 }
 
-const AGENT_SKILL_MARKDOWN = `# Site Overview
-
-Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
-
-## What this site contains
-
-- Technical blog posts.
-- Public slide links.
-- Tool, gadget, and social-link directories.
-
-## How to use
-
-1. Start with ${SITE_URL}/llms.txt for a concise overview.
-2. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
-3. Respect robots.txt and Content-Signal preferences.
-`;
-
 function isHead(request: Request): boolean {
 	return request.method.toUpperCase() === "HEAD";
 }
@@ -302,14 +289,6 @@ function addHomepageDiscoveryHeaders(
 		statusText: response.statusText,
 		headers,
 	});
-}
-
-async function sha256Digest(value: string): Promise<string> {
-	const bytes = new TextEncoder().encode(value);
-	const digest = await crypto.subtle.digest("SHA-256", bytes);
-	return `sha256:${[...new Uint8Array(digest)]
-		.map((byte) => byte.toString(16).padStart(2, "0"))
-		.join("")}`;
 }
 
 function apiCatalog() {
@@ -470,22 +449,6 @@ function agentAuthRegisterResponse() {
 			llms: `${SITE_URL}/llms.txt`,
 			sitemap: `${SITE_URL}/sitemap-index.xml`,
 		},
-	};
-}
-
-async function agentSkillsIndex() {
-	return {
-		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-		skills: [
-			{
-				name: "site-overview",
-				type: "skill-md",
-				description:
-					"Understand the public content, discovery files, and crawl preferences for ta93abe.com.",
-				url: AGENT_SKILL_PATH,
-				digest: await sha256Digest(AGENT_SKILL_MARKDOWN),
-			},
-		],
 	};
 }
 
