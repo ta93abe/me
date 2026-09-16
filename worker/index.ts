@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { A2A_PATH, a2aAgentCard, handleA2aRpc } from "./a2a.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -390,42 +391,12 @@ function mcpServerCard() {
 	};
 }
 
-function a2aAgentCard() {
-	return {
+function agentCard() {
+	return a2aAgentCard({
+		siteUrl: SITE_URL,
 		name: SITE_TITLE,
 		description: SITE_DESCRIPTION,
-		url: SITE_URL,
-		version: "1.0.0",
-		capabilities: {
-			streaming: false,
-			pushNotifications: false,
-			stateTransitionHistory: false,
-		},
-		authentication: {
-			schemes: ["none"],
-		},
-		defaultInputModes: ["text"],
-		defaultOutputModes: ["text"],
-		supportedInterfaces: [
-			{
-				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
-				url: `${SITE_URL}/mcp`,
-			},
-		],
-		skills: [
-			{
-				id: "site-overview",
-				name: "Site Overview",
-				description:
-					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
-				tags: ["portfolio", "blog", "discovery"],
-				examples: [
-					"What is ta93abe.com?",
-					"List the public sections of this site.",
-				],
-			},
-		],
-	};
+	});
 }
 
 function oauthAuthorizationServer() {
@@ -608,6 +579,48 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
 	});
 }
 
+async function handleA2a(request: Request, env: Env): Promise<Response> {
+	if (request.method.toUpperCase() !== "POST") {
+		return jsonResponse(
+			request,
+			{
+				name: `${SITE_HOST} A2A endpoint`,
+				description:
+					"Send JSON-RPC 2.0 POST requests. Supported method: message/send.",
+				url: `${SITE_URL}${A2A_PATH}`,
+				preferredTransport: "JSONRPC",
+			},
+			{
+				status: 405,
+				headers: {
+					Allow: "POST",
+				},
+			},
+		);
+	}
+
+	let payload: unknown;
+	try {
+		payload = await request.json();
+	} catch {
+		return jsonResponse(
+			request,
+			{
+				jsonrpc: "2.0",
+				id: null,
+				error: {
+					code: -32700,
+					message: "Parse error",
+				},
+			},
+			{ status: 400 },
+		);
+	}
+
+	const result = handleA2aRpc(payload, await siteOverviewMarkdown(env));
+	return jsonResponse(request, result.body, { status: result.status });
+}
+
 function isBlogHtmlPath(pathname: string): boolean {
 	return pathname === "/blog" || pathname.startsWith("/blog/");
 }
@@ -697,7 +710,8 @@ export default {
 		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
-			pathname !== "/mcp"
+			pathname !== "/mcp" &&
+			pathname !== A2A_PATH
 		) {
 			return handle(request, env, ctx);
 		}
@@ -818,7 +832,7 @@ export default {
 		}
 
 		if (pathname === "/.well-known/agent-card.json") {
-			return jsonResponse(request, a2aAgentCard());
+			return jsonResponse(request, agentCard());
 		}
 
 		if (
@@ -834,6 +848,10 @@ export default {
 
 		if (pathname === "/mcp") {
 			return handleMcp(request, env);
+		}
+
+		if (pathname === A2A_PATH) {
+			return handleA2a(request, env);
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
