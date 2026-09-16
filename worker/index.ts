@@ -31,6 +31,8 @@ const SITE_DESCRIPTION =
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
+const AGENT_CLAIM_PATH = "/agent/claim";
+const WORKER_NON_GET_PATHS = new Set(["/mcp", "/agent/auth", AGENT_CLAIM_PATH]);
 
 const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
@@ -122,31 +124,38 @@ The Authorization Server metadata includes an \`agent_auth\` object. The \`skill
 
 Supported identity type: **anonymous**.
 
-No claim ceremony or long-lived credential is required to read public content. Prefer the anonymous path.
+Authorization Server metadata advertises \`identity_types_supported: ["anonymous"]\`, \`anonymous.credential_types_supported\`, and \`anonymous.claim_uri\`. No long-lived secret is required to read public content. Prefer the anonymous path.
 
 ## Step 3 — Register
 
-Call the registration endpoint declared in metadata:
+Call the registration endpoint declared in metadata (\`agent_auth.register_uri\`):
 
 \`\`\`http
 POST ${SITE_URL}/agent/auth
 Accept: application/json
 \`\`\`
 
-The response confirms anonymous public access. You may proceed without storing a secret.
+GET returns the same JSON. The response confirms anonymous public access. You may proceed without storing a secret.
 
-## Step 4 — Claim ceremony
+## Step 4 — Claim
 
-Not required for anonymous public read access.
+Anonymous public read does not require a user-in-the-loop claim ceremony. \`agent_auth.anonymous.claim_uri\` is a no-op that completes immediately and issues no credential.
+
+\`\`\`http
+POST ${SITE_URL}/agent/claim
+Accept: application/json
+\`\`\`
+
+GET returns the same JSON. Do not wait for a \`user_code\`, and do not poll a token endpoint. There is no secret to store.
 
 ## Step 5 — Use the credential
 
-No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${SITE_HOST}.
+No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${SITE_HOST}. Do not send an \`Authorization\` header.
 
 ## Errors
 
 - \`404\` — endpoint or resource does not exist
-- \`405\` — unsupported HTTP method on \`/agent/auth\`
+- \`405\` — unsupported HTTP method on \`/agent/auth\` or \`/agent/claim\`
 
 ## Revocation
 
@@ -171,6 +180,7 @@ function agentAuthMetadata() {
 		identity_types_supported: ["anonymous"],
 		anonymous: {
 			credential_types_supported: ["api_key"],
+			claim_uri: `${SITE_URL}${AGENT_CLAIM_PATH}`,
 		},
 	};
 }
@@ -473,6 +483,22 @@ function agentAuthRegisterResponse() {
 	};
 }
 
+function agentAuthClaimResponse() {
+	return {
+		identity_type: "anonymous",
+		claimed: true,
+		status: "complete",
+		credential_required: false,
+		scopes: ["public:read"],
+		note: "Public content on ta93abe.com requires no claim ceremony or secret. This acknowledgment completes immediately.",
+		resources: {
+			home: `${SITE_URL}/`,
+			llms: `${SITE_URL}/llms.txt`,
+			sitemap: `${SITE_URL}/sitemap-index.xml`,
+		},
+	};
+}
+
 async function agentSkillsIndex() {
 	return {
 		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
@@ -697,7 +723,7 @@ export default {
 		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
-			pathname !== "/mcp"
+			!WORKER_NON_GET_PATHS.has(pathname)
 		) {
 			return handle(request, env, ctx);
 		}
@@ -774,7 +800,7 @@ export default {
 			return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
 		}
 
-		if (pathname === "/agent/auth") {
+		if (pathname === "/agent/auth" || pathname === AGENT_CLAIM_PATH) {
 			const method = request.method.toUpperCase();
 			if (method !== "GET" && method !== "POST" && method !== "HEAD") {
 				return textResponse(
@@ -787,7 +813,12 @@ export default {
 					},
 				);
 			}
-			return jsonResponse(request, agentAuthRegisterResponse());
+			return jsonResponse(
+				request,
+				pathname === AGENT_CLAIM_PATH
+					? agentAuthClaimResponse()
+					: agentAuthRegisterResponse(),
+			);
 		}
 
 		if (pathname === "/.well-known/api-catalog") {
