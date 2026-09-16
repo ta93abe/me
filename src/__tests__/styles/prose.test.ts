@@ -45,6 +45,7 @@ describe("blog article prose", () => {
 		expect(declarations(".prose .embed-card")).toContain(
 			"text-decoration: none",
 		);
+		expect(declarations(".prose .embed-card")).toContain("min-height: 6.75rem");
 		expect(declarations(".prose .embed-card-thumb")).toContain(
 			"flex-shrink: 0",
 		);
