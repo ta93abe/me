@@ -9,6 +9,11 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	AUTH_MD_OIDC_PARAGRAPH,
+	OPENID_CONFIGURATION_PATH,
+	oauthAuthorizationServerMetadata,
+} from "./oauth-discovery.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -106,6 +111,8 @@ async function llmsFullText(env: Env): Promise<string> {
 const AUTH_MD = `# Auth.md
 
 You are an agent. This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
+
+${AUTH_MD_OIDC_PARAGRAPH}
 
 ## Step 1 — Discover
 
@@ -429,15 +436,11 @@ function a2aAgentCard() {
 }
 
 function oauthAuthorizationServer() {
-	return {
+	return oauthAuthorizationServerMetadata({
 		issuer: SITE_URL,
-		// Public-read site: no interactive OAuth login or token minting.
-		// Agents should follow agent_auth.register_uri instead.
-		response_types_supported: ["none"],
-		grant_types_supported: ["urn:workos:agent-auth:grant-type:claim"],
-		token_endpoint_auth_methods_supported: ["none"],
-		agent_auth: agentAuthMetadata(),
-	};
+		documentationUrl: `${SITE_URL}/auth.md`,
+		agentAuth: agentAuthMetadata(),
+	});
 }
 
 function oauthProtectedResource() {
@@ -821,10 +824,7 @@ export default {
 			return jsonResponse(request, a2aAgentCard());
 		}
 
-		if (
-			pathname === "/.well-known/oauth-authorization-server" ||
-			pathname === "/.well-known/openid-configuration"
-		) {
+		if (pathname === "/.well-known/oauth-authorization-server") {
 			return jsonResponse(request, oauthAuthorizationServer());
 		}
 
@@ -837,7 +837,10 @@ export default {
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+		// openid-configuration is included so this host does not impersonate an OIDC OP
+		// by cloning Authorization Server metadata.
 		if (
+			pathname === OPENID_CONFIGURATION_PATH ||
 			pathname === "/.well-known/http-message-signatures-directory" ||
 			pathname === "/.well-known/ucp" ||
 			pathname === "/.well-known/acp.json" ||
