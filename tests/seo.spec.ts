@@ -89,4 +89,23 @@ test.describe("Sitewide SEO", () => {
 			page.locator('.sns-links a[href*="github.com"]').first(),
 		).toHaveAttribute("rel", /me/);
 	});
+
+	test("robots.txt allows search bots and disallows training-only UAs", async ({
+		request,
+	}) => {
+		const response = await request.get("/robots.txt");
+		expect(response.ok()).toBeTruthy();
+		const body = await response.text();
+		expect(body).toContain(
+			"Content-Signal: ai-train=no, search=yes, ai-input=yes",
+		);
+		expect(body).toContain("Sitemap: https://ta93abe.com/sitemap-index.xml");
+		expect(body).toMatch(/User-agent:\s*Applebot-Extended\s*\nDisallow:\s*\//i);
+		expect(body).toMatch(
+			/User-agent:\s*Meta-ExternalAgent\s*\nDisallow:\s*\//i,
+		);
+		expect(body).toMatch(/User-agent:\s*anthropic-ai\s*\nDisallow:\s*\//i);
+		expect(body).toMatch(/User-agent:\s*Meta-ExternalFetcher\s*\nAllow:\s*\//i);
+		expect(body).toMatch(/User-agent:\s*GPTBot\s*\nAllow:\s*\//i);
+	});
 });
