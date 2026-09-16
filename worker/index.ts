@@ -9,6 +9,7 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import { discoveryResponse, sha256Digest } from "./discovery-cache.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -272,6 +273,33 @@ function jsonResponse(
 	);
 }
 
+async function discoveryTextResponse(
+	request: Request,
+	body: string,
+	contentType: string,
+	init: ResponseInit = {},
+): Promise<Response> {
+	const headers = new Headers(init.headers);
+	setGeneratedHeaders(headers);
+	return discoveryResponse(request, body, contentType, {
+		...init,
+		headers,
+	});
+}
+
+async function discoveryJsonResponse(
+	request: Request,
+	value: unknown,
+	init: ResponseInit = {},
+): Promise<Response> {
+	return discoveryTextResponse(
+		request,
+		JSON.stringify(value, null, 2),
+		"application/json; charset=utf-8",
+		init,
+	);
+}
+
 function notFoundResponse(request: Request): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
@@ -302,14 +330,6 @@ function addHomepageDiscoveryHeaders(
 		statusText: response.statusText,
 		headers,
 	});
-}
-
-async function sha256Digest(value: string): Promise<string> {
-	const bytes = new TextEncoder().encode(value);
-	const digest = await crypto.subtle.digest("SHA-256", bytes);
-	return `sha256:${[...new Uint8Array(digest)]
-		.map((byte) => byte.toString(16).padStart(2, "0"))
-		.join("")}`;
 }
 
 function apiCatalog() {
@@ -771,7 +791,11 @@ export default {
 		}
 
 		if (pathname === "/auth.md") {
-			return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
+			return discoveryTextResponse(
+				request,
+				AUTH_MD,
+				"text/markdown; charset=utf-8",
+			);
 		}
 
 		if (pathname === "/agent/auth") {
@@ -791,7 +815,7 @@ export default {
 		}
 
 		if (pathname === "/.well-known/api-catalog") {
-			return textResponse(
+			return discoveryTextResponse(
 				request,
 				JSON.stringify(apiCatalog(), null, 2),
 				"application/linkset+json; charset=utf-8",
@@ -802,15 +826,15 @@ export default {
 			pathname === "/.well-known/mcp/server-card.json" ||
 			pathname === "/.well-known/mcp.json"
 		) {
-			return jsonResponse(request, mcpServerCard());
+			return discoveryJsonResponse(request, mcpServerCard());
 		}
 
 		if (pathname === "/.well-known/agent-skills/index.json") {
-			return jsonResponse(request, await agentSkillsIndex());
+			return discoveryJsonResponse(request, await agentSkillsIndex());
 		}
 
 		if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
-			return textResponse(
+			return discoveryTextResponse(
 				request,
 				AGENT_SKILL_MARKDOWN,
 				"text/markdown; charset=utf-8",
@@ -818,7 +842,7 @@ export default {
 		}
 
 		if (pathname === "/.well-known/agent-card.json") {
-			return jsonResponse(request, a2aAgentCard());
+			return discoveryJsonResponse(request, a2aAgentCard());
 		}
 
 		if (
