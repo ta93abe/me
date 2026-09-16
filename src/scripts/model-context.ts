@@ -35,6 +35,7 @@ if (!modelContext) {
 			discovery: {
 				llms: "https://ta93abe.com/llms.txt",
 				apiCatalog: "https://ta93abe.com/.well-known/api-catalog",
+				aiCatalog: "https://ta93abe.com/.well-known/ai-catalog.json",
 				mcpServerCard: "https://ta93abe.com/.well-known/mcp/server-card.json",
 				agentSkills: "https://ta93abe.com/.well-known/agent-skills/index.json",
 				auth: "https://ta93abe.com/auth.md",

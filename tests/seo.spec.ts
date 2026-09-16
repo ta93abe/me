@@ -10,6 +10,14 @@ async function pageHtml(
 }
 
 test.describe("Sitewide SEO", () => {
+	test("home advertises the ARD capability catalog", async ({ request }) => {
+		const html = await pageHtml(request, "/");
+		expect(html).toContain('rel="ai-catalog"');
+		expect(html).toContain("https://ta93abe.com/.well-known/ai-catalog.json");
+		expect(html).toContain('rel="ard"');
+		expect(html).toContain("https://ta93abe.com/.well-known/ard.json");
+	});
+
 	test("home has WebSite, Person, and the default OG image", async ({
 		request,
 	}) => {

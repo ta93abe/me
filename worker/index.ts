@@ -9,6 +9,11 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	AI_CATALOG_CORS_HEADERS,
+	aiCatalog,
+	isAiCatalogPath,
+} from "./discovery/ai-catalog.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -36,6 +41,8 @@ const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
 	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
 	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
+	`</.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/json"`,
+	`</.well-known/ard.json>; rel="ard"; type="application/json"`,
 	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
 	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
 	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
@@ -77,6 +84,7 @@ ${SITE_DESCRIPTION}
 - llms.txt: ${SITE_URL}/llms.txt
 - Full agent notes: ${SITE_URL}/llms-full.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
+- ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
 - Authentication notes: ${SITE_URL}/auth.md
@@ -158,6 +166,7 @@ There is nothing to revoke for anonymous public read access.
 - Sitemap: ${SITE_URL}/sitemap-index.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
+- ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
@@ -692,6 +701,25 @@ export default {
 			(request.method === "GET" || request.method === "HEAD")
 		) {
 			return Response.redirect(new URL("/", url), 301);
+		}
+
+		if (isAiCatalogPath(pathname)) {
+			const method = request.method.toUpperCase();
+			if (method === "OPTIONS") {
+				return new Response(null, {
+					status: 204,
+					headers: {
+						...AI_CATALOG_CORS_HEADERS,
+						"Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+						"Access-Control-Allow-Headers": "Accept, Content-Type",
+					},
+				});
+			}
+			if (method === "GET" || method === "HEAD") {
+				return jsonResponse(request, aiCatalog(), {
+					headers: AI_CATALOG_CORS_HEADERS,
+				});
+			}
 		}
 
 		if (
