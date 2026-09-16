@@ -1,6 +1,8 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -692,6 +694,17 @@ export default {
 			(request.method === "GET" || request.method === "HEAD")
 		) {
 			return Response.redirect(new URL("/", url), 301);
+		}
+
+		if (request.method === "GET" || request.method === "HEAD") {
+			const alias = pageAliasRedirect(pathname);
+			if (alias) {
+				return Response.redirect(new URL(alias, url), 301);
+			}
+			const location = trailingSlashRedirectUrl(url);
+			if (location) {
+				return Response.redirect(location, 301);
+			}
 		}
 
 		if (

@@ -44,15 +44,15 @@ test.describe("Published content", () => {
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});

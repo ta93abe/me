@@ -9,6 +9,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
+import { PAGE_ALIASES } from "./src/config/redirects.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
 
 /**
@@ -38,6 +39,7 @@ const cspScriptResources = [
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
+	trailingSlash: "always",
 	adapter: cloudflare({
 		// IMAGES は公開 R2 `me-images` のバインディング名なので Cloudflare Images と混ぜない
 		imageService: "compile",
@@ -50,8 +52,7 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
-			filter: (page) =>
-				!page.includes("/print") && !page.includes("/og/"),
+			filter: (page) => !page.includes("/print") && !page.includes("/og/"),
 		}),
 		react(),
 		{
@@ -74,17 +75,7 @@ export default defineConfig({
 		"/gallery": "/",
 		"/atelier": "/",
 		"/bookshelf": "/",
-		"/careers": "/about",
-		"/jobs": "/about",
-		"/recruit": "/about",
-		"/gadgets/macbook-pro": "/gadgets",
-		"/gadgets/keyboard": "/gadgets",
-		"/gadgets/headphones": "/gadgets",
-		"/gadgets/audio-interface": "/gadgets",
-		"/gadgets/sketchbook": "/gadgets",
-		"/gadgets/fountain-pen": "/gadgets",
-		"/gadgets/camera": "/gadgets",
-		"/gadgets/notebook": "/gadgets",
+		...PAGE_ALIASES,
 	},
 	build: {
 		inlineStylesheets: "auto",

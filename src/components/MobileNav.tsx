@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { NavLink } from "@/config/navigation";
+import { isActiveNavPath, type NavLink } from "@/config/navigation";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const EXIT_MS = 240;
@@ -11,11 +11,6 @@ type Props = {
 	links: readonly NavLink[];
 	currentPath: string;
 };
-
-function isActivePath(href: string, currentPath: string): boolean {
-	if (href === "/") return currentPath === "/";
-	return currentPath.startsWith(href);
-}
 
 export default function MobileNav({ links, currentPath }: Props) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -191,7 +186,7 @@ export default function MobileNav({ links, currentPath }: Props) {
 						variants={listVariants}
 					>
 						{links.map((link) => {
-							const active = isActivePath(link.href, currentPath);
+							const active = isActiveNavPath(link.href, currentPath);
 							return (
 								<motion.li key={link.href} variants={itemVariants}>
 									<a

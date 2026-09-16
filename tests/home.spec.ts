@@ -99,19 +99,19 @@ test.describe("Home", () => {
 		const ctas = page.getByRole("navigation", { name: "主なページ" });
 		await expect(ctas.getByRole("link", { name: "Works" })).toHaveAttribute(
 			"href",
-			"/works",
+			"/works/",
 		);
 		await expect(ctas.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(ctas.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(ctas.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(ctas.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 		await expect(page.getByRole("link", { name: "Atelier" })).toHaveCount(0);
