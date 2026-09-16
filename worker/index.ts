@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { buildRobotsTxt, CONTENT_SIGNAL } from "../src/utils/robots.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -28,7 +29,6 @@ const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 const SITE_DESCRIPTION =
 	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
@@ -731,6 +731,17 @@ export default {
 			return textResponse(
 				request,
 				await llmsFullText(env),
+				"text/plain; charset=utf-8",
+				{
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				},
+			);
+		}
+
+		if (pathname === "/robots.txt") {
+			return textResponse(
+				request,
+				buildRobotsTxt(SITE_URL),
 				"text/plain; charset=utf-8",
 				{
 					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },

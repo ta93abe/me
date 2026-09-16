@@ -95,6 +95,9 @@ test.describe("Sitewide SEO", () => {
 	}) => {
 		const response = await request.get("/robots.txt");
 		expect(response.ok()).toBeTruthy();
+		expect(response.headers()["content-signal"]).toBe(
+			"ai-train=no, search=yes, ai-input=yes",
+		);
 		const body = await response.text();
 		expect(body).toContain(
 			"Content-Signal: ai-train=no, search=yes, ai-input=yes",
