@@ -104,6 +104,8 @@ gallery / atelier / books のサイトページはいったん外している。
 
 `worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）とスライド PDF（`/slides/<slug>.pdf`）を担当する。`run_worker_first: true`。
 
+`/mcp` は MCP Streamable HTTP（2025-06-18）。server-card の `transport.type` は `streamable-http`。POST の JSON-RPC は `Accept: text/event-stream` なら SSE（`event: message`）、それ以外は `application/json`。通知とクライアント応答は 202。初期化応答に `Mcp-Session-Id` を付けるが Worker はステートレスで検証しない。GET はスタンドアロン SSE を提供せず 405 + `Allow: POST`。`resources/list` と server-card の tools 配列は別 Issue。
+
 デッキ Markdown は Git `src/slides/decks/`。書き方は `docs/slides-authoring.md`、PDF は `docs/slides-pdf.md`。
 
 ## 依存関係の流れ

@@ -9,6 +9,7 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import { handleMcp } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -489,122 +490,13 @@ async function agentSkillsIndex() {
 	};
 }
 
-function mcpToolList() {
-	return [
-		{
-			name: "get_site_overview",
-			description:
-				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
-			inputSchema: {
-				type: "object",
-				properties: {},
-				additionalProperties: false,
-			},
-		},
-	];
-}
-
-async function handleMcp(request: Request, env: Env): Promise<Response> {
-	if (request.method.toUpperCase() !== "POST") {
-		return jsonResponse(
-			request,
-			{
-				name: `${SITE_HOST} MCP endpoint`,
-				description: "Send JSON-RPC 2.0 POST requests to use read-only tools.",
-			},
-			{
-				headers: {
-					Allow: "POST",
-				},
-			},
-		);
-	}
-
-	let payload: {
-		id?: string | number | null;
-		method?: string;
-		params?: Record<string, unknown>;
-		jsonrpc?: string;
-	};
-
-	try {
-		payload = await request.json();
-	} catch {
-		return jsonResponse(
-			request,
-			{
-				jsonrpc: "2.0",
-				id: null,
-				error: {
-					code: -32700,
-					message: "Parse error",
-				},
-			},
-			{ status: 400 },
-		);
-	}
-
-	const id = payload.id ?? null;
-
-	if (payload.method === "initialize") {
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				protocolVersion: "2025-06-18",
-				capabilities: {
-					tools: {},
-					resources: {},
-				},
-				serverInfo: mcpServerCard().serverInfo,
-			},
-		});
-	}
-
-	if (payload.method === "tools/list") {
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				tools: mcpToolList(),
-			},
-		});
-	}
-
-	if (payload.method === "tools/call") {
-		const toolName = payload.params?.name;
-		if (toolName !== "get_site_overview") {
-			return jsonResponse(request, {
-				jsonrpc: "2.0",
-				id,
-				error: {
-					code: -32602,
-					message: "Unknown tool",
-				},
-			});
-		}
-
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				content: [
-					{
-						type: "text",
-						text: await siteOverviewMarkdown(env),
-					},
-				],
-			},
-		});
-	}
-
-	return jsonResponse(request, {
-		jsonrpc: "2.0",
-		id,
-		error: {
-			code: -32601,
-			message: "Method not found",
-		},
+function withGeneratedHeaders(response: Response): Response {
+	const headers = new Headers(response.headers);
+	setGeneratedHeaders(headers);
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
 	});
 }
 
@@ -833,7 +725,12 @@ export default {
 		}
 
 		if (pathname === "/mcp") {
-			return handleMcp(request, env);
+			return withGeneratedHeaders(
+				await handleMcp(request, {
+					serverInfo: mcpServerCard().serverInfo,
+					siteOverview: () => siteOverviewMarkdown(env),
+				}),
+			);
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
