@@ -16,6 +16,11 @@ import {
 	parseSlideDeckSlug,
 	parseSlidePdfSlug,
 } from "./slides/pdf.ts";
+import {
+	WELL_KNOWN_JSON_NOT_FOUND,
+	shouldDelegateToAstroHandler,
+	wellKnownMissingKind,
+} from "./well-known.ts";
 
 type CacheStore = { default: Cache };
 
@@ -694,11 +699,7 @@ export default {
 			return Response.redirect(new URL("/", url), 301);
 		}
 
-		if (
-			request.method !== "GET" &&
-			request.method !== "HEAD" &&
-			pathname !== "/mcp"
-		) {
+		if (shouldDelegateToAstroHandler(request.method, pathname)) {
 			return handle(request, env, ctx);
 		}
 
@@ -836,11 +837,21 @@ export default {
 			return handleMcp(request, env);
 		}
 
+		// Catch-all after the implemented discovery routes above. Adding
+		// ai-catalog.json (TA-895) as 200 does not change other JSON probes.
+		const wellKnownMissing = wellKnownMissingKind(
+			pathname,
+			request.headers.get("Accept"),
+		);
+		if (wellKnownMissing === "json") {
+			return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
+		}
+		if (wellKnownMissing === "text") {
+			return notFoundResponse(request);
+		}
+
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
 		if (
-			pathname === "/.well-known/http-message-signatures-directory" ||
-			pathname === "/.well-known/ucp" ||
-			pathname === "/.well-known/acp.json" ||
 			pathname === "/openapi.json" ||
 			pathname === "/api/v1" ||
 			pathname === "/api"
