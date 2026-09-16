@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { LinkCardData } from "@/lib/content/link-card";
 import { renderBlogMarkdown } from "@/lib/content/markdown";
 import type { TweetEmbedData } from "@/lib/content/tweet";
 
@@ -17,6 +18,15 @@ const jack: TweetEmbedData = {
 	},
 	photos: [],
 	entities: [],
+};
+
+const coosenp: LinkCardData = {
+	href: "https://coosenp.ai/",
+	title: "CooSenpAI — アレコレソレが通じるAI",
+	description: "AI に聞くたびチャットを開いてコピペして状況を説明する。",
+	image: "https://coosenp.ai/og.png",
+	domain: "coosenp.ai",
+	favicon: "https://coosenp.ai/favicon.png",
 };
 
 describe("renderBlogMarkdown", () => {
@@ -199,5 +209,87 @@ describe("renderBlogMarkdown", () => {
 		expect(html).toContain('class="youtube-embed"');
 		expect(html).toContain("just setting up my twttr");
 		expect(html).toContain("Never Gonna Give You Up");
+	});
+
+	it("embeds a standalone https URL as an OGP card", async () => {
+		const fetchLink = vi.fn(async () => coosenp);
+		const html = await renderBlogMarkdown(
+			"Intro.\n\nhttps://coosenp.ai\n\nOutro.",
+			{ fetchLink },
+		);
+
+		expect(fetchLink).toHaveBeenCalledWith("https://coosenp.ai/");
+		expect(html).toContain('class="embed-card"');
+		expect(html).toContain("CooSenpAI — アレコレソレが通じるAI");
+		expect(html).toContain("coosenp.ai");
+		expect(html).toContain("<p>Intro.</p>");
+		expect(html).toContain("<p>Outro.</p>");
+		expect(html).not.toContain("data-link-embed");
+		expect(html).not.toContain("<p>https://coosenp.ai");
+	});
+
+	it("embeds a markdown link that is the whole paragraph", async () => {
+		const fetchLink = vi.fn(async () => coosenp);
+		const html = await renderBlogMarkdown("[CooSenpAI](https://coosenp.ai)\n", {
+			fetchLink,
+		});
+		expect(html).toContain('class="embed-card"');
+		expect(html).not.toContain("<p><a href");
+	});
+
+	it("does not card a URL inside a sentence or a fence", async () => {
+		const fetchLink = vi.fn(async () => coosenp);
+		const paragraph = await renderBlogMarkdown("See https://example.com here.", {
+			fetchLink,
+		});
+		const fenced = await renderBlogMarkdown("```\nhttps://example.com\n```", {
+			fetchLink,
+		});
+
+		expect(fetchLink).not.toHaveBeenCalled();
+		expect(paragraph).not.toContain("embed-card");
+		expect(fenced).toContain("<pre");
+		expect(fenced).not.toContain("embed-card");
+	});
+
+	it("keeps X and YouTube URLs as dedicated cards, not OGP cards", async () => {
+		const fetchTweet = vi.fn(async () => jack);
+		const fetchYoutube = vi.fn(async () => ({
+			id: "dQw4w9WgXcQ",
+			url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+			title: "Never Gonna Give You Up",
+			authorName: "Rick Astley",
+			thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+		}));
+		const fetchLink = vi.fn(async () => coosenp);
+		const html = await renderBlogMarkdown(
+			"https://x.com/jack/status/20\n\nhttps://youtu.be/dQw4w9WgXcQ\n",
+			{ fetchTweet, fetchYoutube, fetchLink },
+		);
+
+		expect(fetchLink).not.toHaveBeenCalled();
+		expect(fetchTweet).toHaveBeenCalledWith("20");
+		expect(fetchYoutube).toHaveBeenCalledWith("dQw4w9WgXcQ");
+		expect(html).toContain('class="tweet-embed"');
+		expect(html).toContain('class="youtube-embed"');
+		expect(html).not.toContain("embed-card");
+	});
+
+	it("fetches a duplicate link once and never emits a Substack widget", async () => {
+		const fetchLink = vi.fn(async () => ({
+			...coosenp,
+			href: "https://ta93abe.substack.com/",
+			domain: "ta93abe.substack.com",
+			title: "Newsletter",
+		}));
+		const html = await renderBlogMarkdown(
+			"https://ta93abe.substack.com\n\nhttps://ta93abe.substack.com/\n",
+			{ fetchLink },
+		);
+
+		expect(fetchLink).toHaveBeenCalledOnce();
+		expect(html).toContain('class="embed-card"');
+		expect(html).not.toContain("<iframe");
+		expect(html).not.toContain("substack.com/embed");
 	});
 });

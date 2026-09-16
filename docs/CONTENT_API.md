@@ -148,3 +148,15 @@ Zenn 記法も使える。
 ```
 
 `youtube.com` / `youtu.be` / `m.` / `music.` / Shorts / Live / embed に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときはサムネイル付きの「YouTubeで動画を見る」カードになる。
+
+## ブログ本文の URL カード
+
+ポスト以外の http(s) URL を単独行に貼ると、公開ページで OGP を読んでカードにする。文中のリンクはそのまま。新しい記法は使わない。
+
+```md
+https://coosenp.ai
+
+[CooSenpAI](https://coosenp.ai)
+```
+
+タイトル・説明・サムネイル・ドメインを出す。`og:image` は https だけ `<img>` にする。取得 HTML は本文に入れない。失敗時はドメインだけの薄いカードになる。X のステータス URL と YouTube の動画 URL は上の専用埋め込みが優先する。Spotify の専用プレイヤーと、公開時の `derived/embeds` キャッシュはまだ入れていない。

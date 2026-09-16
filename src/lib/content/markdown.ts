@@ -13,6 +13,14 @@ import "prismjs/components/prism-typescript.js";
 import "prismjs/components/prism-yaml.js";
 
 import {
+	fallbackLinkCard,
+	fetchLinkCard,
+	linkCardHtml,
+	type LinkCardData,
+	type LinkCardFetcher,
+} from "./link-card.ts";
+import { linkBlockStartIndex, matchStandaloneLinkBlock } from "./link-url.ts";
+import {
 	matchStandaloneTweetBlock,
 	tweetBlockStartIndex,
 } from "./tweet-url.ts";
@@ -27,7 +35,9 @@ import {
 	type YoutubeFetcher,
 } from "./youtube.ts";
 
-export type { TweetFetcher, YoutubeFetcher };
+export type { LinkCardFetcher, TweetFetcher, YoutubeFetcher };
+
+const MAX_LINK_FETCHES = 8;
 
 function escapeHtml(value: string): string {
 	return value
@@ -49,6 +59,10 @@ function renderCode({ text, lang }: { text: string; lang?: string }): string {
 
 type EmbedRef = {
 	id: string;
+	href: string;
+};
+
+type LinkRef = {
 	href: string;
 };
 
@@ -112,6 +126,34 @@ function createYoutubeExtension(pending: EmbedRef[]) {
 	};
 }
 
+function createLinkExtension(pending: LinkRef[]) {
+	return {
+		name: "linkCard",
+		level: "block" as const,
+		start(src: string) {
+			return linkBlockStartIndex(src);
+		},
+		tokenizer(src: string) {
+			const match = matchStandaloneLinkBlock(src);
+			if (!match) {
+				return undefined;
+			}
+			return {
+				type: "linkCard",
+				raw: match.raw,
+				href: match.href,
+			};
+		},
+		renderer(token: { href?: unknown }) {
+			const index = pending.length;
+			pending.push({
+				href: String(token.href ?? ""),
+			});
+			return `<div data-link-embed="${index}"></div>\n`;
+		},
+	};
+}
+
 async function fillEmbeds<T>(
 	ids: string[],
 	fetcher: (id: string) => Promise<T | null>,
@@ -147,10 +189,15 @@ function replaceEmbedPlaceholders(
 
 export async function renderBlogMarkdown(
 	markdown: string,
-	options: { fetchTweet?: TweetFetcher; fetchYoutube?: YoutubeFetcher } = {},
+	options: {
+		fetchTweet?: TweetFetcher;
+		fetchYoutube?: YoutubeFetcher;
+		fetchLink?: LinkCardFetcher;
+	} = {},
 ): Promise<string> {
 	const pendingTweets: EmbedRef[] = [];
 	const pendingYoutube: EmbedRef[] = [];
+	const pendingLinks: LinkRef[] = [];
 	const marked = new Marked({
 		gfm: true,
 		renderer: {
@@ -161,16 +208,29 @@ export async function renderBlogMarkdown(
 		extensions: [
 			createTweetExtension(pendingTweets),
 			createYoutubeExtension(pendingYoutube),
+			createLinkExtension(pendingLinks),
 		],
 	});
 
 	let html = marked.parse(markdown, { async: false }) as string;
-	if (pendingTweets.length === 0 && pendingYoutube.length === 0) {
+	if (
+		pendingTweets.length === 0 &&
+		pendingYoutube.length === 0 &&
+		pendingLinks.length === 0
+	) {
 		return html;
 	}
 
 	const fetchTweet = options.fetchTweet ?? fetchTweetEmbed;
 	const fetchYoutube = options.fetchYoutube ?? fetchYoutubeEmbed;
+	const fetchLink = options.fetchLink ?? fetchLinkCard;
+	const cards = new Map<string, LinkCardData>();
+	const uniqueLinks = [...new Set(pendingLinks.map((ref) => ref.href))];
+	const linksToFetch = uniqueLinks.slice(0, MAX_LINK_FETCHES);
+	for (const href of uniqueLinks.slice(MAX_LINK_FETCHES)) {
+		cards.set(href, fallbackLinkCard(href));
+	}
+
 	const [tweets, videos] = await Promise.all([
 		fillEmbeds(
 			pendingTweets.map((ref) => ref.id),
@@ -180,6 +240,13 @@ export async function renderBlogMarkdown(
 			pendingYoutube.map((ref) => ref.id),
 			fetchYoutube,
 		),
+		...linksToFetch.map(async (href) => {
+			try {
+				cards.set(href, await fetchLink(href));
+			} catch {
+				cards.set(href, fallbackLinkCard(href));
+			}
+		}),
 	]);
 
 	html = replaceEmbedPlaceholders(
@@ -188,10 +255,20 @@ export async function renderBlogMarkdown(
 		pendingTweets,
 		(href, id) => tweetEmbedHtml(href, tweets.get(id) ?? null),
 	);
-	return replaceEmbedPlaceholders(
+	html = replaceEmbedPlaceholders(
 		html,
 		"youtube-embed",
 		pendingYoutube,
 		(href, id) => youtubeEmbedHtml(href, videos.get(id) ?? null),
+	);
+	return html.replace(
+		/<div data-link-embed="(\d+)"><\/div>/g,
+		(_match, index: string) => {
+			const ref = pendingLinks[Number(index)];
+			if (!ref) {
+				return "";
+			}
+			return linkCardHtml(cards.get(ref.href) ?? fallbackLinkCard(ref.href));
+		},
 	);
 }
