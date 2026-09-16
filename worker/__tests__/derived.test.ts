@@ -7,7 +7,11 @@ import {
 	buildBlogRssXml,
 	buildLlmsBlogSection,
 	buildSitemapIndexXml,
+	childSitemapLastmod,
 	feedPostsFromEntries,
+	lastmodFromFeedPosts,
+	lastmodFromSitemapXml,
+	loadSitemapIndexXml,
 	sitemapUrlEntries,
 	writeDerivedDiscovery,
 	type FeedPost,
@@ -84,9 +88,91 @@ describe("derived discovery feeds", () => {
 	});
 
 	it("points sitemap-index at the static sitemap and the blog sitemap", () => {
-		const xml = buildSitemapIndexXml("https://ta93abe.com");
+		const xml = buildSitemapIndexXml("https://ta93abe.com", {
+			staticSitemap: "2026-09-01",
+			blogSitemap: "2026-09-16",
+		});
 		expect(xml).toContain("https://ta93abe.com/sitemap-0.xml");
 		expect(xml).toContain("https://ta93abe.com/sitemap-blog.xml");
+		expect(xml).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-0.xml<\/loc>\s*<lastmod>2026-09-01<\/lastmod>/,
+		);
+		expect(xml).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-blog.xml<\/loc>\s*<lastmod>2026-09-16<\/lastmod>/,
+		);
+	});
+
+	it("uses the newest lastmod in a child sitemap xml", () => {
+		expect(
+			lastmodFromSitemapXml(`
+				<urlset>
+					<url><lastmod>2026-01-01</lastmod></url>
+					<url><lastmod>2026-09-16T15:00:00.000Z</lastmod></url>
+				</urlset>
+			`),
+		).toBe("2026-09-16");
+	});
+
+	it("uses the newest post lastmod for the blog sitemap", () => {
+		const revised: FeedPost = {
+			...OLDER,
+			revise_date: new Date("2026-09-16T00:00:00.000Z"),
+		};
+		expect(lastmodFromFeedPosts([HELLO, revised])).toBe("2026-09-16");
+	});
+
+	it("falls back to Last-Modified when the static sitemap has no lastmod", () => {
+		expect(
+			childSitemapLastmod(
+				"<urlset><url><loc>https://ta93abe.com/</loc></url></urlset>",
+				"Wed, 01 Apr 2026 12:00:00 GMT",
+				new Date("2026-09-16T00:00:00.000Z"),
+			),
+		).toBe("2026-04-01");
+	});
+
+	it("rebuilds index lastmod after a newer blog post", async () => {
+		const bucket = createMemoryR2();
+		const staticXml =
+			"<urlset><url><lastmod>2026-01-01</lastmod></url></urlset>";
+		await bucket.put("md/blog/hello-world.md", SAMPLE);
+		await rebuildContentIndexes(bucket);
+
+		const first = await loadSitemapIndexXml(
+			bucket,
+			"https://ta93abe.com",
+			{ xml: staticXml },
+			new Date("2026-09-16T00:00:00.000Z"),
+		);
+		expect(first).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-0.xml<\/loc>\s*<lastmod>2026-01-01<\/lastmod>/,
+		);
+		expect(first).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-blog.xml<\/loc>\s*<lastmod>2026-08-30<\/lastmod>/,
+		);
+
+		await bucket.put(
+			"md/blog/newer.md",
+			`---
+title: Newer
+excerpt: later note
+date: 2026-09-16
+---
+
+Published later.
+`,
+		);
+		await rebuildContentIndexes(bucket);
+
+		const second = await loadSitemapIndexXml(
+			bucket,
+			"https://ta93abe.com",
+			{ xml: staticXml },
+			new Date("2026-09-16T00:00:00.000Z"),
+		);
+		expect(second).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-blog.xml<\/loc>\s*<lastmod>2026-09-16<\/lastmod>/,
+		);
 	});
 
 	it("reads dated blog entries from an index payload", () => {

@@ -3,10 +3,7 @@ import { handle } from "@astrojs/cloudflare/handler";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
-import {
-	buildSitemapIndexXml,
-	readLlmsBlogSection,
-} from "./content/derived.ts";
+import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
@@ -739,9 +736,25 @@ export default {
 		}
 
 		if (pathname === "/sitemap-index.xml") {
+			let xml: string | undefined;
+			let lastModified: string | null = null;
+			try {
+				const staticSitemap = await env.ASSETS.fetch(
+					new URL("/sitemap-0.xml", request.url),
+				);
+				if (staticSitemap.ok) {
+					xml = await staticSitemap.text();
+					lastModified = staticSitemap.headers.get("Last-Modified");
+				}
+			} catch {
+				// fall through to the request-time lastmod fallback
+			}
 			return textResponse(
 				request,
-				buildSitemapIndexXml(SITE_URL),
+				await loadSitemapIndexXml(env.CONTENT, SITE_URL, {
+					xml,
+					lastModified,
+				}),
 				"application/xml; charset=utf-8",
 				{
 					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
