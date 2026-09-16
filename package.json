@@ -1,7 +1,6 @@
 {
 	"name": "me",
 	"version": "0.0.1",
-	"packageManager": "pnpm@12.3.4",
 	"type": "module",
 	"scripts": {
 		"dev": "astro dev",
@@ -29,7 +28,8 @@
 		"infra:deploy": "alchemy deploy infra/alchemy.run.ts --stage prod",
 		"infra:plan": "alchemy plan infra/alchemy.run.ts --stage prod",
 		"perf:lighthouse": "node scripts/perf/lighthouse-audit.mjs",
-		"perf:cwv": "node scripts/perf/collect-cwv.mjs"
+		"perf:cwv": "node scripts/perf/collect-cwv.mjs",
+		"agent-ready:scan": "node scripts/agent-ready/scan.mjs"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.10",
@@ -92,5 +92,6 @@
 		"vite": "8.2.2",
 		"vitest": "^5.0.0",
 		"wrangler": "^4.129.0"
-	}
+	},
+	"packageManager": "pnpm@12.3.4"
 }
