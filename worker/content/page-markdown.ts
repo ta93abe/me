@@ -22,11 +22,38 @@ const STATIC_MARKDOWN_PAGES = new Set([
 	"/links",
 ]);
 
+function parseQuality(params: string[]): number {
+	const raw = params.find((param) => param.startsWith("q="))?.slice(2);
+	if (raw === undefined) {
+		return 1;
+	}
+	const quality = Number.parseFloat(raw);
+	if (!Number.isFinite(quality) || quality < 0) {
+		return 0;
+	}
+	return Math.min(quality, 1);
+}
+
 export function acceptsMarkdown(request: Request): boolean {
-	return (
-		request.headers.get("Accept")?.toLowerCase().includes("text/markdown") ??
-		false
-	);
+	const accept = request.headers.get("Accept");
+	if (!accept) {
+		return false;
+	}
+
+	for (const range of accept.split(",")) {
+		const [mediaType, ...params] = range
+			.split(";")
+			.map((part) => part.trim().toLowerCase())
+			.filter(Boolean);
+		if (mediaType !== "text/markdown") {
+			continue;
+		}
+		if (parseQuality(params) > 0) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 export function parseBlogPostSlug(pathname: string): string | null {
@@ -55,7 +82,7 @@ function originBase(origin: string): string {
 	return origin.replace(/\/+$/, "");
 }
 
-function yamlScalar(value: string): string {
+function needsYamlQuotes(value: string): boolean {
 	if (
 		value === "" ||
 		value !== value.trim() ||
@@ -64,9 +91,25 @@ function yamlScalar(value: string): string {
 		/[#:] /.test(value) ||
 		/[{}[\],&*?|>!<@`'"]/.test(value)
 	) {
-		return JSON.stringify(value);
+		return true;
 	}
-	return value;
+	if (/^(true|false|null|yes|no|on|off|y|n|~)$/i.test(value)) {
+		return true;
+	}
+	if (/^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/.test(value)) {
+		return true;
+	}
+	if (/^0x[0-9a-fA-F]+$/.test(value)) {
+		return true;
+	}
+	if (/^\d{4}-\d{2}-\d{2}([Tt ].*)?$/.test(value)) {
+		return true;
+	}
+	return false;
+}
+
+function yamlScalar(value: string): string {
+	return needsYamlQuotes(value) ? JSON.stringify(value) : value;
 }
 
 function yamlDate(value: unknown): string | undefined {

@@ -59,6 +59,37 @@ describe("acceptsMarkdown", () => {
 			acceptsMarkdown(new Request("https://ta93abe.com/blog/hello-world/")),
 		).toBe(false);
 	});
+
+	it("parses media ranges, quality values, and case", () => {
+		expect(
+			acceptsMarkdown(
+				new Request("https://ta93abe.com/blog/hello-world/", {
+					headers: { Accept: "TEXT/MARKDOWN ; charset=utf-8" },
+				}),
+			),
+		).toBe(true);
+		expect(
+			acceptsMarkdown(
+				new Request("https://ta93abe.com/blog/hello-world/", {
+					headers: { Accept: "text/html, text/markdown;q=0" },
+				}),
+			),
+		).toBe(false);
+		expect(
+			acceptsMarkdown(
+				new Request("https://ta93abe.com/blog/hello-world/", {
+					headers: { Accept: "text/html, text/markdown; q=0.0" },
+				}),
+			),
+		).toBe(false);
+		expect(
+			acceptsMarkdown(
+				new Request("https://ta93abe.com/blog/hello-world/", {
+					headers: { Accept: "text/markdown;q=0, text/markdown;q=0.8" },
+				}),
+			),
+		).toBe(true);
+	});
 });
 
 describe("markdown negotiable paths", () => {
@@ -119,6 +150,38 @@ describe("loadNegotiatedMarkdown", () => {
 			"https://ta93abe.com/blog/snowflake-world-tour-tokyo-2026/",
 		);
 		expect(result.body).not.toContain("Newsletter");
+	});
+
+	it("quotes YAML reserved words, numbers, and dates", async () => {
+		const bucket = createMemoryR2();
+		await bucket.put(
+			"md/blog/true.md",
+			`---
+title: "true"
+excerpt: "null"
+publish_date: 2026-09-12
+tags:
+  - "2026"
+  - "1.5"
+  - "yes"
+---
+
+Quoted scalars.
+`,
+		);
+
+		const result = await loadNegotiatedMarkdown("/blog/true", bucket);
+		expect(result.kind).toBe("markdown");
+		if (result.kind !== "markdown") {
+			return;
+		}
+
+		expect(result.body).toContain('title: "true"');
+		expect(result.body).toContain('description: "null"');
+		expect(result.body).toContain('  - "2026"');
+		expect(result.body).toContain('  - "1.5"');
+		expect(result.body).toContain('  - "yes"');
+		expect(result.body).toContain("# true");
 	});
 
 	it("returns not-found for a missing blog slug", async () => {

@@ -271,9 +271,13 @@ function jsonResponse(
 	);
 }
 
-function notFoundResponse(request: Request): Response {
+function notFoundResponse(
+	request: Request,
+	extraHeaders: HeadersInit = {},
+): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
+		headers: extraHeaders,
 	});
 }
 
@@ -746,7 +750,7 @@ export default {
 				return markdownPageResponse(request, negotiated.body);
 			}
 			if (negotiated.kind === "not-found") {
-				return notFoundResponse(request);
+				return notFoundResponse(request, { Vary: "Accept" });
 			}
 		}
 
