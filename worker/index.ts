@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import { a2aAgentCard } from "./agent-card.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -188,8 +189,11 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 ## How to use
 
 1. Start with ${SITE_URL}/llms.txt for a concise overview.
-2. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
-3. Respect robots.txt and Content-Signal preferences.
+2. Use the MCP server at ${SITE_URL}/mcp (card: ${SITE_URL}/.well-known/mcp/server-card.json).
+3. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
+4. Respect robots.txt and Content-Signal preferences.
+
+This site does not implement A2A JSON-RPC methods such as message/send.
 `;
 
 function isHead(request: Request): boolean {
@@ -385,44 +389,6 @@ function mcpServerCard() {
 				uri: `${SITE_URL}/llms.txt`,
 				mimeType: "text/plain",
 				description: "Concise overview of the public site.",
-			},
-		],
-	};
-}
-
-function a2aAgentCard() {
-	return {
-		name: SITE_TITLE,
-		description: SITE_DESCRIPTION,
-		url: SITE_URL,
-		version: "1.0.0",
-		capabilities: {
-			streaming: false,
-			pushNotifications: false,
-			stateTransitionHistory: false,
-		},
-		authentication: {
-			schemes: ["none"],
-		},
-		defaultInputModes: ["text"],
-		defaultOutputModes: ["text"],
-		supportedInterfaces: [
-			{
-				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
-				url: `${SITE_URL}/mcp`,
-			},
-		],
-		skills: [
-			{
-				id: "site-overview",
-				name: "Site Overview",
-				description:
-					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
-				tags: ["portfolio", "blog", "discovery"],
-				examples: [
-					"What is ta93abe.com?",
-					"List the public sections of this site.",
-				],
 			},
 		],
 	};
@@ -817,7 +783,10 @@ export default {
 			);
 		}
 
-		if (pathname === "/.well-known/agent-card.json") {
+		if (
+			pathname === "/.well-known/agent-card.json" ||
+			pathname === "/.well-known/agent.json"
+		) {
 			return jsonResponse(request, a2aAgentCard());
 		}
 
