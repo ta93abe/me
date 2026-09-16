@@ -9,6 +9,10 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
+import {
+	SITEMAP_INDEX_ALIASES,
+	SITEMAP_INDEX_PATH,
+} from "./src/lib/content/sitemap-aliases.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
 
 /**
@@ -50,8 +54,7 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
-			filter: (page) =>
-				!page.includes("/print") && !page.includes("/og/"),
+			filter: (page) => !page.includes("/print") && !page.includes("/og/"),
 		}),
 		react(),
 		{
@@ -71,6 +74,9 @@ export default defineConfig({
 		},
 	],
 	redirects: {
+		...Object.fromEntries(
+			SITEMAP_INDEX_ALIASES.map((from) => [from, SITEMAP_INDEX_PATH]),
+		),
 		"/gallery": "/",
 		"/atelier": "/",
 		"/bookshelf": "/",
