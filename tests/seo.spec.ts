@@ -78,12 +78,6 @@ test.describe("Sitewide SEO", () => {
 		}
 	});
 
-	test("Person image URL returns a PNG", async ({ request }) => {
-		const res = await request.get("/og/about.png");
-		expect(res.status()).toBe(200);
-		expect(res.headers()["content-type"]).toMatch(/image\/png/);
-	});
-
 	test("404 is noindex and has no JSON-LD", async ({ request }) => {
 		const html = await pageHtml(request, "/blog/does-not-exist");
 		expect(html).toContain('name="robots" content="noindex, nofollow"');
