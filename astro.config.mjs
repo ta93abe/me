@@ -39,7 +39,8 @@ const cspScriptResources = [
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
-	trailingSlash: "always",
+	// Astro 7 の trailingSlash: "always" は dev で不一致 URL を 404 reject する。
+	// 本番の 301 は middleware と Worker で行う。
 	adapter: cloudflare({
 		// IMAGES は公開 R2 `me-images` のバインディング名なので Cloudflare Images と混ぜない
 		imageService: "compile",
