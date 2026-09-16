@@ -31,6 +31,8 @@ const SITE_DESCRIPTION =
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
+const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
+const WORKER_NON_GET_PATHS = new Set(["/mcp", "/agent/auth"]);
 
 const DISCOVERY_LINKS = [
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
@@ -133,7 +135,7 @@ POST ${SITE_URL}/agent/auth
 Accept: application/json
 \`\`\`
 
-The response confirms anonymous public access. You may proceed without storing a secret.
+GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The response confirms anonymous public access. You may proceed without storing a secret.
 
 ## Step 4 — Claim ceremony
 
@@ -697,7 +699,7 @@ export default {
 		if (
 			request.method !== "GET" &&
 			request.method !== "HEAD" &&
-			pathname !== "/mcp"
+			!WORKER_NON_GET_PATHS.has(pathname)
 		) {
 			return handle(request, env, ctx);
 		}
@@ -776,6 +778,11 @@ export default {
 
 		if (pathname === "/agent/auth") {
 			const method = request.method.toUpperCase();
+			if (method === "OPTIONS") {
+				const headers = new Headers({ Allow: AGENT_AUTH_ALLOW });
+				setGeneratedHeaders(headers);
+				return new Response(null, { status: 204, headers });
+			}
 			if (method !== "GET" && method !== "POST" && method !== "HEAD") {
 				return textResponse(
 					request,
@@ -783,11 +790,13 @@ export default {
 					"text/plain; charset=utf-8",
 					{
 						status: 405,
-						headers: { Allow: "GET, POST, HEAD" },
+						headers: { Allow: AGENT_AUTH_ALLOW },
 					},
 				);
 			}
-			return jsonResponse(request, agentAuthRegisterResponse());
+			return jsonResponse(request, agentAuthRegisterResponse(), {
+				headers: { Allow: AGENT_AUTH_ALLOW },
+			});
 		}
 
 		if (pathname === "/.well-known/api-catalog") {
