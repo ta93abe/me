@@ -57,6 +57,20 @@ function parseContentSignals(robots: string): ContentSignalRecord[] {
 }
 
 describe("robots.txt Content-Signal", () => {
+	it("associates a trailing Content-Signal with the last User-agent group", () => {
+		expect(
+			parseContentSignals(`User-agent: *
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Content-Signal: ${CONTENT_SIGNAL}
+Sitemap: https://ta93abe.com/sitemap-index.xml
+`),
+		).toEqual([{ userAgent: "CCBot", signal: CONTENT_SIGNAL }]);
+	});
+
 	it("attaches Content-Signal to User-agent: * instead of a specific crawler", () => {
 		expect(parseContentSignals(robotsTxt)).toEqual([
 			{ userAgent: "*", signal: CONTENT_SIGNAL },
