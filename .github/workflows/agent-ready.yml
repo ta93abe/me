@@ -44,6 +44,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          # package.json の packageManager=pnpm を見にいかない（この job は node だけ使う）
+          package-manager-cache: false
 
       - name: Scan site and probe markdown
         env:
