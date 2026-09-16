@@ -159,4 +159,53 @@ describe("MCP resources", () => {
 			message: "Method not found",
 		});
 	});
+
+	it("rejects a JSON null body as Invalid Request instead of crashing", async () => {
+		const request = new Request("https://ta93abe.com/mcp", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: "null",
+		});
+		const response = await handleMcp(request, content, (value, init) =>
+			jsonResponse(value, init),
+		);
+		expect(response.status).toBe(400);
+		expect(await readJson(response)).toEqual({
+			jsonrpc: "2.0",
+			id: null,
+			error: {
+				code: -32600,
+				message: "Invalid Request",
+			},
+		});
+	});
+
+	it("accepts notifications without a JSON-RPC id as 202", async () => {
+		const request = new Request("https://ta93abe.com/mcp", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				jsonrpc: "2.0",
+				method: "notifications/initialized",
+			}),
+		});
+		const response = await handleMcp(request, content, (value, init) =>
+			jsonResponse(value, init),
+		);
+		expect(response.status).toBe(202);
+		expect(await response.text()).toBe("");
+	});
+
+	it("treats an explicit null id as a request, not a notification", async () => {
+		const response = await postMcp("prompts/list", undefined, null);
+		expect(response.status).toBe(200);
+		expect(await readJson(response)).toEqual({
+			jsonrpc: "2.0",
+			id: null,
+			error: {
+				code: -32601,
+				message: "Method not found",
+			},
+		});
+	});
 });

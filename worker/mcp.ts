@@ -143,15 +143,10 @@ export async function handleMcp(
 		);
 	}
 
-	let payload: {
-		id?: JsonRpcId;
-		method?: string;
-		params?: Record<string, unknown>;
-		jsonrpc?: string;
-	};
+	let raw: unknown;
 
 	try {
-		payload = await request.json();
+		raw = await request.json();
 	} catch {
 		return jsonRpcError(
 			jsonResponse,
@@ -161,6 +156,28 @@ export async function handleMcp(
 			undefined,
 			400,
 		);
+	}
+
+	if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+		return jsonRpcError(
+			jsonResponse,
+			null,
+			-32600,
+			"Invalid Request",
+			undefined,
+			400,
+		);
+	}
+
+	const payload = raw as {
+		id?: JsonRpcId;
+		method?: string;
+		params?: Record<string, unknown>;
+		jsonrpc?: string;
+	};
+
+	if (!Object.hasOwn(payload, "id")) {
+		return new Response(null, { status: 202 });
 	}
 
 	const id = payload.id ?? null;
