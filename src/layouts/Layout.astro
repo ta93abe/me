@@ -5,6 +5,7 @@ import Header from "@/components/Header.astro";
 import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
 import { canonicalPageUrl } from "@/utils/canonical";
+import { advertisesMarkdownRepresentation } from "@/utils/markdown-alternate";
 import { generateWebSiteSchema, stringifySchema } from "@/utils/schema";
 
 interface Props {
@@ -47,6 +48,9 @@ const canonicalURL = canonicalOverride
 const ogImageURL = new URL(ogImage, Astro.site);
 const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
+const includeMarkdownAlternate = advertisesMarkdownRepresentation(
+	canonicalURL.pathname,
+);
 ---
 
 <!doctype html>
@@ -66,6 +70,15 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+		{
+			includeMarkdownAlternate && (
+				<link
+					rel="alternate"
+					type="text/markdown"
+					href={canonicalURL}
+				/>
+			)
+		}
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={ogType} />

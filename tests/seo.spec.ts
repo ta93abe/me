@@ -22,6 +22,22 @@ test.describe("Sitewide SEO", () => {
 		expect(html).toContain('property="og:image:type" content="image/png"');
 	});
 
+	test("only the homepage advertises a markdown alternate representation", async ({
+		request,
+	}) => {
+		const html = await pageHtml(request, "/");
+		expect(html).toMatch(
+			/<link rel="alternate" type="text\/markdown" href="https:\/\/ta93abe\.com\/"\s*\/?>/,
+		);
+
+		for (const path of ["/about", "/blog", "/works", "/contact"]) {
+			const page = await pageHtml(request, path);
+			expect(page, path).not.toContain(
+				'rel="alternate" type="text/markdown"',
+			);
+		}
+	});
+
 	test("section pages have dedicated OG images and page JSON-LD", async ({
 		request,
 	}) => {
