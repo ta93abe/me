@@ -5,6 +5,8 @@ import {
 	generateBlogPostingSchema,
 	generateBreadcrumbSchema,
 	generateContactPageSchema,
+	generateGadgetProductSchema,
+	generateGadgetsItemListSchema,
 	generateLinksCollectionSchema,
 	generatePersonSchema,
 	generateProfilePageSchema,
@@ -238,6 +240,58 @@ describe("generateBreadcrumbSchema", () => {
 			"https://example.com/",
 			"https://example.com/blog/",
 			"https://example.com/blog/hello-world/",
+		]);
+	});
+});
+
+describe("generateGadgetProductSchema", () => {
+	it("emits Product fields with a crawlable image and trailing-slash URL", () => {
+		const schema = generateGadgetProductSchema("https://example.com/", {
+			slug: "oura-ring-5",
+			name: "Oura Ring 5",
+			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
+			image: "https://example.com/media/gadgets/oura-ring-5.webp",
+			brand: "Oura",
+		});
+
+		expect(schema).toEqual({
+			"@context": "https://schema.org",
+			"@type": "Product",
+			name: "Oura Ring 5",
+			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
+			image: "https://example.com/media/gadgets/oura-ring-5.webp",
+			url: "https://example.com/gadgets/oura-ring-5/",
+			brand: { "@type": "Brand", name: "Oura" },
+		});
+	});
+});
+
+describe("generateGadgetsItemListSchema", () => {
+	it("lists gadget URLs with trailing slashes", () => {
+		const schema = generateGadgetsItemListSchema(
+			"https://example.com/",
+			[
+				{ slug: "oura-ring-5", name: "Oura Ring 5" },
+				{ slug: "hhkb-type-s", name: "HHKB Type-S" },
+			],
+			"毎日触っている物。",
+		);
+
+		expect(schema["@type"]).toBe("ItemList");
+		expect(schema.url).toBe("https://example.com/gadgets/");
+		expect(schema.itemListElement).toEqual([
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "Oura Ring 5",
+				url: "https://example.com/gadgets/oura-ring-5/",
+			},
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: "HHKB Type-S",
+				url: "https://example.com/gadgets/hhkb-type-s/",
+			},
 		]);
 	});
 });
