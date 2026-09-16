@@ -36,4 +36,17 @@ describe("blog article prose", () => {
 			"text-decoration: none",
 		);
 	});
+
+	it("styles OGP link cards as bordered split thumbnails", () => {
+		expect(declarations(".prose .embed-card")).toContain("display: flex");
+		expect(declarations(".prose .embed-card")).toContain(
+			"border: 1px solid var(--border-color)",
+		);
+		expect(declarations(".prose .embed-card")).toContain(
+			"text-decoration: none",
+		);
+		expect(declarations(".prose .embed-card-thumb")).toContain(
+			"flex-shrink: 0",
+		);
+	});
 });

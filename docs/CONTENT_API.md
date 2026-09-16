@@ -121,3 +121,15 @@ Zenn 記法も使える。
 ```
 
 `twitter.com` / `x.com` / `mobile.` / `www.` / `/i/status/` に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときは「Xでポストを見る」リンクカードになる。
+
+## ブログ本文の URL カード
+
+ポスト以外の http(s) URL を単独行に貼ると、公開ページで OGP を読んでカードにする。文中のリンクはそのまま。新しい記法は使わない。
+
+```md
+https://coosenp.ai
+
+[CooSenpAI](https://coosenp.ai)
+```
+
+タイトル・説明・サムネイル・ドメインを出す。`og:image` は https だけ `<img>` にする。取得 HTML は本文に入れない。失敗時はドメインだけの薄いカードになる。X のステータス URL は上のポスト埋め込みが優先する。YouTube / Spotify の専用プレイヤーと、公開時の `derived/embeds` キャッシュはまだ入れていない。

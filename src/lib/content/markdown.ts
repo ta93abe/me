@@ -13,12 +13,22 @@ import "prismjs/components/prism-typescript.js";
 import "prismjs/components/prism-yaml.js";
 
 import {
+	fallbackLinkCard,
+	fetchLinkCard,
+	linkCardHtml,
+	type LinkCardData,
+	type LinkCardFetcher,
+} from "./link-card.ts";
+import { linkBlockStartIndex, matchStandaloneLinkBlock } from "./link-url.ts";
+import {
 	matchStandaloneTweetBlock,
 	tweetBlockStartIndex,
 } from "./tweet-url.ts";
 import { fetchTweetEmbed, tweetEmbedHtml, type TweetFetcher } from "./tweet.ts";
 
-export type { TweetFetcher };
+export type { LinkCardFetcher, TweetFetcher };
+
+const MAX_LINK_FETCHES = 8;
 
 function escapeHtml(value: string): string {
 	return value
@@ -40,6 +50,10 @@ function renderCode({ text, lang }: { text: string; lang?: string }): string {
 
 type TweetRef = {
 	id: string;
+	href: string;
+};
+
+type LinkRef = {
 	href: string;
 };
 
@@ -73,11 +87,40 @@ function createTweetExtension(pending: TweetRef[]) {
 	};
 }
 
+function createLinkExtension(pending: LinkRef[]) {
+	return {
+		name: "linkCard",
+		level: "block" as const,
+		start(src: string) {
+			return linkBlockStartIndex(src);
+		},
+		tokenizer(src: string) {
+			const match = matchStandaloneLinkBlock(src);
+			if (!match) {
+				return undefined;
+			}
+			return {
+				type: "linkCard",
+				raw: match.raw,
+				href: match.href,
+			};
+		},
+		renderer(token: { href?: unknown }) {
+			const index = pending.length;
+			pending.push({
+				href: String(token.href ?? ""),
+			});
+			return `<div data-link-embed="${index}"></div>\n`;
+		},
+	};
+}
+
 export async function renderBlogMarkdown(
 	markdown: string,
-	options: { fetchTweet?: TweetFetcher } = {},
+	options: { fetchTweet?: TweetFetcher; fetchLink?: LinkCardFetcher } = {},
 ): Promise<string> {
-	const pending: TweetRef[] = [];
+	const pendingTweets: TweetRef[] = [];
+	const pendingLinks: LinkRef[] = [];
 	const marked = new Marked({
 		gfm: true,
 		renderer: {
@@ -85,34 +128,64 @@ export async function renderBlogMarkdown(
 		},
 	});
 	marked.use({
-		extensions: [createTweetExtension(pending)],
+		extensions: [
+			createTweetExtension(pendingTweets),
+			createLinkExtension(pendingLinks),
+		],
 	});
 
 	const html = marked.parse(markdown, { async: false }) as string;
-	if (pending.length === 0) {
+	if (pendingTweets.length === 0 && pendingLinks.length === 0) {
 		return html;
 	}
 
 	const fetchTweet = options.fetchTweet ?? fetchTweetEmbed;
+	const fetchLink = options.fetchLink ?? fetchLinkCard;
 	const tweets = new Map<string, Awaited<ReturnType<TweetFetcher>>>();
-	await Promise.all(
-		[...new Set(pending.map((ref) => ref.id))].map(async (id) => {
+	const cards = new Map<string, LinkCardData>();
+
+	const uniqueLinks = [...new Set(pendingLinks.map((ref) => ref.href))];
+	const linksToFetch = uniqueLinks.slice(0, MAX_LINK_FETCHES);
+	for (const href of uniqueLinks.slice(MAX_LINK_FETCHES)) {
+		cards.set(href, fallbackLinkCard(href));
+	}
+
+	await Promise.all([
+		...[...new Set(pendingTweets.map((ref) => ref.id))].map(async (id) => {
 			try {
 				tweets.set(id, await fetchTweet(id));
 			} catch {
 				tweets.set(id, null);
 			}
 		}),
-	);
-
-	return html.replace(
-		/<div data-tweet-embed="(\d+)"><\/div>/g,
-		(_match, index: string) => {
-			const ref = pending[Number(index)];
-			if (!ref) {
-				return "";
+		...linksToFetch.map(async (href) => {
+			try {
+				cards.set(href, await fetchLink(href));
+			} catch {
+				cards.set(href, fallbackLinkCard(href));
 			}
-			return tweetEmbedHtml(ref.href, tweets.get(ref.id) ?? null);
-		},
-	);
+		}),
+	]);
+
+	return html
+		.replace(
+			/<div data-tweet-embed="(\d+)"><\/div>/g,
+			(_match, index: string) => {
+				const ref = pendingTweets[Number(index)];
+				if (!ref) {
+					return "";
+				}
+				return tweetEmbedHtml(ref.href, tweets.get(ref.id) ?? null);
+			},
+		)
+		.replace(
+			/<div data-link-embed="(\d+)"><\/div>/g,
+			(_match, index: string) => {
+				const ref = pendingLinks[Number(index)];
+				if (!ref) {
+					return "";
+				}
+				return linkCardHtml(cards.get(ref.href) ?? fallbackLinkCard(ref.href));
+			},
+		);
 }

@@ -36,6 +36,8 @@ describe("tweetEmbedHtml", () => {
 		expect(html).toContain('datetime="2006-03-21T20:50:14.000Z"');
 		expect(html).toContain('aria-label="Xでポストを見る"');
 		expect(html).toContain("tweet-embed-verified");
+		expect(html).toContain("Follow");
+		expect(html).toContain("intent/follow?screen_name=jack");
 	});
 
 	it("renders photos, video poster, and a quoted post", () => {
@@ -69,6 +71,7 @@ describe("tweetEmbedHtml", () => {
 		expect(html).toContain('src="https://pbs.twimg.com/media/photo.jpg"');
 		expect(html).toContain('width="1200"');
 		expect(html).toContain("tweet-embed-video");
+		expect(html).toContain("Watch on X");
 		expect(html).toContain("inner quote");
 		expect(html).toContain("tweet-embed-quoted");
 		expect(html).toContain("@quoted");

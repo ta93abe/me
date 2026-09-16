@@ -212,15 +212,17 @@ function renderVideoPoster(poster: string | undefined, href: string): string {
 	if (!poster) {
 		return "";
 	}
-	return `<a class="tweet-embed-video" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank" aria-label="動画をXで見る"><img src="${escapeHtml(poster)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" />${playSvg()}</a>`;
+	return `<a class="tweet-embed-video" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank" aria-label="動画をXで見る"><img src="${escapeHtml(poster)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="tweet-embed-watch">Watch on X</span>${playSvg()}</a>`;
 }
 
 function renderAuthor(author: TweetAuthor): string {
+	const profile = escapeHtml(profileUrl(author.screenName));
 	const avatar = author.avatarUrl
 		? `<img class="tweet-embed-avatar" src="${escapeHtml(author.avatarUrl)}" alt="" width="48" height="48" loading="lazy" decoding="async" referrerpolicy="no-referrer" />`
 		: `<span class="tweet-embed-avatar tweet-embed-avatar-fallback" aria-hidden="true"></span>`;
 	const verified = author.verified ? verifiedSvg() : "";
-	return `<a class="tweet-embed-author" href="${escapeHtml(profileUrl(author.screenName))}" rel="noopener noreferrer" target="_blank"><span class="tweet-embed-avatar-wrap">${avatar}</span><span class="tweet-embed-names"><span class="tweet-embed-name">${escapeHtml(author.name)}${verified}</span><span class="tweet-embed-handle">@${escapeHtml(author.screenName)}</span></span></a>`;
+	const follow = `https://x.com/intent/follow?screen_name=${encodeURIComponent(author.screenName)}`;
+	return `<div class="tweet-embed-author"><a class="tweet-embed-identity" href="${profile}" rel="noopener noreferrer" target="_blank"><span class="tweet-embed-avatar-wrap">${avatar}</span></a><span class="tweet-embed-names"><a class="tweet-embed-name" href="${profile}" rel="noopener noreferrer" target="_blank">${escapeHtml(author.name)}${verified}</a><span class="tweet-embed-handle-line"><a class="tweet-embed-handle" href="${profile}" rel="noopener noreferrer" target="_blank">@${escapeHtml(author.screenName)}</a><a class="tweet-embed-follow" href="${escapeHtml(follow)}" rel="noopener noreferrer" target="_blank">Follow</a></span></span></div>`;
 }
 
 function renderQuoted(quoted: TweetEmbedData): string {
