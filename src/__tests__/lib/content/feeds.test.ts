@@ -34,6 +34,9 @@ describe("request-time feeds", () => {
 
 		expect(rss).toContain("/blog/hello-world/");
 		expect(rss).toContain("<language>ja</language>");
+		expect(rss).toContain(
+			"<lastBuildDate>Sun, 30 Aug 2026 00:00:00 GMT</lastBuildDate>",
+		);
 		expect(rss).not.toContain("dbt-jobs");
 		expect(sitemap).toContain("/blog/hello-world/");
 		expect(sitemap).toContain("/blog/");
@@ -46,6 +49,7 @@ describe("request-time feeds", () => {
 		const sitemap = buildBlogSitemapXml([], "https://ta93abe.com");
 
 		expect(rss).toContain("<language>ja</language>");
+		expect(rss).toMatch(/<lastBuildDate>.+GMT<\/lastBuildDate>/);
 		expect(rss).not.toContain("<item>");
 		expect(sitemap).toContain("/blog/");
 		expect(sitemap).not.toContain("/blog/hello-world/");

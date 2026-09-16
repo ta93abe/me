@@ -45,6 +45,9 @@ describe("derived discovery feeds", () => {
 
 		expect(xml).toContain("<title>ta93abe | Blog</title>");
 		expect(xml).toContain("<language>ja</language>");
+		expect(xml).toContain(
+			`<lastBuildDate>${HELLO.publish_date.toUTCString()}</lastBuildDate>`,
+		);
 		expect(xml).toContain("https://ta93abe.com/blog/hello-world/");
 		expect(xml.indexOf("hello-world")).toBeLessThan(xml.indexOf("older-note"));
 		expect(xml).toContain("Hello &amp; Friends");

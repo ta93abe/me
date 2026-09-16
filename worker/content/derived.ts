@@ -72,9 +72,12 @@ export function feedPostsFromEntries(entries: ContentIndexEntry[]): FeedPost[] {
 export function buildBlogRssXml(
 	posts: FeedPost[],
 	origin: string = DEFAULT_ORIGIN,
+	builtAt: Date = new Date(),
 ): string {
 	const base = originBase(origin);
-	const items = sortFeedPosts(posts)
+	const sorted = sortFeedPosts(posts);
+	const lastBuildDate = (sorted[0]?.publish_date ?? builtAt).toUTCString();
+	const items = sorted
 		.map((post) => {
 			const link = `${base}/blog/${post.slug}/`;
 			return [
@@ -96,6 +99,7 @@ export function buildBlogRssXml(
     <link>${escapeXml(`${base}/blog/`)}</link>
     <description>技術ブログ。日々の学びや開発の記録を共有しています。</description>
     <language>ja</language>
+    <lastBuildDate>${escapeXml(lastBuildDate)}</lastBuildDate>
 ${items}
   </channel>
 </rss>

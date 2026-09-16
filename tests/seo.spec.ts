@@ -22,6 +22,17 @@ test.describe("Sitewide SEO", () => {
 		expect(html).toContain('property="og:image:type" content="image/png"');
 	});
 
+	test("home and blog pages advertise an absolute RSS alternate", async ({
+		request,
+	}) => {
+		for (const path of ["/", "/blog"] as const) {
+			const html = await pageHtml(request, path);
+			expect(html, path).toContain('rel="alternate"');
+			expect(html, path).toContain('type="application/rss+xml"');
+			expect(html, path).toContain('href="https://ta93abe.com/rss.xml"');
+		}
+	});
+
 	test("section pages have dedicated OG images and page JSON-LD", async ({
 		request,
 	}) => {

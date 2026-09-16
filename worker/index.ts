@@ -9,6 +9,7 @@ import {
 } from "./content/derived.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import { buildSiteOverviewMarkdown } from "./content/site-overview.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -57,31 +58,6 @@ const SECURITY_HEADERS = {
 
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
-const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
-
-${SITE_DESCRIPTION}
-
-## Primary sections
-
-- About: ${SITE_URL}/about/
-- Works: ${SITE_URL}/works/
-- Blog: ${SITE_URL}/blog/
-- Contact: ${SITE_URL}/contact/
-- Slides: ${SITE_URL}/slides/
-- Tools: ${SITE_URL}/tools/
-- Gadgets: ${SITE_URL}/gadgets/
-- Links: ${SITE_URL}/links/
-
-## Machine-readable resources
-
-- llms.txt: ${SITE_URL}/llms.txt
-- Full agent notes: ${SITE_URL}/llms-full.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
-- Authentication notes: ${SITE_URL}/auth.md
-`;
-
 const LLMS_GUIDANCE = `## Agent guidance
 
 - This is a public content site. No authentication is required to read the public pages.
@@ -96,7 +72,7 @@ Content-Signal: ${CONTENT_SIGNAL}
 
 async function siteOverviewMarkdown(env: Env): Promise<string> {
 	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
-	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
+	return buildSiteOverviewMarkdown(SITE_URL, blogSection);
 }
 
 async function llmsFullText(env: Env): Promise<string> {
