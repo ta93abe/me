@@ -79,7 +79,7 @@ test.describe("Published content", () => {
 		const sitemap = await request.get("/sitemap-blog.xml");
 		expect(sitemap.ok()).toBeTruthy();
 		const sitemapBody = await sitemap.text();
-		expect(sitemapBody).toContain("/blog/");
+		expect(sitemapBody).toContain("<urlset");
 		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
 	});

@@ -65,6 +65,8 @@ wrangler secret put CONTENT_HMAC_SECRET
 
 PUT / DELETE は同期で index と `derived/` を冪等に書き直す。R2 の `md/` 通知は Queue `content-events` でも同じ再構築と Cache purge（`/blog` HTML、`/rss.xml`、sitemap、llms、OG）を行う。
 
+`/sitemap-blog.xml` の `/blog/` 一覧 URL の `lastmod` は、公開記事の `revise_date`（なければ `publish_date`）の最大値（YYYY-MM-DD、UTC）にする。記事が 0 件のときは一覧エントリ自体を出さない。この sitemap はリクエスト時生成のため、ビルド時刻は使わない。
+
 ## curl（wrangler dev）
 
 ```bash

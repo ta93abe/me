@@ -102,6 +102,22 @@ ${items}
 `;
 }
 
+function sitemapLastmod(post: FeedPost): string {
+	return (post.revise_date ?? post.publish_date).toISOString().slice(0, 10);
+}
+
+/** Newest post lastmod as YYYY-MM-DD. Undefined when there are no posts. */
+function latestSitemapLastmod(posts: FeedPost[]): string | undefined {
+	let latest: string | undefined;
+	for (const post of posts) {
+		const lastmod = sitemapLastmod(post);
+		if (latest === undefined || lastmod > latest) {
+			latest = lastmod;
+		}
+	}
+	return latest;
+}
+
 export function sitemapUrlEntries(
 	posts: FeedPost[],
 	origin: string = DEFAULT_ORIGIN,
@@ -109,12 +125,16 @@ export function sitemapUrlEntries(
 	const base = originBase(origin);
 	const blogUrls = sortFeedPosts(posts).map((post) => ({
 		loc: `${base}/blog/${post.slug}/`,
-		lastmod: (post.revise_date ?? post.publish_date).toISOString().slice(0, 10),
+		lastmod: sitemapLastmod(post),
 	}));
+	const blogIndexLastmod = latestSitemapLastmod(posts);
 
 	return [
 		{ loc: `${base}/` },
-		{ loc: `${base}/blog/` },
+		{
+			loc: `${base}/blog/`,
+			...(blogIndexLastmod ? { lastmod: blogIndexLastmod } : {}),
+		},
 		...blogUrls,
 		...STATIC_SECTION_PATHS.map((path) => ({ loc: `${base}${path}` })),
 	];
@@ -125,13 +145,17 @@ export function buildBlogSitemapXml(
 	origin: string = DEFAULT_ORIGIN,
 ): string {
 	const base = originBase(origin);
+	const sorted = sortFeedPosts(posts);
+	const blogIndexLastmod = latestSitemapLastmod(sorted);
+	// 記事 0 件のときは /blog/ を出さない。この sitemap はリクエスト時生成なので
+	// ビルド時刻を lastmod にすると毎回変わり、クロール差分のノイズになる。
 	const urls: SitemapUrlEntry[] = [
-		{ loc: `${base}/blog/` },
-		...sortFeedPosts(posts).map((post) => ({
+		...(blogIndexLastmod
+			? [{ loc: `${base}/blog/`, lastmod: blogIndexLastmod }]
+			: []),
+		...sorted.map((post) => ({
 			loc: `${base}/blog/${post.slug}/`,
-			lastmod: (post.revise_date ?? post.publish_date)
-				.toISOString()
-				.slice(0, 10),
+			lastmod: sitemapLastmod(post),
 		})),
 	];
 
