@@ -78,6 +78,7 @@ ${SITE_DESCRIPTION}
 - Full agent notes: ${SITE_URL}/llms-full.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
+- MCP JSON-RPC: POST ${SITE_URL}/mcp (Streamable HTTP; GET is not an SSE stream)
 - Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
 - Authentication notes: ${SITE_URL}/auth.md
 `;
@@ -363,7 +364,7 @@ function apiCatalog() {
 	};
 }
 
-function mcpServerCard() {
+export function mcpServerCard() {
 	return {
 		serverInfo: {
 			name: `${SITE_HOST} site discovery`,
@@ -504,15 +505,16 @@ function mcpToolList() {
 	];
 }
 
-async function handleMcp(request: Request, env: Env): Promise<Response> {
+export async function handleMcp(request: Request, env: Env): Promise<Response> {
+	// Streamable HTTP: GET is optional SSE. This read-only server does not
+	// stream, so unsupported methods (including GET) are 405.
 	if (request.method.toUpperCase() !== "POST") {
-		return jsonResponse(
+		return textResponse(
 			request,
+			"Method Not Allowed",
+			"text/plain; charset=utf-8",
 			{
-				name: `${SITE_HOST} MCP endpoint`,
-				description: "Send JSON-RPC 2.0 POST requests to use read-only tools.",
-			},
-			{
+				status: 405,
 				headers: {
 					Allow: "POST",
 				},
