@@ -1,5 +1,6 @@
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
+const SESSION_HEADER = "Mcp-Session-Id";
 
 export const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 
@@ -77,31 +78,133 @@ export function mcpToolList() {
 	];
 }
 
+function mediaTypes(header: string | null): string[] {
+	if (!header) {
+		return [];
+	}
+
+	return header
+		.split(",")
+		.map((part) => part.split(";")[0]?.trim().toLowerCase() ?? "")
+		.filter(Boolean);
+}
+
+function acceptsEventStream(request: Request): boolean {
+	return mediaTypes(request.headers.get("Accept")).includes(
+		"text/event-stream",
+	);
+}
+
+function sseMessage(value: unknown): string {
+	return `event: message\ndata: ${JSON.stringify(value)}\n\n`;
+}
+
+function withSession(
+	headers: HeadersInit | undefined,
+	sessionId: string | null,
+): Headers {
+	const next = new Headers(headers);
+	if (sessionId) {
+		next.set(SESSION_HEADER, sessionId);
+	}
+	return next;
+}
+
+function withSessionAndVary(
+	headers: HeadersInit | undefined,
+	sessionId: string | null,
+): Headers {
+	const next = withSession(headers, sessionId);
+	next.set("Vary", "Accept");
+	return next;
+}
+
+function sessionIdFor(request: Request, isInitialize: boolean): string | null {
+	const existing = request.headers.get(SESSION_HEADER)?.trim();
+	if (existing) {
+		return existing;
+	}
+	if (isInitialize) {
+		return crypto.randomUUID();
+	}
+	return null;
+}
+
+function rpcResponse(
+	request: Request,
+	jsonResponse: McpJsonResponse,
+	payload: unknown,
+	sessionId: string | null,
+	init?: ResponseInit,
+): Response {
+	const headers = withSessionAndVary(init?.headers, sessionId);
+
+	if (acceptsEventStream(request)) {
+		headers.set("Content-Type", "text/event-stream");
+		headers.set("Cache-Control", "no-cache");
+		return new Response(sseMessage(payload), {
+			status: init?.status,
+			headers,
+		});
+	}
+
+	return jsonResponse(payload, { ...init, headers });
+}
+
 function jsonRpcResult(
+	request: Request,
 	jsonResponse: McpJsonResponse,
 	id: JsonRpcId,
 	result: unknown,
+	sessionId: string | null,
 ): Response {
-	return jsonResponse({
-		jsonrpc: "2.0",
-		id,
-		result,
-	});
+	return rpcResponse(
+		request,
+		jsonResponse,
+		{
+			jsonrpc: "2.0",
+			id,
+			result,
+		},
+		sessionId,
+	);
 }
 
 function jsonRpcError(
+	request: Request,
 	jsonResponse: McpJsonResponse,
 	id: JsonRpcId,
 	code: number,
 	message: string,
+	sessionId: string | null,
 	data?: unknown,
+	status?: number,
+): Response {
+	return rpcResponse(
+		request,
+		jsonResponse,
+		{
+			jsonrpc: "2.0",
+			id,
+			error: data === undefined ? { code, message } : { code, message, data },
+		},
+		sessionId,
+		status === undefined ? undefined : { status },
+	);
+}
+
+function transportError(
+	jsonResponse: McpJsonResponse,
+	id: JsonRpcId,
+	code: number,
+	message: string,
 	status?: number,
 ): Response {
 	return jsonResponse(
 		{
 			jsonrpc: "2.0",
 			id,
-			error: data === undefined ? { code, message } : { code, message, data },
+			error: { code, message },
 		},
 		status === undefined ? undefined : { status },
 	);
@@ -146,25 +249,11 @@ export async function handleMcp(
 	try {
 		raw = await request.json();
 	} catch {
-		return jsonRpcError(
-			jsonResponse,
-			null,
-			-32700,
-			"Parse error",
-			undefined,
-			400,
-		);
+		return transportError(jsonResponse, null, -32700, "Parse error", 400);
 	}
 
 	if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
-		return jsonRpcError(
-			jsonResponse,
-			null,
-			-32600,
-			"Invalid Request",
-			undefined,
-			400,
-		);
+		return transportError(jsonResponse, null, -32600, "Invalid Request", 400);
 	}
 
 	const payload = raw as {
@@ -175,85 +264,155 @@ export async function handleMcp(
 	};
 
 	if (!Object.hasOwn(payload, "id")) {
-		return new Response(null, { status: 202 });
+		return new Response(null, {
+			status: 202,
+			headers: withSession(undefined, sessionIdFor(request, false)),
+		});
 	}
 
 	const id = payload.id ?? null;
+	const sessionId = sessionIdFor(request, payload.method === "initialize");
 
 	if (payload.method === "initialize") {
-		return jsonRpcResult(jsonResponse, id, {
-			protocolVersion: "2025-06-18",
-			capabilities: {
-				tools: {},
-				resources: {
-					subscribe: false,
-					listChanged: false,
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				protocolVersion: "2025-06-18",
+				capabilities: {
+					tools: {},
+					resources: {
+						subscribe: false,
+						listChanged: false,
+					},
 				},
+				serverInfo: mcpServerCard().serverInfo,
 			},
-			serverInfo: mcpServerCard().serverInfo,
-		});
+			sessionId,
+		);
 	}
 
 	if (payload.method === "tools/list") {
-		return jsonRpcResult(jsonResponse, id, {
-			tools: mcpToolList(),
-		});
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				tools: mcpToolList(),
+			},
+			sessionId,
+		);
 	}
 
 	if (payload.method === "tools/call") {
 		const toolName = payload.params?.name;
 		if (toolName !== "get_site_overview") {
-			return jsonRpcError(jsonResponse, id, -32602, "Unknown tool");
+			return jsonRpcError(
+				request,
+				jsonResponse,
+				id,
+				-32602,
+				"Unknown tool",
+				sessionId,
+			);
 		}
 
-		return jsonRpcResult(jsonResponse, id, {
-			content: [
-				{
-					type: "text",
-					text: await content.siteOverviewMarkdown(),
-				},
-			],
-		});
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				content: [
+					{
+						type: "text",
+						text: await content.siteOverviewMarkdown(),
+					},
+				],
+			},
+			sessionId,
+		);
 	}
 
 	if (payload.method === "resources/list") {
-		return jsonRpcResult(jsonResponse, id, {
-			resources: mcpResources(),
-		});
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				resources: mcpResources(),
+			},
+			sessionId,
+		);
 	}
 
 	if (payload.method === "resources/templates/list") {
-		return jsonRpcResult(jsonResponse, id, {
-			resourceTemplates: [],
-		});
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				resourceTemplates: [],
+			},
+			sessionId,
+		);
 	}
 
 	if (payload.method === "resources/read") {
 		const uri = payload.params?.uri;
 		if (typeof uri !== "string" || uri.trim() === "") {
-			return jsonRpcError(jsonResponse, id, -32602, "Invalid params", {
-				reason: "uri is required",
-			});
+			return jsonRpcError(
+				request,
+				jsonResponse,
+				id,
+				-32602,
+				"Invalid params",
+				sessionId,
+				{
+					reason: "uri is required",
+				},
+			);
 		}
 
 		const resource = findResource(uri);
 		if (!resource) {
-			return jsonRpcError(jsonResponse, id, -32002, "Resource not found", {
-				uri,
-			});
+			return jsonRpcError(
+				request,
+				jsonResponse,
+				id,
+				-32002,
+				"Resource not found",
+				sessionId,
+				{
+					uri,
+				},
+			);
 		}
 
-		return jsonRpcResult(jsonResponse, id, {
-			contents: [
-				{
-					uri: resource.uri,
-					name: resource.name,
-					mimeType: resource.mimeType,
-					text: await readResourceText(resource, content),
-				},
-			],
-		});
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				contents: [
+					{
+						uri: resource.uri,
+						name: resource.name,
+						mimeType: resource.mimeType,
+						text: await readResourceText(resource, content),
+					},
+				],
+			},
+			sessionId,
+		);
 	}
 
-	return jsonRpcError(jsonResponse, id, -32601, "Method not found");
+	return jsonRpcError(
+		request,
+		jsonResponse,
+		id,
+		-32601,
+		"Method not found",
+		sessionId,
+	);
 }
