@@ -21,7 +21,7 @@ export type AgentSkill = {
 export type A2AAgentCard = {
 	name: string;
 	description: string;
-	url: string;
+	url?: string;
 	version: string;
 	capabilities: {
 		streaming: boolean;
@@ -44,7 +44,6 @@ export function a2aAgentCard(): A2AAgentCard {
 			`${SITE_TITLE} portfolio: blog posts, slides, tools, gadgets, and social links. ` +
 			"This site does not implement A2A HTTP methods such as message/send. " +
 			`Discover content via MCP (${MCP_SERVER_CARD}) or ${LLMS_TXT}.`,
-		url: SITE_URL,
 		version: "1.0.0",
 		capabilities: {
 			streaming: false,

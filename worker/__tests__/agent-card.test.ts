@@ -10,17 +10,19 @@ const A2A_HTTP_INTERFACE_TYPE =
 describe("a2aAgentCard", () => {
 	const card = a2aAgentCard();
 
-	it("stays discoverable as an Agent Card at the site origin", () => {
+	it("stays discoverable as an Agent Card without an A2A RPC url", () => {
 		expect(card.name).toBe("Takumi Abe / ta93abe");
-		expect(card.url).toBe(SITE_URL);
 		expect(card.version).toBe("1.0.0");
+		expect(Object.hasOwn(card, "url")).toBe(false);
 		expect(card.supportedInterfaces).toEqual([]);
 	});
 
-	it("does not advertise /mcp or A2A HTTP as a reachable interface", () => {
+	it("does not advertise /mcp, the site origin, or A2A HTTP as a reachable interface", () => {
 		expect(card.supportedInterfaces).toHaveLength(0);
+		expect(card.url).toBeUndefined();
 		for (const iface of card.supportedInterfaces) {
 			expect(iface.url).not.toBe(MCP_ENDPOINT);
+			expect(iface.url).not.toBe(SITE_URL);
 			expect(iface.type).not.toBe(A2A_HTTP_INTERFACE_TYPE);
 			expect(iface.protocolBinding).not.toBe("JSONRPC");
 			expect(iface.protocolBinding).not.toBe("HTTP+JSON");
