@@ -596,7 +596,10 @@ async function handleSiteRequest(
 		);
 	}
 
-	if (pathname === "/.well-known/agent-card.json") {
+	if (
+		pathname === "/.well-known/agent-card.json" ||
+		pathname === "/.well-known/agent.json"
+	) {
 		return jsonResponse(request, a2aAgentCard());
 	}
 
