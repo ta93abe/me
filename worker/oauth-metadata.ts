@@ -30,11 +30,7 @@ export function oauthProtectedResource(siteUrl: string) {
 		scopes_supported: ["public:read"],
 		bearer_methods_supported: ["header"],
 		resource_signing_alg_values_supported: [],
-		agent_auth: {
-			required: false,
-			skill: `${siteUrl}/auth.md`,
-			description:
-				"ta93abe.com is a public content site. No authentication is required to access public resources.",
-		},
+		// agent_auth is not an RFC 9728 PRM field. auth.md Step 1 reads it
+		// from Authorization Server metadata only.
 	};
 }

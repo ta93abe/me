@@ -45,13 +45,21 @@ describe("OAuth Protected Resource Metadata", () => {
 		expect(doubled).not.toBe(derived);
 	});
 
+	it("omits non-standard agent_auth so AS metadata is the single source", () => {
+		const resource = oauthProtectedResource(SITE_URL);
+		const as = oauthAuthorizationServer(SITE_URL);
+
+		expect(resource).not.toHaveProperty("agent_auth");
+		expect(as.agent_auth.skill).toBe(`${SITE_URL}/auth.md`);
+		expect(as.agent_auth.register_uri).toBe(`${SITE_URL}/agent/auth`);
+		expect(as.agent_auth.identity_types_supported).toEqual(["anonymous"]);
+	});
+
 	it("keeps public-read access without minting tokens or secrets", () => {
 		const resource = oauthProtectedResource(SITE_URL);
 		const as = oauthAuthorizationServer(SITE_URL);
 
-		expect(resource.agent_auth.required).toBe(false);
 		expect(resource.scopes_supported).toEqual(["public:read"]);
-		expect(resource.agent_auth.skill).toBe(`${SITE_URL}/auth.md`);
 		expect(resource).not.toHaveProperty("jwks_uri");
 
 		expect(as.token_endpoint_auth_methods_supported).toEqual(["none"]);
