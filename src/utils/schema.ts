@@ -1,6 +1,14 @@
 import { FEATURED_WORKS, SITE } from "@/config/site";
 import linksData from "@/data/links.json";
+import {
+	articleBodyText,
+	countWords,
+	extractShortListItems,
+	markdownToPlainText,
+} from "@/utils/article-text";
 import { withTrailingSlash } from "@/utils/canonical";
+import { toDatetimeAttr } from "@/utils/date";
+import { ogSectionPath } from "@/utils/og/sections";
 
 interface PersonFields {
 	"@type": "Person";
@@ -9,6 +17,7 @@ interface PersonFields {
 	jobTitle: string;
 	description: string;
 	sameAs: string[];
+	image: string;
 }
 
 interface WebSiteSchema {
@@ -91,10 +100,11 @@ function personFields(siteUrl: string): PersonFields {
 	return {
 		"@type": "Person",
 		name: SITE.author,
-		url: `${origin}/about/`,
+		url: `${origin}${SITE.authorPath}`,
 		jobTitle: "Software Engineer",
 		description: SITE.tagline,
 		sameAs: linksData.links.map((link) => link.url),
+		image: `${origin}${ogSectionPath("about")}`,
 	};
 }
 
@@ -364,6 +374,18 @@ interface BlogPostingSchema {
 		url: string;
 	};
 	keywords?: string;
+	wordCount?: number;
+	articleBody?: string;
+}
+
+interface ArticleItemListSchema {
+	"@context": "https://schema.org";
+	"@type": "ItemList";
+	itemListElement: Array<{
+		"@type": "ListItem";
+		position: number;
+		name: string;
+	}>;
 }
 
 function websitePart(origin: string) {
@@ -375,11 +397,14 @@ function websitePart(origin: string) {
 }
 
 function toIsoDate(value: Date | string): string {
-	if (value instanceof Date) {
-		return value.toISOString();
+	if (typeof value === "string") {
+		const parsed = new Date(value);
+		if (Number.isNaN(parsed.getTime())) {
+			return value;
+		}
+		return toDatetimeAttr(parsed);
 	}
-	const parsed = new Date(value);
-	return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
+	return toDatetimeAttr(value);
 }
 
 export const ABOUT_DESCRIPTION = SITE.tagline;
@@ -403,7 +428,7 @@ export const generateProfilePageSchema = (
 		"@type": "ProfilePage",
 		name: "About",
 		description,
-		url: `${origin}/about/`,
+		url: `${origin}${SITE.authorPath}`,
 		inLanguage: SITE.lang,
 		mainEntity: personFields(siteUrl),
 		isPartOf: websitePart(origin),
@@ -555,6 +580,7 @@ export const generateBlogPostingSchema = (
 		image: string;
 		updatedDate?: Date | string;
 		tags?: readonly string[];
+		body?: string;
 	},
 ): BlogPostingSchema => {
 	const origin = originBase(siteUrl);
@@ -587,7 +613,35 @@ export const generateBlogPostingSchema = (
 	if (post.tags && post.tags.length > 0) {
 		schema.keywords = post.tags.join(", ");
 	}
+	if (post.body) {
+		const plain = markdownToPlainText(post.body);
+		const wordCount = countWords(plain);
+		if (wordCount > 0) {
+			schema.wordCount = wordCount;
+		}
+		if (plain) {
+			schema.articleBody = articleBodyText(plain, url);
+		}
+	}
 	return schema;
+};
+
+export const generateArticleItemListSchema = (
+	markdown: string,
+): ArticleItemListSchema | undefined => {
+	const names = extractShortListItems(markdown);
+	if (names.length === 0) {
+		return undefined;
+	}
+	return {
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		itemListElement: names.map((name, index) => ({
+			"@type": "ListItem" as const,
+			position: index + 1,
+			name,
+		})),
+	};
 };
 
 /**

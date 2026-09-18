@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("404 recovery", () => {
+test.describe("404 recovery", { tag: "@smoke" }, () => {
 	test("unknown URL offers About, Contact, and Blog", async ({ page }) => {
 		const response = await page.goto("/this-page-does-not-exist");
 		expect(response?.status()).toBe(404);
@@ -13,15 +13,15 @@ test.describe("404 recovery", () => {
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(index.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 		await expect(index.getByRole("link", { name: "Tools" })).toHaveCount(0);

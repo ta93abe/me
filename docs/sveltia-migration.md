@@ -132,7 +132,7 @@ infra/
   （`images.ta93abe.com`）と CORS 設定も Alchemy で宣言する
   （Step 3-2 / 3-4 のダッシュボード操作は不要）
 - auth Worker は `domain: "sveltia-auth.ta93abe.com"` で配信し、
-  `GITHUB_CLIENT_ID`（plain）/ `GITHUB_CLIENT_SECRET`（`Config.redacted` → secret_text）を
+  `GITHUB_CLIENT_ID`（plain）/ `GITHUB_CLIENT_SECRET`（`Config.Redacted` → secret_text）を
   デプロイ時の環境変数から注入する
 
 デプロイ方法は 2 通り:
