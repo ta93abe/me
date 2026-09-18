@@ -84,6 +84,18 @@ test.describe("Published content", () => {
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
 	});
 
+	test("conventional sitemap URLs redirect to the sitemap index", async ({
+		request,
+	}) => {
+		for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
+			const response = await request.fetch(path, { maxRedirects: 0 });
+			expect([301, 308], path).toContain(response.status());
+			expect(response.headers()["location"], path).toMatch(
+				/\/sitemap-index\.xml\/?$/,
+			);
+		}
+	});
+
 	test("retired collection URLs redirect home", async ({ page }) => {
 		for (const path of [
 			"/gallery",
