@@ -15,7 +15,8 @@
 ├── dist/                # ビルド出力（自動生成）
 ├── node_modules/        # 依存関係
 ├── public/              # 静的ファイル（ルートで配信）
-│   └── favicon.svg
+│   ├── favicon.png
+│   └── apple-touch-icon.png
 ├── src/                 # ソースコード
 │   ├── __tests__/       # テストファイル
 │   ├── assets/          # 画像・静的リソース
@@ -112,7 +113,8 @@ Playwrightによるエンドツーエンドテスト。
 ビルド時にルートディレクトリにコピーされる静的ファイル。
 
 **ファイル:**
-- `favicon.svg` - ファビコン
+- `favicon.png` - 48×48 ファビコン
+- `apple-touch-icon.png` - 180×180 iOS ホーム画面アイコン
 - その他の静的アセット
 
 ## 設定ファイル

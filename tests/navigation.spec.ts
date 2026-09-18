@@ -4,7 +4,7 @@ const primary = ["About", "Blog", "Contact"] as const;
 const secondary = ["Links", "Tools", "Gadgets", "Slides"] as const;
 const hidden = ["Gallery", "Atelier", "Bookshelf"] as const;
 
-test.describe("Navigation", () => {
+test.describe("Navigation", { tag: "@smoke" }, () => {
 	test("desktop header shows the primary axis only", async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto("/blog");
@@ -69,7 +69,9 @@ test.describe("Navigation", () => {
 			name: "二次ナビゲーション",
 		});
 		for (const name of secondary) {
-			await expect(footerNav.getByRole("link", { name, exact: true })).toBeVisible();
+			await expect(
+				footerNav.getByRole("link", { name, exact: true }),
+			).toBeVisible();
 		}
 	});
 });

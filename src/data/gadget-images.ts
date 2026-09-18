@@ -19,12 +19,16 @@ function gadgetDataUri(slug: string): string {
 	return uri;
 }
 
-export function gadgetImageBytes(slug: string): Uint8Array {
+export function gadgetImageBytes(slug: string): Uint8Array<ArrayBuffer> {
 	const uri = gadgetDataUri(slug);
 	const comma = uri.indexOf(",");
 	if (comma < 0) {
 		throw new Error(`Invalid gadget image: ${slug}`);
 	}
 	const binary = atob(uri.slice(comma + 1));
-	return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+	const bytes = new Uint8Array(binary.length);
+	for (let i = 0; i < binary.length; i++) {
+		bytes[i] = binary.charCodeAt(i);
+	}
+	return bytes;
 }

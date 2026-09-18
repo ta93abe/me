@@ -17,9 +17,9 @@ function isCrawlableGadgetSrc(src: string | null, slug: string): boolean {
 }
 
 function jsonLdBlocks(html: string): unknown[] {
-	return [...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map(
-		([, json]) => JSON.parse(json ?? "{}") as unknown,
-	);
+	return [
+		...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g),
+	].map(([, json]) => JSON.parse(json ?? "{}") as unknown);
 }
 
 test.describe("Gadgets page", () => {
@@ -32,7 +32,7 @@ test.describe("Gadgets page", () => {
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
 		await expect(
 			page.getByRole("link", { name: "Tools" }).first(),
-		).toHaveAttribute("href", "/tools");
+		).toHaveAttribute("href", "/tools/");
 
 		const studio = page.getByRole("link", { name: "Mac Studio M1 Max" });
 		await expect(studio).toBeVisible();
@@ -187,7 +187,9 @@ test.describe("Gadgets page", () => {
 			expect(html, item.path).toContain('"@type":"BreadcrumbList"');
 			expect(html, item.path).toContain("https://ta93abe.com/gadgets/");
 
-			expect(html, item.path).toContain(`src="${item.image.replace("https://ta93abe.com", "")}"`);
+			expect(html, item.path).toContain(
+				`src="${item.image.replace("https://ta93abe.com", "")}"`,
+			);
 			expect(html, item.path).toContain(`alt="${item.name}"`);
 			expect(html, item.path).not.toContain("data:image/webp");
 

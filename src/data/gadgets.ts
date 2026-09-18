@@ -179,7 +179,7 @@ export function getGadget(slug: string): Gadget | undefined {
 }
 
 export function gadgetPath(slug: string): string {
-	return `/gadgets/${slug}`;
+	return `/gadgets/${slug}/`;
 }
 
 export function gadgetViewTransitionName(slug: string): string {

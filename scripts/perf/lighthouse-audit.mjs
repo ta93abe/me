@@ -9,10 +9,14 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { launch } from "chrome-launcher";
 import lighthouse from "lighthouse";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const root = path.resolve(
+	path.dirname(fileURLToPath(import.meta.url)),
+	"../..",
+);
 const outDir = process.env.PERF_OUT_DIR
 	? path.resolve(process.env.PERF_OUT_DIR)
 	: path.join(root, "perf-results");
@@ -93,7 +97,12 @@ async function main() {
 				port: chrome.port,
 				output: ["json", "html"],
 				logLevel: "error",
-				onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
+				onlyCategories: [
+					"performance",
+					"accessibility",
+					"best-practices",
+					"seo",
+				],
 				formFactor: "desktop",
 				screenEmulation: {
 					mobile: false,
