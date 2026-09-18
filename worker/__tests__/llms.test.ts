@@ -100,7 +100,7 @@ describe("llms.txt file lists", () => {
 		expect(full).toContain(
 			"Content-Signal: ai-train=no, search=yes, ai-input=yes",
 		);
-		expect(full).toContain(`${ORIGIN}/sitemap-index.xml`);
+		expect(full).toContain(`${ORIGIN}/sitemap.xml`);
 
 		const overviewLists = fileListsByH2(overview).filter((section) =>
 			["Primary sections", "Machine-readable resources"].includes(

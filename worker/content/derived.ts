@@ -400,6 +400,7 @@ export function discoveryCacheUrls(
 	const base = originBase(origin);
 	const urls = [
 		`${base}/rss.xml`,
+		`${base}/sitemap.xml`,
 		`${base}/sitemap-index.xml`,
 		`${base}/sitemap-blog.xml`,
 		`${base}/llms.txt`,
