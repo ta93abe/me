@@ -72,11 +72,15 @@ export function feedPostsFromEntries(entries: ContentIndexEntry[]): FeedPost[] {
 export function buildBlogRssXml(
 	posts: FeedPost[],
 	origin: string = DEFAULT_ORIGIN,
-	builtAt: Date = new Date(),
+	builtAt?: Date,
 ): string {
 	const base = originBase(origin);
 	const sorted = sortFeedPosts(posts);
-	const lastBuildDate = (sorted[0]?.publish_date ?? builtAt).toUTCString();
+	const lastBuildDate = (
+		builtAt ??
+		sorted[0]?.publish_date ??
+		new Date(0)
+	).toUTCString();
 	const items = sorted
 		.map((post) => {
 			const link = `${base}/blog/${post.slug}/`;
@@ -221,9 +225,13 @@ export async function writeDerivedDiscovery(
 	const index = await readCollectionIndex(bucket, "blog");
 	const posts = feedPostsFromEntries(index.entries);
 
-	await bucket.put(BLOG_RSS_KEY, buildBlogRssXml(posts, origin), {
-		httpMetadata: { contentType: "application/rss+xml; charset=utf-8" },
-	});
+	await bucket.put(
+		BLOG_RSS_KEY,
+		buildBlogRssXml(posts, origin, new Date(index.generatedAt)),
+		{
+			httpMetadata: { contentType: "application/rss+xml; charset=utf-8" },
+		},
+	);
 	await bucket.put(
 		SITEMAP_URLS_KEY,
 		JSON.stringify(

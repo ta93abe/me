@@ -45,11 +45,17 @@ describe("request-time feeds", () => {
 	});
 
 	it("keeps empty feeds valid when R2 has no posts", () => {
-		const rss = buildBlogRssXml([], "https://ta93abe.com");
+		const rss = buildBlogRssXml(
+			[],
+			"https://ta93abe.com",
+			new Date("2026-09-16T00:00:00.000Z"),
+		);
 		const sitemap = buildBlogSitemapXml([], "https://ta93abe.com");
 
 		expect(rss).toContain("<language>ja</language>");
-		expect(rss).toMatch(/<lastBuildDate>.+GMT<\/lastBuildDate>/);
+		expect(rss).toContain(
+			"<lastBuildDate>Wed, 16 Sep 2026 00:00:00 GMT</lastBuildDate>",
+		);
 		expect(rss).not.toContain("<item>");
 		expect(sitemap).toContain("/blog/");
 		expect(sitemap).not.toContain("/blog/hello-world/");

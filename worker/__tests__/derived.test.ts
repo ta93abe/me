@@ -12,7 +12,10 @@ import {
 	writeDerivedDiscovery,
 	type FeedPost,
 } from "../content/derived.ts";
-import { rebuildContentIndexes } from "../content/index-store.ts";
+import {
+	readCollectionIndex,
+	rebuildContentIndexes,
+} from "../content/index-store.ts";
 import { handleContentQueue } from "../content/queue.ts";
 import { createMemoryR2 } from "./memory-r2.ts";
 
@@ -53,6 +56,23 @@ describe("derived discovery feeds", () => {
 		expect(xml).toContain("Hello &amp; Friends");
 		expect(xml).toContain("最初の &lt;投稿&gt;");
 		expect(xml).not.toContain("Hello & Friends");
+	});
+
+	it("uses the provided build time for lastBuildDate when an older post is added", () => {
+		const rebuiltAt = new Date("2026-09-16T12:00:00.000Z");
+		const xml = buildBlogRssXml(
+			[HELLO, OLDER],
+			"https://ta93abe.com",
+			rebuiltAt,
+		);
+
+		expect(xml).toContain(
+			"<lastBuildDate>Wed, 16 Sep 2026 12:00:00 GMT</lastBuildDate>",
+		);
+		expect(xml).toContain("older-note");
+		expect(xml).not.toContain(
+			`<lastBuildDate>${HELLO.publish_date.toUTCString()}</lastBuildDate>`,
+		);
 	});
 
 	it("lists blog URLs and static sections for the sitemap", () => {
@@ -159,7 +179,11 @@ describe("derived discovery feeds", () => {
 		expect(rss).not.toBeNull();
 		expect(sitemap).not.toBeNull();
 		expect(llms).not.toBeNull();
+		const index = await readCollectionIndex(bucket, "blog");
 		expect(await rss!.text()).toContain("hello-world");
+		expect(await rss!.text()).toContain(
+			`<lastBuildDate>${new Date(index.generatedAt).toUTCString()}</lastBuildDate>`,
+		);
 		expect(await sitemap!.text()).toContain("/blog/hello-world/");
 		expect(await llms!.text()).toContain("Hello Workers");
 	});
