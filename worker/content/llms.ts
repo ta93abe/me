@@ -100,6 +100,16 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 		path: "/.well-known/security.txt",
 		description: "Vulnerability disclosure contact.",
 	},
+	{
+		name: "RSS",
+		path: "/rss.xml",
+		description: "Blog update feed.",
+	},
+	{
+		name: "Sitemap",
+		path: "/sitemap-index.xml",
+		description: "Crawl index of public pages.",
+	},
 ];
 
 function originBase(origin: string): string {

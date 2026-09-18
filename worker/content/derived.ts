@@ -149,9 +149,16 @@ export async function withFeedContent(
 export function buildBlogRssXml(
 	posts: FeedPost[],
 	origin: string = DEFAULT_ORIGIN,
+	builtAt?: Date,
 ): string {
 	const base = originBase(origin);
-	const items = sortFeedPosts(posts)
+	const sorted = sortFeedPosts(posts);
+	const lastBuildDate = (
+		builtAt ??
+		sorted[0]?.publish_date ??
+		new Date(0)
+	).toUTCString();
+	const items = sorted
 		.map((post) => {
 			const link = `${base}/blog/${post.slug}/`;
 			const categories = (post.tags ?? [])
@@ -185,6 +192,7 @@ export function buildBlogRssXml(
     <link>${escapeXml(`${base}/blog/`)}</link>
     <description>技術ブログ。日々の学びや開発の記録を共有しています。</description>
     <language>ja</language>
+    <lastBuildDate>${escapeXml(lastBuildDate)}</lastBuildDate>
 ${items}
   </channel>
 </rss>
@@ -434,9 +442,13 @@ export async function writeDerivedDiscovery(
 		feedPostsFromEntries(index.entries),
 	);
 
-	await bucket.put(BLOG_RSS_KEY, buildBlogRssXml(posts, origin), {
-		httpMetadata: { contentType: "application/rss+xml; charset=utf-8" },
-	});
+	await bucket.put(
+		BLOG_RSS_KEY,
+		buildBlogRssXml(posts, origin, new Date(index.generatedAt)),
+		{
+			httpMetadata: { contentType: "application/rss+xml; charset=utf-8" },
+		},
+	);
 	await bucket.put(
 		SITEMAP_URLS_KEY,
 		JSON.stringify(

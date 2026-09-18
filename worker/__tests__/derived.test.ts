@@ -18,7 +18,10 @@ import {
 	writeDerivedDiscovery,
 	type FeedPost,
 } from "../content/derived.ts";
-import { rebuildContentIndexes } from "../content/index-store.ts";
+import {
+	readCollectionIndex,
+	rebuildContentIndexes,
+} from "../content/index-store.ts";
 import { collectionIndexKey } from "../content/keys.ts";
 import { handleContentQueue } from "../content/queue.ts";
 import { createMemoryR2 } from "./memory-r2.ts";
@@ -84,6 +87,26 @@ describe("derived discovery feeds", () => {
 		expect(xml).toContain("Hello &amp; Friends");
 		expect(xml).toContain("最初の &lt;投稿&gt;");
 		expect(xml).not.toContain("Hello & Friends");
+		expect(xml).toContain(
+			`<lastBuildDate>${HELLO.publish_date.toUTCString()}</lastBuildDate>`,
+		);
+	});
+
+	it("uses the provided build time for lastBuildDate when an older post is added", () => {
+		const rebuiltAt = new Date("2026-09-16T12:00:00.000Z");
+		const xml = buildBlogRssXml(
+			[HELLO, OLDER],
+			"https://ta93abe.com",
+			rebuiltAt,
+		);
+
+		expect(xml).toContain(
+			"<lastBuildDate>Wed, 16 Sep 2026 12:00:00 GMT</lastBuildDate>",
+		);
+		expect(xml).toContain("older-note");
+		expect(xml).not.toContain(
+			`<lastBuildDate>${HELLO.publish_date.toUTCString()}</lastBuildDate>`,
+		);
 	});
 
 	it("puts Dublin Core creator, content HTML, and categories on each item", () => {
@@ -103,7 +126,9 @@ describe("derived discovery feeds", () => {
 			'xmlns:content="http://purl.org/rss/1.0/modules/content/"',
 		);
 		expect(xml).toContain('xmlns:dc="http://purl.org/dc/elements/1.1/"');
-		expect(xml).not.toContain("<lastBuildDate>");
+		expect(xml).toContain(
+			`<lastBuildDate>${HELLO.publish_date.toUTCString()}</lastBuildDate>`,
+		);
 		expect(xml).toContain("<dc:creator>Takumi Abe</dc:creator>");
 		expect(xml).toContain("<category>workers</category>");
 		expect(xml).toContain("<category>r2</category>");
@@ -359,6 +384,10 @@ describe("derived discovery feeds", () => {
 		expect(sitemap).not.toBeNull();
 		expect(llms).not.toBeNull();
 		expect(await rss!.text()).toContain("hello-world");
+		const index = await readCollectionIndex(bucket, "blog");
+		expect(await rss!.text()).toContain(
+			`<lastBuildDate>${new Date(index.generatedAt).toUTCString()}</lastBuildDate>`,
+		);
 		expect(await sitemap!.text()).toContain("/blog/hello-world/");
 		expect(await llms!.text()).toContain("Hello Workers");
 	});
@@ -426,7 +455,10 @@ tags:
 		expect(xml).not.toContain("<script>");
 		expect(xml).not.toContain("posthog");
 		expect(xml).not.toContain("tweet-embed");
-		expect(xml).not.toContain("<lastBuildDate>");
+		const index = await readCollectionIndex(bucket, "blog");
+		expect(xml).toContain(
+			`<lastBuildDate>${new Date(index.generatedAt).toUTCString()}</lastBuildDate>`,
+		);
 	});
 
 	it("rebuilds derived files from a queue notification", async () => {

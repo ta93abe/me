@@ -27,6 +27,11 @@ test.describe("Published content", () => {
 		await page.goto("/blog");
 
 		await expect(page.locator("h1").first()).toContainText("Blog");
+		await expect(page.locator("#rss-feed-link")).toHaveAttribute(
+			"href",
+			"/rss.xml",
+		);
+		await expect(page.locator("#rss-feed-link")).toBeVisible();
 		await expect(page.locator("body")).not.toContainText(sampleCopy);
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
 		await expect(page.getByRole("status")).toContainText(
@@ -79,6 +84,7 @@ test.describe("Published content", () => {
 		expect(rss.headers().link).toContain('</llms.txt>; rel="describedby"');
 		const rssBody = await rss.text();
 		expect(rssBody).toContain("<language>ja</language>");
+		expect(rssBody).toMatch(/<lastBuildDate>.+GMT<\/lastBuildDate>/);
 		expect(rssBody).not.toContain("dbt-jobs");
 
 		const sitemap = await request.get("/sitemap-blog.xml");
