@@ -1,0 +1,13 @@
+title = "me"
+
+[allowlist]
+description = "Generated output, local Alchemy state, and Pencil file tokens"
+paths = [
+	'''(^|/)node_modules/''',
+	'''(^|/)dist/''',
+	'''(^|/)\.alchemy/''',
+	'''(^|/)design\.pen$''',
+	'''(^|/)playwright-report/''',
+	'''(^|/)test-results/''',
+	'''(^|/)perf-results/''',
+]

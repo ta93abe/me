@@ -1,6 +1,6 @@
 ---
-// PostHog analytics。bundled script にして Astro CSP ハッシュ対象にする。
-// 本番ビルドかつトークンがあるときのみ読み込む。
+// PostHog analytics。bundled な薄いブートストラップにして Astro CSP ハッシュ対象にする。
+// posthog-js / recorder / surveys はアイドルまたは最初の操作まで読み込まない。
 const enabled =
 	import.meta.env.PROD && Boolean(import.meta.env.PUBLIC_POSTHOG_PROJECT_TOKEN);
 ---

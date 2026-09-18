@@ -7,9 +7,7 @@ test.describe("Newsletter CTA (Substack)", () => {
 	test("footer links to Substack subscribe", async ({ page }) => {
 		await page.goto("/blog");
 
-		const footerCta = page.locator(
-			'footer a[data-newsletter-cta="footer"]',
-		);
+		const footerCta = page.locator('footer a[data-newsletter-cta="footer"]');
 		await expect(footerCta).toBeVisible();
 		await expect(footerCta).toHaveAttribute("href", subscribeUrl);
 		await expect(footerCta).toHaveAttribute("target", "_blank");
@@ -21,7 +19,9 @@ test.describe("Newsletter CTA (Substack)", () => {
 
 		const block = page.locator("[data-newsletter-cta-block]");
 		await expect(block).toBeVisible();
-		await expect(block.getByRole("heading", { name: "Newsletter" })).toBeVisible();
+		await expect(
+			block.getByRole("heading", { name: "Newsletter" }),
+		).toBeVisible();
 		await expect(
 			block.locator('a[data-newsletter-cta="blog-index"]'),
 		).toHaveAttribute("href", subscribeUrl);

@@ -1,56 +1,212 @@
 import { describe, expect, it } from "vitest";
 
+import { markdownAlternateLinkHeader } from "../../src/utils/markdown-alternate.ts";
 import {
-	addHomepageDiscoveryHeaders,
+	CONTENT_SIGNAL,
 	DISCOVERY_LINKS,
-	homepageDiscoveryLinkHeader,
+	addPublicHtmlDiscoveryHeaders,
+	appendHeaderToken,
+	shouldAttachHtmlDiscoveryHeaders,
 } from "../discovery-headers.ts";
 
-const siteUrl = "https://ta93abe.com";
-const contentSignal = "ai-train=no, search=yes, ai-input=yes";
+function expectedLink(path: string, extra?: string): string {
+	const href =
+		path === "/" ? "https://ta93abe.com/" : `https://ta93abe.com${path}`;
+	const markdown = markdownAlternateLinkHeader(href);
+	if (extra) {
+		return `${markdown}, ${extra}`;
+	}
+	return `${markdown}, ${DISCOVERY_LINKS}`;
+}
 
-describe("homepageDiscoveryLinkHeader", () => {
-	it("advertises the homepage itself as text/markdown", () => {
-		const link = homepageDiscoveryLinkHeader(null, siteUrl);
-		expect(
-			link.startsWith(
-				'<https://ta93abe.com/>; rel="alternate"; type="text/markdown", ',
-			),
-		).toBe(true);
-		expect(link).toContain(DISCOVERY_LINKS);
-		expect(link).not.toContain(".md>");
+function htmlRequest(path: string, method = "GET"): Request {
+	return new Request(`https://ta93abe.com${path}`, { method });
+}
+
+function htmlResponse(init: ResponseInit & { body?: string } = {}): Response {
+	const { body = "<html></html>", ...rest } = init;
+	const headers = new Headers(rest.headers);
+	if (!headers.has("Content-Type")) {
+		headers.set("Content-Type", "text/html; charset=utf-8");
+	}
+	return new Response(body, { ...rest, headers });
+}
+
+function discoveryHeaders(response: Response) {
+	return {
+		link: response.headers.get("Link"),
+		contentSignal: response.headers.get("Content-Signal"),
+		vary: response.headers.get("Vary"),
+	};
+}
+
+describe("appendHeaderToken", () => {
+	it("adds Accept without duplicating an existing token", () => {
+		expect(appendHeaderToken(null, "Accept")).toBe("Accept");
+		expect(appendHeaderToken("Accept-Encoding", "Accept")).toBe(
+			"Accept-Encoding, Accept",
+		);
+		expect(appendHeaderToken("Accept", "Accept")).toBe("Accept");
+		expect(appendHeaderToken("accept, Accept-Encoding", "Accept")).toBe(
+			"accept, Accept-Encoding",
+		);
 	});
 });
 
-describe("addHomepageDiscoveryHeaders", () => {
-	it("adds markdown alternate and discovery links on the homepage", async () => {
-		const next = addHomepageDiscoveryHeaders(
-			new Request("https://ta93abe.com/"),
-			new Response("<html></html>", {
-				headers: { "Content-Type": "text/html; charset=utf-8" },
-			}),
-			{ siteUrl, contentSignal },
+describe("shouldAttachHtmlDiscoveryHeaders", () => {
+	it("accepts successful public HTML including blog index and posts", () => {
+		const html = htmlResponse();
+		expect(shouldAttachHtmlDiscoveryHeaders(htmlRequest("/"), html)).toBe(true);
+		expect(shouldAttachHtmlDiscoveryHeaders(htmlRequest("/blog/"), html)).toBe(
+			true,
 		);
-
-		expect(next.headers.get("Link")).toContain(
-			'<https://ta93abe.com/>; rel="alternate"; type="text/markdown"',
+		expect(
+			shouldAttachHtmlDiscoveryHeaders(htmlRequest("/blog/hello-world/"), html),
+		).toBe(true);
+		expect(shouldAttachHtmlDiscoveryHeaders(htmlRequest("/about/"), html)).toBe(
+			true,
 		);
-		expect(next.headers.get("Link")).toContain(
-			'</llms.txt>; rel="describedby"; type="text/plain"',
-		);
-		expect(next.headers.get("Vary")).toBe("Accept");
-		expect(next.headers.get("Content-Signal")).toBe(contentSignal);
-		expect(await next.text()).toBe("<html></html>");
 	});
 
-	it("does not advertise a markdown alternate on pages without negotiation", () => {
-		const next = addHomepageDiscoveryHeaders(
-			new Request("https://ta93abe.com/about/"),
-			new Response("<html></html>"),
-			{ siteUrl, contentSignal },
+	it("skips 404, non-HTML, and noindex print/404 surfaces", () => {
+		expect(
+			shouldAttachHtmlDiscoveryHeaders(
+				htmlRequest("/blog/hello-world/"),
+				htmlResponse({ status: 404 }),
+			),
+		).toBe(false);
+		expect(
+			shouldAttachHtmlDiscoveryHeaders(
+				htmlRequest("/blog/hello-world/"),
+				new Response("{}", {
+					headers: { "Content-Type": "application/json" },
+				}),
+			),
+		).toBe(false);
+		expect(
+			shouldAttachHtmlDiscoveryHeaders(
+				htmlRequest("/slides/deck/print/"),
+				htmlResponse(),
+			),
+		).toBe(false);
+		expect(
+			shouldAttachHtmlDiscoveryHeaders(htmlRequest("/404"), htmlResponse()),
+		).toBe(false);
+	});
+});
+
+describe("addPublicHtmlDiscoveryHeaders", () => {
+	it("matches homepage discovery headers on blog HTML", () => {
+		const home = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/"),
+			htmlResponse(),
+		);
+		const post = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/blog/hello-world/"),
+			htmlResponse(),
+		);
+		const index = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/blog/"),
+			htmlResponse(),
 		);
 
-		expect(next.headers.get("Link")).toBeNull();
-		expect(next.headers.get("Vary")).toBeNull();
+		expect(discoveryHeaders(home)).toEqual({
+			link: expectedLink("/"),
+			contentSignal: CONTENT_SIGNAL,
+			vary: "Accept",
+		});
+		expect(discoveryHeaders(post)).toEqual({
+			link: expectedLink("/blog/hello-world/"),
+			contentSignal: CONTENT_SIGNAL,
+			vary: "Accept",
+		});
+		expect(discoveryHeaders(index)).toEqual({
+			link: expectedLink("/blog/"),
+			contentSignal: CONTENT_SIGNAL,
+			vary: "Accept",
+		});
+		expect(home.headers.get("Link")).toContain('rel="describedby"');
+		expect(home.headers.get("Link")).toContain(
+			"/.well-known/mcp/server-card.json",
+		);
+		expect(home.headers.get("Link")).toContain("/.well-known/agent-card.json");
+		expect(home.headers.get("Link")).toContain("/auth.md");
+	});
+
+	it("keeps existing Vary tokens and does not duplicate discovery Link", () => {
+		const withVary = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/blog/hello-world/"),
+			htmlResponse({
+				headers: { Vary: "Accept-Encoding" },
+			}),
+		);
+		expect(withVary.headers.get("Vary")).toBe("Accept-Encoding, Accept");
+
+		const alreadyNegotiated = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/blog/hello-world/"),
+			htmlResponse({
+				headers: { Vary: "Accept" },
+			}),
+		);
+		expect(alreadyNegotiated.headers.get("Vary")).toBe("Accept");
+
+		const preloadOnly = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/works/"),
+			htmlResponse({
+				headers: { Link: '</style.css>; rel="preload"; as="style"' },
+			}),
+		);
+		expect(preloadOnly.headers.get("Link")).toBe(
+			expectedLink(
+				"/works/",
+				`</style.css>; rel="preload"; as="style", ${DISCOVERY_LINKS}`,
+			),
+		);
+
+		const existingLink = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/about/"),
+			htmlResponse({
+				headers: {
+					Link: `</style.css>; rel="preload"; as="style", ${DISCOVERY_LINKS}`,
+				},
+			}),
+		);
+		expect(existingLink.headers.get("Link")).toBe(
+			expectedLink(
+				"/about/",
+				`</style.css>; rel="preload"; as="style", ${DISCOVERY_LINKS}`,
+			),
+		);
+
+		const alreadyMarkdown = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/about/"),
+			htmlResponse({
+				headers: {
+					Link: expectedLink("/about/"),
+				},
+			}),
+		);
+		expect(alreadyMarkdown.headers.get("Link")).toBe(expectedLink("/about/"));
+	});
+
+	it("does not attach discovery headers to 404 HTML", () => {
+		const missing = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/blog/does-not-exist/"),
+			htmlResponse({ status: 404 }),
+		);
+		expect(missing.status).toBe(404);
+		expect(missing.headers.get("Link")).toBeNull();
+		expect(missing.headers.get("Content-Signal")).toBeNull();
+		expect(missing.headers.get("Vary")).toBeNull();
+	});
+
+	it("attaches discovery headers on HEAD for public HTML", () => {
+		const head = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/blog/hello-world/", "HEAD"),
+			htmlResponse({ body: "" }),
+		);
+		expect(head.headers.get("Link")).toBe(expectedLink("/blog/hello-world/"));
+		expect(head.headers.get("Content-Signal")).toBe(CONTENT_SIGNAL);
+		expect(head.headers.get("Vary")).toBe("Accept");
 	});
 });
