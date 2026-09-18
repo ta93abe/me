@@ -102,6 +102,22 @@ ${items}
 `;
 }
 
+function sitemapLastmod(post: FeedPost): string {
+	return (post.revise_date ?? post.publish_date).toISOString().slice(0, 10);
+}
+
+/** Newest post lastmod as YYYY-MM-DD. Undefined when there are no posts. */
+function latestSitemapLastmod(posts: FeedPost[]): string | undefined {
+	let latest: string | undefined;
+	for (const post of posts) {
+		const lastmod = sitemapLastmod(post);
+		if (latest === undefined || lastmod > latest) {
+			latest = lastmod;
+		}
+	}
+	return latest;
+}
+
 export function sitemapUrlEntries(
 	posts: FeedPost[],
 	origin: string = DEFAULT_ORIGIN,
@@ -109,12 +125,16 @@ export function sitemapUrlEntries(
 	const base = originBase(origin);
 	const blogUrls = sortFeedPosts(posts).map((post) => ({
 		loc: `${base}/blog/${post.slug}/`,
-		lastmod: (post.revise_date ?? post.publish_date).toISOString().slice(0, 10),
+		lastmod: sitemapLastmod(post),
 	}));
+	const blogIndexLastmod = latestSitemapLastmod(posts);
 
 	return [
 		{ loc: `${base}/` },
-		{ loc: `${base}/blog/` },
+		{
+			loc: `${base}/blog/`,
+			...(blogIndexLastmod ? { lastmod: blogIndexLastmod } : {}),
+		},
 		...blogUrls,
 		...STATIC_SECTION_PATHS.map((path) => ({ loc: `${base}${path}` })),
 	];
@@ -125,13 +145,17 @@ export function buildBlogSitemapXml(
 	origin: string = DEFAULT_ORIGIN,
 ): string {
 	const base = originBase(origin);
+	const sorted = sortFeedPosts(posts);
+	const blogIndexLastmod = latestSitemapLastmod(sorted);
+	// 記事 0 件のときは /blog/ を出さない。この sitemap はリクエスト時生成なので
+	// ビルド時刻を lastmod にすると毎回変わり、クロール差分のノイズになる。
 	const urls: SitemapUrlEntry[] = [
-		{ loc: `${base}/blog/` },
-		...sortFeedPosts(posts).map((post) => ({
+		...(blogIndexLastmod
+			? [{ loc: `${base}/blog/`, lastmod: blogIndexLastmod }]
+			: []),
+		...sorted.map((post) => ({
 			loc: `${base}/blog/${post.slug}/`,
-			lastmod: (post.revise_date ?? post.publish_date)
-				.toISOString()
-				.slice(0, 10),
+			lastmod: sitemapLastmod(post),
 		})),
 	];
 
@@ -151,18 +175,118 @@ ${body}
 `;
 }
 
-export function buildSitemapIndexXml(origin: string = DEFAULT_ORIGIN): string {
+export type SitemapIndexLastmods = {
+	staticSitemap?: string;
+	blogSitemap?: string;
+};
+
+const LASTMOD_TAG = /<lastmod>\s*([^<]+?)\s*<\/lastmod>/gi;
+
+export function formatSitemapLastmod(
+	value: Date | string | undefined,
+): string | undefined {
+	const date = toDate(value);
+	if (!date) {
+		return undefined;
+	}
+	return date.toISOString().slice(0, 10);
+}
+
+export function maxSitemapLastmod(
+	values: Array<Date | string | undefined>,
+): string | undefined {
+	let max: Date | undefined;
+	for (const value of values) {
+		const date = toDate(value);
+		if (!date) {
+			continue;
+		}
+		if (!max || date.getTime() > max.getTime()) {
+			max = date;
+		}
+	}
+	return formatSitemapLastmod(max);
+}
+
+export function lastmodFromSitemapXml(xml: string): string | undefined {
+	const dates: string[] = [];
+	for (const match of xml.matchAll(LASTMOD_TAG)) {
+		dates.push(match[1]);
+	}
+	return maxSitemapLastmod(dates);
+}
+
+export function lastmodFromFeedPosts(posts: FeedPost[]): string | undefined {
+	return maxSitemapLastmod(
+		posts.map((post) => post.revise_date ?? post.publish_date),
+	);
+}
+
+export function lastmodFromGeneratedAt(
+	generatedAt: string | undefined,
+): string | undefined {
+	const date = toDate(generatedAt);
+	if (!date || date.getTime() <= 0) {
+		return undefined;
+	}
+	return formatSitemapLastmod(date);
+}
+
+export function childSitemapLastmod(
+	xml: string | undefined,
+	httpLastModified: string | null | undefined,
+	fallback: Date = new Date(),
+): string {
+	return (
+		formatSitemapLastmod(httpLastModified ?? undefined) ??
+		lastmodFromSitemapXml(xml ?? "") ??
+		formatSitemapLastmod(fallback) ??
+		"1970-01-01"
+	);
+}
+
+function sitemapIndexEntry(loc: string, lastmod?: string): string {
+	const lastmodXml = lastmod
+		? `\n    <lastmod>${escapeXml(lastmod)}</lastmod>`
+		: "";
+	return `  <sitemap>\n    <loc>${escapeXml(loc)}</loc>${lastmodXml}\n  </sitemap>`;
+}
+
+export function buildSitemapIndexXml(
+	origin: string = DEFAULT_ORIGIN,
+	lastmods: SitemapIndexLastmods = {},
+): string {
 	const base = originBase(origin);
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>${escapeXml(`${base}/sitemap-0.xml`)}</loc>
-  </sitemap>
-  <sitemap>
-    <loc>${escapeXml(`${base}/sitemap-blog.xml`)}</loc>
-  </sitemap>
+${sitemapIndexEntry(`${base}/sitemap-0.xml`, lastmods.staticSitemap)}
+${sitemapIndexEntry(`${base}/sitemap-blog.xml`, lastmods.blogSitemap)}
 </sitemapindex>
 `;
+}
+
+export async function loadSitemapIndexXml(
+	bucket: R2Bucket,
+	origin: string = DEFAULT_ORIGIN,
+	staticSitemap: {
+		xml?: string;
+		lastModified?: string | null;
+	} = {},
+	now: Date = new Date(),
+): Promise<string> {
+	const index = await readCollectionIndex(bucket, "blog");
+	const posts = feedPostsFromEntries(index.entries);
+	return buildSitemapIndexXml(origin, {
+		staticSitemap: childSitemapLastmod(
+			staticSitemap.xml,
+			staticSitemap.lastModified,
+			now,
+		),
+		blogSitemap:
+			lastmodFromGeneratedAt(index.generatedAt) ??
+			lastmodFromFeedPosts(posts) ??
+			formatSitemapLastmod(now),
+	});
 }
 
 export function buildLlmsBlogSection(

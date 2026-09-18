@@ -17,8 +17,17 @@ import {
 	tweetBlockStartIndex,
 } from "./tweet-url.ts";
 import { fetchTweetEmbed, tweetEmbedHtml, type TweetFetcher } from "./tweet.ts";
+import {
+	matchStandaloneYoutubeBlock,
+	youtubeBlockStartIndex,
+} from "./youtube-url.ts";
+import {
+	fetchYoutubeEmbed,
+	youtubeEmbedHtml,
+	type YoutubeFetcher,
+} from "./youtube.ts";
 
-export type { TweetFetcher };
+export type { TweetFetcher, YoutubeFetcher };
 
 function escapeHtml(value: string): string {
 	return value
@@ -38,12 +47,12 @@ function renderCode({ text, lang }: { text: string; lang?: string }): string {
 	return `<pre class="${className}"><code class="${className}">${highlighted}</code></pre>\n`;
 }
 
-type TweetRef = {
+type EmbedRef = {
 	id: string;
 	href: string;
 };
 
-function createTweetExtension(pending: TweetRef[]) {
+function createTweetExtension(pending: EmbedRef[]) {
 	return {
 		name: "tweetEmbed",
 		level: "block" as const,
@@ -73,11 +82,75 @@ function createTweetExtension(pending: TweetRef[]) {
 	};
 }
 
+function createYoutubeExtension(pending: EmbedRef[]) {
+	return {
+		name: "youtubeEmbed",
+		level: "block" as const,
+		start(src: string) {
+			return youtubeBlockStartIndex(src);
+		},
+		tokenizer(src: string) {
+			const match = matchStandaloneYoutubeBlock(src);
+			if (!match) {
+				return undefined;
+			}
+			return {
+				type: "youtubeEmbed",
+				raw: match.raw,
+				id: match.id,
+				href: match.href,
+			};
+		},
+		renderer(token: { id?: unknown; href?: unknown }) {
+			const index = pending.length;
+			pending.push({
+				id: String(token.id ?? ""),
+				href: String(token.href ?? ""),
+			});
+			return `<div data-youtube-embed="${index}"></div>\n`;
+		},
+	};
+}
+
+async function fillEmbeds<T>(
+	ids: string[],
+	fetcher: (id: string) => Promise<T | null>,
+): Promise<Map<string, T | null>> {
+	const results = new Map<string, T | null>();
+	await Promise.all(
+		[...new Set(ids)].map(async (id) => {
+			try {
+				results.set(id, await fetcher(id));
+			} catch {
+				results.set(id, null);
+			}
+		}),
+	);
+	return results;
+}
+
+function replaceEmbedPlaceholders(
+	html: string,
+	attribute: string,
+	pending: EmbedRef[],
+	render: (href: string, id: string) => string,
+): string {
+	const pattern = new RegExp(`<div data-${attribute}="(\\d+)"></div>`, "g");
+	return html.replace(pattern, (_match, index: string) => {
+		const ref = pending[Number(index)];
+		if (!ref) {
+			return "";
+		}
+		return render(ref.href, ref.id);
+	});
+}
+
 export async function renderBlogMarkdown(
 	markdown: string,
-	options: { fetchTweet?: TweetFetcher } = {},
+	options: { fetchTweet?: TweetFetcher; fetchYoutube?: YoutubeFetcher } = {},
 ): Promise<string> {
-	const pending: TweetRef[] = [];
+	const pendingTweets: EmbedRef[] = [];
+	const pendingYoutube: EmbedRef[] = [];
 	const marked = new Marked({
 		gfm: true,
 		renderer: {
@@ -85,34 +158,40 @@ export async function renderBlogMarkdown(
 		},
 	});
 	marked.use({
-		extensions: [createTweetExtension(pending)],
+		extensions: [
+			createTweetExtension(pendingTweets),
+			createYoutubeExtension(pendingYoutube),
+		],
 	});
 
-	const html = marked.parse(markdown, { async: false }) as string;
-	if (pending.length === 0) {
+	let html = marked.parse(markdown, { async: false }) as string;
+	if (pendingTweets.length === 0 && pendingYoutube.length === 0) {
 		return html;
 	}
 
 	const fetchTweet = options.fetchTweet ?? fetchTweetEmbed;
-	const tweets = new Map<string, Awaited<ReturnType<TweetFetcher>>>();
-	await Promise.all(
-		[...new Set(pending.map((ref) => ref.id))].map(async (id) => {
-			try {
-				tweets.set(id, await fetchTweet(id));
-			} catch {
-				tweets.set(id, null);
-			}
-		}),
-	);
+	const fetchYoutube = options.fetchYoutube ?? fetchYoutubeEmbed;
+	const [tweets, videos] = await Promise.all([
+		fillEmbeds(
+			pendingTweets.map((ref) => ref.id),
+			fetchTweet,
+		),
+		fillEmbeds(
+			pendingYoutube.map((ref) => ref.id),
+			fetchYoutube,
+		),
+	]);
 
-	return html.replace(
-		/<div data-tweet-embed="(\d+)"><\/div>/g,
-		(_match, index: string) => {
-			const ref = pending[Number(index)];
-			if (!ref) {
-				return "";
-			}
-			return tweetEmbedHtml(ref.href, tweets.get(ref.id) ?? null);
-		},
+	html = replaceEmbedPlaceholders(
+		html,
+		"tweet-embed",
+		pendingTweets,
+		(href, id) => tweetEmbedHtml(href, tweets.get(id) ?? null),
+	);
+	return replaceEmbedPlaceholders(
+		html,
+		"youtube-embed",
+		pendingYoutube,
+		(href, id) => youtubeEmbedHtml(href, videos.get(id) ?? null),
 	);
 }

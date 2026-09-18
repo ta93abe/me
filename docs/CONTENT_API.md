@@ -65,6 +65,8 @@ wrangler secret put CONTENT_HMAC_SECRET
 
 PUT / DELETE は同期で index と `derived/` を冪等に書き直す。R2 の `md/` 通知は Queue `content-events` でも同じ再構築と Cache purge（`/blog` HTML、`/rss.xml`、sitemap、llms、OG）を行う。
 
+`/sitemap-blog.xml` の `/blog/` 一覧 URL の `lastmod` は、公開記事の `revise_date`（なければ `publish_date`）の最大値（YYYY-MM-DD、UTC）にする。記事が 0 件のときは一覧エントリ自体を出さない。この sitemap はリクエスト時生成のため、ビルド時刻は使わない。
+
 ## curl（wrangler dev）
 
 ```bash
@@ -121,3 +123,28 @@ Zenn 記法も使える。
 ```
 
 `twitter.com` / `x.com` / `mobile.` / `www.` / `/i/status/` に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときは「Xでポストを見る」リンクカードになる。
+
+## ブログ本文の YouTube 埋め込み
+
+動画 URL を単独行に貼ると、公開時に Worker が oEmbed で題名を取得して静的カードにする（iframe は使わない）。
+
+```md
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+```
+
+短縮 URL や Markdown リンク、プロトコルなしでも同じ。
+
+```md
+https://youtu.be/dQw4w9WgXcQ
+[動画](https://youtu.be/dQw4w9WgXcQ)
+youtu.be/dQw4w9WgXcQ
+```
+
+Zenn 記法も使える。
+
+```md
+@[youtube](dQw4w9WgXcQ)
+@[youtube](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+```
+
+`youtube.com` / `youtu.be` / `m.` / `music.` / Shorts / Live / embed に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときはサムネイル付きの「YouTubeで動画を見る」カードになる。

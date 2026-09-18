@@ -14,21 +14,21 @@ export const OPENID_CONFIGURATION_PATH = "/.well-known/openid-configuration";
 export const AUTH_MD_OIDC_PARAGRAPH =
 	"This site is **not** an OpenID Connect Provider and does not publish `/.well-known/openid-configuration`. Authorization Server metadata at `/.well-known/oauth-authorization-server` is **agent_auth discovery only**: there is no OAuth authorization endpoint, token endpoint, or ID token. Registration via `/agent/auth` is optional; public content can be read without it.";
 
-export type OauthAuthorizationServerMetadata = {
+export type OauthAuthorizationServerMetadata<AgentAuth = unknown> = {
 	issuer: string;
 	response_types_supported: string[];
 	grant_types_supported: string[];
 	token_endpoint_auth_methods_supported: string[];
 	service_documentation: string;
 	note: string;
-	agent_auth: unknown;
+	agent_auth: AgentAuth;
 };
 
-export function oauthAuthorizationServerMetadata(input: {
+export function oauthAuthorizationServerMetadata<AgentAuth>(input: {
 	issuer: string;
 	documentationUrl: string;
-	agentAuth: unknown;
-}): OauthAuthorizationServerMetadata {
+	agentAuth: AgentAuth;
+}): OauthAuthorizationServerMetadata<AgentAuth> {
 	return {
 		issuer: input.issuer,
 		// Empty arrays override RFC defaults. "none" is a real OAuth/OIDC value
