@@ -13,6 +13,7 @@ vi.mock("@astrojs/cloudflare/handler", () => ({
 	),
 }));
 
+import { DID_WEB_PATH, didWebDocument } from "../discovery/ai-catalog.ts";
 import worker from "../index.ts";
 import { createContentEnv } from "./memory-r2.ts";
 
@@ -108,5 +109,21 @@ describe("ARD ai-catalog CORS", () => {
 			/text\/html/,
 		);
 		expect(await response.text()).not.toContain(HTML_404_TITLE);
+	});
+
+	it("serves did:web document at /.well-known/did.json with CORS", async () => {
+		const response = await fetchCatalog(DID_WEB_PATH);
+		const body = (await response.json()) as {
+			id: string;
+			alsoKnownAs: string[];
+		};
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toMatch(
+			/application\/did\+json/,
+		);
+		expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+		expect(body).toEqual(didWebDocument());
+		expect(body.id).toBe("did:web:ta93abe.com");
 	});
 });

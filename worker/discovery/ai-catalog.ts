@@ -2,6 +2,9 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 
+export const HOST_DID = `did:web:${SITE_HOST}`;
+export const DID_WEB_PATH = "/.well-known/did.json";
+
 export type AiCatalogEntry = {
 	identifier: string;
 	displayName: string;
@@ -23,12 +26,21 @@ export type AiCatalogManifest = {
 	entries: AiCatalogEntry[];
 };
 
+export function didWebDocument() {
+	return {
+		"@context": ["https://www.w3.org/ns/did/v1"],
+		id: HOST_DID,
+		alsoKnownAs: [`${SITE_URL}/`],
+		controller: HOST_DID,
+	};
+}
+
 export function aiCatalog(): AiCatalogManifest {
 	return {
 		specVersion: "1.0",
 		host: {
 			displayName: SITE_TITLE,
-			identifier: `did:web:${SITE_HOST}`,
+			identifier: HOST_DID,
 			documentationUrl: `${SITE_URL}/llms.txt`,
 		},
 		entries: [

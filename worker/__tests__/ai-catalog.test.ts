@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { aiCatalog } from "../discovery/ai-catalog.ts";
+import {
+	DID_WEB_PATH,
+	aiCatalog,
+	didWebDocument,
+} from "../discovery/ai-catalog.ts";
 
 const URN_PATTERN = /^urn:air:[a-zA-Z0-9.-]+(:[a-zA-Z0-9._-]+)+$/;
 const HAS_JAPANESE = /[\u3040-\u30ff\u4e00-\u9fff]/;
@@ -17,6 +21,18 @@ describe("ARD capability manifest", () => {
 		expect(catalog.host.identifier).toBe("did:web:ta93abe.com");
 		expect(catalog.host.documentationUrl).toBe(`${SITE_URL}/llms.txt`);
 		expect(catalog.entries.length).toBeGreaterThan(0);
+	});
+
+	it("publishes a did:web document that matches the catalog host identifier", () => {
+		const catalog = aiCatalog();
+		const did = didWebDocument();
+
+		expect(did.id).toBe(catalog.host.identifier);
+		expect(did.id).toBe("did:web:ta93abe.com");
+		expect(did["@context"]).toEqual(["https://www.w3.org/ns/did/v1"]);
+		expect(did.alsoKnownAs).toContain(`${SITE_URL}/`);
+		expect(did.controller).toBe(did.id);
+		expect(DID_WEB_PATH).toBe("/.well-known/did.json");
 	});
 
 	it("lists MCP, A2A, Agent Skills, api-catalog, llms.txt, and auth.md as url-backed entries", () => {

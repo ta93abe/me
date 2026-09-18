@@ -88,6 +88,9 @@ describe("well-known OPTIONS routing", () => {
 		expect(
 			shouldDelegateToAstroHandler("options", "/.well-known/ai-catalog.json"),
 		).toBe(false);
+		expect(
+			shouldDelegateToAstroHandler("OPTIONS", "/.well-known/did.json"),
+		).toBe(false);
 	});
 
 	it("still delegates page OPTIONS and other methods to Astro", () => {

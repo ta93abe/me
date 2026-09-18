@@ -30,7 +30,11 @@ import {
 	CONTENT_SIGNAL,
 	addPublicHtmlDiscoveryHeaders,
 } from "./discovery-headers.ts";
-import { aiCatalog } from "./discovery/ai-catalog.ts";
+import {
+	DID_WEB_PATH,
+	aiCatalog,
+	didWebDocument,
+} from "./discovery/ai-catalog.ts";
 import {
 	appendHeaderToken,
 	htmlOriginRequest,
@@ -437,6 +441,14 @@ async function handleSiteRequest(
 			request,
 			JSON.stringify(buildApiCatalog(SITE_URL), null, 2),
 			API_CATALOG_MEDIA_TYPE,
+		);
+	}
+
+	if (pathname === DID_WEB_PATH) {
+		return discoveryTextResponse(
+			request,
+			JSON.stringify(didWebDocument(), null, 2),
+			"application/did+json; charset=utf-8",
 		);
 	}
 
