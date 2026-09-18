@@ -2,15 +2,6 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 
-export const AI_CATALOG_PATHS = [
-	"/.well-known/ai-catalog.json",
-	"/.well-known/ard.json",
-] as const;
-
-export const AI_CATALOG_CORS_HEADERS = {
-	"Access-Control-Allow-Origin": "*",
-} as const;
-
 export type AiCatalogEntry = {
 	identifier: string;
 	displayName: string;
@@ -31,10 +22,6 @@ export type AiCatalogManifest = {
 	};
 	entries: AiCatalogEntry[];
 };
-
-export function isAiCatalogPath(pathname: string): boolean {
-	return (AI_CATALOG_PATHS as readonly string[]).includes(pathname);
-}
 
 export function aiCatalog(): AiCatalogManifest {
 	return {
@@ -133,6 +120,21 @@ export function aiCatalog(): AiCatalogManifest {
 					"ta93abe.com のブログ一覧",
 					"Summarize ta93abe.com for an LLM.",
 					"List the public pages on this site.",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:auth:public`,
+				displayName: "auth.md",
+				type: "text/markdown",
+				url: `${SITE_URL}/auth.md`,
+				description:
+					"Agent authentication notes. Public content requires no credential.",
+				tags: ["auth", "anonymous"],
+				capabilities: ["anonymous-access"],
+				representativeQueries: [
+					"ta93abe.com は認証が必要？",
+					"Does ta93abe.com require authentication?",
+					"How should an agent register for public access?",
 				],
 			},
 		],

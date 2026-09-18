@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	AI_CATALOG_CORS_HEADERS,
-	aiCatalog,
-	isAiCatalogPath,
-} from "../discovery/ai-catalog.ts";
+import { aiCatalog } from "../discovery/ai-catalog.ts";
 
 const URN_PATTERN = /^urn:air:[a-zA-Z0-9.-]+(:[a-zA-Z0-9._-]+)+$/;
 const HAS_JAPANESE = /[\u3040-\u30ff\u4e00-\u9fff]/;
@@ -19,10 +15,11 @@ describe("ARD capability manifest", () => {
 		expect(catalog.specVersion.length).toBeGreaterThan(0);
 		expect(catalog.host.displayName).toBe("Takumi Abe / ta93abe");
 		expect(catalog.host.identifier).toBe("did:web:ta93abe.com");
+		expect(catalog.host.documentationUrl).toBe(`${SITE_URL}/llms.txt`);
 		expect(catalog.entries.length).toBeGreaterThan(0);
 	});
 
-	it("lists MCP, A2A, Agent Skills, api-catalog, and llms.txt as url-backed entries", () => {
+	it("lists MCP, A2A, Agent Skills, api-catalog, llms.txt, and auth.md as url-backed entries", () => {
 		const urls = aiCatalog().entries.map((entry) => entry.url);
 
 		expect(urls).toContain(`${SITE_URL}/.well-known/mcp/server-card.json`);
@@ -33,6 +30,7 @@ describe("ARD capability manifest", () => {
 		);
 		expect(urls).toContain(`${SITE_URL}/.well-known/api-catalog`);
 		expect(urls).toContain(`${SITE_URL}/llms.txt`);
+		expect(urls).toContain(`${SITE_URL}/auth.md`);
 	});
 
 	it("gives every entry a domain-anchored URN, type, exclusive url, and 2-5 queries", () => {
@@ -55,12 +53,5 @@ describe("ARD capability manifest", () => {
 
 		const identifiers = aiCatalog().entries.map((entry) => entry.identifier);
 		expect(new Set(identifiers).size).toBe(identifiers.length);
-	});
-
-	it("advertises CORS * for the well-known catalog paths", () => {
-		expect(AI_CATALOG_CORS_HEADERS["Access-Control-Allow-Origin"]).toBe("*");
-		expect(isAiCatalogPath("/.well-known/ai-catalog.json")).toBe(true);
-		expect(isAiCatalogPath("/.well-known/ard.json")).toBe(true);
-		expect(isAiCatalogPath("/.well-known/api-catalog")).toBe(false);
 	});
 });

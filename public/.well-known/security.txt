@@ -1,0 +1,5 @@
+# Vulnerability disclosure for ta93abe.com
+Contact: https://ta93abe.com/contact/
+Expires: 2027-09-15T23:59:59.000Z
+Canonical: https://ta93abe.com/.well-known/security.txt
+Preferred-Languages: ja, en
