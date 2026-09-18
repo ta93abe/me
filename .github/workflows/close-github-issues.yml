@@ -1,0 +1,119 @@
+# GitHub Issues は使わない。オープン Issue は閉じ、新規も自動クローズする。
+name: Close GitHub Issues
+
+on:
+  issues:
+    types: [opened, reopened]
+  pull_request:
+    paths:
+      - ".github/workflows/close-github-issues.yml"
+      - ".github/ISSUE_TEMPLATE/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/close-github-issues.yml"
+      - ".github/ISSUE_TEMPLATE/**"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: close-github-issues-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  close-one:
+    name: Close opened issue
+    if: github.event_name == 'issues' && !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Close the triggering issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY" --reason "not planned" --comment "$(cat <<'EOF'
+          このリポジトリでは GitHub Issues は使いません。連絡は https://ta93abe.com/contact/ からどうぞ。
+          EOF
+          )"
+
+  close-all:
+    name: Close all open issues
+    if: github.event_name != 'issues'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Close every open GitHub issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import subprocess
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          migrated = {
+              144: "https://linear.app/ta93abe/issue/TA-978",
+              145: "https://linear.app/ta93abe/issue/TA-977",
+              146: "https://linear.app/ta93abe/issue/TA-973",
+              147: "https://linear.app/ta93abe/issue/TA-974",
+              148: "https://linear.app/ta93abe/issue/TA-979",
+              149: "https://linear.app/ta93abe/issue/TA-975",
+              150: "https://linear.app/ta93abe/issue/TA-976",
+              151: "https://linear.app/ta93abe/issue/TA-982",
+              152: "https://linear.app/ta93abe/issue/TA-980",
+              153: "https://linear.app/ta93abe/issue/TA-981",
+              154: "https://linear.app/ta93abe/issue/TA-983",
+              155: "https://linear.app/ta93abe/issue/TA-984",
+              156: "https://linear.app/ta93abe/issue/TA-986",
+              157: "https://linear.app/ta93abe/issue/TA-985",
+          }
+
+          def comment_for(number: int) -> str:
+              if number == 143:
+                  return "テスト用 Issue のためクローズします。"
+              url = migrated.get(number)
+              if url:
+                  return f"Linear に移行したためクローズします。続きは {url} です。"
+              return "このリポジトリでは GitHub Issues は使いません。連絡は https://ta93abe.com/contact/ からどうぞ。"
+
+          listed = subprocess.check_output(
+              [
+                  "gh",
+                  "issue",
+                  "list",
+                  "--repo",
+                  repo,
+                  "--state",
+                  "open",
+                  "--limit",
+                  "100",
+                  "--json",
+                  "number",
+              ],
+              text=True,
+          )
+          numbers = [item["number"] for item in json.loads(listed)]
+          if not numbers:
+              print("no open GitHub issues")
+          for number in numbers:
+              subprocess.check_call(
+                  [
+                      "gh",
+                      "issue",
+                      "close",
+                      str(number),
+                      "--repo",
+                      repo,
+                      "--reason",
+                      "not planned",
+                      "--comment",
+                      comment_for(number),
+                  ]
+              )
+              print(f"closed #{number}")
+          PY

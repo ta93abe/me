@@ -221,7 +221,7 @@ PR作成前に以下を確認してください:
 
 ## 質問・サポート
 
-質問や提案がある場合は、GitHub Issues で新しい Issue を作成してください。
+このリポジトリでは GitHub Issues は使いません。連絡は [Contact](https://ta93abe.com/contact/) からどうぞ。
 
 ## ライセンス
 

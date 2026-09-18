@@ -223,7 +223,7 @@ pnpm format
 - **チーム**: ta93abe
 - **プロジェクト**: me
 - Issue の作成・更新・クローズは Linear で行う
-- GitHub Issues は使用しない
+- GitHub Issues は使用しない。誤って作られた Issue は `.github/workflows/close-github-issues.yml` が自動クローズする
 
 ```bash
 # Linear MCP経由で操作
