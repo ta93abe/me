@@ -11,6 +11,7 @@ import {
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
+import { shouldDelegateNonGetToAstro } from "./route-methods.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
 	isPrintQuery,
@@ -622,11 +623,7 @@ export default {
 			return Response.redirect(new URL("/", url), 301);
 		}
 
-		if (
-			request.method !== "GET" &&
-			request.method !== "HEAD" &&
-			pathname !== "/mcp"
-		) {
+		if (shouldDelegateNonGetToAstro(pathname, request.method)) {
 			return handle(request, env, ctx);
 		}
 
