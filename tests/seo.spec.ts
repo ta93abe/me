@@ -31,16 +31,44 @@ test.describe("Sitewide SEO", () => {
 		}
 	});
 
+	test("home advertises the ARD capability catalog", async ({ request }) => {
+		const html = await pageHtml(request, "/");
+		expect(html).toContain('rel="ai-catalog"');
+		expect(html).toContain("https://ta93abe.com/.well-known/ai-catalog.json");
+		expect(html).toContain('rel="ard"');
+		expect(html).toContain("https://ta93abe.com/.well-known/ard.json");
+	});
+
 	test("home has WebSite, Person, and the default OG image", async ({
 		request,
 	}) => {
 		const html = await pageHtml(request, "/");
 		expect(html).toContain('"@type":"WebSite"');
 		expect(html).toContain('"@type":"Person"');
+		expect(html).toContain('"image":"https://ta93abe.com/og/about.png"');
 		expect(html).toContain("/og/default.png");
 		expect(html).toContain("summary_large_image");
 		expect(html).toContain('href="https://ta93abe.com/"');
 		expect(html).toContain('property="og:image:type" content="image/png"');
+	});
+
+	test("pages advertise a small PNG favicon and a separate apple-touch-icon", async ({
+		request,
+	}) => {
+		for (const path of ["/", "/about"]) {
+			const html = await pageHtml(request, path);
+			expect(html, path).toContain('rel="icon" type="image/png"');
+			expect(html, path).toContain('href="/favicon.png"');
+			expect(html, path).toContain('rel="apple-touch-icon"');
+			expect(html, path).toContain('href="/apple-touch-icon.png"');
+		}
+
+		const favicon = await request.get("/favicon.png");
+		const apple = await request.get("/apple-touch-icon.png");
+		expect(favicon.ok()).toBe(true);
+		expect(apple.ok()).toBe(true);
+		expect((await favicon.body()).byteLength).toBeLessThanOrEqual(8 * 1024);
+		expect((await apple.body()).byteLength).toBeLessThanOrEqual(32 * 1024);
 	});
 
 	test("section pages have dedicated OG images and page JSON-LD", async ({

@@ -3,13 +3,11 @@ export const prerender = false;
 
 import FilterSort from "@/components/FilterSort.astro";
 import NewsletterCta from "@/components/NewsletterCta.astro";
-import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
 import { getContentBucket } from "@/lib/content/bindings";
 import { listBlogPosts } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
-import { formatDate } from "@/utils/date";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	BLOG_COLLECTION_DESCRIPTION,
@@ -94,38 +92,14 @@ Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
               class="group border-b border-(--border-color) last:border-b-0"
               data-item
               data-tags={post.tags.join(",")}
-              data-date={post.publish_date.toISOString()}
-              data-title={post.title}
             >
               <a
                 href={`/blog/${post.slug}/`}
-                class="block py-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
+                class="block py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary-color)"
               >
-                <div class="flex flex-col gap-3 sm:flex-row sm:gap-8">
-                  <time class="shrink-0 font-sans text-sm tracking-wide text-(--text-muted) sm:w-28 sm:pt-1">
-                    {formatDate(post.publish_date)}
-                    {post.revise_date && (
-                      <span class="mt-1 block text-xs">
-                        更新 {formatDate(post.revise_date)}
-                      </span>
-                    )}
-                  </time>
-                  <div class="min-w-0 flex-1">
-                    <h2 class="mb-2 font-display text-xl font-bold text-(--text-primary) transition-colors group-hover:text-(--primary-color) sm:text-2xl">
-                      {post.title}
-                    </h2>
-                    <p class="mb-3 text-sm leading-relaxed text-(--text-secondary) sm:text-base">
-                      {post.excerpt}
-                    </p>
-                    {post.tags.length > 0 && (
-                      <div class="flex flex-wrap gap-x-3 gap-y-1">
-                        {post.tags.map((tag) => (
-                          <Tag>#{tag}</Tag>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <h2 class="font-display text-lg font-bold text-(--text-primary) transition-colors group-hover:text-(--primary-color) sm:text-xl">
+                  {post.title}
+                </h2>
               </a>
             </article>
           ))}

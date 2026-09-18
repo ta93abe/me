@@ -3,6 +3,8 @@ import { SITE } from "./site";
 export type AgentDiscoveryRel =
 	| "describedby"
 	| "api-catalog"
+	| "ai-catalog"
+	| "ard"
 	| "service-desc"
 	| "alternate";
 
@@ -24,6 +26,16 @@ export const AGENT_DISCOVERY_RESOURCES = [
 		rel: "api-catalog",
 		path: "/.well-known/api-catalog",
 		type: "application/linkset+json",
+	},
+	{
+		rel: "ai-catalog",
+		path: "/.well-known/ai-catalog.json",
+		type: "application/json",
+	},
+	{
+		rel: "ard",
+		path: "/.well-known/ard.json",
+		type: "application/json",
 	},
 	{
 		rel: "service-desc",
