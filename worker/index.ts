@@ -23,24 +23,24 @@ import {
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
-	AUTH_MD_OIDC_PARAGRAPH,
-	OPENID_CONFIGURATION_PATH,
-} from "./oauth-discovery.ts";
+	CONTENT_SIGNAL,
+	addPublicHtmlDiscoveryHeaders,
+} from "./discovery-headers.ts";
+import { aiCatalog } from "./discovery/ai-catalog.ts";
 import {
 	appendHeaderToken,
 	htmlOriginRequest,
 	negotiateHtmlMarkdown,
 } from "./markdown-response.ts";
-import { aiCatalog } from "./discovery/ai-catalog.ts";
+import { handleMcp, mcpServerCard } from "./mcp.ts";
+import {
+	AUTH_MD_OIDC_PARAGRAPH,
+	OPENID_CONFIGURATION_PATH,
+} from "./oauth-discovery.ts";
 import {
 	oauthAuthorizationServer,
 	oauthProtectedResource,
 } from "./oauth-metadata.ts";
-import {
-	CONTENT_SIGNAL,
-	addPublicHtmlDiscoveryHeaders,
-} from "./discovery-headers.ts";
-import { handleMcp, mcpServerCard } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {

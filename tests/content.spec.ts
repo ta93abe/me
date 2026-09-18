@@ -89,29 +89,37 @@ test.describe("Published content", () => {
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
 	});
 
-	test("conventional sitemap URLs redirect to the sitemap index", async ({
-		request,
-	}) => {
-		for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
-			const response = await request.fetch(path, { maxRedirects: 0 });
-			expect([301, 308], path).toContain(response.status());
-			expect(response.headers()["location"], path).toMatch(
-				/\/sitemap-index\.xml\/?$/,
-			);
-		}
-	});
+	test(
+		"conventional sitemap URLs redirect to the sitemap index",
+		{
+			tag: "@smoke",
+		},
+		async ({ request }) => {
+			for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
+				const response = await request.fetch(path, { maxRedirects: 0 });
+				expect([301, 308], path).toContain(response.status());
+				expect(response.headers()["location"], path).toMatch(
+					/\/sitemap-index\.xml\/?$/,
+				);
+			}
+		},
+	);
 
-	test("retired collection URLs redirect home", async ({ page }) => {
-		for (const path of [
-			"/gallery",
-			"/gallery/dbt-jobs",
-			"/atelier",
-			"/bookshelf",
-		]) {
-			const response = await page.goto(path);
-			expect(response?.status(), path).toBe(200);
-			expect(new URL(page.url()).pathname, path).toBe("/");
-			await expect(page.locator("body")).not.toContainText(sampleCopy);
-		}
-	});
+	test(
+		"retired collection URLs redirect home",
+		{ tag: "@smoke" },
+		async ({ page }) => {
+			for (const path of [
+				"/gallery",
+				"/gallery/dbt-jobs",
+				"/atelier",
+				"/bookshelf",
+			]) {
+				const response = await page.goto(path);
+				expect(response?.status(), path).toBe(200);
+				expect(new URL(page.url()).pathname, path).toBe("/");
+				await expect(page.locator("body")).not.toContainText(sampleCopy);
+			}
+		},
+	);
 });

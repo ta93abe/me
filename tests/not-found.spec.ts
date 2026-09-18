@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("404 recovery", () => {
+test.describe("404 recovery", { tag: "@smoke" }, () => {
 	test("unknown URL offers About, Contact, and Blog", async ({ page }) => {
 		const response = await page.goto("/this-page-does-not-exist");
 		expect(response?.status()).toBe(404);
