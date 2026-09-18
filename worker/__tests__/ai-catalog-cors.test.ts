@@ -65,19 +65,28 @@ beforeEach(() => {
 });
 
 describe("ARD ai-catalog CORS", () => {
-	it("serves ai-catalog.json with JSON type and Access-Control-Allow-Origin *", async () => {
-		const response = await fetchCatalog("/.well-known/ai-catalog.json");
-		const body = (await response.json()) as {
-			entries: { representativeQueries: string[] }[];
-		};
+	it("serves ai-catalog.json and ard.json with JSON type and Access-Control-Allow-Origin *", async () => {
+		for (const path of [
+			"/.well-known/ai-catalog.json",
+			"/.well-known/ard.json",
+		]) {
+			const response = await fetchCatalog(path);
+			const body = (await response.json()) as {
+				entries: { representativeQueries: string[] }[];
+			};
 
-		expect(response.status).toBe(200);
-		expect(response.headers.get("content-type")).toMatch(/application\/json/);
-		expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
-		expect(body.entries.length).toBeGreaterThan(0);
-		for (const entry of body.entries) {
-			expect(entry.representativeQueries.length).toBeGreaterThanOrEqual(2);
-			expect(entry.representativeQueries.length).toBeLessThanOrEqual(5);
+			expect(response.status, path).toBe(200);
+			expect(response.headers.get("content-type"), path).toMatch(
+				/application\/json/,
+			);
+			expect(response.headers.get("Access-Control-Allow-Origin"), path).toBe(
+				"*",
+			);
+			expect(body.entries.length).toBeGreaterThan(0);
+			for (const entry of body.entries) {
+				expect(entry.representativeQueries.length).toBeGreaterThanOrEqual(2);
+				expect(entry.representativeQueries.length).toBeLessThanOrEqual(5);
+			}
 		}
 	});
 

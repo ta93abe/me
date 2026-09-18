@@ -42,10 +42,40 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["mcp", "portfolio", "discovery"],
 				capabilities: ["get_site_overview"],
 				representativeQueries: [
-					"ta93abe のサイト概要を MCP で取る",
+					"MCP でサイト概要を取る",
 					"MCP の入口は？",
-					"What is ta93abe.com?",
-					"Give me a concise overview of this site.",
+					"What can the ta93abe.com MCP server do?",
+					"get_site_overview で公開ページを要約して",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:agent:site`,
+				displayName: SITE_TITLE,
+				type: "application/a2a-agent-card+json",
+				url: `${SITE_URL}/.well-known/agent-card.json`,
+				description:
+					"A2A Agent Card for the public ta93abe.com portfolio site.",
+				tags: ["a2a", "portfolio"],
+				capabilities: ["site-overview"],
+				representativeQueries: [
+					"ta93abe.com のエージェントは何ができる？",
+					"What can the ta93abe.com agent do?",
+					"List the public sections of this site.",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:skills:index`,
+				displayName: "Agent Skills index",
+				type: "application/json",
+				url: `${SITE_URL}/.well-known/agent-skills/index.json`,
+				description:
+					"Index of Agent Skills published by ta93abe.com for crawl and discovery.",
+				tags: ["skills", "discovery"],
+				capabilities: ["site-overview"],
+				representativeQueries: [
+					"ta93abe.com の Agent Skills 一覧を出して",
+					"Which agent skills does this site publish?",
+					"Where is the skills index for ta93abe.com?",
 				],
 			},
 			{
@@ -58,9 +88,24 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["skill", "portfolio", "discovery"],
 				capabilities: ["site-overview"],
 				representativeQueries: [
-					"エージェントはどう ta93abe.com を読むべき？",
 					"How should an agent crawl ta93abe.com?",
+					"ta93abe.com の公開セクションと発見 URL はどこ？",
 					"Where are the public sections and discovery URLs?",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:catalog:api`,
+				displayName: "API Catalog",
+				type: "application/linkset+json",
+				url: `${SITE_URL}/.well-known/api-catalog`,
+				description:
+					"RFC 9727 linkset of machine-readable discovery documents on ta93abe.com.",
+				tags: ["api-catalog", "linkset", "discovery"],
+				capabilities: ["api-catalog"],
+				representativeQueries: [
+					"ta93abe.com の API catalog はどこ？",
+					"Where is the RFC 9727 api-catalog for this site?",
+					"List the discovery APIs on ta93abe.com",
 				],
 			},
 			{
@@ -89,24 +134,9 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["auth", "anonymous"],
 				capabilities: ["anonymous-access"],
 				representativeQueries: [
-					"ta93abe.com の閲覧に認証は必要？",
+					"ta93abe.com は認証が必要？",
 					"Does ta93abe.com require authentication?",
 					"How should an agent register for public access?",
-				],
-			},
-			{
-				identifier: `urn:air:${SITE_HOST}:agent:site`,
-				displayName: SITE_TITLE,
-				type: "application/a2a-agent-card+json",
-				url: `${SITE_URL}/.well-known/agent-card.json`,
-				description:
-					"A2A Agent Card for the public ta93abe.com portfolio site.",
-				tags: ["a2a", "portfolio"],
-				capabilities: ["site-overview"],
-				representativeQueries: [
-					"ta93abe.com のエージェントは何ができる？",
-					"What can the ta93abe.com agent do?",
-					"List the public sections of this site.",
 				],
 			},
 		],
