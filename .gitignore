@@ -19,6 +19,7 @@ pnpm-debug.log*
 .env.production
 .dev.vars
 .wrangler/
+.alchemy/
 
 # macOS-specific files
 .DS_Store
@@ -41,5 +42,11 @@ screenshots/
 # Performance CI (Lighthouse / Browser Run CWV)
 /perf-results/
 
+# Agent Readiness CI (isitagentready scan)
+/agent-ready-results/
+
 # Claude Code
 .claude/settings.local.json
+
+# Agent security-audit-skill output (never commit)
+/audits/

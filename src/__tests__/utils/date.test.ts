@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate } from "@/utils/date";
+import { formatDate, toDatetimeAttr } from "@/utils/date";
 
 describe("formatDate", () => {
 	it("should format Date object to Japanese format", () => {
@@ -28,5 +28,18 @@ describe("formatDate", () => {
 		expect(formatDate(new Date("2024-01-01"))).toBe("2024年1月1日");
 		// Last day of year
 		expect(formatDate(new Date("2024-12-31"))).toBe("2024年12月31日");
+	});
+});
+
+describe("toDatetimeAttr", () => {
+	it("returns an ISO-8601 datetime for a Date", () => {
+		const date = new Date("2026-08-30T00:00:00.000Z");
+		expect(toDatetimeAttr(date)).toBe("2026-08-30T00:00:00.000Z");
+	});
+
+	it("returns an ISO-8601 datetime for a date string", () => {
+		expect(toDatetimeAttr("2026-09-16T00:00:00.000Z")).toBe(
+			"2026-09-16T00:00:00.000Z",
+		);
 	});
 });

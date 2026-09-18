@@ -1,0 +1,21 @@
+{
+	"scanUrl": "https://ta93abe.com",
+	"apiUrl": "https://isitagentready.com/api/scan",
+	"uiUrl": "https://isitagentready.com/ta93abe.com",
+	"knownFailChecks": [
+		"discoverability.dnsAid",
+		"discovery.authMd",
+		"discovery.ard"
+	],
+	"knownFailIssues": {
+		"discoverability.dnsAid": "TA-897",
+		"discovery.authMd": "TA-891",
+		"discovery.ard": "TA-895"
+	},
+	"ignoreGroups": ["commerce"],
+	"markdownPaths": [
+		{ "path": "/", "expectMarkdown": true },
+		{ "path": "/about/", "expectMarkdown": false },
+		{ "path": "/blog/hello-world/", "expectMarkdown": false }
+	]
+}

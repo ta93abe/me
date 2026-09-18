@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@astrojs/cloudflare/handler", () => ({
 	handle: vi.fn(async () => new Response("astro", { status: 200 })),
@@ -14,6 +14,7 @@ import { createContentEnv } from "./memory-r2.ts";
 
 const DISCOVERY_PATHS = [
 	"/.well-known/api-catalog",
+	"/.well-known/ai-catalog.json",
 	"/.well-known/mcp/server-card.json",
 	"/.well-known/agent-card.json",
 	"/.well-known/agent-skills/index.json",
@@ -42,6 +43,16 @@ async function fetchPath(
 		ctx,
 	);
 }
+
+beforeEach(() => {
+	vi.stubGlobal("caches", {
+		default: {
+			match: async () => undefined,
+			put: async () => undefined,
+			delete: async () => true,
+		},
+	});
+});
 
 describe("stable agent discovery documents", () => {
 	it.each(DISCOVERY_PATHS)(
@@ -92,11 +103,34 @@ describe("stable agent discovery documents", () => {
 		expect(skill.headers.get("ETag")).toBe(`"${hex}"`);
 	});
 
-	it("does not apply discovery caching to /mcp", async () => {
-		const response = await fetchPath("/mcp");
+	it("does not apply discovery caching to GET /mcp", async () => {
+		const response = await fetchPath("/mcp", { method: "GET" });
+
+		expect(response.status).toBe(405);
+		expect(response.headers.get("Allow")).toBe("POST");
+		expect(response.headers.get("Content-Type")).toMatch(/text\/plain/);
+		expect(response.headers.get("Cache-Control")).not.toBe(
+			DISCOVERY_CACHE_CONTROL,
+		);
+		expect(response.headers.get("ETag")).toBeNull();
+		expect(await response.text()).not.toContain("MCP endpoint");
+	});
+
+	it("does not apply discovery caching to POST /mcp initialize", async () => {
+		const response = await fetchPath("/mcp", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				jsonrpc: "2.0",
+				id: 1,
+				method: "initialize",
+			}),
+		});
 
 		expect(response.status).toBe(200);
-		expect(response.headers.get("Cache-Control")).toBeNull();
+		expect(response.headers.get("Cache-Control")).not.toBe(
+			DISCOVERY_CACHE_CONTROL,
+		);
 		expect(response.headers.get("ETag")).toBeNull();
 	});
 });
