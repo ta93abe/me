@@ -25,9 +25,13 @@ describe("RFC 8414 authorization server metadata", () => {
 
 	it("keeps issuer for AS discovery without claiming OAuth token grants", () => {
 		expect(metadata.issuer).toBe(issuer);
-		expect(metadata.response_types_supported).toEqual(["none"]);
+		expect(metadata.response_types_supported).toEqual([]);
 		expect(metadata.grant_types_supported).toEqual([]);
-		expect(metadata.token_endpoint_auth_methods_supported).toEqual(["none"]);
+		expect(metadata.token_endpoint_auth_methods_supported).toEqual([]);
+		expect(metadata.response_types_supported).not.toContain("none");
+		expect(metadata.token_endpoint_auth_methods_supported).not.toContain(
+			"none",
+		);
 		expect(metadata.service_documentation).toBe(documentationUrl);
 		expect(metadata.agent_auth).toEqual(agentAuth);
 	});

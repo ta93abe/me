@@ -31,14 +31,15 @@ export function oauthAuthorizationServerMetadata(input: {
 }): OauthAuthorizationServerMetadata {
 	return {
 		issuer: input.issuer,
-		// "none" signals that no interactive authorization response is issued.
-		response_types_supported: ["none"],
-		// Empty on purpose. An omitted list defaults to authorization_code +
-		// implicit, which would require authorization_endpoint / token_endpoint.
+		// Empty arrays override RFC defaults. "none" is a real OAuth/OIDC value
+		// (empty authorization response / unauthenticated token client), not
+		// "unsupported". An omitted grant list defaults to authorization_code
+		// + implicit; an omitted token auth list defaults to client_secret_basic.
 		// Do not advertise urn:workos:agent-auth:grant-type:claim — that grant
 		// is used at a token endpoint this site does not operate.
+		response_types_supported: [],
 		grant_types_supported: [],
-		token_endpoint_auth_methods_supported: ["none"],
+		token_endpoint_auth_methods_supported: [],
 		service_documentation: input.documentationUrl,
 		note: "agent_auth discovery only. This host is not an OpenID Connect Provider and does not mint OAuth access tokens.",
 		agent_auth: input.agentAuth,
