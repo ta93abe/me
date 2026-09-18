@@ -9,6 +9,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
+import { PAGE_ALIASES } from "./src/config/redirects.ts";
 import {
 	SITEMAP_INDEX_ALIASES,
 	SITEMAP_INDEX_PATH,
@@ -47,6 +48,8 @@ const cspScriptResources = [
 // https://astro.build/config
 export default defineConfig({
 	site: "https://ta93abe.com",
+	// Astro 7 の trailingSlash: "always" は dev で不一致 URL を 404 reject する。
+	// 本番の 301 は middleware と Worker で行う。
 	adapter: cloudflare({
 		// IMAGES は公開 R2 `me-images` のバインディング名なので Cloudflare Images と混ぜない
 		imageService: "compile",
@@ -88,17 +91,7 @@ export default defineConfig({
 		"/gallery": "/",
 		"/atelier": "/",
 		"/bookshelf": "/",
-		"/careers": "/about",
-		"/jobs": "/about",
-		"/recruit": "/about",
-		"/gadgets/macbook-pro": "/gadgets",
-		"/gadgets/keyboard": "/gadgets",
-		"/gadgets/headphones": "/gadgets",
-		"/gadgets/audio-interface": "/gadgets",
-		"/gadgets/sketchbook": "/gadgets",
-		"/gadgets/fountain-pen": "/gadgets",
-		"/gadgets/camera": "/gadgets",
-		"/gadgets/notebook": "/gadgets",
+		...PAGE_ALIASES,
 	},
 	build: {
 		inlineStylesheets: "auto",

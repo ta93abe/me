@@ -1,10 +1,12 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import {
 	SITEMAP_INDEX_PATH,
 	isSitemapIndexAlias,
 } from "../src/lib/content/sitemap-aliases.ts";
+import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
 import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
@@ -461,6 +463,17 @@ async function handleSiteRequest(
 		(request.method === "GET" || request.method === "HEAD")
 	) {
 		return Response.redirect(new URL("/", url), 301);
+	}
+
+	if (request.method === "GET" || request.method === "HEAD") {
+		const alias = pageAliasRedirect(pathname);
+		if (alias) {
+			return Response.redirect(new URL(alias, url), 301);
+		}
+		const location = trailingSlashRedirectUrl(url);
+		if (location) {
+			return Response.redirect(location, 301);
+		}
 	}
 
 	if (

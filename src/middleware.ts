@@ -1,11 +1,13 @@
 import { defineMiddleware } from "astro:middleware";
 
+import { pageAliasRedirect } from "@/config/redirects";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import { isRetiredSitePath } from "@/lib/content/retired-paths";
 import {
 	SITEMAP_INDEX_PATH,
 	isSitemapIndexAlias,
 } from "@/lib/content/sitemap-aliases";
+import { trailingSlashRedirectUrl } from "@/utils/canonical";
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	if (isRetiredSitePath(context.url.pathname)) {
@@ -14,6 +16,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	if (isSitemapIndexAlias(context.url.pathname)) {
 		return context.redirect(SITEMAP_INDEX_PATH, 301);
+	}
+
+	const alias = pageAliasRedirect(context.url.pathname);
+	if (alias) {
+		return context.redirect(alias, 301);
+	}
+
+	const method = context.request.method.toUpperCase();
+	if (method === "GET" || method === "HEAD") {
+		const location = trailingSlashRedirectUrl(context.url);
+		if (location) {
+			return context.redirect(`${location.pathname}${location.search}`, 301);
+		}
 	}
 
 	const response = await next();
