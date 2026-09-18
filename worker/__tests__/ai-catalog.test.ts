@@ -33,9 +33,7 @@ describe("ARD capability manifest", () => {
 		expect(urls).toContain(`${SITE_URL}/auth.md`);
 	});
 
-	it("gives every entry a domain-anchored URN, type, exclusive url, and 2-5 queries", () => {
-		const catalogQueries: string[] = [];
-
+	it("gives every entry a domain-anchored URN, type, exclusive url, and 2-5 JP/EN queries", () => {
 		for (const entry of aiCatalog().entries) {
 			expect(entry.identifier).toMatch(URN_PATTERN);
 			expect(entry.identifier.startsWith("urn:air:ta93abe.com:")).toBe(true);
@@ -45,11 +43,15 @@ describe("ARD capability manifest", () => {
 			expect("data" in entry).toBe(false);
 			expect(entry.representativeQueries.length).toBeGreaterThanOrEqual(2);
 			expect(entry.representativeQueries.length).toBeLessThanOrEqual(5);
-			catalogQueries.push(...entry.representativeQueries);
+			expect(
+				entry.representativeQueries.some((query) => HAS_JAPANESE.test(query)),
+				`${entry.identifier} should include a Japanese representativeQuery`,
+			).toBe(true);
+			expect(
+				entry.representativeQueries.some((query) => HAS_LATIN.test(query)),
+				`${entry.identifier} should include an English representativeQuery`,
+			).toBe(true);
 		}
-
-		expect(catalogQueries.some((query) => HAS_JAPANESE.test(query))).toBe(true);
-		expect(catalogQueries.some((query) => HAS_LATIN.test(query))).toBe(true);
 
 		const identifiers = aiCatalog().entries.map((entry) => entry.identifier);
 		expect(new Set(identifiers).size).toBe(identifiers.length);

@@ -43,6 +43,7 @@ export function aiCatalog(): AiCatalogManifest {
 				capabilities: ["get_site_overview"],
 				representativeQueries: [
 					"MCP でサイト概要を取る",
+					"MCP の入口は？",
 					"What can the ta93abe.com MCP server do?",
 					"get_site_overview で公開ページを要約して",
 				],
@@ -117,7 +118,8 @@ export function aiCatalog(): AiCatalogManifest {
 				tags: ["llms.txt", "portfolio"],
 				capabilities: ["site-overview"],
 				representativeQueries: [
-					"ta93abe.com のブログ一覧",
+					"ta93abe のブログは？",
+					"About はどこ？",
 					"Summarize ta93abe.com for an LLM.",
 					"List the public pages on this site.",
 				],
