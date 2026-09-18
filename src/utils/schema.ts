@@ -417,6 +417,8 @@ export const LINKS_COLLECTION_DESCRIPTION =
 	"いま更新している場所。GitHub、Zenn、X、LinkedIn、Speaker Deck、connpass、Substack。";
 export const TOOLS_COLLECTION_DESCRIPTION =
 	"Nix + Home Manager で管理している開発環境。毎日使っているツールと、そうしている理由。";
+export const GADGETS_COLLECTION_DESCRIPTION =
+	"毎日触っている物。ソフトウェアは Tools に置き、ここでは物だけを置く。";
 
 export const generateProfilePageSchema = (
 	siteUrl: string,
@@ -570,6 +572,81 @@ export const generateBlogCollectionSchema = (
 			description: post.excerpt,
 			url: `${origin}/blog/${post.slug}/`,
 			datePublished: toIsoDate(post.date),
+		})),
+	};
+};
+
+export type GadgetSchemaItem = {
+	slug: string;
+	name: string;
+	description: string;
+	image: string;
+	brand: string;
+};
+
+interface ProductSchema {
+	"@context": "https://schema.org";
+	"@type": "Product";
+	name: string;
+	description: string;
+	image: string;
+	url: string;
+	brand: {
+		"@type": "Brand";
+		name: string;
+	};
+}
+
+interface GadgetsItemListSchema {
+	"@context": "https://schema.org";
+	"@type": "ItemList";
+	name: string;
+	description: string;
+	url: string;
+	itemListElement: Array<{
+		"@type": "ListItem";
+		position: number;
+		name: string;
+		url: string;
+	}>;
+}
+
+export const generateGadgetProductSchema = (
+	siteUrl: string,
+	gadget: GadgetSchemaItem,
+): ProductSchema => {
+	const origin = originBase(siteUrl);
+	return {
+		"@context": "https://schema.org",
+		"@type": "Product",
+		name: gadget.name,
+		description: gadget.description,
+		image: gadget.image,
+		url: `${origin}/gadgets/${gadget.slug}/`,
+		brand: {
+			"@type": "Brand",
+			name: gadget.brand,
+		},
+	};
+};
+
+export const generateGadgetsItemListSchema = (
+	siteUrl: string,
+	gadgets: readonly { slug: string; name: string }[],
+	description: string = GADGETS_COLLECTION_DESCRIPTION,
+): GadgetsItemListSchema => {
+	const origin = originBase(siteUrl);
+	return {
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		name: `Gadgets | ${SITE.name}`,
+		description,
+		url: `${origin}/gadgets/`,
+		itemListElement: gadgets.map((gadget, index) => ({
+			"@type": "ListItem",
+			position: index + 1,
+			name: gadget.name,
+			url: `${origin}/gadgets/${gadget.slug}/`,
 		})),
 	};
 };

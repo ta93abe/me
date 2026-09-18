@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { gadgetImageUrl } from "@/data/gadget-images";
+import { gadgetImageBytes, gadgetImageUrl } from "@/data/gadget-images";
 import {
 	GADGETS,
 	gadgetPath,
@@ -39,10 +39,15 @@ describe("GADGETS catalog", () => {
 			expect(gadgetViewTransitionName(gadget.slug)).toBe(
 				`gadget-${gadget.slug}`,
 			);
+			expect(gadget.brand.length).toBeGreaterThan(0);
 			const image = gadgetImageUrl(gadget.slug);
-			expect(image.startsWith("data:image/webp")).toBe(true);
+			expect(image).toBe(`/media/gadgets/${gadget.slug}.webp`);
+			expect(image.startsWith("data:")).toBe(false);
 			expect(image.startsWith("/gadgets/")).toBe(false);
 			expect(image.startsWith("/things/")).toBe(false);
+			const bytes = gadgetImageBytes(gadget.slug);
+			expect(bytes.byteLength).toBeGreaterThan(0);
+			expect(String.fromCharCode(...bytes.slice(0, 4))).toBe("RIFF");
 		}
 	});
 

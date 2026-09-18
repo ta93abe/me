@@ -2,8 +2,14 @@
 import GadgetThumb from "@/components/gadgets/GadgetThumb.astro";
 import GadgetsViewTransitions from "@/components/gadgets/GadgetsViewTransitions.astro";
 import { SITE } from "@/config/site";
+import { gadgetImageUrl } from "@/data/gadget-images";
 import { GADGETS, getGadget } from "@/data/gadgets";
 import Layout from "@/layouts/Layout.astro";
+import {
+	generateBreadcrumbSchema,
+	generateGadgetProductSchema,
+	stringifySchema,
+} from "@/utils/schema";
 
 export function getStaticPaths() {
 	return GADGETS.map((gadget) => ({
@@ -20,12 +26,41 @@ const gadget = getGadget(slug);
 if (!gadget) {
 	throw new Error(`Unknown gadget: ${slug}`);
 }
+
+const site = Astro.site?.href || SITE.url;
+const image = new URL(gadgetImageUrl(gadget.slug), site).href;
+const productSchema = generateGadgetProductSchema(site, {
+	slug: gadget.slug,
+	name: gadget.name,
+	description: gadget.note,
+	image,
+	brand: gadget.brand,
+});
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Gadgets", path: "/gadgets/" },
+	{ name: gadget.name, path: `/gadgets/${gadget.slug}/` },
+]);
 ---
 
 <Layout
 	title={`${gadget.name} | Gadgets | ${SITE.name}`}
 	description={gadget.note}
+	ogType="product"
+	ogImage={image}
+	ogImageAlt={gadget.name}
+	ogImageWidth={640}
+	ogImageHeight={640}
 >
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(productSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
+	</Fragment>
 	<GadgetsViewTransitions />
 	<main class="mx-auto max-w-5xl px-6 py-12">
 		<div

@@ -14,7 +14,7 @@ interface Props {
 	ogImage?: string;
 	ogImageAlt?: string;
 	ogSiteName?: string;
-	ogType?: "website" | "article" | "book";
+	ogType?: "website" | "article" | "book" | "product";
 	/** 明示的な canonical。未指定時は現在の pathname */
 	canonicalURL?: string | URL;
 	/** true のとき検索エンジンにインデックスさせない */
@@ -25,6 +25,9 @@ interface Props {
 	flushTop?: boolean;
 	/** true のときビューポートに固定しスクロールを無効化 */
 	lockViewport?: boolean;
+	ogImageWidth?: number;
+	ogImageHeight?: number;
+	ogImageType?: string;
 }
 
 const {
@@ -40,12 +43,26 @@ const {
 	noFooter = false,
 	flushTop = false,
 	lockViewport = false,
+	ogImageWidth = 1200,
+	ogImageHeight = 630,
+	ogImageType,
 } = Astro.props;
+
+function ogImageMimeType(pathname: string): string {
+	if (pathname.endsWith(".webp")) {
+		return "image/webp";
+	}
+	if (pathname.endsWith(".jpg") || pathname.endsWith(".jpeg")) {
+		return "image/jpeg";
+	}
+	return "image/png";
+}
 
 const canonicalURL = canonicalOverride
 	? canonicalPageUrl(String(canonicalOverride), Astro.site ?? SITE.url)
 	: canonicalPageUrl(Astro.url.pathname, Astro.site ?? SITE.url);
 const ogImageURL = new URL(ogImage, Astro.site);
+const resolvedOgImageType = ogImageType ?? ogImageMimeType(ogImageURL.pathname);
 const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
@@ -89,9 +106,9 @@ const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content={ogImageURL} />
 		<meta property="og:image:alt" content={ogImageAlt} />
-		<meta property="og:image:width" content="1200" />
-		<meta property="og:image:height" content="630" />
-		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content={String(ogImageWidth)} />
+		<meta property="og:image:height" content={String(ogImageHeight)} />
+		<meta property="og:image:type" content={resolvedOgImageType} />
 		<meta property="og:site_name" content={ogSiteName} />
 		<meta property="og:locale" content={SITE.locale} />
 
