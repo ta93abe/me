@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { SITE } from "@/config/site";
+import { toDatetimeAttr } from "@/utils/date";
 import {
 	generateBlogCollectionSchema,
 	generateBlogPostingSchema,
@@ -237,6 +239,24 @@ describe("generateBlogPostingSchema", () => {
 		expect(schema.publisher.image).toBe(schema.author.image);
 		expect(schema.isPartOf.url).toBe("https://example.com/blog/");
 		expect(schema.keywords).toBe("ci");
+	});
+
+	it("keeps visible datetime and byline aligned with JSON-LD", () => {
+		const date = new Date("2026-08-30T00:00:00.000Z");
+		const updatedDate = new Date("2026-09-16T00:00:00.000Z");
+		const schema = generateBlogPostingSchema("https://example.com/", {
+			slug: "hello-world",
+			title: "Hello",
+			excerpt: "note",
+			date,
+			updatedDate,
+			image: "https://example.com/og/blog/hello-world.png",
+		});
+
+		expect(schema.datePublished).toBe(toDatetimeAttr(date));
+		expect(schema.dateModified).toBe(toDatetimeAttr(updatedDate));
+		expect(schema.author.name).toBe(SITE.author);
+		expect(schema.author.url).toBe(`https://example.com${SITE.authorPath}`);
 	});
 });
 

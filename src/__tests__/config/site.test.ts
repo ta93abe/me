@@ -3,6 +3,11 @@ import { describe, expect, it } from "vitest";
 import { FEATURED_WORKS, HOME_CTAS, SITE } from "@/config/site";
 
 describe("SITE intro", () => {
+	it("exposes a trailing-slash About path as the author canonical", () => {
+		expect(SITE.author).toBe("Takumi Abe");
+		expect(SITE.authorPath).toBe("/about/");
+	});
+
 	it("uses the same positioning in the visible tagline and meta description", () => {
 		expect(SITE.tagline).toContain(
 			"データ基盤と CI を書くソフトウェアエンジニア",
