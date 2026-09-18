@@ -54,15 +54,15 @@ test.describe("Published content", () => {
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
@@ -72,6 +72,11 @@ test.describe("Published content", () => {
 	}) => {
 		const rss = await request.get("/rss.xml");
 		expect(rss.ok()).toBeTruthy();
+		expect(rss.headers()["content-type"]).toContain("application/rss+xml");
+		expect(rss.headers()["content-signal"]).toBe(
+			"ai-train=no, search=yes, ai-input=yes",
+		);
+		expect(rss.headers().link).toContain('</llms.txt>; rel="describedby"');
 		const rssBody = await rss.text();
 		expect(rssBody).toContain("<language>ja</language>");
 		expect(rssBody).not.toContain("dbt-jobs");
@@ -79,22 +84,48 @@ test.describe("Published content", () => {
 		const sitemap = await request.get("/sitemap-blog.xml");
 		expect(sitemap.ok()).toBeTruthy();
 		const sitemapBody = await sitemap.text();
-		expect(sitemapBody).toContain("/blog/");
+		expect(sitemapBody).toContain("<urlset");
 		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
 	});
 
-	test("retired collection URLs redirect home", async ({ page }) => {
-		for (const path of [
-			"/gallery",
-			"/gallery/dbt-jobs",
-			"/atelier",
-			"/bookshelf",
-		]) {
-			const response = await page.goto(path);
-			expect(response?.status(), path).toBe(200);
-			expect(new URL(page.url()).pathname, path).toBe("/");
-			await expect(page.locator("body")).not.toContainText(sampleCopy);
-		}
-	});
+	test(
+		"conventional sitemap URLs serve the sitemap index without redirect",
+		{
+			tag: "@smoke",
+		},
+		async ({ request }) => {
+			for (const path of [
+				"/sitemap.xml",
+				"/sitemap_index.xml",
+				"/sitemap-index.xml",
+			]) {
+				const response = await request.fetch(path, { maxRedirects: 0 });
+				expect(response.status(), path).toBe(200);
+				expect(response.headers()["content-type"], path).toMatch(/xml/);
+				const body = await response.text();
+				expect(body, path).toContain("<sitemapindex");
+				expect(body, path).toContain("https://ta93abe.com/sitemap-0.xml");
+				expect(body, path).toContain("https://ta93abe.com/sitemap-blog.xml");
+			}
+		},
+	);
+
+	test(
+		"retired collection URLs redirect home",
+		{ tag: "@smoke" },
+		async ({ page }) => {
+			for (const path of [
+				"/gallery",
+				"/gallery/dbt-jobs",
+				"/atelier",
+				"/bookshelf",
+			]) {
+				const response = await page.goto(path);
+				expect(response?.status(), path).toBe(200);
+				expect(new URL(page.url()).pathname, path).toBe("/");
+				await expect(page.locator("body")).not.toContainText(sampleCopy);
+			}
+		},
+	);
 });

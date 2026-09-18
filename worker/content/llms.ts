@@ -1,32 +1,171 @@
-export function buildSiteOverviewMarkdown(options: {
-	siteUrl: string;
-	siteTitle: string;
-	siteDescription: string;
-}): string {
-	const { siteUrl, siteTitle, siteDescription } = options;
-	return `# ${siteTitle}
+const DEFAULT_ORIGIN = "https://ta93abe.com";
 
-${siteDescription}
+export type LlmsFileListItem = {
+	name: string;
+	path: string;
+	description: string;
+};
+
+export const LLMS_SITE_TITLE = "Takumi Abe / ta93abe";
+export const LLMS_SITE_DESCRIPTION =
+	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
+
+export const LLMS_PRIMARY_SECTIONS: readonly LlmsFileListItem[] = [
+	{
+		name: "About",
+		path: "/about/",
+		description: "Profile of Takumi Abe.",
+	},
+	{
+		name: "Works",
+		path: "/works/",
+		description: "Featured software projects.",
+	},
+	{
+		name: "Blog",
+		path: "/blog/",
+		description: "Technical notes and development logs.",
+	},
+	{
+		name: "Contact",
+		path: "/contact/",
+		description: "How to get in touch.",
+	},
+	{
+		name: "Slides",
+		path: "/slides/",
+		description: "Public talk and lightning-talk decks.",
+	},
+	{
+		name: "Tools",
+		path: "/tools/",
+		description: "Development tools in daily use.",
+	},
+	{
+		name: "Gadgets",
+		path: "/gadgets/",
+		description: "Hardware and everyday objects.",
+	},
+	{
+		name: "Links",
+		path: "/links/",
+		description: "Social and publishing profiles.",
+	},
+];
+
+export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
+	{
+		name: "llms.txt",
+		path: "/llms.txt",
+		description: "Concise site overview for agents.",
+	},
+	{
+		name: "Full agent notes",
+		path: "/llms-full.txt",
+		description:
+			"Same overview plus agent guidance and content-usage preference.",
+	},
+	{
+		name: "API catalog",
+		path: "/.well-known/api-catalog",
+		description: "Machine-readable API catalog.",
+	},
+	{
+		name: "ARD capability manifest",
+		path: "/.well-known/ai-catalog.json",
+		description: "Agentic Resource Discovery capability manifest.",
+	},
+	{
+		name: "MCP server card",
+		path: "/.well-known/mcp/server-card.json",
+		description: "MCP server discovery card.",
+	},
+	{
+		name: "A2A Agent Card",
+		path: "/.well-known/agent-card.json",
+		description: "A2A Agent Card for agent-to-agent discovery.",
+	},
+	{
+		name: "Agent Skills index",
+		path: "/.well-known/agent-skills/index.json",
+		description: "Agent Skills discovery index.",
+	},
+	{
+		name: "Authentication notes",
+		path: "/auth.md",
+		description: "Public-read authentication notes for agents.",
+	},
+	{
+		name: "security.txt",
+		path: "/.well-known/security.txt",
+		description: "Vulnerability disclosure contact.",
+	},
+];
+
+function originBase(origin: string): string {
+	return origin.replace(/\/+$/, "");
+}
+
+export function formatLlmsFileListItem(
+	item: LlmsFileListItem,
+	origin: string = DEFAULT_ORIGIN,
+): string {
+	return `- [${item.name}](${originBase(origin)}${item.path}): ${item.description}`;
+}
+
+function formatFileList(
+	items: readonly LlmsFileListItem[],
+	origin: string,
+): string {
+	return items.map((item) => formatLlmsFileListItem(item, origin)).join("\n");
+}
+
+export function buildLlmsOverviewMarkdown(
+	origin: string,
+	blogSection: string,
+): string {
+	const base = originBase(origin);
+	return `# ${LLMS_SITE_TITLE}
+
+${LLMS_SITE_DESCRIPTION}
 
 ## Primary sections
 
-- About: ${siteUrl}/about/
-- Works: ${siteUrl}/works/
-- Blog: ${siteUrl}/blog/
-- Contact: ${siteUrl}/contact/
-- Slides: ${siteUrl}/slides/
-- Tools: ${siteUrl}/tools/
-- Gadgets: ${siteUrl}/gadgets/
-- Links: ${siteUrl}/links/
+${formatFileList(LLMS_PRIMARY_SECTIONS, base)}
 
 ## Machine-readable resources
 
-- llms.txt: ${siteUrl}/llms.txt
-- Full agent notes: ${siteUrl}/llms-full.txt
-- API catalog: ${siteUrl}/.well-known/api-catalog
-- MCP server card: ${siteUrl}/.well-known/mcp/server-card.json
-- [A2A Agent Card](${siteUrl}/.well-known/agent-card.json): A2A Agent Card for agent-to-agent discovery.
-- Agent Skills index: ${siteUrl}/.well-known/agent-skills/index.json
-- Authentication notes: ${siteUrl}/auth.md
+${formatFileList(LLMS_MACHINE_RESOURCES, base)}
+
+${blogSection}`;
+}
+
+function buildLlmsGuidance(options: {
+	siteUrl: string;
+	siteHost: string;
+	contentSignal: string;
+}): string {
+	const siteUrl = originBase(options.siteUrl);
+	return `## Agent guidance
+
+- This is a public content site. No authentication is required to read the public pages.
+- Prefer canonical URLs on ${options.siteHost}.
+- Use the sitemap at ${siteUrl}/sitemap.xml for crawl discovery.
+- Respect robots.txt and Content-Signal directives.
+
+## Content usage preference
+
+Content-Signal: ${options.contentSignal}
 `;
+}
+
+export function buildLlmsFullText(
+	overview: string,
+	options: {
+		siteUrl: string;
+		siteHost: string;
+		contentSignal: string;
+	},
+): string {
+	return `${overview}\n${buildLlmsGuidance(options)}`;
 }

@@ -12,9 +12,10 @@ import { getContentBucket } from "@/lib/content/bindings";
 import { blogNeighbors, listBlogPosts, loadBlogPost } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
-import { formatDate } from "@/utils/date";
+import { formatDate, toDatetimeAttr } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
 import {
+	generateArticleItemListSchema,
 	generateBlogPostingSchema,
 	generateBreadcrumbSchema,
 	stringifySchema,
@@ -41,8 +42,8 @@ const html = post?.html ?? "";
 
 const readingTime = getReadingTime(body);
 const readingTimeText = formatReadingTime(readingTime);
-const publishedTime = publish_date.toISOString();
-const modifiedTime = revise_date ? revise_date.toISOString() : publishedTime;
+const publishedTime = toDatetimeAttr(publish_date);
+const modifiedTime = revise_date ? toDatetimeAttr(revise_date) : publishedTime;
 const ogImageURL = new URL(`/og/blog/${slug}.png`, Astro.site);
 const site = Astro.site?.href || SITE.url;
 const blogSchema = generateBlogPostingSchema(site, {
@@ -53,11 +54,13 @@ const blogSchema = generateBlogPostingSchema(site, {
 	updatedDate: revise_date,
 	tags,
 	image: ogImageURL.href,
+	body,
 });
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Blog", path: "/blog/" },
 	{ name: title || "Blog", path: `/blog/${slug}/` },
 ]);
+const itemListSchema = generateArticleItemListSchema(body);
 
 if (post) {
 	Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
@@ -88,11 +91,7 @@ if (post) {
   <Fragment slot="head">
     <meta property="article:author" content={SITE.author} />
     <meta property="article:published_time" content={publishedTime} />
-    {
-      revise_date && (
-        <meta property="article:modified_time" content={modifiedTime} />
-      )
-    }
+    <meta property="article:modified_time" content={modifiedTime} />
     {tags.map((tag) => <meta property="article:tag" content={tag} />)}
     <script
       type="application/ld+json"
@@ -102,10 +101,18 @@ if (post) {
       type="application/ld+json"
       set:html={stringifySchema(breadcrumbSchema)}
     />
+    {
+      itemListSchema && (
+        <script
+          type="application/ld+json"
+          set:html={stringifySchema(itemListSchema)}
+        />
+      )
+    }
   </Fragment>
   <main class="mx-auto max-w-3xl px-6 py-12">
     <a
-      href="/blog"
+      href="/blog/"
       class="mb-6 inline-block text-sm tracking-wide text-(--text-muted) hover:text-(--text-primary)"
     >
       ← 一覧へ戻る
@@ -113,17 +120,27 @@ if (post) {
 
     <header class="mb-12 pb-10">
       <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
-        <time class="font-medium">
+        <time class="font-medium" datetime={publishedTime}>
           {formatDate(publish_date)}
         </time>
         {
           revise_date && (
             <>
               <span class="text-(--text-muted)">|</span>
-              <span>更新: {formatDate(revise_date)}</span>
+              <span>
+                更新: <time datetime={modifiedTime}>{formatDate(revise_date)}</time>
+              </span>
             </>
           )
         }
+        <span class="text-(--text-muted)">|</span>
+        <a
+          href={SITE.authorPath}
+          rel="author"
+          class="hover:text-(--text-primary)"
+        >
+          {SITE.author}
+        </a>
         <span class="text-(--text-muted)">|</span>
         <span>{readingTimeText}</span>
       </div>
@@ -159,12 +176,6 @@ if (post) {
 }
 
 <script>
-  declare global {
-    interface Window {
-      posthog?: { capture: (event: string, properties?: Record<string, unknown>) => void };
-    }
-  }
-
   const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" /><path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" /></svg>`;
   const copiedIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /></svg>`;
 
