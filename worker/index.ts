@@ -7,6 +7,7 @@ import {
 	isSitemapIndexAlias,
 } from "../src/lib/content/sitemap-aliases.ts";
 import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
+import { a2aAgentCard } from "./agent-card.ts";
 import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
@@ -19,8 +20,6 @@ import {
 	readLlmsBlogSection,
 } from "./content/derived.ts";
 import {
-	LLMS_SITE_DESCRIPTION,
-	LLMS_SITE_TITLE,
 	buildLlmsFullText,
 	buildLlmsOverviewMarkdown,
 } from "./content/llms.ts";
@@ -57,8 +56,6 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = LLMS_SITE_TITLE;
-const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
 const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
 const WORKER_NON_GET_PATHS = new Set(["/mcp", "/agent/auth"]);
 
@@ -165,8 +162,11 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 ## How to use
 
 1. Start with ${SITE_URL}/llms.txt for a concise overview.
-2. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
-3. Respect robots.txt and Content-Signal preferences.
+2. Use the MCP server at ${SITE_URL}/mcp (card: ${SITE_URL}/.well-known/mcp/server-card.json).
+3. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
+4. Respect robots.txt and Content-Signal preferences.
+
+This site does not implement A2A JSON-RPC methods such as message/send.
 `;
 
 function isHead(request: Request): boolean {
@@ -280,44 +280,6 @@ function apiCatalog() {
 					{
 						href: SITE_URL,
 					},
-				],
-			},
-		],
-	};
-}
-
-function a2aAgentCard() {
-	return {
-		name: SITE_TITLE,
-		description: SITE_DESCRIPTION,
-		url: SITE_URL,
-		version: "1.0.0",
-		capabilities: {
-			streaming: false,
-			pushNotifications: false,
-			stateTransitionHistory: false,
-		},
-		authentication: {
-			schemes: ["none"],
-		},
-		defaultInputModes: ["text"],
-		defaultOutputModes: ["text"],
-		supportedInterfaces: [
-			{
-				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
-				url: `${SITE_URL}/mcp`,
-			},
-		],
-		skills: [
-			{
-				id: "site-overview",
-				name: "Site Overview",
-				description:
-					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
-				tags: ["portfolio", "blog", "discovery"],
-				examples: [
-					"What is ta93abe.com?",
-					"List the public sections of this site.",
 				],
 			},
 		],
