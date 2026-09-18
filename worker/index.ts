@@ -59,6 +59,8 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = LLMS_SITE_TITLE;
 const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
+const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
+const WORKER_NON_GET_PATHS = new Set(["/mcp", "/agent/auth"]);
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -119,7 +121,7 @@ POST ${SITE_URL}/agent/auth
 Accept: application/json
 \`\`\`
 
-The response confirms anonymous public access. You may proceed without storing a secret.
+GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The response confirms anonymous public access. You may proceed without storing a secret.
 
 ## Step 4 — Claim ceremony
 
@@ -441,7 +443,7 @@ async function handleSiteRequest(
 	if (
 		request.method !== "GET" &&
 		request.method !== "HEAD" &&
-		pathname !== "/mcp"
+		!WORKER_NON_GET_PATHS.has(pathname)
 	) {
 		return handle(request, env, ctx);
 	}
@@ -513,6 +515,11 @@ async function handleSiteRequest(
 
 	if (pathname === "/agent/auth") {
 		const method = request.method.toUpperCase();
+		if (method === "OPTIONS") {
+			const headers = new Headers({ Allow: AGENT_AUTH_ALLOW });
+			setGeneratedHeaders(headers);
+			return new Response(null, { status: 204, headers });
+		}
 		if (method !== "GET" && method !== "POST" && method !== "HEAD") {
 			return textResponse(
 				request,
@@ -520,11 +527,13 @@ async function handleSiteRequest(
 				"text/plain; charset=utf-8",
 				{
 					status: 405,
-					headers: { Allow: "GET, POST, HEAD" },
+					headers: { Allow: AGENT_AUTH_ALLOW },
 				},
 			);
 		}
-		return jsonResponse(request, agentAuthRegisterResponse());
+		return jsonResponse(request, agentAuthRegisterResponse(), {
+			headers: { Allow: AGENT_AUTH_ALLOW },
+		});
 	}
 
 	if (pathname === "/.well-known/api-catalog") {
