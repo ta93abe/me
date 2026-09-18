@@ -30,7 +30,7 @@ test.describe("Gadgets page", () => {
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
 		await expect(
 			page.getByRole("link", { name: "Tools" }).first(),
-		).toHaveAttribute("href", "/tools");
+		).toHaveAttribute("href", "/tools/");
 
 		const studio = page.getByRole("link", { name: "Mac Studio M1 Max" });
 		await expect(studio).toBeVisible();
@@ -80,9 +80,9 @@ test.describe("Gadgets page", () => {
 		await expect(page.getByText("Nix の土台")).toBeVisible();
 
 		const thumb = page.locator("[data-gadget-thumb='mac-studio']");
-		expect(isBundledGadgetSrc(await thumb.getAttribute("src"), "mac-studio")).toBe(
-			true,
-		);
+		expect(
+			isBundledGadgetSrc(await thumb.getAttribute("src"), "mac-studio"),
+		).toBe(true);
 		await expect(thumb).toBeVisible();
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		expect(

@@ -37,7 +37,7 @@ const isHome =
 		</div>
 
 		<MobileNav
-			client:load
+			client:media="(max-width: 767px)"
 			links={NAV_LINKS}
 			currentPath={Astro.url.pathname}
 		/>
