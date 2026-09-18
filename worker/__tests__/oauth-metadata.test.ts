@@ -62,8 +62,8 @@ describe("OAuth Protected Resource Metadata", () => {
 		expect(resource.scopes_supported).toEqual(["public:read"]);
 		expect(resource).not.toHaveProperty("jwks_uri");
 
-		expect(as.token_endpoint_auth_methods_supported).toEqual(["none"]);
-		expect(as.response_types_supported).toEqual(["none"]);
+		expect(as.token_endpoint_auth_methods_supported).toEqual([]);
+		expect(as.response_types_supported).toEqual([]);
 		expect(as).not.toHaveProperty("token_endpoint");
 		expect(as).not.toHaveProperty("jwks_uri");
 		expect(as.agent_auth.identity_types_supported).toEqual(["anonymous"]);

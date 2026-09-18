@@ -108,7 +108,6 @@ describe("agent discovery CORS", () => {
 			"/.well-known/api-catalog",
 			"/.well-known/oauth-authorization-server",
 			"/.well-known/oauth-protected-resource",
-			"/.well-known/openid-configuration",
 			"/.well-known/agent-skills/index.json",
 			"/.well-known/agent-card.json",
 			"/llms.txt",

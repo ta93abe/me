@@ -1,3 +1,5 @@
+import { oauthAuthorizationServerMetadata } from "./oauth-discovery.ts";
+
 function agentAuthMetadata(siteUrl: string) {
 	return {
 		skill: `${siteUrl}/auth.md`,
@@ -10,15 +12,11 @@ function agentAuthMetadata(siteUrl: string) {
 }
 
 export function oauthAuthorizationServer(siteUrl: string) {
-	return {
+	return oauthAuthorizationServerMetadata({
 		issuer: siteUrl,
-		// Public-read site: no interactive OAuth login or token minting.
-		// Agents should follow agent_auth.register_uri instead.
-		response_types_supported: ["none"],
-		grant_types_supported: ["urn:workos:agent-auth:grant-type:claim"],
-		token_endpoint_auth_methods_supported: ["none"],
-		agent_auth: agentAuthMetadata(siteUrl),
-	};
+		documentationUrl: `${siteUrl}/auth.md`,
+		agentAuth: agentAuthMetadata(siteUrl),
+	});
 }
 
 export function oauthProtectedResource(siteUrl: string) {

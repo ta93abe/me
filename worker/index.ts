@@ -23,6 +23,10 @@ import {
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
+	AUTH_MD_OIDC_PARAGRAPH,
+	OPENID_CONFIGURATION_PATH,
+} from "./oauth-discovery.ts";
+import {
 	appendHeaderToken,
 	htmlOriginRequest,
 	negotiateHtmlMarkdown,
@@ -92,6 +96,8 @@ async function llmsFullText(env: Env): Promise<string> {
 const AUTH_MD = `# Auth.md
 
 You are an agent. This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
+
+${AUTH_MD_OIDC_PARAGRAPH}
 
 ## Step 1 — Discover
 
@@ -555,10 +561,7 @@ async function handleSiteRequest(
 		return jsonResponse(request, a2aAgentCard());
 	}
 
-	if (
-		pathname === "/.well-known/oauth-authorization-server" ||
-		pathname === "/.well-known/openid-configuration"
-	) {
+	if (pathname === "/.well-known/oauth-authorization-server") {
 		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
 	}
 
@@ -575,6 +578,11 @@ async function handleSiteRequest(
 			},
 			(value, init) => jsonResponse(request, value, init),
 		);
+	}
+
+	// この host は OIDC OP ではない。AS metadata の複製を置かない。
+	if (pathname === OPENID_CONFIGURATION_PATH) {
+		return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
 	}
 
 	// Catch-all after the implemented discovery routes above.
