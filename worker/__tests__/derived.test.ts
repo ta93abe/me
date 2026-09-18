@@ -8,12 +8,18 @@ import {
 	buildBlogSitemapXml,
 	buildLlmsBlogSection,
 	buildSitemapIndexXml,
+	childSitemapLastmod,
 	feedPostsFromEntries,
+	lastmodFromFeedPosts,
+	lastmodFromGeneratedAt,
+	lastmodFromSitemapXml,
+	loadSitemapIndexXml,
 	sitemapUrlEntries,
 	writeDerivedDiscovery,
 	type FeedPost,
 } from "../content/derived.ts";
 import { rebuildContentIndexes } from "../content/index-store.ts";
+import { collectionIndexKey } from "../content/keys.ts";
 import { handleContentQueue } from "../content/queue.ts";
 import { createMemoryR2 } from "./memory-r2.ts";
 
@@ -39,6 +45,33 @@ date: 2026-08-30
 
 Published from R2.
 `;
+
+async function putBlogIndex(
+	bucket: ReturnType<typeof createMemoryR2>,
+	generatedAt: string,
+	posts: Array<{ slug: string; date: string; revise?: string }>,
+): Promise<void> {
+	await bucket.put(
+		collectionIndexKey("blog"),
+		JSON.stringify({
+			collection: "blog",
+			generatedAt,
+			entries: posts.map((post) => ({
+				collection: "blog",
+				slug: post.slug,
+				title: post.slug,
+				excerpt: "note",
+				updatedAt: generatedAt,
+				frontmatter: {
+					title: post.slug,
+					excerpt: "note",
+					date: post.date,
+					...(post.revise ? { revise_date: post.revise } : {}),
+				},
+			})),
+		}),
+	);
+}
 
 describe("derived discovery feeds", () => {
 	it("builds RSS with newest first and escaped XML", () => {
@@ -72,7 +105,33 @@ describe("derived discovery feeds", () => {
 		expect(
 			urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod,
 		).toBe("2026-08-30");
+		expect(
+			urls.find((entry) => entry.loc === "https://ta93abe.com/blog/")?.lastmod,
+		).toBe("2026-08-30");
 		expect(locs.join(" ")).not.toMatch(/gallery|atelier|bookshelf/);
+	});
+
+	it("uses the newest revise_date for the blog index lastmod", () => {
+		const urls = sitemapUrlEntries(
+			[
+				HELLO,
+				{
+					...OLDER,
+					revise_date: new Date("2026-09-16T00:00:00.000Z"),
+				},
+			],
+			"https://ta93abe.com",
+		);
+
+		expect(
+			urls.find((entry) => entry.loc === "https://ta93abe.com/blog/")?.lastmod,
+		).toBe("2026-09-16");
+		expect(
+			urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod,
+		).toBe("2026-08-30");
+		expect(
+			urls.find((entry) => entry.loc.endsWith("/older-note/"))?.lastmod,
+		).toBe("2026-09-16");
 	});
 
 	it("lists published posts in the llms blog section", () => {
@@ -92,9 +151,98 @@ describe("derived discovery feeds", () => {
 	});
 
 	it("points sitemap-index at the static sitemap and the blog sitemap", () => {
-		const xml = buildSitemapIndexXml("https://ta93abe.com");
+		const xml = buildSitemapIndexXml("https://ta93abe.com", {
+			staticSitemap: "2026-09-01",
+			blogSitemap: "2026-09-16",
+		});
 		expect(xml).toContain("https://ta93abe.com/sitemap-0.xml");
 		expect(xml).toContain("https://ta93abe.com/sitemap-blog.xml");
+		expect(xml).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-0.xml<\/loc>\s*<lastmod>2026-09-01<\/lastmod>/,
+		);
+		expect(xml).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-blog.xml<\/loc>\s*<lastmod>2026-09-16<\/lastmod>/,
+		);
+	});
+
+	it("uses the newest lastmod in a child sitemap xml", () => {
+		expect(
+			lastmodFromSitemapXml(`
+				<urlset>
+					<url><lastmod>2026-01-01</lastmod></url>
+					<url><lastmod>2026-09-16T15:00:00.000Z</lastmod></url>
+				</urlset>
+			`),
+		).toBe("2026-09-16");
+	});
+
+	it("uses the newest post lastmod for the blog sitemap", () => {
+		const revised: FeedPost = {
+			...OLDER,
+			revise_date: new Date("2026-09-16T00:00:00.000Z"),
+		};
+		expect(lastmodFromFeedPosts([HELLO, revised])).toBe("2026-09-16");
+	});
+
+	it("prefers Last-Modified over URL lastmods for the static sitemap", () => {
+		expect(
+			childSitemapLastmod(
+				"<urlset><url><lastmod>2026-09-16</lastmod></url></urlset>",
+				"Wed, 01 Apr 2026 12:00:00 GMT",
+				new Date("2026-09-16T00:00:00.000Z"),
+			),
+		).toBe("2026-04-01");
+	});
+
+	it("falls back to URL lastmods when Last-Modified is missing", () => {
+		expect(
+			childSitemapLastmod(
+				"<urlset><url><lastmod>2026-01-01</lastmod></url></urlset>",
+				null,
+				new Date("2026-09-16T00:00:00.000Z"),
+			),
+		).toBe("2026-01-01");
+	});
+
+	it("ignores the empty blog index epoch as a lastmod", () => {
+		expect(lastmodFromGeneratedAt(new Date(0).toISOString())).toBeUndefined();
+	});
+
+	it("uses blog index generatedAt so a backdated post still refreshes lastmod", async () => {
+		const bucket = createMemoryR2();
+		const staticXml =
+			"<urlset><url><lastmod>2026-01-01</lastmod></url></urlset>";
+		await putBlogIndex(bucket, "2026-09-16T00:00:00.000Z", [
+			{ slug: "hello-world", date: "2026-09-16" },
+		]);
+
+		const first = await loadSitemapIndexXml(
+			bucket,
+			"https://ta93abe.com",
+			{ xml: staticXml, lastModified: "Wed, 02 Apr 2026 12:00:00 GMT" },
+			new Date("2026-09-16T00:00:00.000Z"),
+		);
+		expect(first).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-0.xml<\/loc>\s*<lastmod>2026-04-02<\/lastmod>/,
+		);
+		expect(first).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-blog.xml<\/loc>\s*<lastmod>2026-09-16<\/lastmod>/,
+		);
+
+		await putBlogIndex(bucket, "2026-09-18T12:00:00.000Z", [
+			{ slug: "hello-world", date: "2026-09-16" },
+			{ slug: "older-note", date: "2026-08-01" },
+		]);
+
+		const second = await loadSitemapIndexXml(
+			bucket,
+			"https://ta93abe.com",
+			{ xml: staticXml, lastModified: "Wed, 02 Apr 2026 12:00:00 GMT" },
+			new Date("2026-09-16T00:00:00.000Z"),
+		);
+		expect(second).toMatch(
+			/<loc>https:\/\/ta93abe.com\/sitemap-blog.xml<\/loc>\s*<lastmod>2026-09-18<\/lastmod>/,
+		);
 	});
 
 	it("reads dated blog entries from an index payload", () => {

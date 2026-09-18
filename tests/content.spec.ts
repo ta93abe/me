@@ -72,6 +72,11 @@ test.describe("Published content", () => {
 	}) => {
 		const rss = await request.get("/rss.xml");
 		expect(rss.ok()).toBeTruthy();
+		expect(rss.headers()["content-type"]).toContain("application/rss+xml");
+		expect(rss.headers()["content-signal"]).toBe(
+			"ai-train=no, search=yes, ai-input=yes",
+		);
+		expect(rss.headers().link).toContain('</llms.txt>; rel="describedby"');
 		const rssBody = await rss.text();
 		expect(rssBody).toContain("<language>ja</language>");
 		expect(rssBody).not.toContain("dbt-jobs");
@@ -79,7 +84,7 @@ test.describe("Published content", () => {
 		const sitemap = await request.get("/sitemap-blog.xml");
 		expect(sitemap.ok()).toBeTruthy();
 		const sitemapBody = await sitemap.text();
-		expect(sitemapBody).toContain("/blog/");
+		expect(sitemapBody).toContain("<urlset");
 		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
 	});

@@ -17,6 +17,8 @@ export const GET: APIRoute = async ({ site }) => {
 		headers: {
 			"Content-Type": "application/rss+xml; charset=utf-8",
 			"Cache-Control": BLOG_HTML_CACHE_CONTROL,
+			"Content-Signal": "ai-train=no, search=yes, ai-input=yes",
+			Link: '</llms.txt>; rel="describedby"; type="text/plain"',
 		},
 	});
 };

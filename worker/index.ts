@@ -7,6 +7,7 @@ import {
 	isSitemapIndexAlias,
 } from "../src/lib/content/sitemap-aliases.ts";
 import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
+import { a2aAgentCard } from "./agent-card.ts";
 import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
@@ -14,13 +15,8 @@ import {
 import { AGENT_SKILL_PATH, agentSkillsIndex } from "./agent-skills.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
+import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
 import {
-	buildSitemapIndexXml,
-	readLlmsBlogSection,
-} from "./content/derived.ts";
-import {
-	LLMS_SITE_DESCRIPTION,
-	LLMS_SITE_TITLE,
 	buildLlmsFullText,
 	buildLlmsOverviewMarkdown,
 } from "./content/llms.ts";
@@ -38,6 +34,10 @@ import {
 } from "./markdown-response.ts";
 import { handleMcp, mcpServerCard } from "./mcp.ts";
 import {
+	AUTH_MD_OIDC_PARAGRAPH,
+	OPENID_CONFIGURATION_PATH,
+} from "./oauth-discovery.ts";
+import {
 	oauthAuthorizationServer,
 	oauthProtectedResource,
 } from "./oauth-metadata.ts";
@@ -48,6 +48,11 @@ import {
 	parseSlideDeckSlug,
 	parseSlidePdfSlug,
 } from "./slides/pdf.ts";
+import {
+	WELL_KNOWN_JSON_NOT_FOUND,
+	shouldDelegateToAstroHandler,
+	wellKnownMissingKind,
+} from "./well-known.ts";
 
 type CacheStore = { default: Cache };
 
@@ -57,8 +62,7 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = LLMS_SITE_TITLE;
-const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
+const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -93,6 +97,8 @@ const AUTH_MD = `# Auth.md
 
 You are an agent. This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
 
+${AUTH_MD_OIDC_PARAGRAPH}
+
 ## Step 1 — Discover
 
 Fetch Authorization Server and Protected Resource metadata:
@@ -119,7 +125,7 @@ POST ${SITE_URL}/agent/auth
 Accept: application/json
 \`\`\`
 
-The response confirms anonymous public access. You may proceed without storing a secret.
+GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The response confirms anonymous public access. You may proceed without storing a secret.
 
 ## Step 4 — Claim ceremony
 
@@ -163,8 +169,11 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 ## How to use
 
 1. Start with ${SITE_URL}/llms.txt for a concise overview.
-2. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
-3. Respect robots.txt and Content-Signal preferences.
+2. Use the MCP server at ${SITE_URL}/mcp (card: ${SITE_URL}/.well-known/mcp/server-card.json).
+3. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
+4. Respect robots.txt and Content-Signal preferences.
+
+This site does not implement A2A JSON-RPC methods such as message/send.
 `;
 
 function isHead(request: Request): boolean {
@@ -278,44 +287,6 @@ function apiCatalog() {
 					{
 						href: SITE_URL,
 					},
-				],
-			},
-		],
-	};
-}
-
-function a2aAgentCard() {
-	return {
-		name: SITE_TITLE,
-		description: SITE_DESCRIPTION,
-		url: SITE_URL,
-		version: "1.0.0",
-		capabilities: {
-			streaming: false,
-			pushNotifications: false,
-			stateTransitionHistory: false,
-		},
-		authentication: {
-			schemes: ["none"],
-		},
-		defaultInputModes: ["text"],
-		defaultOutputModes: ["text"],
-		supportedInterfaces: [
-			{
-				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
-				url: `${SITE_URL}/mcp`,
-			},
-		],
-		skills: [
-			{
-				id: "site-overview",
-				name: "Site Overview",
-				description:
-					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
-				tags: ["portfolio", "blog", "discovery"],
-				examples: [
-					"What is ta93abe.com?",
-					"List the public sections of this site.",
 				],
 			},
 		],
@@ -438,11 +409,7 @@ async function handleSiteRequest(
 		}
 	}
 
-	if (
-		request.method !== "GET" &&
-		request.method !== "HEAD" &&
-		pathname !== "/mcp"
-	) {
+	if (shouldDelegateToAstroHandler(request.method, pathname)) {
 		return handle(request, env, ctx);
 	}
 
@@ -476,9 +443,25 @@ async function handleSiteRequest(
 	}
 
 	if (pathname === SITEMAP_INDEX_PATH) {
+		let xml: string | undefined;
+		let lastModified: string | null = null;
+		try {
+			const staticSitemap = await env.ASSETS.fetch(
+				new URL("/sitemap-0.xml", request.url),
+			);
+			if (staticSitemap.ok) {
+				xml = await staticSitemap.text();
+				lastModified = staticSitemap.headers.get("Last-Modified");
+			}
+		} catch {
+			// fall through to the request-time lastmod fallback
+		}
 		return textResponse(
 			request,
-			buildSitemapIndexXml(SITE_URL),
+			await loadSitemapIndexXml(env.CONTENT, SITE_URL, {
+				xml,
+				lastModified,
+			}),
 			"application/xml; charset=utf-8",
 			{
 				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
@@ -513,6 +496,11 @@ async function handleSiteRequest(
 
 	if (pathname === "/agent/auth") {
 		const method = request.method.toUpperCase();
+		if (method === "OPTIONS") {
+			const headers = new Headers({ Allow: AGENT_AUTH_ALLOW });
+			setGeneratedHeaders(headers);
+			return new Response(null, { status: 204, headers });
+		}
 		if (method !== "GET" && method !== "POST" && method !== "HEAD") {
 			return textResponse(
 				request,
@@ -520,11 +508,13 @@ async function handleSiteRequest(
 				"text/plain; charset=utf-8",
 				{
 					status: 405,
-					headers: { Allow: "GET, POST, HEAD" },
+					headers: { Allow: AGENT_AUTH_ALLOW },
 				},
 			);
 		}
-		return jsonResponse(request, agentAuthRegisterResponse());
+		return jsonResponse(request, agentAuthRegisterResponse(), {
+			headers: { Allow: AGENT_AUTH_ALLOW },
+		});
 	}
 
 	if (pathname === "/.well-known/api-catalog") {
@@ -571,10 +561,7 @@ async function handleSiteRequest(
 		return jsonResponse(request, a2aAgentCard());
 	}
 
-	if (
-		pathname === "/.well-known/oauth-authorization-server" ||
-		pathname === "/.well-known/openid-configuration"
-	) {
+	if (pathname === "/.well-known/oauth-authorization-server") {
 		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
 	}
 
@@ -593,11 +580,25 @@ async function handleSiteRequest(
 		);
 	}
 
-	// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+	// この host は OIDC OP ではない。AS metadata の複製を置かない。
+	if (pathname === OPENID_CONFIGURATION_PATH) {
+		return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
+	}
+
+	// Catch-all after the implemented discovery routes above.
+	const wellKnownMissing = wellKnownMissingKind(
+		pathname,
+		request.headers.get("Accept"),
+	);
+	if (wellKnownMissing === "json") {
+		return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
+	}
+	if (wellKnownMissing === "text") {
+		return notFoundResponse(request);
+	}
+
+	// Explicit 404 for optional endpoints this site does not implement.
 	if (
-		pathname === "/.well-known/http-message-signatures-directory" ||
-		pathname === "/.well-known/ucp" ||
-		pathname === "/.well-known/acp.json" ||
 		pathname === "/openapi.json" ||
 		pathname === "/api/v1" ||
 		pathname === "/api"

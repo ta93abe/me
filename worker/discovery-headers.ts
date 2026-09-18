@@ -1,15 +1,8 @@
+import { AGENT_DISCOVERY_HTTP_LINK_HEADER } from "../src/config/agent-discovery.ts";
+
 export const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 
-export const DISCOVERY_LINKS = [
-	`</llms.txt>; rel="describedby"; type="text/plain"`,
-	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
-	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/json"`,
-	`</.well-known/ard.json>; rel="ard"; type="application/json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
-	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
-].join(", ");
+export const DISCOVERY_LINKS = AGENT_DISCOVERY_HTTP_LINK_HEADER;
 
 export function appendHeaderToken(value: string | null, token: string): string {
 	if (!value) {
