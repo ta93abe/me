@@ -69,8 +69,9 @@ describe("agent_auth anonymous claim_uri", () => {
 
 		expect(asJson.agent_auth.identity_types_supported).toEqual(["anonymous"]);
 		expect(asJson.agent_auth.anonymous.credential_types_supported).toEqual([
-			"api_key",
+			"none",
 		]);
+		expect(JSON.stringify(asJson.agent_auth)).not.toMatch(/api_key/);
 		expect(asJson.agent_auth.anonymous.claim_uri).toBe(
 			"https://ta93abe.com/agent/claim",
 		);
@@ -123,6 +124,8 @@ describe("agent_auth anonymous claim_uri", () => {
 		expect(markdown).toContain("https://ta93abe.com/agent/claim");
 		expect(markdown).toMatch(/claim_uri/);
 		expect(markdown).toMatch(/## Step 4 — Claim/);
+		expect(markdown).toContain("credential_type: none");
 		expect(markdown).toMatch(/no secret|no credential|no bearer/i);
+		expect(markdown).not.toMatch(/api_key/);
 	});
 });

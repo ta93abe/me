@@ -49,7 +49,11 @@ describe("POST /agent/auth", () => {
 
 		expect(post.status).toBe(200);
 		expect(post.headers.get("Content-Type")).toMatch(/application\/json/);
-		expect(await post.json()).toEqual(await get.json());
+		const body = (await post.json()) as Record<string, unknown>;
+		expect(body).toEqual(await get.json());
+		expect(body.credential_type).toBe("none");
+		expect(body).not.toHaveProperty("api_key");
+		expect(JSON.stringify(body)).not.toMatch(/api_key/);
 		expect(post.headers.get("Allow")).toBe("GET, HEAD, POST, OPTIONS");
 	});
 

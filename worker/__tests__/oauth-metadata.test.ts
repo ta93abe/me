@@ -68,5 +68,9 @@ describe("OAuth Protected Resource Metadata", () => {
 		expect(as).not.toHaveProperty("jwks_uri");
 		expect(as.agent_auth.identity_types_supported).toEqual(["anonymous"]);
 		expect(as.agent_auth.skill).toBe(`${SITE_URL}/auth.md`);
+		expect(as.agent_auth.anonymous.credential_types_supported).toEqual([
+			"none",
+		]);
+		expect(JSON.stringify(as.agent_auth)).not.toMatch(/api_key/);
 	});
 });

@@ -122,7 +122,7 @@ The Authorization Server metadata includes an \`agent_auth\` object. The \`skill
 
 Supported identity type: **anonymous**.
 
-Authorization Server metadata advertises \`identity_types_supported: ["anonymous"]\`, \`anonymous.credential_types_supported\`, and \`anonymous.claim_uri\`. No long-lived secret is required to read public content. Prefer the anonymous path.
+Authorization Server metadata advertises \`identity_types_supported: ["anonymous"]\`, \`anonymous.credential_types_supported: ["none"]\`, and \`anonymous.claim_uri\`. No long-lived secret is required to read public content. Prefer the anonymous path. Do not request or attach an API key.
 
 ## Step 3 — Register
 
@@ -133,7 +133,7 @@ POST ${SITE_URL}/agent/auth
 Accept: application/json
 \`\`\`
 
-GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The response confirms anonymous public access. You may proceed without storing a secret.
+GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The JSON confirms anonymous public access (\`credential_type: none\`). Do not treat the response as a secret, and do not send a bearer token afterward.
 
 ## Step 4 — Claim
 
@@ -241,10 +241,9 @@ function notFoundResponse(request: Request): Response {
 function agentAuthRegisterResponse() {
 	return {
 		identity_type: "anonymous",
-		credential_type: "api_key",
-		api_key: "public",
+		credential_type: "none",
 		scopes: ["public:read"],
-		note: "Public content on ta93abe.com requires no secret. This key is a no-op acknowledgment for agent_auth anonymous registration.",
+		note: "Public content on ta93abe.com requires no authentication, secret, or bearer token.",
 		resources: {
 			home: `${SITE_URL}/`,
 			llms: `${SITE_URL}/llms.txt`,

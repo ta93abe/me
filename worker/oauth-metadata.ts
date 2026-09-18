@@ -6,7 +6,7 @@ function agentAuthMetadata(siteUrl: string) {
 		register_uri: `${siteUrl}/agent/auth`,
 		identity_types_supported: ["anonymous"],
 		anonymous: {
-			credential_types_supported: ["api_key"],
+			credential_types_supported: ["none"],
 			claim_uri: `${siteUrl}/agent/claim`,
 		},
 	};
