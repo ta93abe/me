@@ -7,8 +7,19 @@ import {
 	buildSitemapIndexXml,
 	readLlmsBlogSection,
 } from "./content/derived.ts";
+import {
+	LLMS_SITE_DESCRIPTION,
+	LLMS_SITE_TITLE,
+	buildLlmsFullText,
+	buildLlmsOverviewMarkdown,
+} from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	CONTENT_SIGNAL,
+	DISCOVERY_LINKS,
+	addPublicHtmlDiscoveryHeaders,
+} from "./discovery-headers.ts";
 import { handleMcp, mcpServerCard } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
@@ -26,20 +37,9 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = "Takumi Abe / ta93abe";
-const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
+const SITE_TITLE = LLMS_SITE_TITLE;
+const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
-
-const DISCOVERY_LINKS = [
-	`</llms.txt>; rel="describedby"; type="text/plain"`,
-	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
-	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
-	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
-].join(", ");
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -57,50 +57,17 @@ const SECURITY_HEADERS = {
 
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
-const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
-
-${SITE_DESCRIPTION}
-
-## Primary sections
-
-- About: ${SITE_URL}/about/
-- Works: ${SITE_URL}/works/
-- Blog: ${SITE_URL}/blog/
-- Contact: ${SITE_URL}/contact/
-- Slides: ${SITE_URL}/slides/
-- Tools: ${SITE_URL}/tools/
-- Gadgets: ${SITE_URL}/gadgets/
-- Links: ${SITE_URL}/links/
-
-## Machine-readable resources
-
-- llms.txt: ${SITE_URL}/llms.txt
-- Full agent notes: ${SITE_URL}/llms-full.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
-- Authentication notes: ${SITE_URL}/auth.md
-`;
-
-const LLMS_GUIDANCE = `## Agent guidance
-
-- This is a public content site. No authentication is required to read the public pages.
-- Prefer canonical URLs on ${SITE_HOST}.
-- Use the sitemap at ${SITE_URL}/sitemap-index.xml for crawl discovery.
-- Respect robots.txt and Content-Signal directives.
-
-## Content usage preference
-
-Content-Signal: ${CONTENT_SIGNAL}
-`;
-
 async function siteOverviewMarkdown(env: Env): Promise<string> {
 	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
-	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
+	return buildLlmsOverviewMarkdown(SITE_URL, blogSection);
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
+	return buildLlmsFullText(await siteOverviewMarkdown(env), {
+		siteUrl: SITE_URL,
+		siteHost: SITE_HOST,
+		contentSignal: CONTENT_SIGNAL,
+	});
 }
 
 const AUTH_MD = `# Auth.md
@@ -203,19 +170,6 @@ function acceptsMarkdown(request: Request): boolean {
 	);
 }
 
-function appendHeaderToken(value: string | null, token: string): string {
-	if (!value) {
-		return token;
-	}
-
-	const tokens = value
-		.split(",")
-		.map((part) => part.trim().toLowerCase())
-		.filter(Boolean);
-
-	return tokens.includes(token.toLowerCase()) ? value : `${value}, ${token}`;
-}
-
 function setGeneratedHeaders(headers: Headers): void {
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
 		headers.set(name, value);
@@ -275,32 +229,6 @@ function jsonResponse(
 function notFoundResponse(request: Request): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
-	});
-}
-
-function addHomepageDiscoveryHeaders(
-	request: Request,
-	response: Response,
-): Response {
-	const url = new URL(request.url);
-	if (url.pathname !== "/" && url.pathname !== "/index.html") {
-		return response;
-	}
-
-	const headers = new Headers(response.headers);
-	headers.set(
-		"Link",
-		headers.get("Link")
-			? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
-			: DISCOVERY_LINKS,
-	);
-	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
-	headers.set("Content-Signal", CONTENT_SIGNAL);
-
-	return new Response(response.body, {
-		status: response.status,
-		statusText: response.statusText,
-		headers,
 	});
 }
 
@@ -710,7 +638,7 @@ export default {
 		}
 
 		const response = await fetchAstro(request, env, ctx);
-		return addHomepageDiscoveryHeaders(request, response);
+		return addPublicHtmlDiscoveryHeaders(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
