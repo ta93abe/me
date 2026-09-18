@@ -14,7 +14,9 @@ import {
 	AI_CATALOG_CORS_HEADERS,
 	AI_CATALOG_PATH,
 	ARD_MANIFEST_PATH,
+	DID_WEB_PATH,
 	aiCatalog,
+	didWebDocument,
 	isAiCatalogPath,
 } from "./discovery/ai-catalog.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
@@ -827,6 +829,17 @@ export default {
 				request,
 				JSON.stringify(apiCatalog(), null, 2),
 				"application/linkset+json; charset=utf-8",
+			);
+		}
+
+		if (pathname === DID_WEB_PATH) {
+			return textResponse(
+				request,
+				JSON.stringify(didWebDocument(), null, 2),
+				"application/did+json; charset=utf-8",
+				{
+					headers: AI_CATALOG_CORS_HEADERS,
+				},
 			);
 		}
 

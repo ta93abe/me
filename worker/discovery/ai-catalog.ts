@@ -2,6 +2,8 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = "Takumi Abe / ta93abe";
 
+export const HOST_DID = `did:web:${SITE_HOST}`;
+export const DID_WEB_PATH = "/.well-known/did.json";
 export const AI_CATALOG_PATH = "/.well-known/ai-catalog.json";
 export const ARD_MANIFEST_PATH = "/.well-known/ard.json";
 
@@ -20,12 +22,21 @@ export function isAiCatalogPath(pathname: string): boolean {
 	return (AI_CATALOG_PATHS as readonly string[]).includes(pathname);
 }
 
+export function didWebDocument() {
+	return {
+		"@context": ["https://www.w3.org/ns/did/v1"],
+		id: HOST_DID,
+		alsoKnownAs: [`${SITE_URL}/`],
+		controller: HOST_DID,
+	};
+}
+
 export function aiCatalog() {
 	return {
 		specVersion: "1.0",
 		host: {
 			displayName: SITE_TITLE,
-			identifier: `did:web:${SITE_HOST}`,
+			identifier: HOST_DID,
 			documentationUrl: `${SITE_URL}/llms.txt`,
 		},
 		entries: [

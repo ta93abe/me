@@ -8,7 +8,9 @@ import {
 	AI_CATALOG_CORS_HEADERS,
 	AI_CATALOG_PATH,
 	ARD_MANIFEST_PATH,
+	DID_WEB_PATH,
 	aiCatalog,
+	didWebDocument,
 	isAiCatalogPath,
 } from "../discovery/ai-catalog.ts";
 
@@ -25,6 +27,13 @@ describe("ARD capability manifest", () => {
 		expect(catalog.host.displayName).toBe("Takumi Abe / ta93abe");
 		expect(catalog.host.identifier).toBe("did:web:ta93abe.com");
 		expect(catalog.entries.length).toBeGreaterThan(0);
+	});
+
+	it("publishes a did:web document that matches the catalog host identifier", () => {
+		const did = didWebDocument();
+		expect(did.id).toBe(catalog.host.identifier);
+		expect(did.alsoKnownAs).toContain(`${SITE_URL}/`);
+		expect(DID_WEB_PATH).toBe("/.well-known/did.json");
 	});
 
 	it("points entries at existing discovery documents", () => {
