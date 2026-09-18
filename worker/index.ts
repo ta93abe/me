@@ -11,8 +11,20 @@ import {
 	buildSitemapIndexXml,
 	readLlmsBlogSection,
 } from "./content/derived.ts";
+import {
+	LLMS_SITE_DESCRIPTION,
+	LLMS_SITE_TITLE,
+	buildLlmsFullText,
+	buildLlmsOverviewMarkdown,
+} from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import {
+	CONTENT_SIGNAL,
+	DISCOVERY_LINKS,
+	addPublicHtmlDiscoveryHeaders,
+} from "./discovery-headers.ts";
+import { handleMcp, mcpServerCard } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -29,21 +41,9 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = "Takumi Abe / ta93abe";
-const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-const MCP_ENDPOINT = `${SITE_URL}/mcp`;
+const SITE_TITLE = LLMS_SITE_TITLE;
+const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
 const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
-
-const DISCOVERY_LINKS = [
-	`</llms.txt>; rel="describedby"; type="text/plain"`,
-	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
-	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
-	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
-].join(", ");
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -61,50 +61,17 @@ const SECURITY_HEADERS = {
 
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
-const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
-
-${SITE_DESCRIPTION}
-
-## Primary sections
-
-- About: ${SITE_URL}/about/
-- Works: ${SITE_URL}/works/
-- Blog: ${SITE_URL}/blog/
-- Contact: ${SITE_URL}/contact/
-- Slides: ${SITE_URL}/slides/
-- Tools: ${SITE_URL}/tools/
-- Gadgets: ${SITE_URL}/gadgets/
-- Links: ${SITE_URL}/links/
-
-## Machine-readable resources
-
-- llms.txt: ${SITE_URL}/llms.txt
-- Full agent notes: ${SITE_URL}/llms-full.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
-- Authentication notes: ${SITE_URL}/auth.md
-`;
-
-const LLMS_GUIDANCE = `## Agent guidance
-
-- This is a public content site. No authentication is required to read the public pages.
-- Prefer canonical URLs on ${SITE_HOST}.
-- Use the sitemap at ${SITE_URL}/sitemap-index.xml for crawl discovery.
-- Respect robots.txt and Content-Signal directives.
-
-## Content usage preference
-
-Content-Signal: ${CONTENT_SIGNAL}
-`;
-
 async function siteOverviewMarkdown(env: Env): Promise<string> {
 	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
-	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
+	return buildLlmsOverviewMarkdown(SITE_URL, blogSection);
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
+	return buildLlmsFullText(await siteOverviewMarkdown(env), {
+		siteUrl: SITE_URL,
+		siteHost: SITE_HOST,
+		contentSignal: CONTENT_SIGNAL,
+	});
 }
 
 const AUTH_MD = `# Auth.md
@@ -207,19 +174,6 @@ function acceptsMarkdown(request: Request): boolean {
 	);
 }
 
-function appendHeaderToken(value: string | null, token: string): string {
-	if (!value) {
-		return token;
-	}
-
-	const tokens = value
-		.split(",")
-		.map((part) => part.trim().toLowerCase())
-		.filter(Boolean);
-
-	return tokens.includes(token.toLowerCase()) ? value : `${value}, ${token}`;
-}
-
 function setGeneratedHeaders(headers: Headers): void {
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
 		headers.set(name, value);
@@ -282,32 +236,6 @@ function notFoundResponse(request: Request): Response {
 	});
 }
 
-function addHomepageDiscoveryHeaders(
-	request: Request,
-	response: Response,
-): Response {
-	const url = new URL(request.url);
-	if (url.pathname !== "/" && url.pathname !== "/index.html") {
-		return response;
-	}
-
-	const headers = new Headers(response.headers);
-	headers.set(
-		"Link",
-		headers.get("Link")
-			? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
-			: DISCOVERY_LINKS,
-	);
-	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
-	headers.set("Content-Signal", CONTENT_SIGNAL);
-
-	return new Response(response.body, {
-		status: response.status,
-		statusText: response.statusText,
-		headers,
-	});
-}
-
 async function sha256Digest(value: string): Promise<string> {
 	const bytes = new TextEncoder().encode(value);
 	const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -362,33 +290,6 @@ function apiCatalog() {
 						href: SITE_URL,
 					},
 				],
-			},
-		],
-	};
-}
-
-function mcpServerCard() {
-	return {
-		serverInfo: {
-			name: `${SITE_HOST} site discovery`,
-			version: "1.0.0",
-		},
-		description:
-			"Read-only discovery endpoint for the public ta93abe.com portfolio site.",
-		url: MCP_ENDPOINT,
-		transport: {
-			type: "streamable-http",
-		},
-		capabilities: {
-			tools: true,
-			resources: true,
-		},
-		resources: [
-			{
-				name: "site_overview",
-				uri: `${SITE_URL}/llms.txt`,
-				mimeType: "text/plain",
-				description: "Concise overview of the public site.",
 			},
 		],
 	};
@@ -491,125 +392,6 @@ async function agentSkillsIndex() {
 			},
 		],
 	};
-}
-
-function mcpToolList() {
-	return [
-		{
-			name: "get_site_overview",
-			description:
-				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
-			inputSchema: {
-				type: "object",
-				properties: {},
-				additionalProperties: false,
-			},
-		},
-	];
-}
-
-async function handleMcp(request: Request, env: Env): Promise<Response> {
-	if (request.method.toUpperCase() !== "POST") {
-		return jsonResponse(
-			request,
-			{
-				name: `${SITE_HOST} MCP endpoint`,
-				description: "Send JSON-RPC 2.0 POST requests to use read-only tools.",
-			},
-			{
-				headers: {
-					Allow: "POST",
-				},
-			},
-		);
-	}
-
-	let payload: {
-		id?: string | number | null;
-		method?: string;
-		params?: Record<string, unknown>;
-		jsonrpc?: string;
-	};
-
-	try {
-		payload = await request.json();
-	} catch {
-		return jsonResponse(
-			request,
-			{
-				jsonrpc: "2.0",
-				id: null,
-				error: {
-					code: -32700,
-					message: "Parse error",
-				},
-			},
-			{ status: 400 },
-		);
-	}
-
-	const id = payload.id ?? null;
-
-	if (payload.method === "initialize") {
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				protocolVersion: "2025-06-18",
-				capabilities: {
-					tools: {},
-					resources: {},
-				},
-				serverInfo: mcpServerCard().serverInfo,
-			},
-		});
-	}
-
-	if (payload.method === "tools/list") {
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				tools: mcpToolList(),
-			},
-		});
-	}
-
-	if (payload.method === "tools/call") {
-		const toolName = payload.params?.name;
-		if (toolName !== "get_site_overview") {
-			return jsonResponse(request, {
-				jsonrpc: "2.0",
-				id,
-				error: {
-					code: -32602,
-					message: "Unknown tool",
-				},
-			});
-		}
-
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				content: [
-					{
-						type: "text",
-						text: await siteOverviewMarkdown(env),
-					},
-				],
-			},
-		});
-	}
-
-	return jsonResponse(request, {
-		jsonrpc: "2.0",
-		id,
-		error: {
-			code: -32601,
-			message: "Method not found",
-		},
-	});
 }
 
 function isBlogHtmlPath(pathname: string): boolean {
@@ -844,7 +626,14 @@ export default {
 		}
 
 		if (pathname === "/mcp") {
-			return handleMcp(request, env);
+			return handleMcp(
+				request,
+				{
+					siteOverviewMarkdown: () => siteOverviewMarkdown(env),
+					llmsFullText: () => llmsFullText(env),
+				},
+				(value, init) => jsonResponse(request, value, init),
+			);
 		}
 
 		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
@@ -860,7 +649,7 @@ export default {
 		}
 
 		const response = await fetchAstro(request, env, ctx);
-		return addHomepageDiscoveryHeaders(request, response);
+		return addPublicHtmlDiscoveryHeaders(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {

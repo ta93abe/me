@@ -14,6 +14,11 @@ import {
 	SITEMAP_INDEX_PATH,
 } from "./src/lib/content/sitemap-aliases.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
+import { createStaticSitemapSerializer } from "./src/utils/sitemap-lastmod.ts";
+
+const sitemapSerialize = createStaticSitemapSerializer({
+	rootDir: path.dirname(fileURLToPath(import.meta.url)),
+});
 
 /**
  * Astro の CspResourceEntry 相当。
@@ -55,6 +60,9 @@ export default defineConfig({
 	integrations: [
 		sitemap({
 			filter: (page) => !page.includes("/print") && !page.includes("/og/"),
+			serialize(item) {
+				return sitemapSerialize(item);
+			},
 		}),
 		react(),
 		{
