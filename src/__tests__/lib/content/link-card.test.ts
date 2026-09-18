@@ -86,6 +86,25 @@ describe("fetchLinkCard", () => {
 		expect(card.href).toBe("https://coosenp.ai/app");
 	});
 
+	it("resolves relative og:image against the final response URL", async () => {
+		const response = new Response(
+			`<!doctype html><html><head>
+<meta property="og:title" content="CooSenpAI">
+<meta property="og:image" content="/og.png">
+</head></html>`,
+			{ headers: { "content-type": "text/html; charset=utf-8" } },
+		);
+		Object.defineProperty(response, "url", {
+			value: "https://www.coosenp.ai/app",
+		});
+		const fetchImpl = vi.fn(async () => response);
+
+		const card = await fetchLinkCard("https://coosenp.ai/app", {
+			fetch: fetchImpl,
+		});
+		expect(card.image).toBe("https://www.coosenp.ai/og.png");
+	});
+
 	it("falls back to domain when fetch fails and drops http images", async () => {
 		const fetchImpl = vi.fn(async () => new Response("no", { status: 500 }));
 		const failed = await fetchLinkCard("https://example.com/x", {

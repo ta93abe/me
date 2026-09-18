@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { handleContentApi } from "../content/api.ts";
 import { signContentRequest } from "../content/hmac.ts";
@@ -205,6 +205,62 @@ Published with canonical dates.
 		expect(await env.CONTENT.get("derived/rss-blog.xml")).not.toBeNull();
 		expect(await env.CONTENT.get("derived/sitemap-urls.json")).not.toBeNull();
 		expect(await env.CONTENT.get("derived/llms-blog.txt")).not.toBeNull();
+	});
+
+	it("resolves blog embed cache on put, not on gallery notes", async () => {
+		const env = createContentEnv({ CONTENT_HMAC_SECRET: secret });
+		const fetchImpl = vi.fn(async () => {
+			return new Response(
+				`<!doctype html><html><head>
+<meta property="og:title" content="CooSenpAI">
+</head></html>`,
+				{ headers: { "content-type": "text/html" } },
+			);
+		});
+		vi.stubGlobal("fetch", fetchImpl);
+		try {
+			const blogBody = `---
+title: With card
+excerpt: ogp
+publish_date: 2026-09-18
+---
+
+https://coosenp.ai
+`;
+			const put = await handleContentApi(
+				await signedRequest("PUT", "/api/content/blog/with-card", blogBody),
+				env,
+			);
+			expect(put?.status).toBe(200);
+
+			const listed = await env.CONTENT.list({ prefix: "derived/embeds/" });
+			expect(listed.objects.length).toBe(1);
+			const stored = (await (await env.CONTENT.get(
+				listed.objects[0]!.key,
+			))!.json()) as {
+				link?: { title?: string };
+			};
+			expect(stored.link?.title).toBe("CooSenpAI");
+
+			const galleryBody = `---
+title: Sky
+excerpt: photo
+publish_date: 2026-09-18
+coverImage: https://images.ta93abe.com/content/gallery/sky/cover.jpg
+---
+
+https://example.com
+`;
+			fetchImpl.mockClear();
+			const gallery = await handleContentApi(
+				await signedRequest("PUT", "/api/content/gallery/sky", galleryBody),
+				env,
+			);
+			expect(gallery?.status).toBe(200);
+			expect(fetchImpl).not.toHaveBeenCalled();
+		} finally {
+			vi.unstubAllGlobals();
+		}
 	});
 
 	it("leaves non-content routes to the site worker", async () => {

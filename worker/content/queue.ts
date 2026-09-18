@@ -1,3 +1,4 @@
+import { resolveEmbedsForMarkdownKeys } from "../../src/lib/content/resolve-embeds.ts";
 import { blogHtmlCacheUrls, blogSlugsFromMarkdownKeys } from "./blog-cache.ts";
 import { discoveryCacheUrls, writeDerivedDiscovery } from "./derived.ts";
 import { rebuildContentIndexes } from "./index-store.ts";
@@ -54,6 +55,7 @@ export async function handleContentQueue(
 	if (rebuild) {
 		await rebuildContentIndexes(bucket);
 		await writeDerivedDiscovery(bucket, options?.origin);
+		await resolveEmbedsForMarkdownKeys(bucket, markdownKeys);
 	}
 
 	const blogSlugs = blogSlugsFromMarkdownKeys(markdownKeys);

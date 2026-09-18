@@ -9,6 +9,7 @@ import {
 	toDate,
 	type BlogListItem,
 } from "@/lib/content/blog";
+import { embedObjectKey } from "@/lib/content/embed-cache";
 
 import { createMemoryR2 } from "../../../../worker/__tests__/memory-r2.ts";
 import { rebuildContentIndexes } from "../../../../worker/content/index-store.ts";
@@ -96,6 +97,100 @@ describe("blog content helpers", () => {
 		expect(post?.revise_date?.toISOString()).toBe(
 			new Date("2026-09-08").toISOString(),
 		);
+	});
+
+	it("renders cached embed cards and falls back when the cache misses", async () => {
+		const bucket = createMemoryR2();
+		const markdown = `---
+title: Cards
+excerpt: embed cache
+publish_date: 2026-09-18
+---
+
+https://coosenp.ai
+
+https://x.com/jack/status/20
+
+https://youtu.be/dQw4w9WgXcQ
+`;
+		await bucket.put("md/blog/cards.md", markdown);
+
+		const linkKey = await embedObjectKey("https://coosenp.ai/");
+		const tweetKey = await embedObjectKey("https://x.com/jack/status/20");
+		const youtubeKey = await embedObjectKey(
+			"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		);
+		await bucket.put(
+			linkKey,
+			JSON.stringify({
+				url: "https://coosenp.ai/",
+				kind: "link",
+				fetchedAt: "2026-09-18T00:00:00.000Z",
+				expiresAt: "2026-09-25T00:00:00.000Z",
+				link: {
+					href: "https://coosenp.ai/",
+					title: "CooSenpAI — アレコレソレが通じるAI",
+					description: "helper",
+					image: "https://coosenp.ai/og.png",
+					domain: "coosenp.ai",
+					favicon: "https://coosenp.ai/favicon.png",
+				},
+			}),
+		);
+		await bucket.put(
+			tweetKey,
+			JSON.stringify({
+				url: "https://x.com/jack/status/20",
+				kind: "tweet",
+				fetchedAt: "2026-09-18T00:00:00.000Z",
+				expiresAt: "2026-09-25T00:00:00.000Z",
+				tweet: {
+					id: "20",
+					url: "https://x.com/jack/status/20",
+					text: "just setting up my twttr",
+					createdAt: "2006-03-21T20:50:14.000Z",
+					author: {
+						name: "jack",
+						screenName: "jack",
+						verified: true,
+					},
+					photos: [],
+					entities: [],
+				},
+			}),
+		);
+		await bucket.put(
+			youtubeKey,
+			JSON.stringify({
+				url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+				kind: "youtube",
+				fetchedAt: "2026-09-18T00:00:00.000Z",
+				expiresAt: "2026-09-25T00:00:00.000Z",
+				youtube: {
+					id: "dQw4w9WgXcQ",
+					url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+					title: "Never Gonna Give You Up",
+					authorName: "Rick Astley",
+					thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+				},
+			}),
+		);
+
+		const withCache = await loadBlogPost(bucket, "cards");
+		expect(withCache?.html).toContain("CooSenpAI — アレコレソレが通じるAI");
+		expect(withCache?.html).toContain("just setting up my twttr");
+		expect(withCache?.html).toContain('class="tweet-embed"');
+		expect(withCache?.html).toContain("Never Gonna Give You Up");
+		expect(withCache?.html).toContain('class="youtube-embed"');
+
+		const empty = createMemoryR2();
+		await empty.put("md/blog/cards.md", markdown);
+		const withoutCache = await loadBlogPost(empty, "cards");
+		expect(withoutCache?.html).toContain("embed-card");
+		expect(withoutCache?.html).toContain("coosenp.ai");
+		expect(withoutCache?.html).not.toContain("CooSenpAI");
+		expect(withoutCache?.html).toContain("tweet-embed-fallback");
+		expect(withoutCache?.html).toContain("youtube-embed-fallback");
 	});
 
 	it("rejects invalid slugs and missing objects", async () => {

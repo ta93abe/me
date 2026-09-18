@@ -1,3 +1,4 @@
+import { resolveEmbedsForMarkdown } from "../../src/lib/content/resolve-embeds.ts";
 import {
 	isContentCollection,
 	isValidSlug,
@@ -139,6 +140,9 @@ async function handlePut(
 	});
 	const index = await rebuildContentIndexes(env.CONTENT);
 	await writeDerivedDiscovery(env.CONTENT);
+	if (collection === "blog") {
+		await resolveEmbedsForMarkdown(env.CONTENT, parsed.body, { force: true });
+	}
 
 	return jsonResponse(request, {
 		ok: true,

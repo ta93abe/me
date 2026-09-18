@@ -12,32 +12,30 @@ import "prismjs/components/prism-tsx.js";
 import "prismjs/components/prism-typescript.js";
 import "prismjs/components/prism-yaml.js";
 
+import type { BlogEmbed } from "./embed-cache.ts";
 import {
 	fallbackLinkCard,
-	fetchLinkCard,
 	linkCardHtml,
 	type LinkCardData,
-	type LinkCardFetcher,
 } from "./link-card.ts";
 import { linkBlockStartIndex, matchStandaloneLinkBlock } from "./link-url.ts";
 import {
 	matchStandaloneTweetBlock,
 	tweetBlockStartIndex,
 } from "./tweet-url.ts";
-import { fetchTweetEmbed, tweetEmbedHtml, type TweetFetcher } from "./tweet.ts";
+import { tweetEmbedHtml, type TweetEmbedData } from "./tweet.ts";
 import {
 	matchStandaloneYoutubeBlock,
 	youtubeBlockStartIndex,
 } from "./youtube-url.ts";
-import {
-	fetchYoutubeEmbed,
-	youtubeEmbedHtml,
-	type YoutubeFetcher,
-} from "./youtube.ts";
+import { youtubeEmbedHtml, type YoutubeEmbedData } from "./youtube.ts";
 
-export type { LinkCardFetcher, TweetFetcher, YoutubeFetcher };
-
-const MAX_LINK_FETCHES = 8;
+export type {
+	BlogEmbed,
+	BlogEmbedLink,
+	BlogEmbedTweet,
+	BlogEmbedYoutube,
+} from "./embed-cache.ts";
 
 function escapeHtml(value: string): string {
 	return value
@@ -57,16 +55,9 @@ function renderCode({ text, lang }: { text: string; lang?: string }): string {
 	return `<pre class="${className}"><code class="${className}">${highlighted}</code></pre>\n`;
 }
 
-type EmbedRef = {
-	id: string;
-	href: string;
-};
+type PendingEmbed = BlogEmbed;
 
-type LinkRef = {
-	href: string;
-};
-
-function createTweetExtension(pending: EmbedRef[]) {
+function createTweetExtension(pending: PendingEmbed[]) {
 	return {
 		name: "tweetEmbed",
 		level: "block" as const,
@@ -88,6 +79,7 @@ function createTweetExtension(pending: EmbedRef[]) {
 		renderer(token: { id?: unknown; href?: unknown }) {
 			const index = pending.length;
 			pending.push({
+				kind: "tweet",
 				id: String(token.id ?? ""),
 				href: String(token.href ?? ""),
 			});
@@ -96,7 +88,7 @@ function createTweetExtension(pending: EmbedRef[]) {
 	};
 }
 
-function createYoutubeExtension(pending: EmbedRef[]) {
+function createYoutubeExtension(pending: PendingEmbed[]) {
 	return {
 		name: "youtubeEmbed",
 		level: "block" as const,
@@ -118,6 +110,7 @@ function createYoutubeExtension(pending: EmbedRef[]) {
 		renderer(token: { id?: unknown; href?: unknown }) {
 			const index = pending.length;
 			pending.push({
+				kind: "youtube",
 				id: String(token.id ?? ""),
 				href: String(token.href ?? ""),
 			});
@@ -126,7 +119,7 @@ function createYoutubeExtension(pending: EmbedRef[]) {
 	};
 }
 
-function createLinkExtension(pending: LinkRef[]) {
+function createLinkExtension(pending: PendingEmbed[]) {
 	return {
 		name: "linkCard",
 		level: "block" as const,
@@ -147,6 +140,7 @@ function createLinkExtension(pending: LinkRef[]) {
 		renderer(token: { href?: unknown }) {
 			const index = pending.length;
 			pending.push({
+				kind: "link",
 				href: String(token.href ?? ""),
 			});
 			return `<div data-link-embed="${index}"></div>\n`;
@@ -154,50 +148,8 @@ function createLinkExtension(pending: LinkRef[]) {
 	};
 }
 
-async function fillEmbeds<T>(
-	ids: string[],
-	fetcher: (id: string) => Promise<T | null>,
-): Promise<Map<string, T | null>> {
-	const results = new Map<string, T | null>();
-	await Promise.all(
-		[...new Set(ids)].map(async (id) => {
-			try {
-				results.set(id, await fetcher(id));
-			} catch {
-				results.set(id, null);
-			}
-		}),
-	);
-	return results;
-}
-
-function replaceEmbedPlaceholders(
-	html: string,
-	attribute: string,
-	pending: EmbedRef[],
-	render: (href: string, id: string) => string,
-): string {
-	const pattern = new RegExp(`<div data-${attribute}="(\\d+)"></div>`, "g");
-	return html.replace(pattern, (_match, index: string) => {
-		const ref = pending[Number(index)];
-		if (!ref) {
-			return "";
-		}
-		return render(ref.href, ref.id);
-	});
-}
-
-export async function renderBlogMarkdown(
-	markdown: string,
-	options: {
-		fetchTweet?: TweetFetcher;
-		fetchYoutube?: YoutubeFetcher;
-		fetchLink?: LinkCardFetcher;
-	} = {},
-): Promise<string> {
-	const pendingTweets: EmbedRef[] = [];
-	const pendingYoutube: EmbedRef[] = [];
-	const pendingLinks: LinkRef[] = [];
+function parsePendingEmbeds(markdown: string): PendingEmbed[] {
+	const pending: PendingEmbed[] = [];
 	const marked = new Marked({
 		gfm: true,
 		renderer: {
@@ -206,69 +158,109 @@ export async function renderBlogMarkdown(
 	});
 	marked.use({
 		extensions: [
-			createTweetExtension(pendingTweets),
-			createYoutubeExtension(pendingYoutube),
-			createLinkExtension(pendingLinks),
+			createTweetExtension(pending),
+			createYoutubeExtension(pending),
+			createLinkExtension(pending),
+		],
+	});
+	marked.parse(markdown, { async: false });
+	return pending;
+}
+
+export function collectBlogEmbeds(markdown: string): BlogEmbed[] {
+	const seenTweet = new Set<string>();
+	const seenYoutube = new Set<string>();
+	const seenLink = new Set<string>();
+	const embeds: BlogEmbed[] = [];
+	for (const item of parsePendingEmbeds(markdown)) {
+		if (item.kind === "tweet") {
+			if (seenTweet.has(item.id)) {
+				continue;
+			}
+			seenTweet.add(item.id);
+			embeds.push(item);
+			continue;
+		}
+		if (item.kind === "youtube") {
+			if (seenYoutube.has(item.id)) {
+				continue;
+			}
+			seenYoutube.add(item.id);
+			embeds.push(item);
+			continue;
+		}
+		if (seenLink.has(item.href)) {
+			continue;
+		}
+		seenLink.add(item.href);
+		embeds.push(item);
+	}
+	return embeds;
+}
+
+export type RenderBlogMarkdownOptions = {
+	tweets?: ReadonlyMap<string, TweetEmbedData | null>;
+	videos?: ReadonlyMap<string, YoutubeEmbedData | null>;
+	links?: ReadonlyMap<string, LinkCardData>;
+};
+
+export async function renderBlogMarkdown(
+	markdown: string,
+	options: RenderBlogMarkdownOptions = {},
+): Promise<string> {
+	const pending: PendingEmbed[] = [];
+	const marked = new Marked({
+		gfm: true,
+		renderer: {
+			code: renderCode,
+		},
+	});
+	marked.use({
+		extensions: [
+			createTweetExtension(pending),
+			createYoutubeExtension(pending),
+			createLinkExtension(pending),
 		],
 	});
 
-	let html = marked.parse(markdown, { async: false }) as string;
-	if (
-		pendingTweets.length === 0 &&
-		pendingYoutube.length === 0 &&
-		pendingLinks.length === 0
-	) {
+	const html = marked.parse(markdown, { async: false }) as string;
+	if (pending.length === 0) {
 		return html;
 	}
 
-	const fetchTweet = options.fetchTweet ?? fetchTweetEmbed;
-	const fetchYoutube = options.fetchYoutube ?? fetchYoutubeEmbed;
-	const fetchLink = options.fetchLink ?? fetchLinkCard;
-	const cards = new Map<string, LinkCardData>();
-	const uniqueLinks = [...new Set(pendingLinks.map((ref) => ref.href))];
-	const linksToFetch = uniqueLinks.slice(0, MAX_LINK_FETCHES);
-	for (const href of uniqueLinks.slice(MAX_LINK_FETCHES)) {
-		cards.set(href, fallbackLinkCard(href));
-	}
+	const tweets = options.tweets ?? new Map();
+	const videos = options.videos ?? new Map();
+	const links = options.links ?? new Map();
 
-	const [tweets, videos] = await Promise.all([
-		fillEmbeds(
-			pendingTweets.map((ref) => ref.id),
-			fetchTweet,
-		),
-		fillEmbeds(
-			pendingYoutube.map((ref) => ref.id),
-			fetchYoutube,
-		),
-		...linksToFetch.map(async (href) => {
-			try {
-				cards.set(href, await fetchLink(href));
-			} catch {
-				cards.set(href, fallbackLinkCard(href));
-			}
-		}),
-	]);
-
-	html = replaceEmbedPlaceholders(
-		html,
-		"tweet-embed",
-		pendingTweets,
-		(href, id) => tweetEmbedHtml(href, tweets.get(id) ?? null),
-	);
-	html = replaceEmbedPlaceholders(
-		html,
-		"youtube-embed",
-		pendingYoutube,
-		(href, id) => youtubeEmbedHtml(href, videos.get(id) ?? null),
-	);
-	return html.replace(
-		/<div data-link-embed="(\d+)"><\/div>/g,
-		(_match, index: string) => {
-			const ref = pendingLinks[Number(index)];
-			if (!ref) {
-				return "";
-			}
-			return linkCardHtml(cards.get(ref.href) ?? fallbackLinkCard(ref.href));
-		},
-	);
+	return html
+		.replace(
+			/<div data-tweet-embed="(\d+)"><\/div>/g,
+			(_match, index: string) => {
+				const ref = pending[Number(index)];
+				if (ref?.kind !== "tweet") {
+					return "";
+				}
+				return tweetEmbedHtml(ref.href, tweets.get(ref.id) ?? null);
+			},
+		)
+		.replace(
+			/<div data-youtube-embed="(\d+)"><\/div>/g,
+			(_match, index: string) => {
+				const ref = pending[Number(index)];
+				if (ref?.kind !== "youtube") {
+					return "";
+				}
+				return youtubeEmbedHtml(ref.href, videos.get(ref.id) ?? null);
+			},
+		)
+		.replace(
+			/<div data-link-embed="(\d+)"><\/div>/g,
+			(_match, index: string) => {
+				const ref = pending[Number(index)];
+				if (ref?.kind !== "link") {
+					return "";
+				}
+				return linkCardHtml(links.get(ref.href) ?? fallbackLinkCard(ref.href));
+			},
+		);
 }

@@ -57,13 +57,14 @@ wrangler secret put CONTENT_HMAC_SECRET
 - `derived/rss-blog.xml`
 - `derived/sitemap-urls.json`
 - `derived/llms-blog.txt`
+- `derived/embeds/{sha256(url)}.json`
 
 `me-images`（公開）:
 
 - `content/{collection}/{slug}/{filename}`
 - URL: `https://images.ta93abe.com/content/...`
 
-PUT / DELETE は同期で index と `derived/` を冪等に書き直す。R2 の `md/` 通知は Queue `content-events` でも同じ再構築と Cache purge（`/blog` HTML、`/rss.xml`、sitemap、llms、OG）を行う。
+PUT / DELETE は同期で index と `derived/` を冪等に書き直す。ブログ PUT は本文の単独 URL / X ポスト / YouTube も `derived/embeds/` に解決する。R2 の `md/` 通知は Queue `content-events` でも同じ再構築と Cache purge（`/blog` HTML、`/rss.xml`、sitemap、llms、OG）を行う。TTL 内の embed は Queue 側では取り直さない。再公開（PUT）では取り直す。
 
 `/sitemap-blog.xml` の `/blog/` 一覧 URL の `lastmod` は、公開記事の `revise_date`（なければ `publish_date`）の最大値（YYYY-MM-DD、UTC）にする。記事が 0 件のときは一覧エントリ自体を出さない。この sitemap はリクエスト時生成のため、ビルド時刻は使わない。
 
@@ -103,7 +104,7 @@ curl -sS "$ORIGIN/api/content/index/blog"
 
 ## ブログ本文の X ポスト埋め込み
 
-ポスト URL を単独行に貼ると、公開時に Worker が内容を取得して静的カードにする（widgets.js は使わない）。
+ポスト URL を単独行に貼ると、公開時に Worker が内容を取得して `derived/embeds/{sha256(url)}.json` に書き、静的カードにする（widgets.js は使わない）。表示時はキャッシュを読む。訪問者向けのプロキシは置かない。
 
 ```md
 https://x.com/jack/status/20
@@ -126,7 +127,7 @@ Zenn 記法も使える。
 
 ## ブログ本文の YouTube 埋め込み
 
-動画 URL を単独行に貼ると、公開時に Worker が oEmbed で題名を取得して静的カードにする（iframe は使わない）。
+動画 URL を単独行に貼ると、公開時に Worker が oEmbed で題名を取得して `derived/embeds/{sha256(url)}.json` に書き、静的カードにする（iframe は使わない）。表示時はキャッシュを読む。
 
 ```md
 https://www.youtube.com/watch?v=dQw4w9WgXcQ
@@ -151,7 +152,7 @@ Zenn 記法も使える。
 
 ## ブログ本文の URL カード
 
-ポスト以外の http(s) URL を単独行に貼ると、公開ページで OGP を読んでカードにする。文中のリンクはそのまま。新しい記法は使わない。
+ポスト以外の http(s) URL を単独行に貼ると、公開時に Worker が OGP を取って `derived/embeds/{sha256(url)}.json` に書く。表示はキャッシュを読むだけ。文中のリンクはそのまま。新しい記法は使わない。
 
 ```md
 https://coosenp.ai
@@ -159,4 +160,4 @@ https://coosenp.ai
 [CooSenpAI](https://coosenp.ai)
 ```
 
-タイトル・説明・サムネイル・ドメインを出す。`og:image` は https だけ `<img>` にする。取得 HTML は本文に入れない。失敗時はドメインだけの薄いカードになる。X のステータス URL と YouTube の動画 URL は上の専用埋め込みが優先する。Spotify の専用プレイヤーと、公開時の `derived/embeds` キャッシュはまだ入れていない。
+タイトル・説明・サムネイル・ドメインを出す。`og:image` は最終 URL を基準に解決し、https だけ `<img>` にする。取得 HTML は本文に入れない。キャッシュ欠けるときはドメインだけの薄いカードになる。X のステータス URL と YouTube の動画 URL は上の専用埋め込みが優先する。訪問者向けのプロキシは置かない（Worker が公開時に取る）。Spotify の専用プレイヤーはまだ入れていない。

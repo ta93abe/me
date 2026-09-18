@@ -97,7 +97,7 @@ function iconHref(root: HTMLElement, base: string): string | undefined {
 	return undefined;
 }
 
-function fromHtml(href: string, html: string): LinkCardData {
+function fromHtml(href: string, html: string, base: string): LinkCardData {
 	const fallback = fallbackLinkCard(href);
 	const root = parse(html);
 	const title =
@@ -110,9 +110,9 @@ function fromHtml(href: string, html: string): LinkCardData {
 		metaContent(root, "twitter:description") ||
 		metaContent(root, "description");
 	const image =
-		httpsUrl(metaContent(root, "og:image:secure_url"), href) ??
-		httpsUrl(metaContent(root, "og:image"), href) ??
-		httpsUrl(metaContent(root, "twitter:image"), href);
+		httpsUrl(metaContent(root, "og:image:secure_url"), base) ??
+		httpsUrl(metaContent(root, "og:image"), base) ??
+		httpsUrl(metaContent(root, "twitter:image"), base);
 
 	return {
 		href,
@@ -120,7 +120,7 @@ function fromHtml(href: string, html: string): LinkCardData {
 		description: description.slice(0, 300),
 		image,
 		domain: fallback.domain,
-		favicon: iconHref(root, href) ?? fallback.favicon,
+		favicon: iconHref(root, base) ?? fallback.favicon,
 	};
 }
 
@@ -170,7 +170,8 @@ export async function fetchLinkCard(
 			return fallback;
 		}
 		const html = (await response.text()).slice(0, MAX_HTML_BYTES);
-		return fromHtml(href, html);
+		const base = response.url || href;
+		return fromHtml(href, html, base);
 	} catch {
 		return fallback;
 	}

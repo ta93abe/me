@@ -75,7 +75,7 @@ src/pages/
 
 1. 公開本文は非公開 R2 `me-content`（`md/{collection}/{slug}.md`）
 2. `PUT` / `DELETE /api/content/:collection/:slug` は HMAC-SHA256（本文 + パス + 時刻、時計ずれ 5 分）
-3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index と `derived/` を冪等再構築
+3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index と `derived/` を冪等再構築。ブログ本文の単独 URL / X / YouTube は `derived/embeds/{sha256(url)}.json` に公開時解決する（表示では取らない）
 4. 添付は公開 R2 `me-images` の `content/{collection}/{slug}/...`
 5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
 6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge

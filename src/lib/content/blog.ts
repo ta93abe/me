@@ -15,7 +15,8 @@ import {
 } from "../../../worker/content/index-store.ts";
 import { markdownKey } from "../../../worker/content/keys.ts";
 import { validateFrontmatter } from "../../../worker/content/schema.ts";
-import { renderBlogMarkdown } from "./markdown.ts";
+import { loadEmbedLookups } from "./embed-cache.ts";
+import { collectBlogEmbeds, renderBlogMarkdown } from "./markdown.ts";
 
 export { toDate };
 
@@ -116,6 +117,11 @@ export async function loadBlogPost(
 			return null;
 		}
 
+		const lookups = await loadEmbedLookups(
+			bucket,
+			collectBlogEmbeds(parsed.body),
+		);
+
 		return {
 			slug,
 			title: validated.data.title,
@@ -124,7 +130,7 @@ export async function loadBlogPost(
 			revise_date: toDate(reviseDateValue(validated.data)),
 			tags: tagsFrom(validated.data.tags),
 			body: parsed.body,
-			html: await renderBlogMarkdown(parsed.body),
+			html: await renderBlogMarkdown(parsed.body, lookups),
 		};
 	} catch {
 		return null;
