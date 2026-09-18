@@ -92,12 +92,38 @@ describe("A2A agent.json alias", () => {
 		expect(mcpGet.status).toBe(405);
 		expect(mcpGet.headers.get("Allow")).toBe("POST");
 		expect(mcpGet.headers.get("Content-Type")).toMatch(/text\/plain/);
+		expect(mcpGet.headers.get("Access-Control-Allow-Origin")).toBe("*");
+	});
+
+	it("answers OPTIONS /mcp with 204 CORS instead of 405", async () => {
+		const response = await fetchWorker("/mcp", {
+			method: "OPTIONS",
+			headers: {
+				Origin: "https://example.com",
+				"Access-Control-Request-Method": "POST",
+				"Access-Control-Request-Headers":
+					"content-type,mcp-protocol-version,mcp-session-id",
+			},
+		});
+
+		expect(response.status).toBe(204);
+		expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+		expect(response.headers.get("Access-Control-Allow-Methods")).toBe(
+			"POST, GET, OPTIONS",
+		);
+		expect(response.headers.get("Access-Control-Allow-Headers")).toMatch(
+			/MCP-Protocol-Version/i,
+		);
+		expect(await response.text()).toBe("");
 	});
 
 	it("keeps POST /mcp initialize working", async () => {
 		const response = await fetchWorker("/mcp", {
 			method: "POST",
-			headers: { "content-type": "application/json" },
+			headers: {
+				"content-type": "application/json",
+				Origin: "https://example.com",
+			},
 			body: JSON.stringify({
 				jsonrpc: "2.0",
 				id: 1,
@@ -107,6 +133,7 @@ describe("A2A agent.json alias", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get("content-type")).toMatch(/application\/json/);
+		expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
 		const body = (await response.json()) as {
 			result?: { protocolVersion?: string };
 		};

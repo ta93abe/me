@@ -104,7 +104,7 @@ gallery / atelier / books のサイトページはいったん外している。
 
 `worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）とスライド PDF（`/slides/<slug>.pdf`）を担当する。`run_worker_first: true`。
 
-`/mcp` は MCP Streamable HTTP（2025-06-18）。server-card の `transport.type` は `streamable-http`。POST の JSON-RPC は `Accept: text/event-stream` なら SSE（`event: message`）、それ以外は `application/json`。通知とクライアント応答は 202。初期化応答に `Mcp-Session-Id` を付けるが Worker はステートレスで検証しない。GET はスタンドアロン SSE を提供せず 405 + `Allow: POST`（`text/plain`）。
+`/mcp` は MCP Streamable HTTP（2025-06-18）。server-card の `transport.type` は `streamable-http`。POST の JSON-RPC は `Accept: text/event-stream` なら SSE（`event: message`）、それ以外は `application/json`。通知とクライアント応答は 202。初期化応答に `Mcp-Session-Id` を付けるが Worker はステートレスで検証しない。GET はスタンドアロン SSE を提供せず 405 + `Allow: POST`（`text/plain`）。OPTIONS は 204 と CORS（`Access-Control-Allow-Origin: *`）。GET/POST 応答にも同じ CORS を付ける。
 
 デッキ Markdown は Git `src/slides/decks/`。書き方は `docs/slides-authoring.md`、PDF は `docs/slides-pdf.md`。
 
