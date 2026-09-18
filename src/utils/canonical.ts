@@ -14,7 +14,12 @@ function hasFileExtension(pathname: string): boolean {
 	return last.includes(".");
 }
 
-const PASSTHROUGH_PATHS = new Set(["/mcp", "/agent/auth", "/api"]);
+const PASSTHROUGH_PATHS = new Set([
+	"/mcp",
+	"/agent/auth",
+	"/agent/claim",
+	"/api",
+]);
 const PASSTHROUGH_PREFIXES = ["/.well-known/", "/api/"] as const;
 
 function isPassthroughPath(pathname: string): boolean {

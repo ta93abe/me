@@ -44,7 +44,11 @@ export function shouldDelegateToAstroHandler(
 	if (normalized === "GET" || normalized === "HEAD") {
 		return false;
 	}
-	if (pathname === "/mcp" || pathname === "/agent/auth") {
+	if (
+		pathname === "/mcp" ||
+		pathname === "/agent/auth" ||
+		pathname === "/agent/claim"
+	) {
 		return false;
 	}
 	if (normalized === "OPTIONS" && isWellKnownPath(pathname)) {
