@@ -28,10 +28,14 @@ import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
 	CONTENT_SIGNAL,
-	DISCOVERY_LINKS,
 	addPublicHtmlDiscoveryHeaders,
 } from "./discovery-headers.ts";
 import { aiCatalog } from "./discovery/ai-catalog.ts";
+import {
+	appendHeaderToken,
+	htmlOriginRequest,
+	negotiateHtmlMarkdown,
+} from "./markdown-response.ts";
 import { handleMcp, mcpServerCard } from "./mcp.ts";
 import {
 	oauthAuthorizationServer,
@@ -165,13 +169,6 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 
 function isHead(request: Request): boolean {
 	return request.method.toUpperCase() === "HEAD";
-}
-
-function acceptsMarkdown(request: Request): boolean {
-	return (
-		request.headers.get("Accept")?.toLowerCase().includes("text/markdown") ??
-		false
-	);
 }
 
 function setGeneratedHeaders(headers: Headers): void {
@@ -380,6 +377,7 @@ async function fetchAstro(
 	) {
 		const headers = new Headers(response.headers);
 		headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
+		headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
 		const cached = new Response(response.body, {
 			status: response.status,
 			statusText: response.statusText,
@@ -446,20 +444,6 @@ async function handleSiteRequest(
 		pathname !== "/mcp"
 	) {
 		return handle(request, env, ctx);
-	}
-
-	if (pathname === "/" && acceptsMarkdown(request)) {
-		const overview = await siteOverviewMarkdown(env);
-		return textResponse(request, overview, "text/markdown; charset=utf-8", {
-			headers: {
-				Link: DISCOVERY_LINKS,
-				Vary: "Accept",
-				"Cache-Control": BLOG_HTML_CACHE_CONTROL,
-				"X-Markdown-Tokens": String(
-					overview.split(/\s+/).filter(Boolean).length,
-				),
-			},
-		});
 	}
 
 	if (pathname === "/llms.txt") {
@@ -621,8 +605,12 @@ async function handleSiteRequest(
 		return notFoundResponse(request);
 	}
 
-	const response = await fetchAstro(request, env, ctx);
-	return addPublicHtmlDiscoveryHeaders(request, response);
+	const astroRequest = htmlOriginRequest(request);
+	const response = await fetchAstro(astroRequest, env, ctx);
+	const negotiated = await negotiateHtmlMarkdown(request, response, {
+		contentSignal: CONTENT_SIGNAL,
+	});
+	return addPublicHtmlDiscoveryHeaders(request, negotiated);
 }
 
 export default {
