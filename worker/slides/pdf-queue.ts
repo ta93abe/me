@@ -1,8 +1,4 @@
-import {
-	isAlreadyExistsError,
-	pdfWorkflowId,
-	type PdfJob,
-} from "./pdf.ts";
+import { isAlreadyExistsError, pdfWorkflowId, type PdfJob } from "./pdf.ts";
 
 export async function handlePdfQueue(
 	batch: MessageBatch<PdfJob>,

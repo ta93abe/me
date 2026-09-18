@@ -14,6 +14,42 @@ function hasFileExtension(pathname: string): boolean {
 	return last.includes(".");
 }
 
+const PASSTHROUGH_PATHS = new Set([
+	"/mcp",
+	"/a2a",
+	"/agent/auth",
+	"/agent/claim",
+	"/api",
+]);
+const PASSTHROUGH_PREFIXES = ["/.well-known/", "/api/"] as const;
+
+function isPassthroughPath(pathname: string): boolean {
+	if (PASSTHROUGH_PATHS.has(pathname)) {
+		return true;
+	}
+	return PASSTHROUGH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+/**
+ * HTML ページで末尾スラッシュがないとき、301 先の絶対 URL を返す。
+ * ルート、ファイル、エージェント/API エンドポイントは対象外。
+ */
+export function trailingSlashRedirectUrl(url: URL): URL | null {
+	const { pathname } = url;
+	if (
+		pathname === "/" ||
+		pathname.endsWith("/") ||
+		hasFileExtension(pathname) ||
+		isPassthroughPath(pathname)
+	) {
+		return null;
+	}
+
+	const redirected = new URL(url);
+	redirected.pathname = `${pathname}/`;
+	return redirected;
+}
+
 export function canonicalPageUrl(
 	pathnameOrUrl: string,
 	site: string | URL,
