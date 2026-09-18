@@ -81,6 +81,11 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 		description: "MCP server discovery card.",
 	},
 	{
+		name: "A2A Agent Card",
+		path: "/.well-known/agent-card.json",
+		description: "A2A Agent Card for agent-to-agent discovery.",
+	},
+	{
 		name: "Agent Skills index",
 		path: "/.well-known/agent-skills/index.json",
 		description: "Agent Skills discovery index.",
