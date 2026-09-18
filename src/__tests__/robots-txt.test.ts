@@ -16,6 +16,8 @@ const robotsTxt = readFileSync(
 
 type RobotsGroup = {
 	userAgents: string[];
+	allow: string[];
+	disallow: string[];
 	contentSignal: string | undefined;
 };
 
@@ -45,7 +47,12 @@ function parseRobotsGroups(robots: string): RobotsGroup[] {
 		const userAgent = /^user-agent:\s*(.+)$/i.exec(line);
 		if (userAgent) {
 			if (!current || inRules) {
-				current = { userAgents: [], contentSignal: undefined };
+				current = {
+					userAgents: [],
+					allow: [],
+					disallow: [],
+					contentSignal: undefined,
+				};
 				groups.push(current);
 				inRules = false;
 			}
@@ -65,6 +72,18 @@ function parseRobotsGroups(robots: string): RobotsGroup[] {
 		const signal = /^content-signal:\s*(.+)$/i.exec(line);
 		if (signal) {
 			current.contentSignal = signal[1].trim();
+			continue;
+		}
+
+		const allow = /^allow:\s*(.+)$/i.exec(line);
+		if (allow) {
+			current.allow.push(allow[1].trim());
+			continue;
+		}
+
+		const disallow = /^disallow:\s*(.+)$/i.exec(line);
+		if (disallow) {
+			current.disallow.push(disallow[1].trim());
 		}
 	}
 
@@ -119,6 +138,50 @@ describe("robots.txt Content-Signal groups", () => {
 			/^Sitemap: https:\/\/ta93abe.com\/sitemap\.xml$/m,
 		);
 		expect(robotsTxt).not.toMatch(/Sitemap:.*sitemap-index\.xml/);
+	});
+
+	it("allows search and live-fetch user agents, including Applebot and Meta-ExternalFetcher", () => {
+		const groups = parseRobotsGroups(robotsTxt);
+		const allowed = [
+			"*",
+			"GPTBot",
+			"ChatGPT-User",
+			"OAI-SearchBot",
+			"ClaudeBot",
+			"Claude-Web",
+			"Claude-SearchBot",
+			"Claude-User",
+			"Google-Extended",
+			"PerplexityBot",
+			"CCBot",
+			"Applebot",
+			"Meta-ExternalFetcher",
+		];
+
+		for (const userAgent of allowed) {
+			const group = groups.find((item) => item.userAgents.includes(userAgent));
+			expect(group, `missing Allow group for ${userAgent}`).toBeDefined();
+			expect(group?.allow).toContain("/");
+			expect(group?.disallow).not.toContain("/");
+			expect(group?.contentSignal).toBe(CONTENT_SIGNAL);
+		}
+	});
+
+	it("disallows training-only user agents without dropping Content-Signal", () => {
+		const groups = parseRobotsGroups(robotsTxt);
+		const disallowed = [
+			"Applebot-Extended",
+			"Meta-ExternalAgent",
+			"anthropic-ai",
+		];
+
+		for (const userAgent of disallowed) {
+			const group = groups.find((item) => item.userAgents.includes(userAgent));
+			expect(group, `missing Disallow group for ${userAgent}`).toBeDefined();
+			expect(group?.disallow).toContain("/");
+			expect(group?.allow).not.toContain("/");
+			expect(group?.contentSignal).toBe(CONTENT_SIGNAL);
+		}
 	});
 
 	it("passes the Lighthouse 13.4.1 robots-txt audit", async () => {

@@ -23,6 +23,14 @@ User-agent: Claude-Web
 Allow: /
 Content-Signal: ai-train=no, search=yes, ai-input=yes
 
+User-agent: Claude-SearchBot
+Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+User-agent: Claude-User
+Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 User-agent: Google-Extended
 Allow: /
 Content-Signal: ai-train=no, search=yes, ai-input=yes
@@ -33,6 +41,26 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 User-agent: CCBot
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+User-agent: Applebot
+Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+User-agent: Applebot-Extended
+Disallow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+User-agent: anthropic-ai
+Disallow: /
 Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://ta93abe.com/sitemap.xml
