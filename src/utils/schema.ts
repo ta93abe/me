@@ -2,6 +2,7 @@ import { FEATURED_WORKS, SITE } from "@/config/site";
 import linksData from "@/data/links.json";
 import { withTrailingSlash } from "@/utils/canonical";
 import { toDatetimeAttr } from "@/utils/date";
+import { ogSectionPath } from "@/utils/og/sections";
 
 interface PersonFields {
 	"@type": "Person";
@@ -10,6 +11,7 @@ interface PersonFields {
 	jobTitle: string;
 	description: string;
 	sameAs: string[];
+	image: string;
 }
 
 interface WebSiteSchema {
@@ -96,6 +98,7 @@ function personFields(siteUrl: string): PersonFields {
 		jobTitle: "Software Engineer",
 		description: SITE.tagline,
 		sameAs: linksData.links.map((link) => link.url),
+		image: `${origin}${ogSectionPath("about")}`,
 	};
 }
 
