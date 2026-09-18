@@ -101,5 +101,6 @@ describe("well-known OPTIONS routing", () => {
 			shouldDelegateToAstroHandler("GET", "/.well-known/ai-catalog.json"),
 		).toBe(false);
 		expect(shouldDelegateToAstroHandler("POST", "/mcp")).toBe(false);
+		expect(shouldDelegateToAstroHandler("POST", "/a2a")).toBe(false);
 	});
 });

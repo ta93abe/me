@@ -16,6 +16,7 @@ function hasFileExtension(pathname: string): boolean {
 
 const PASSTHROUGH_PATHS = new Set([
 	"/mcp",
+	"/a2a",
 	"/agent/auth",
 	"/agent/claim",
 	"/api",

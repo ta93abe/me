@@ -92,6 +92,9 @@ describe("trailingSlashRedirectUrl", () => {
 			trailingSlashRedirectUrl(new URL("https://ta93abe.com/mcp")),
 		).toBeNull();
 		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/a2a")),
+		).toBeNull();
+		expect(
 			trailingSlashRedirectUrl(new URL("https://ta93abe.com/agent/auth")),
 		).toBeNull();
 		expect(

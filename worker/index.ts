@@ -4,7 +4,7 @@ import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
 import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
-import { a2aAgentCard } from "./agent-card.ts";
+import { A2A_PATH, a2aAgentCard, handleA2a } from "./agent-card.ts";
 import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
@@ -541,6 +541,12 @@ async function handleSiteRequest(
 				llmsFullText: () => llmsFullText(env),
 			},
 			(value, init) => jsonResponse(request, value, init),
+		);
+	}
+
+	if (pathname === A2A_PATH) {
+		return handleA2a(request, await siteOverviewMarkdown(env), (value, init) =>
+			jsonResponse(request, value, init),
 		);
 	}
 

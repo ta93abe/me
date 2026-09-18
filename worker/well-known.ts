@@ -46,6 +46,7 @@ export function shouldDelegateToAstroHandler(
 	}
 	if (
 		pathname === "/mcp" ||
+		pathname === "/a2a" ||
 		pathname === "/agent/auth" ||
 		pathname === "/agent/claim"
 	) {
