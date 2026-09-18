@@ -16,6 +16,7 @@ test.describe("Sitewide SEO", () => {
 		const html = await pageHtml(request, "/");
 		expect(html).toContain('"@type":"WebSite"');
 		expect(html).toContain('"@type":"Person"');
+		expect(html).toContain('"image":"https://ta93abe.com/og/about.png"');
 		expect(html).toContain("/og/default.png");
 		expect(html).toContain("summary_large_image");
 		expect(html).toContain('href="https://ta93abe.com/"');
