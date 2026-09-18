@@ -90,17 +90,23 @@ test.describe("Published content", () => {
 	});
 
 	test(
-		"conventional sitemap URLs redirect to the sitemap index",
+		"conventional sitemap URLs serve the sitemap index without redirect",
 		{
 			tag: "@smoke",
 		},
 		async ({ request }) => {
-			for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
+			for (const path of [
+				"/sitemap.xml",
+				"/sitemap_index.xml",
+				"/sitemap-index.xml",
+			]) {
 				const response = await request.fetch(path, { maxRedirects: 0 });
-				expect([301, 308], path).toContain(response.status());
-				expect(response.headers()["location"], path).toMatch(
-					/\/sitemap-index\.xml\/?$/,
-				);
+				expect(response.status(), path).toBe(200);
+				expect(response.headers()["content-type"], path).toMatch(/xml/);
+				const body = await response.text();
+				expect(body, path).toContain("<sitemapindex");
+				expect(body, path).toContain("https://ta93abe.com/sitemap-0.xml");
+				expect(body, path).toContain("https://ta93abe.com/sitemap-blog.xml");
 			}
 		},
 	);

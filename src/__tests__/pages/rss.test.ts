@@ -21,7 +21,7 @@ describe("GET /rss.xml", () => {
 		);
 
 		const body = await response.text();
-		expect(body).toContain('<rss version="2.0">');
+		expect(body).toContain('<rss version="2.0"');
 		expect(body).toContain("<language>ja</language>");
 	});
 });

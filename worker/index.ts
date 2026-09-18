@@ -2,10 +2,7 @@ import { handle } from "@astrojs/cloudflare/handler";
 
 import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
-import {
-	SITEMAP_INDEX_PATH,
-	isSitemapIndexAlias,
-} from "../src/lib/content/sitemap-aliases.ts";
+import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
 import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
 import { a2aAgentCard } from "./agent-card.ts";
 import {
@@ -155,7 +152,7 @@ There is nothing to revoke for anonymous public read access.
 ## Public resources
 
 - Homepage: ${SITE_URL}/
-- Sitemap: ${SITE_URL}/sitemap-index.xml
+- Sitemap: ${SITE_URL}/sitemap.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
@@ -178,7 +175,7 @@ Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
 
 1. Start with ${SITE_URL}/llms.txt for a concise overview.
 2. Use the MCP server at ${SITE_URL}/mcp (card: ${SITE_URL}/.well-known/mcp/server-card.json).
-3. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
+3. Use ${SITE_URL}/sitemap.xml for URL discovery.
 4. Respect robots.txt and Content-Signal preferences.
 
 This site does not implement A2A JSON-RPC methods such as message/send.
@@ -311,7 +308,7 @@ function agentAuthRegisterResponse() {
 		resources: {
 			home: `${SITE_URL}/`,
 			llms: `${SITE_URL}/llms.txt`,
-			sitemap: `${SITE_URL}/sitemap-index.xml`,
+			sitemap: `${SITE_URL}/sitemap.xml`,
 		},
 	};
 }
@@ -460,13 +457,9 @@ async function handleSiteRequest(
 	}
 
 	if (
-		isSitemapIndexAlias(pathname) &&
+		isSitemapIndexDocument(pathname) &&
 		(request.method === "GET" || request.method === "HEAD")
 	) {
-		return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
-	}
-
-	if (pathname === SITEMAP_INDEX_PATH) {
 		let xml: string | undefined;
 		let lastModified: string | null = null;
 		try {
