@@ -4,6 +4,7 @@ import {
 	handleMcp,
 	mcpResources,
 	mcpServerCard,
+	mcpToolList,
 	type McpSiteContent,
 } from "../mcp.ts";
 
@@ -66,6 +67,7 @@ describe("MCP resources", () => {
 			resources: mcpResources(),
 		});
 		expect(mcpServerCard().resources).toEqual(mcpResources());
+		expect(mcpServerCard().tools).toEqual(mcpToolList());
 		expect(mcpResources().map((resource) => resource.name)).toEqual([
 			"site_overview",
 			"site_overview_full",
@@ -145,6 +147,27 @@ describe("MCP resources", () => {
 			code: -32602,
 			message: "Invalid params",
 		});
+	});
+
+	it("advertises the same tools on the server card and tools/list", async () => {
+		const listed = await readJson(await postMcp("tools/list"));
+		const tools = mcpToolList();
+
+		expect(listed.result).toEqual({ tools });
+		expect(mcpServerCard().tools).toEqual(tools);
+		expect(mcpServerCard().capabilities.tools).toBe(true);
+		expect(tools).toEqual([
+			{
+				name: "get_site_overview",
+				description:
+					"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
+				inputSchema: {
+					type: "object",
+					properties: {},
+					additionalProperties: false,
+				},
+			},
+		]);
 	});
 
 	it("still lists tools and rejects unknown methods", async () => {

@@ -57,6 +57,7 @@ export function mcpServerCard() {
 			tools: true,
 			resources: true,
 		},
+		tools: mcpToolList(),
 		resources: mcpResources(),
 	};
 }
