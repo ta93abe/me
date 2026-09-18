@@ -1,9 +1,4 @@
-import {
-	deckVersion,
-	PDF_ORIGIN,
-	pdfObjectKey,
-	type PdfJob,
-} from "./pdf.ts";
+import { deckVersion, PDF_ORIGIN, pdfObjectKey, type PdfJob } from "./pdf.ts";
 
 export async function servePdf(
 	request: Request,
@@ -27,8 +22,7 @@ export async function servePdf(
 	if (stored && stored.customMetadata?.version === version) {
 		return new Response(stored.body, {
 			headers: {
-				"content-type":
-					stored.httpMetadata?.contentType ?? "application/pdf",
+				"content-type": stored.httpMetadata?.contentType ?? "application/pdf",
 				"content-disposition": `inline; filename="${slug}.pdf"`,
 				etag: `"${version}"`,
 				"cache-control": "public, max-age=60",

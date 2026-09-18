@@ -2150,7 +2150,7 @@
           "fill": {
             "type": "image",
             "enabled": true,
-            "url": "public/favicon.svg",
+            "url": "public/apple-touch-icon.png",
             "mode": "fill"
           },
           "width": 360,
@@ -2524,7 +2524,7 @@
           "fill": {
             "type": "image",
             "enabled": true,
-            "url": "public/favicon.svg",
+            "url": "public/apple-touch-icon.png",
             "mode": "fill"
           },
           "width": 430,
