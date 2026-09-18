@@ -4,23 +4,18 @@ import GadgetsViewTransitions from "@/components/gadgets/GadgetsViewTransitions.
 import { SITE } from "@/config/site";
 import { GADGETS, gadgetPath } from "@/data/gadgets";
 import Layout from "@/layouts/Layout.astro";
-import { stringifySchema } from "@/utils/schema";
+import {
+	GADGETS_COLLECTION_DESCRIPTION,
+	generateGadgetsItemListSchema,
+	stringifySchema,
+} from "@/utils/schema";
 
-const description =
-	"毎日触っている物。ソフトウェアは Tools に置き、ここでは物だけを置く。";
-
-const itemListSchema = {
-	"@context": "https://schema.org",
-	"@type": "ItemList",
-	name: `Gadgets | ${SITE.name}`,
+const description = GADGETS_COLLECTION_DESCRIPTION;
+const itemListSchema = generateGadgetsItemListSchema(
+	Astro.site?.href || SITE.url,
+	GADGETS,
 	description,
-	itemListElement: GADGETS.map((gadget, index) => ({
-		"@type": "ListItem",
-		position: index + 1,
-		name: gadget.name,
-		url: new URL(gadgetPath(gadget.slug), Astro.site).href,
-	})),
-};
+);
 ---
 
 <Layout title={`Gadgets | ${SITE.name}`} description={description}>
@@ -38,7 +33,7 @@ const itemListSchema = {
 			</h1>
 			<p class="text-lg text-(--text-secondary)">
 				ソフトウェアは
-				<a href="/tools" class="text-(--primary-color) hover:underline">Tools</a>
+				<a href="/tools/" class="text-(--primary-color) hover:underline">Tools</a>
 				に置いています。ここでは毎日触っているものと、そうしている理由だけを置きます。
 			</p>
 		</header>

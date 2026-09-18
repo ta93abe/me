@@ -1,23 +1,25 @@
 import { expect, test } from "@playwright/test";
 
-function isBundledGadgetSrc(src: string | null, slug: string): boolean {
+function isCrawlableGadgetSrc(src: string | null, slug: string): boolean {
 	if (!src) {
+		return false;
+	}
+	if (src.startsWith("data:")) {
 		return false;
 	}
 	if (src.startsWith("/gadgets/") || src.startsWith("/things/")) {
 		return false;
 	}
-	if (src.startsWith("data:image/webp")) {
-		return true;
-	}
-	const isRaster = /\.(webp|png|jpe?g)(?:\?.*)?$/i.test(src);
 	return (
-		isRaster &&
-		(src.includes(slug) ||
-			src.includes("/_astro/") ||
-			src.includes("/src/assets/gadgets/") ||
-			src.includes("/media/gadgets/"))
+		src === `/media/gadgets/${slug}.webp` ||
+		src.endsWith(`/media/gadgets/${slug}.webp`)
 	);
+}
+
+function jsonLdBlocks(html: string): unknown[] {
+	return [
+		...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g),
+	].map(([, json]) => JSON.parse(json ?? "{}") as unknown);
 }
 
 test.describe("Gadgets page", () => {
@@ -30,7 +32,7 @@ test.describe("Gadgets page", () => {
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
 		await expect(
 			page.getByRole("link", { name: "Tools" }).first(),
-		).toHaveAttribute("href", "/tools");
+		).toHaveAttribute("href", "/tools/");
 
 		const studio = page.getByRole("link", { name: "Mac Studio M1 Max" });
 		await expect(studio).toBeVisible();
@@ -39,8 +41,8 @@ test.describe("Gadgets page", () => {
 		await expect(thumb).toBeVisible();
 
 		const src = await thumb.getAttribute("src");
-		expect(isBundledGadgetSrc(src, "mac-studio")).toBe(true);
-		expect(src?.startsWith("data:image/webp")).toBe(true);
+		expect(isCrawlableGadgetSrc(src, "mac-studio")).toBe(true);
+		expect(await thumb.getAttribute("alt")).toBe("Mac Studio M1 Max");
 
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		const naturalWidth = await thumb.evaluate(
@@ -80,9 +82,10 @@ test.describe("Gadgets page", () => {
 		await expect(page.getByText("Nix の土台")).toBeVisible();
 
 		const thumb = page.locator("[data-gadget-thumb='mac-studio']");
-		expect(isBundledGadgetSrc(await thumb.getAttribute("src"), "mac-studio")).toBe(
-			true,
-		);
+		expect(
+			isCrawlableGadgetSrc(await thumb.getAttribute("src"), "mac-studio"),
+		).toBe(true);
+		expect(await thumb.getAttribute("alt")).toBe("Mac Studio M1 Max");
 		await expect(thumb).toBeVisible();
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		expect(
@@ -102,5 +105,99 @@ test.describe("Gadgets page", () => {
 		await page.locator("main").getByRole("link", { name: "Gadgets" }).click();
 		await expect(page).toHaveURL(/\/gadgets\/?$/);
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
+	});
+
+	test("listing ItemList URLs match trailing-slash canonicals", async ({
+		request,
+	}) => {
+		const html = await (await request.get("/gadgets/")).text();
+		const itemList = jsonLdBlocks(html).find(
+			(block) =>
+				typeof block === "object" &&
+				block !== null &&
+				"@type" in block &&
+				block["@type"] === "ItemList",
+		) as
+			| {
+					itemListElement: Array<{ url: string }>;
+			  }
+			| undefined;
+
+		expect(itemList).toBeDefined();
+		const urls = itemList?.itemListElement.map((item) => item.url) ?? [];
+		expect(urls).toEqual(
+			expect.arrayContaining([
+				"https://ta93abe.com/gadgets/oura-ring-5/",
+				"https://ta93abe.com/gadgets/hhkb-type-s/",
+				"https://ta93abe.com/gadgets/mac-studio/",
+			]),
+		);
+		expect(urls.every((url) => url.endsWith("/"))).toBe(true);
+		expect(urls.some((url) => url.endsWith("/gadgets/oura-ring-5"))).toBe(
+			false,
+		);
+	});
+
+	test("detail pages expose Product JSON-LD, crawlable images, and product OG", async ({
+		request,
+	}) => {
+		const cases = [
+			{
+				path: "/gadgets/oura-ring-5/",
+				name: "Oura Ring 5",
+				note: "睡眠と回復を見る。朝いちばんに数字を見る。",
+				brand: "Oura",
+				image: "https://ta93abe.com/media/gadgets/oura-ring-5.webp",
+			},
+			{
+				path: "/gadgets/hhkb-type-s/",
+				name: "HHKB Type-S",
+				note: "いちばん長く触っているもの。静かな打感が仕事のリズムになる。",
+				brand: "HHKB",
+				image: "https://ta93abe.com/media/gadgets/hhkb-type-s.webp",
+			},
+			{
+				path: "/gadgets/mac-studio/",
+				name: "Mac Studio M1 Max",
+				note: "Nix の土台。据え置きのまま。CLI は全部入れ直せる。",
+				brand: "Apple",
+				image: "https://ta93abe.com/media/gadgets/mac-studio.webp",
+			},
+		] as const;
+
+		for (const item of cases) {
+			const html = await (await request.get(item.path)).text();
+			const blocks = jsonLdBlocks(html);
+			const types = blocks.flatMap((block) =>
+				typeof block === "object" && block !== null && "@type" in block
+					? [String(block["@type"])]
+					: [],
+			);
+			expect(types, item.path).toEqual(
+				expect.arrayContaining(["Product", "BreadcrumbList"]),
+			);
+
+			expect(html, item.path).toContain(`"name":"${item.name}"`);
+			expect(html, item.path).toContain(`"description":"${item.note}"`);
+			expect(html, item.path).toContain(`"image":"${item.image}"`);
+			expect(html, item.path).toContain(
+				`"url":"https://ta93abe.com${item.path}"`,
+			);
+			expect(html, item.path).toContain(`"name":"${item.brand}"`);
+			expect(html, item.path).toContain('"@type":"BreadcrumbList"');
+			expect(html, item.path).toContain("https://ta93abe.com/gadgets/");
+
+			expect(html, item.path).toContain(
+				`src="${item.image.replace("https://ta93abe.com", "")}"`,
+			);
+			expect(html, item.path).toContain(`alt="${item.name}"`);
+			expect(html, item.path).not.toContain("data:image/webp");
+
+			expect(html, item.path).toContain('property="og:type" content="product"');
+			expect(html, item.path).toContain(
+				`property="og:image" content="${item.image}"`,
+			);
+			expect(html, item.path).not.toContain("/og/default.png");
+		}
 	});
 });
