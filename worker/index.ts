@@ -15,7 +15,7 @@ import {
 	agentSkillsIndex,
 } from "./agent-skills.ts";
 import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
-import { authMarkdown } from "./auth-md.ts";
+import { agentAuthRegisterResponse, authMarkdown } from "./auth-md.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
@@ -168,20 +168,6 @@ function notFoundResponse(request: Request): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
 	});
-}
-
-function agentAuthRegisterResponse() {
-	return {
-		identity_type: "anonymous",
-		credential_type: "none",
-		scopes: ["public:read"],
-		note: "Public content on ta93abe.com requires no authentication, secret, or bearer token.",
-		resources: {
-			home: `${SITE_URL}/`,
-			llms: `${SITE_URL}/llms.txt`,
-			sitemap: `${SITE_URL}/sitemap.xml`,
-		},
-	};
 }
 
 function agentAuthClaimResponse() {
@@ -404,7 +390,7 @@ async function handleSiteRequest(
 			request,
 			pathname === AGENT_CLAIM_PATH
 				? agentAuthClaimResponse()
-				: agentAuthRegisterResponse(),
+				: agentAuthRegisterResponse(SITE_URL),
 			{ headers: { Allow: AGENT_AUTH_ALLOW } },
 		);
 	}
