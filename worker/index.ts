@@ -445,7 +445,7 @@ async function handleSiteRequest(
 	}
 
 	if (pathname === DID_WEB_PATH) {
-		return textResponse(
+		return discoveryTextResponse(
 			request,
 			JSON.stringify(didWebDocument(), null, 2),
 			"application/did+json; charset=utf-8",

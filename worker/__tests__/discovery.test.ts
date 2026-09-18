@@ -15,6 +15,7 @@ import { createContentEnv } from "./memory-r2.ts";
 const DISCOVERY_PATHS = [
 	"/.well-known/api-catalog",
 	"/.well-known/ai-catalog.json",
+	"/.well-known/did.json",
 	"/.well-known/mcp/server-card.json",
 	"/.well-known/agent-card.json",
 	"/.well-known/agent-skills/index.json",
