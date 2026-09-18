@@ -1,5 +1,9 @@
+import { SITE } from "../../src/config/site.ts";
 import { publishDateValue, reviseDateValue, toDate } from "./dates.ts";
+import { renderFeedHtml, sanitizeFeedHtml } from "./feed-html.ts";
+import { looksLikeMdx, parseMarkdownDocument } from "./frontmatter.ts";
 import { readCollectionIndex, type ContentIndexEntry } from "./index-store.ts";
+import { markdownKey } from "./keys.ts";
 
 export const BLOG_RSS_KEY = "derived/rss-blog.xml";
 export const SITEMAP_URLS_KEY = "derived/sitemap-urls.json";
@@ -13,6 +17,8 @@ export type FeedPost = {
 	excerpt: string;
 	publish_date: Date;
 	revise_date?: Date;
+	tags?: string[];
+	contentHtml?: string;
 };
 
 export type SitemapUrlEntry = {
@@ -34,13 +40,46 @@ function originBase(origin: string): string {
 	return origin.replace(/\/+$/, "");
 }
 
+function isLegalXmlChar(code: number): boolean {
+	return (
+		code === 0x9 ||
+		code === 0xa ||
+		code === 0xd ||
+		(code >= 0x20 && code <= 0xd7ff) ||
+		(code >= 0xe000 && code <= 0xfffd) ||
+		(code >= 0x10000 && code <= 0x10ffff)
+	);
+}
+
+function stripIllegalXmlChars(value: string): string {
+	let result = "";
+	for (const char of value) {
+		if (isLegalXmlChar(char.codePointAt(0) ?? 0)) {
+			result += char;
+		}
+	}
+	return result;
+}
+
 function escapeXml(value: string): string {
-	return value
+	return stripIllegalXmlChars(value)
 		.replaceAll("&", "&amp;")
 		.replaceAll("<", "&lt;")
 		.replaceAll(">", "&gt;")
 		.replaceAll('"', "&quot;")
 		.replaceAll("'", "&apos;");
+}
+
+function tagsFrom(value: unknown): string[] {
+	if (!Array.isArray(value)) {
+		return [];
+	}
+	return value.filter((tag): tag is string => typeof tag === "string");
+}
+
+function cdata(value: string): string {
+	const safe = stripIllegalXmlChars(value).replaceAll("]]>", "]]]]><![CDATA[>");
+	return `<![CDATA[${safe}]]>`;
 }
 
 export function sortFeedPosts(posts: FeedPost[]): FeedPost[] {
@@ -64,9 +103,47 @@ export function feedPostsFromEntries(entries: ContentIndexEntry[]): FeedPost[] {
 			excerpt: entry.excerpt,
 			publish_date,
 			revise_date: toDate(reviseDateValue(entry.frontmatter)),
+			tags: tagsFrom(entry.frontmatter.tags),
 		});
 	}
 	return sortFeedPosts(posts);
+}
+
+async function readPostBodyHtml(
+	bucket: R2Bucket,
+	slug: string,
+): Promise<string | undefined> {
+	const object = await bucket.get(markdownKey("blog", slug));
+	if (!object) {
+		return undefined;
+	}
+
+	const markdown = await object.text();
+	if (looksLikeMdx(markdown)) {
+		return undefined;
+	}
+
+	try {
+		const parsed = parseMarkdownDocument(markdown);
+		return renderFeedHtml(parsed.body);
+	} catch {
+		return undefined;
+	}
+}
+
+export async function withFeedContent(
+	bucket: R2Bucket,
+	posts: FeedPost[],
+): Promise<FeedPost[]> {
+	const result: FeedPost[] = [];
+	for (const post of posts) {
+		result.push({
+			...post,
+			contentHtml:
+				post.contentHtml ?? (await readPostBodyHtml(bucket, post.slug)),
+		});
+	}
+	return result;
 }
 
 export function buildBlogRssXml(
@@ -77,20 +154,32 @@ export function buildBlogRssXml(
 	const items = sortFeedPosts(posts)
 		.map((post) => {
 			const link = `${base}/blog/${post.slug}/`;
+			const categories = (post.tags ?? [])
+				.filter((tag) => tag.length > 0)
+				.map((tag) => `      <category>${escapeXml(tag)}</category>`);
+			const rawContent = post.contentHtml?.trim();
+			const content = rawContent
+				? `      <content:encoded>${cdata(sanitizeFeedHtml(rawContent))}</content:encoded>`
+				: undefined;
 			return [
 				"    <item>",
 				`      <title>${escapeXml(post.title)}</title>`,
 				`      <link>${escapeXml(link)}</link>`,
 				`      <guid>${escapeXml(link)}</guid>`,
 				`      <pubDate>${post.publish_date.toUTCString()}</pubDate>`,
+				`      <dc:creator>${escapeXml(SITE.author)}</dc:creator>`,
 				`      <description>${escapeXml(post.excerpt)}</description>`,
+				...categories,
+				content,
 				"    </item>",
-			].join("\n");
+			]
+				.filter((line): line is string => line !== undefined)
+				.join("\n");
 		})
 		.join("\n");
 
 	return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>ta93abe | Blog</title>
     <link>${escapeXml(`${base}/blog/`)}</link>
@@ -339,7 +428,10 @@ export async function writeDerivedDiscovery(
 	origin: string = DEFAULT_ORIGIN,
 ): Promise<void> {
 	const index = await readCollectionIndex(bucket, "blog");
-	const posts = feedPostsFromEntries(index.entries);
+	const posts = await withFeedContent(
+		bucket,
+		feedPostsFromEntries(index.entries),
+	);
 
 	await bucket.put(BLOG_RSS_KEY, buildBlogRssXml(posts, origin), {
 		httpMetadata: { contentType: "application/rss+xml; charset=utf-8" },

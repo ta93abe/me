@@ -86,6 +86,52 @@ describe("derived discovery feeds", () => {
 		expect(xml).not.toContain("Hello & Friends");
 	});
 
+	it("puts Dublin Core creator, content HTML, and categories on each item", () => {
+		const xml = buildBlogRssXml(
+			[
+				{
+					...HELLO,
+					tags: ["workers", "r2"],
+					contentHtml:
+						"<h2>課金スタック</h2><ul><li>Cursor</li></ul><script>alert(1)</script>",
+				},
+			],
+			"https://ta93abe.com",
+		);
+
+		expect(xml).toContain(
+			'xmlns:content="http://purl.org/rss/1.0/modules/content/"',
+		);
+		expect(xml).toContain('xmlns:dc="http://purl.org/dc/elements/1.1/"');
+		expect(xml).not.toContain("<lastBuildDate>");
+		expect(xml).toContain("<dc:creator>Takumi Abe</dc:creator>");
+		expect(xml).toContain("<category>workers</category>");
+		expect(xml).toContain("<category>r2</category>");
+		expect(xml).toContain("<content:encoded><![CDATA[");
+		expect(xml).toContain("<h2>課金スタック</h2>");
+		expect(xml).toContain("<li>Cursor</li>");
+		expect(xml).not.toContain("<script>");
+		expect(xml).not.toContain("posthog");
+	});
+
+	it("strips XML 1.0 illegal characters from RSS text", () => {
+		const xml = buildBlogRssXml(
+			[
+				{
+					...HELLO,
+					title: `Hello\u000B & Friends`,
+					excerpt: "first\u000Bsecond",
+					contentHtml: "<p>first\u000Bsecond</p>",
+				},
+			],
+			"https://ta93abe.com",
+		);
+
+		expect(xml).not.toContain("\u000B");
+		expect(xml).toContain("Hello &amp; Friends");
+		expect(xml).toContain("firstsecond");
+	});
+
 	it("lists blog URLs and static sections for the sitemap", () => {
 		const urls = sitemapUrlEntries([HELLO], "https://ta93abe.com");
 		const locs = urls.map((entry) => entry.loc);
@@ -315,6 +361,72 @@ describe("derived discovery feeds", () => {
 		expect(await rss!.text()).toContain("hello-world");
 		expect(await sitemap!.text()).toContain("/blog/hello-world/");
 		expect(await llms!.text()).toContain("Hello Workers");
+	});
+
+	it("embeds markdown body HTML in derived RSS without scripts or tweet cards", async () => {
+		const bucket = createMemoryR2();
+		await bucket.put(
+			"md/blog/hello-world.md",
+			`---
+title: Hello Workers
+excerpt: Stage 5 note
+date: 2026-08-30
+---
+
+Published from R2.
+`,
+		);
+		await bucket.put(
+			"md/blog/coding-agent.md",
+			`---
+title: 最近使っているコーディングエージェント
+excerpt: 最近使っているAI関連のサービス
+publish_date: 2026-09-01
+tags:
+  - ai
+---
+
+## 課金スタック
+
+- Cursor
+- Claude Code
+
+https://x.com/jack/status/20
+
+<script>window.posthog.capture("x")</script>
+`,
+		);
+		await bucket.put(
+			"md/blog/snowflake.md",
+			`---
+title: Snowflake メモ
+excerpt: warehouse notes
+publish_date: 2026-08-20
+tags:
+  - snowflake
+  - data
+---
+
+## なぜ warehouse を分けるか
+
+本文。
+`,
+		);
+		await rebuildContentIndexes(bucket);
+		await writeDerivedDiscovery(bucket);
+
+		const xml = await (await bucket.get(BLOG_RSS_KEY))!.text();
+		expect(xml).toContain("<dc:creator>Takumi Abe</dc:creator>");
+		expect(xml.match(/<dc:creator>Takumi Abe<\/dc:creator>/g)?.length).toBe(3);
+		expect(xml).toContain("<p>Published from R2.</p>");
+		expect(xml).toContain("<h2>課金スタック</h2>");
+		expect(xml).toContain("<li>Cursor</li>");
+		expect(xml).toContain("<h2>なぜ warehouse を分けるか</h2>");
+		expect(xml).toContain("<category>snowflake</category>");
+		expect(xml).not.toContain("<script>");
+		expect(xml).not.toContain("posthog");
+		expect(xml).not.toContain("tweet-embed");
+		expect(xml).not.toContain("<lastBuildDate>");
 	});
 
 	it("rebuilds derived files from a queue notification", async () => {

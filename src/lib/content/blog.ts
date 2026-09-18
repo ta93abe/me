@@ -40,6 +40,7 @@ export function toFeedPost(post: BlogListItem): FeedPost {
 		excerpt: post.excerpt,
 		publish_date: post.publish_date,
 		revise_date: post.revise_date,
+		tags: post.tags,
 	};
 }
 
