@@ -1,6 +1,8 @@
 import { FEATURED_WORKS, SITE } from "@/config/site";
 import linksData from "@/data/links.json";
 import { withTrailingSlash } from "@/utils/canonical";
+import { toDatetimeAttr } from "@/utils/date";
+import { ogSectionPath } from "@/utils/og/sections";
 
 interface PersonFields {
 	"@type": "Person";
@@ -9,6 +11,7 @@ interface PersonFields {
 	jobTitle: string;
 	description: string;
 	sameAs: string[];
+	image: string;
 }
 
 interface WebSiteSchema {
@@ -91,10 +94,11 @@ function personFields(siteUrl: string): PersonFields {
 	return {
 		"@type": "Person",
 		name: SITE.author,
-		url: `${origin}/about/`,
+		url: `${origin}${SITE.authorPath}`,
 		jobTitle: "Software Engineer",
 		description: SITE.tagline,
 		sameAs: linksData.links.map((link) => link.url),
+		image: `${origin}${ogSectionPath("about")}`,
 	};
 }
 
@@ -375,11 +379,14 @@ function websitePart(origin: string) {
 }
 
 function toIsoDate(value: Date | string): string {
-	if (value instanceof Date) {
-		return value.toISOString();
+	if (typeof value === "string") {
+		const parsed = new Date(value);
+		if (Number.isNaN(parsed.getTime())) {
+			return value;
+		}
+		return toDatetimeAttr(parsed);
 	}
-	const parsed = new Date(value);
-	return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
+	return toDatetimeAttr(value);
 }
 
 export const ABOUT_DESCRIPTION = SITE.tagline;
@@ -403,7 +410,7 @@ export const generateProfilePageSchema = (
 		"@type": "ProfilePage",
 		name: "About",
 		description,
-		url: `${origin}/about/`,
+		url: `${origin}${SITE.authorPath}`,
 		inLanguage: SITE.lang,
 		mainEntity: personFields(siteUrl),
 		isPartOf: websitePart(origin),

@@ -1,7 +1,6 @@
-import { posthog } from "posthog-js";
-
-declare global {
-	interface Window {
-		posthog?: typeof posthog;
-	}
+interface Window {
+	posthog?: {
+		capture: (event: string, properties?: Record<string, unknown>) => void;
+		startSessionRecording?: () => void;
+	};
 }

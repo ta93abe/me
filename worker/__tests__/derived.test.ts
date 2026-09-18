@@ -5,6 +5,7 @@ import {
 	LLMS_BLOG_KEY,
 	SITEMAP_URLS_KEY,
 	buildBlogRssXml,
+	buildBlogSitemapXml,
 	buildLlmsBlogSection,
 	buildSitemapIndexXml,
 	childSitemapLastmod,
@@ -114,6 +115,13 @@ describe("derived discovery feeds", () => {
 			"[Hello & Friends](https://ta93abe.com/blog/hello-world/)",
 		);
 		expect(section).toContain("最初の <投稿>");
+	});
+
+	it("stamps the blog index with the newest post lastmod", () => {
+		const xml = buildBlogSitemapXml([HELLO, OLDER], "https://ta93abe.com");
+		expect(xml).toMatch(
+			/<loc>https:\/\/ta93abe.com\/blog\/<\/loc>\n    <lastmod>2026-08-30<\/lastmod>/,
+		);
 	});
 
 	it("points sitemap-index at the static sitemap and the blog sitemap", () => {
