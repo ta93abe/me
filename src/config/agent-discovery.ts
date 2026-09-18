@@ -52,6 +52,11 @@ export const AGENT_DISCOVERY_RESOURCES = [
 		path: "/.well-known/agent-card.json",
 		type: "application/json",
 	},
+	{
+		rel: "describedby",
+		path: "/auth.md",
+		type: "text/markdown",
+	},
 ] as const satisfies readonly AgentDiscoveryResource[];
 
 /** HTML `<head>` 専用。RSS は少なくともホームで見えること（TA-902 / TA-915）。 */

@@ -111,6 +111,7 @@ describe("addPublicHtmlDiscoveryHeaders", () => {
 			"/.well-known/mcp/server-card.json",
 		);
 		expect(home.headers.get("Link")).toContain("/.well-known/agent-card.json");
+		expect(home.headers.get("Link")).toContain("/auth.md");
 	});
 
 	it("keeps existing Vary tokens and does not duplicate discovery Link", () => {
