@@ -77,6 +77,50 @@ body:not(.lock-viewport)::after {
 	mix-blend-mode: multiply;
 }
 
+/* Top `/` lock: size to the layout viewport (100%), never 100dvh.
+ * Dynamic/small viewport units and flex-centering against them shift
+ * the hero when the window or URL bar changes height (field CLS). */
+html:has(body.lock-viewport) {
+	height: 100%;
+	overflow: hidden;
+	overscroll-behavior: none;
+}
+
+body.lock-viewport {
+	height: 100%;
+	overflow: hidden;
+	overscroll-behavior: none;
+}
+
+body.lock-viewport #main-content {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+body.lock-viewport .footer-docked {
+	position: fixed;
+	inset-inline: 0;
+	bottom: 0;
+	z-index: 50;
+}
+
+body.lock-viewport .footer-docked > div {
+	padding-block: 0.75rem;
+	flex-wrap: nowrap;
+	gap: 0.75rem 1rem;
+}
+
+body.lock-viewport .footer-docked nav ul {
+	flex-wrap: nowrap;
+}
+
+@media (max-width: 639px) {
+	body.lock-viewport .footer-docked .footer-credit {
+		display: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	body:not(.lock-viewport)::before {
 		opacity: 0.18;

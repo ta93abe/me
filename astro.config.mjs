@@ -15,6 +15,7 @@ import {
 	SITEMAP_INDEX_PATH,
 } from "./src/lib/content/sitemap-aliases.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
+import { optionalFontDisplayPlugin } from "./src/utils/optional-font-display.ts";
 import { createStaticSitemapSerializer } from "./src/utils/sitemap-lastmod.ts";
 
 const sitemapSerialize = createStaticSitemapSerializer({
@@ -135,7 +136,7 @@ export default defineConfig({
 		},
 	},
 	vite: {
-		plugins: [tailwindcss()],
+		plugins: [optionalFontDisplayPlugin(), tailwindcss()],
 		build: {
 			cssCodeSplit: true,
 			rollupOptions: {
