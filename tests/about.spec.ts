@@ -12,6 +12,7 @@ test.describe("About", () => {
 		const html = await res.text();
 		expect(html).toContain('"@type":"Person"');
 		expect(html).toContain('"jobTitle":"Software Engineer"');
+		expect(html).toContain('"image":"https://ta93abe.com/og/about.png"');
 		expect(html).toContain("https://github.com/ta93abe");
 
 		await page.goto("/about");

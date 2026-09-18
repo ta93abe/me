@@ -2,6 +2,12 @@
 
 個人ポートフォリオ/ランディングページプロジェクト。Astro + Tailwind CSS + TypeScriptで構築され、Cloudflare Workersにデプロイされます。
 
+## ドキュメントの読者
+
+- `README.md` は GitHub の外部読者向け。サイトの紹介とローカル起動を書く。Linear、Graphite、Content API、デプロイ変数、エージェント向け手順は書かない。
+- このファイルは、このリポジトリで作業するエージェント向け。
+- 内部設計は `docs/`。
+
 ## プロジェクト概要
 
 このプロジェクトは、モダンなスタティックサイトジェネレータ(Astro)を使用した個人ウェブサイトです。高速なページロード、優れた開発体験、そしてCloudflareエッジネットワークでのグローバル配信を実現しています。
@@ -70,7 +76,7 @@
 
 ### 前提条件
 
-- Node.js 18以降
+- Node.js 22.12 以上
 - pnpm
 
 ### インストール
@@ -139,6 +145,20 @@ npx wrangler deploy
 - ワーカー名: `me`
 - アセットディレクトリ: `./dist` (Astroのビルド出力)
 - 互換性日付: `2026-01-01`
+
+`main` への push で Cloudflare Workers Builds がビルドとデプロイをする。ビルド変数を変えたあとは、ダッシュボードの Retry か新規 push で反映する。
+
+### 環境変数
+
+PostHog 用。`PUBLIC_` 接頭辞の変数は Astro がビルド時に静的 HTML へインライン展開する（実行時の値ではない）。
+
+| 変数 | 用途 |
+| :--- | :--- |
+| `PUBLIC_POSTHOG_PROJECT_TOKEN` | PostHog プロジェクトトークン（`phc_` で始まる publishable key） |
+| `PUBLIC_POSTHOG_HOST` | PostHog ホスト（例: `https://us.i.posthog.com`） |
+
+- ローカル: `.env`（`.env.example` 参照）。`pnpm dev` には不要。`import.meta.env.PROD` が false のため計測しない。
+- 本番: 同じ変数を Cloudflare Workers Builds の Build variables に登録する。未登録だとビルド時に空値になり、計測スニペットは出ない（`src/components/posthog.astro` は本番ビルドかつトークンがあるときだけ出力する）。
 
 ## コード品質
 

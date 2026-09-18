@@ -34,6 +34,16 @@ test.describe("Published content", () => {
 		);
 	});
 
+	test("blog index lists titles without dates or excerpts", async ({
+		page,
+	}) => {
+		await page.goto("/blog");
+
+		await expect(page.locator("main time")).toHaveCount(0);
+		await expect(page.locator("#blog-list").getByText("更新")).toHaveCount(0);
+		await expect(page.locator("#blog-list article p")).toHaveCount(0);
+	});
+
 	test("missing blog slug returns the 404 playground", async ({ page }) => {
 		const response = await page.goto("/blog/does-not-exist");
 
@@ -72,6 +82,18 @@ test.describe("Published content", () => {
 		expect(sitemapBody).toContain("/blog/");
 		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
+	});
+
+	test("conventional sitemap URLs redirect to the sitemap index", async ({
+		request,
+	}) => {
+		for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
+			const response = await request.fetch(path, { maxRedirects: 0 });
+			expect([301, 308], path).toContain(response.status());
+			expect(response.headers()["location"], path).toMatch(
+				/\/sitemap-index\.xml\/?$/,
+			);
+		}
 	});
 
 	test("retired collection URLs redirect home", async ({ page }) => {

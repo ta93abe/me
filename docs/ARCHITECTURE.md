@@ -58,7 +58,7 @@ src/pages/
 └── 404.astro
 ```
 
-`/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。`/works` は代表作ページ。Content API のコレクション契約はそのまま。
+`/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。`/sitemap.xml` と `/sitemap_index.xml` は `/sitemap-index.xml` へ 301 する（`src/middleware.ts`、`astro.config.mjs`、Worker）。`/works` は代表作ページ。Content API のコレクション契約はそのまま。
 
 ## データフロー
 
