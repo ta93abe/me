@@ -43,6 +43,25 @@ describe("WebMCP site overview", () => {
 			"https://ta93abe.com/.well-known/agent-card.json",
 		);
 	});
+
+	it("does not let a caller mutate later get_site_overview results", () => {
+		const first = mcpGetSiteOverviewResult("# first");
+		const discovery = first.structuredContent.discovery as {
+			agentCard?: string;
+		};
+		delete discovery.agentCard;
+		first.structuredContent.sections.pop();
+
+		const second = mcpGetSiteOverviewResult("# second");
+
+		expect(second.structuredContent.discovery.agentCard).toBe(
+			"https://ta93abe.com/.well-known/agent-card.json",
+		);
+		expect(second.structuredContent.sections).toEqual(SITE_OVERVIEW.sections);
+		expect(SITE_OVERVIEW.discovery.agentCard).toBe(
+			"https://ta93abe.com/.well-known/agent-card.json",
+		);
+	});
 });
 
 describe("site overview wiring", () => {

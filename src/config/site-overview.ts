@@ -24,6 +24,14 @@ export const SITE_OVERVIEW = {
 	},
 } as const;
 
+export function getSiteOverview() {
+	return {
+		...SITE_OVERVIEW,
+		sections: [...SITE_OVERVIEW.sections],
+		discovery: { ...SITE_OVERVIEW.discovery },
+	};
+}
+
 export function mcpGetSiteOverviewResult(markdown: string) {
 	return {
 		content: [
@@ -32,6 +40,6 @@ export function mcpGetSiteOverviewResult(markdown: string) {
 				text: markdown,
 			},
 		],
-		structuredContent: { ...SITE_OVERVIEW },
+		structuredContent: getSiteOverview(),
 	};
 }

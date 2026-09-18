@@ -1,4 +1,4 @@
-import { SITE_OVERVIEW } from "../config/site-overview";
+import { getSiteOverview } from "../config/site-overview";
 
 type ModelContext = {
 	registerTool?: (tool: unknown) => void;
@@ -22,7 +22,7 @@ if (!modelContext) {
 			properties: {},
 			additionalProperties: false,
 		},
-		execute: async () => ({ ...SITE_OVERVIEW }),
+		execute: async () => getSiteOverview(),
 		annotations: {
 			readOnlyHint: true,
 		},
