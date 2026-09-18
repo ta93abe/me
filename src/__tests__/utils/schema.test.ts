@@ -34,6 +34,7 @@ describe("generateWebSiteSchema", () => {
 		expect(schema.author.name).toBe("Takumi Abe");
 		expect(schema.author.url).toBe(`${siteUrl}/about/`);
 		expect(schema.author.jobTitle).toBe("Software Engineer");
+		expect(schema.author.image).toBe("https://example.com/og/about.png");
 		expect(schema.author.sameAs).toEqual(
 			expect.arrayContaining([
 				"https://github.com/ta93abe",
@@ -67,6 +68,7 @@ describe("generatePersonSchema", () => {
 		expect(schema.name).toBe("Takumi Abe");
 		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.jobTitle).toBe("Software Engineer");
+		expect(schema.image).toBe("https://example.com/og/about.png");
 		expect(schema.description).toContain(
 			"データ基盤と CI を書くソフトウェアエンジニア",
 		);
@@ -118,6 +120,7 @@ describe("generateSlideDeckSchema", () => {
 		expect(schema.url).toBe("https://example.com/slides/showcase/");
 		expect(schema.image).toBe("https://example.com/og/slides/showcase.png");
 		expect(schema.author.name).toBe("Takumi Abe");
+		expect(schema.author.image).toBe("https://example.com/og/about.png");
 		expect(schema.isPartOf.url).toBe("https://example.com/slides/");
 		expect(schema.encoding).toEqual({
 			"@type": "MediaObject",
@@ -134,6 +137,8 @@ describe("generateProfilePageSchema", () => {
 		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.mainEntity["@type"]).toBe("Person");
 		expect(schema.mainEntity.url).toBe("https://example.com/about/");
+		expect(schema.mainEntity.image).toBe("https://example.com/og/about.png");
+		expect(schema.mainEntity.jobTitle).toBe("Software Engineer");
 	});
 });
 
@@ -143,6 +148,7 @@ describe("generateContactPageSchema", () => {
 		expect(schema["@type"]).toBe("ContactPage");
 		expect(schema.url).toBe("https://example.com/contact/");
 		expect(schema.mainEntity.name).toBe("Takumi Abe");
+		expect(schema.mainEntity.image).toBe("https://example.com/og/about.png");
 	});
 });
 
@@ -222,7 +228,13 @@ describe("generateBlogPostingSchema", () => {
 		expect(schema["@type"]).toBe("BlogPosting");
 		expect(schema.url).toBe("https://example.com/blog/hello-world/");
 		expect(schema.author.url).toBe("https://example.com/about/");
+		expect(schema.author.image).toBe("https://example.com/og/about.png");
+		expect(schema.author.jobTitle).toBe("Software Engineer");
+		expect(schema.author.sameAs).toEqual(
+			expect.arrayContaining(["https://github.com/ta93abe"]),
+		);
 		expect(schema.publisher.name).toBe("Takumi Abe");
+		expect(schema.publisher.image).toBe(schema.author.image);
 		expect(schema.isPartOf.url).toBe("https://example.com/blog/");
 		expect(schema.keywords).toBe("ci");
 	});
