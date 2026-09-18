@@ -27,6 +27,10 @@ import {
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
+	oauthAuthorizationServer,
+	oauthProtectedResource,
+} from "./oauth-metadata.ts";
+import {
 	CONTENT_SIGNAL,
 	DISCOVERY_LINKS,
 	addPublicHtmlDiscoveryHeaders,
@@ -139,18 +143,6 @@ There is nothing to revoke for anonymous public read access.
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
 `;
-
-/** WorkOS auth.md / agent_auth block (shared by AS metadata + docs). */
-function agentAuthMetadata() {
-	return {
-		skill: `${SITE_URL}/auth.md`,
-		register_uri: `${SITE_URL}/agent/auth`,
-		identity_types_supported: ["anonymous"],
-		anonymous: {
-			credential_types_supported: ["api_key"],
-		},
-	};
-}
 
 const AGENT_SKILL_MARKDOWN = `# Site Overview
 
@@ -328,36 +320,6 @@ function a2aAgentCard() {
 				],
 			},
 		],
-	};
-}
-
-function oauthAuthorizationServer() {
-	return {
-		issuer: SITE_URL,
-		// Public-read site: no interactive OAuth login or token minting.
-		// Agents should follow agent_auth.register_uri instead.
-		response_types_supported: ["none"],
-		grant_types_supported: ["urn:workos:agent-auth:grant-type:claim"],
-		token_endpoint_auth_methods_supported: ["none"],
-		agent_auth: agentAuthMetadata(),
-	};
-}
-
-function oauthProtectedResource() {
-	return {
-		resource: SITE_URL,
-		authorization_servers: [
-			`${SITE_URL}/.well-known/oauth-authorization-server`,
-		],
-		scopes_supported: ["public:read"],
-		bearer_methods_supported: ["header"],
-		resource_signing_alg_values_supported: [],
-		agent_auth: {
-			required: false,
-			skill: `${SITE_URL}/auth.md`,
-			description:
-				"ta93abe.com is a public content site. No authentication is required to access public resources.",
-		},
 	};
 }
 
@@ -620,11 +582,11 @@ async function handleSiteRequest(
 		pathname === "/.well-known/oauth-authorization-server" ||
 		pathname === "/.well-known/openid-configuration"
 	) {
-		return jsonResponse(request, oauthAuthorizationServer());
+		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
 	}
 
 	if (pathname === "/.well-known/oauth-protected-resource") {
-		return jsonResponse(request, oauthProtectedResource());
+		return jsonResponse(request, oauthProtectedResource(SITE_URL));
 	}
 
 	if (pathname === "/mcp") {
