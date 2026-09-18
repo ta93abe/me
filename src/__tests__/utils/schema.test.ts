@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import { SITE } from "@/config/site";
+import { toDatetimeAttr } from "@/utils/date";
 import {
+	generateArticleItemListSchema,
 	generateBlogCollectionSchema,
 	generateBlogPostingSchema,
 	generateBreadcrumbSchema,
 	generateContactPageSchema,
+	generateGadgetProductSchema,
+	generateGadgetsItemListSchema,
 	generateLinksCollectionSchema,
 	generatePersonSchema,
 	generateProfilePageSchema,
@@ -34,7 +39,6 @@ describe("generateWebSiteSchema", () => {
 		expect(schema.author.name).toBe("Takumi Abe");
 		expect(schema.author.url).toBe(`${siteUrl}/about/`);
 		expect(schema.author.jobTitle).toBe("Software Engineer");
-		expect(schema.author.image).toBe("https://example.com/og/about.png");
 		expect(schema.author.sameAs).toEqual(
 			expect.arrayContaining([
 				"https://github.com/ta93abe",
@@ -68,7 +72,6 @@ describe("generatePersonSchema", () => {
 		expect(schema.name).toBe("Takumi Abe");
 		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.jobTitle).toBe("Software Engineer");
-		expect(schema.image).toBe("https://example.com/og/about.png");
 		expect(schema.description).toContain(
 			"データ基盤と CI を書くソフトウェアエンジニア",
 		);
@@ -120,7 +123,6 @@ describe("generateSlideDeckSchema", () => {
 		expect(schema.url).toBe("https://example.com/slides/showcase/");
 		expect(schema.image).toBe("https://example.com/og/slides/showcase.png");
 		expect(schema.author.name).toBe("Takumi Abe");
-		expect(schema.author.image).toBe("https://example.com/og/about.png");
 		expect(schema.isPartOf.url).toBe("https://example.com/slides/");
 		expect(schema.encoding).toEqual({
 			"@type": "MediaObject",
@@ -137,8 +139,6 @@ describe("generateProfilePageSchema", () => {
 		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.mainEntity["@type"]).toBe("Person");
 		expect(schema.mainEntity.url).toBe("https://example.com/about/");
-		expect(schema.mainEntity.image).toBe("https://example.com/og/about.png");
-		expect(schema.mainEntity.jobTitle).toBe("Software Engineer");
 	});
 });
 
@@ -148,7 +148,6 @@ describe("generateContactPageSchema", () => {
 		expect(schema["@type"]).toBe("ContactPage");
 		expect(schema.url).toBe("https://example.com/contact/");
 		expect(schema.mainEntity.name).toBe("Takumi Abe");
-		expect(schema.mainEntity.image).toBe("https://example.com/og/about.png");
 	});
 });
 
@@ -228,15 +227,109 @@ describe("generateBlogPostingSchema", () => {
 		expect(schema["@type"]).toBe("BlogPosting");
 		expect(schema.url).toBe("https://example.com/blog/hello-world/");
 		expect(schema.author.url).toBe("https://example.com/about/");
-		expect(schema.author.image).toBe("https://example.com/og/about.png");
-		expect(schema.author.jobTitle).toBe("Software Engineer");
-		expect(schema.author.sameAs).toEqual(
-			expect.arrayContaining(["https://github.com/ta93abe"]),
-		);
 		expect(schema.publisher.name).toBe("Takumi Abe");
-		expect(schema.publisher.image).toBe(schema.author.image);
 		expect(schema.isPartOf.url).toBe("https://example.com/blog/");
 		expect(schema.keywords).toBe("ci");
+	});
+
+	it("adds wordCount and articleBody from the markdown body", () => {
+		const schema = generateBlogPostingSchema("https://example.com/", {
+			slug: "hello-world",
+			title: "Hello World",
+			excerpt: "最初の Pubme 投稿",
+			date: new Date("2026-08-30T00:00:00.000Z"),
+			image: "https://example.com/og/blog/hello-world.png",
+			body: "ブログを始めようじゃないか。",
+		});
+		expect(schema.wordCount).toBeGreaterThan(0);
+		expect(Number.isInteger(schema.wordCount)).toBe(true);
+		expect(schema.articleBody).toContain("ブログを始めようじゃないか");
+		expect(schema.articleBody).not.toContain("Hello World");
+	});
+
+	it("keeps visible datetime and byline aligned with JSON-LD", () => {
+		const date = new Date("2026-08-30T00:00:00.000Z");
+		const updatedDate = new Date("2026-09-16T00:00:00.000Z");
+		const schema = generateBlogPostingSchema("https://example.com/", {
+			slug: "hello-world",
+			title: "Hello",
+			excerpt: "note",
+			date,
+			updatedDate,
+			image: "https://example.com/og/blog/hello-world.png",
+		});
+
+		expect(schema.datePublished).toBe(toDatetimeAttr(date));
+		expect(schema.dateModified).toBe(toDatetimeAttr(updatedDate));
+		expect(schema.author.name).toBe(SITE.author);
+		expect(schema.author.url).toBe(`https://example.com${SITE.authorPath}`);
+	});
+
+	it("falls dateModified back to datePublished when unrevised", () => {
+		const schema = generateBlogPostingSchema("https://example.com/", {
+			slug: "hello-world",
+			title: "Hello",
+			excerpt: "note",
+			date: new Date("2026-08-30T00:00:00.000Z"),
+			image: "https://example.com/og/blog/hello-world.png",
+		});
+		expect(schema.dateModified).toBe(schema.datePublished);
+	});
+
+	it("keeps section copy and tags for a wrap-up post", () => {
+		const body = `9/12, 9/13 と 2 日間にわたって毎年恒例の Snowflake World Tour Tokyo が開催されました。
+
+## Semantic Viewは“作るもの”から“育てるもの”へ
+
+Semantic view は何となく作ってはみたもののになりがち。
+`;
+		const schema = generateBlogPostingSchema("https://example.com/", {
+			slug: "snowflake-world-tour-tokyo-2026",
+			title: "Snowflake World Tour Tokyo に行ってきたよー",
+			excerpt: "いち参加者のラップアップ",
+			date: new Date("2026-09-16T00:00:00.000Z"),
+			image: "https://example.com/og/blog/snowflake.png",
+			tags: ["Snowflake"],
+			body,
+		});
+		expect(schema.wordCount).toBeGreaterThan(0);
+		expect(schema.articleBody).toContain("9/12");
+		expect(schema.articleBody).toContain("Semantic View");
+		expect(schema.keywords).toBe("Snowflake");
+		expect(generateArticleItemListSchema(body)).toBeUndefined();
+	});
+});
+
+describe("generateArticleItemListSchema", () => {
+	it("emits ItemList names for a paid-service bullet list", () => {
+		const schema = generateArticleItemListSchema(`導入
+
+- Claude Pro ($20)
+- ChatGPT Plus (¥3,000)
+- Cursor Pro+ ($60)
+- Devin Pro ($20)
+- OpenCode Go ($10)
+- Google AI Pro (¥29,000 per year)
+`);
+		expect(schema?.["@type"]).toBe("ItemList");
+		expect(schema?.itemListElement.map((item) => item.name)).toEqual([
+			"Claude Pro",
+			"ChatGPT Plus",
+			"Cursor Pro+",
+			"Devin Pro",
+			"OpenCode Go",
+			"Google AI Pro",
+		]);
+		expect(schema?.itemListElement[0]).toMatchObject({
+			"@type": "ListItem",
+			position: 1,
+		});
+	});
+
+	it("returns undefined when the body has no product list", () => {
+		expect(
+			generateArticleItemListSchema("ブログを始めようじゃないか。"),
+		).toBeUndefined();
 	});
 });
 
@@ -250,6 +343,58 @@ describe("generateBreadcrumbSchema", () => {
 			"https://example.com/",
 			"https://example.com/blog/",
 			"https://example.com/blog/hello-world/",
+		]);
+	});
+});
+
+describe("generateGadgetProductSchema", () => {
+	it("emits Product fields with a crawlable image and trailing-slash URL", () => {
+		const schema = generateGadgetProductSchema("https://example.com/", {
+			slug: "oura-ring-5",
+			name: "Oura Ring 5",
+			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
+			image: "https://example.com/media/gadgets/oura-ring-5.webp",
+			brand: "Oura",
+		});
+
+		expect(schema).toEqual({
+			"@context": "https://schema.org",
+			"@type": "Product",
+			name: "Oura Ring 5",
+			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
+			image: "https://example.com/media/gadgets/oura-ring-5.webp",
+			url: "https://example.com/gadgets/oura-ring-5/",
+			brand: { "@type": "Brand", name: "Oura" },
+		});
+	});
+});
+
+describe("generateGadgetsItemListSchema", () => {
+	it("lists gadget URLs with trailing slashes", () => {
+		const schema = generateGadgetsItemListSchema(
+			"https://example.com/",
+			[
+				{ slug: "oura-ring-5", name: "Oura Ring 5" },
+				{ slug: "hhkb-type-s", name: "HHKB Type-S" },
+			],
+			"毎日触っている物。",
+		);
+
+		expect(schema["@type"]).toBe("ItemList");
+		expect(schema.url).toBe("https://example.com/gadgets/");
+		expect(schema.itemListElement).toEqual([
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "Oura Ring 5",
+				url: "https://example.com/gadgets/oura-ring-5/",
+			},
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: "HHKB Type-S",
+				url: "https://example.com/gadgets/hhkb-type-s/",
+			},
 		]);
 	});
 });

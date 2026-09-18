@@ -70,6 +70,30 @@ describe("A2A agent.json alias", () => {
 		expect(await alias.json()).toEqual(await canonical.json());
 	});
 
+	it("answers POST /a2a message/send and keeps GET /mcp as 405", async () => {
+		const a2a = await fetchWorker("/a2a", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				jsonrpc: "2.0",
+				id: 1,
+				method: "message/send",
+			}),
+		});
+		const mcpGet = await fetchWorker("/mcp", { method: "GET" });
+
+		expect(a2a.status).toBe(200);
+		const a2aBody = (await a2a.json()) as {
+			result?: { kind?: string; parts?: { text?: string }[] };
+		};
+		expect(a2aBody.result?.kind).toBe("message");
+		expect(a2aBody.result?.parts?.[0]?.text).toMatch(/Takumi Abe/);
+
+		expect(mcpGet.status).toBe(405);
+		expect(mcpGet.headers.get("Allow")).toBe("POST");
+		expect(mcpGet.headers.get("Content-Type")).toMatch(/text\/plain/);
+	});
+
 	it("keeps POST /mcp initialize working", async () => {
 		const response = await fetchWorker("/mcp", {
 			method: "POST",

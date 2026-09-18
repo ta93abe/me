@@ -73,12 +73,17 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 	{
 		name: "ARD capability manifest",
 		path: "/.well-known/ai-catalog.json",
-		description: "Agentic Resource Discovery catalog.",
+		description: "Agentic Resource Discovery capability manifest.",
 	},
 	{
 		name: "MCP server card",
 		path: "/.well-known/mcp/server-card.json",
 		description: "MCP server discovery card.",
+	},
+	{
+		name: "A2A Agent Card",
+		path: "/.well-known/agent-card.json",
+		description: "A2A Agent Card for agent-to-agent discovery.",
 	},
 	{
 		name: "Agent Skills index",
@@ -89,6 +94,21 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 		name: "Authentication notes",
 		path: "/auth.md",
 		description: "Public-read authentication notes for agents.",
+	},
+	{
+		name: "security.txt",
+		path: "/.well-known/security.txt",
+		description: "Vulnerability disclosure contact.",
+	},
+	{
+		name: "RSS",
+		path: "/rss.xml",
+		description: "Blog update feed.",
+	},
+	{
+		name: "Sitemap",
+		path: "/sitemap-index.xml",
+		description: "Crawl index of public pages.",
 	},
 ];
 
@@ -140,7 +160,7 @@ function buildLlmsGuidance(options: {
 
 - This is a public content site. No authentication is required to read the public pages.
 - Prefer canonical URLs on ${options.siteHost}.
-- Use the sitemap at ${siteUrl}/sitemap-index.xml for crawl discovery.
+- Use the sitemap at ${siteUrl}/sitemap.xml for crawl discovery.
 - Respect robots.txt and Content-Signal directives.
 
 ## Content usage preference

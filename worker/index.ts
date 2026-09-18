@@ -1,24 +1,24 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
-import {
-	SITEMAP_INDEX_PATH,
-	isSitemapIndexAlias,
-} from "../src/lib/content/sitemap-aliases.ts";
+import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
+import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
+import { A2A_PATH, a2aAgentCard, handleA2a } from "./agent-card.ts";
 import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
 } from "./agent-discovery-cors.ts";
-import { AGENT_SKILL_PATH, agentSkillsIndex } from "./agent-skills.ts";
+import {
+	AGENT_SKILL_MARKDOWN,
+	AGENT_SKILL_PATH,
+	agentSkillsIndex,
+} from "./agent-skills.ts";
+import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
+import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
 import {
-	buildSitemapIndexXml,
-	readLlmsBlogSection,
-} from "./content/derived.ts";
-import {
-	LLMS_SITE_DESCRIPTION,
-	LLMS_SITE_TITLE,
 	buildLlmsFullText,
 	buildLlmsOverviewMarkdown,
 } from "./content/llms.ts";
@@ -26,18 +26,40 @@ import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
 	CONTENT_SIGNAL,
-	DISCOVERY_LINKS,
 	addPublicHtmlDiscoveryHeaders,
 } from "./discovery-headers.ts";
 import { aiCatalog } from "./discovery/ai-catalog.ts";
+import {
+	appendHeaderToken,
+	htmlOriginRequest,
+	negotiateHtmlMarkdown,
+} from "./markdown-response.ts";
 import { handleMcp, mcpServerCard } from "./mcp.ts";
+import {
+	AUTH_MD_OIDC_PARAGRAPH,
+	OPENID_CONFIGURATION_PATH,
+} from "./oauth-discovery.ts";
+import {
+	oauthAuthorizationServer,
+	oauthProtectedResource,
+} from "./oauth-metadata.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
+import {
+	SECURITY_TXT,
+	SECURITY_TXT_CONTENT_TYPE,
+	SECURITY_TXT_PATH,
+} from "./security-txt.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
 	isPrintQuery,
 	parseSlideDeckSlug,
 	parseSlidePdfSlug,
 } from "./slides/pdf.ts";
+import {
+	WELL_KNOWN_JSON_NOT_FOUND,
+	shouldDelegateToAstroHandler,
+	wellKnownMissingKind,
+} from "./well-known.ts";
 
 type CacheStore = { default: Cache };
 
@@ -47,8 +69,8 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = LLMS_SITE_TITLE;
-const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
+const AGENT_CLAIM_PATH = "/agent/claim";
+const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -83,6 +105,8 @@ const AUTH_MD = `# Auth.md
 
 You are an agent. This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
 
+${AUTH_MD_OIDC_PARAGRAPH}
+
 ## Step 1 — Discover
 
 Fetch Authorization Server and Protected Resource metadata:
@@ -98,31 +122,38 @@ The Authorization Server metadata includes an \`agent_auth\` object. The \`skill
 
 Supported identity type: **anonymous**.
 
-No claim ceremony or long-lived credential is required to read public content. Prefer the anonymous path.
+Authorization Server metadata advertises \`identity_types_supported: ["anonymous"]\`, \`anonymous.credential_types_supported: ["none"]\`, and \`anonymous.claim_uri\`. No long-lived secret is required to read public content. Prefer the anonymous path. Do not request or attach an API key.
 
 ## Step 3 — Register
 
-Call the registration endpoint declared in metadata:
+Call the registration endpoint declared in metadata (\`agent_auth.register_uri\`):
 
 \`\`\`http
 POST ${SITE_URL}/agent/auth
 Accept: application/json
 \`\`\`
 
-The response confirms anonymous public access. You may proceed without storing a secret.
+GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The JSON confirms anonymous public access (\`credential_type: none\`). Do not treat the response as a secret, and do not send a bearer token afterward.
 
-## Step 4 — Claim ceremony
+## Step 4 — Claim
 
-Not required for anonymous public read access.
+Anonymous public read does not require a user-in-the-loop claim ceremony. \`agent_auth.anonymous.claim_uri\` is a no-op that completes immediately and issues no credential.
+
+\`\`\`http
+POST ${SITE_URL}/agent/claim
+Accept: application/json
+\`\`\`
+
+GET returns the same JSON. Do not wait for a \`user_code\`, and do not poll a token endpoint. There is no secret to store.
 
 ## Step 5 — Use the credential
 
-No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${SITE_HOST}.
+No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${SITE_HOST}. Do not send an \`Authorization\` header.
 
 ## Errors
 
 - \`404\` — endpoint or resource does not exist
-- \`405\` — unsupported HTTP method on \`/agent/auth\`
+- \`405\` — unsupported HTTP method on \`/agent/auth\` or \`/agent/claim\`
 
 ## Revocation
 
@@ -131,53 +162,18 @@ There is nothing to revoke for anonymous public read access.
 ## Public resources
 
 - Homepage: ${SITE_URL}/
-- Sitemap: ${SITE_URL}/sitemap-index.xml
+- Sitemap: ${SITE_URL}/sitemap.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
-`;
-
-/** WorkOS auth.md / agent_auth block (shared by AS metadata + docs). */
-function agentAuthMetadata() {
-	return {
-		skill: `${SITE_URL}/auth.md`,
-		register_uri: `${SITE_URL}/agent/auth`,
-		identity_types_supported: ["anonymous"],
-		anonymous: {
-			credential_types_supported: ["api_key"],
-		},
-	};
-}
-
-const AGENT_SKILL_MARKDOWN = `# Site Overview
-
-Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
-
-## What this site contains
-
-- Technical blog posts.
-- Public slide links.
-- Tool, gadget, and social-link directories.
-
-## How to use
-
-1. Start with ${SITE_URL}/llms.txt for a concise overview.
-2. Use ${SITE_URL}/sitemap-index.xml for URL discovery.
-3. Respect robots.txt and Content-Signal preferences.
+- security.txt: ${SITE_URL}/.well-known/security.txt
 `;
 
 function isHead(request: Request): boolean {
 	return request.method.toUpperCase() === "HEAD";
-}
-
-function acceptsMarkdown(request: Request): boolean {
-	return (
-		request.headers.get("Accept")?.toLowerCase().includes("text/markdown") ??
-		false
-	);
 }
 
 function setGeneratedHeaders(headers: Headers): void {
@@ -242,132 +238,28 @@ function notFoundResponse(request: Request): Response {
 	});
 }
 
-function apiCatalog() {
-	return {
-		linkset: [
-			{
-				anchor: SITE_URL,
-				"service-doc": [
-					{
-						href: `${SITE_URL}/llms.txt`,
-						type: "text/plain",
-					},
-					{
-						href: `${SITE_URL}/llms-full.txt`,
-						type: "text/plain",
-					},
-					{
-						href: `${SITE_URL}/auth.md`,
-						type: "text/markdown",
-					},
-				],
-				"auth-endpoint": [
-					{
-						href: `${SITE_URL}/agent/auth`,
-						type: "application/json",
-					},
-				],
-				"service-desc": [
-					{
-						href: `${SITE_URL}/.well-known/mcp/server-card.json`,
-						type: "application/json",
-					},
-					{
-						href: `${SITE_URL}/.well-known/agent-card.json`,
-						type: "application/json",
-					},
-				],
-				describedby: [
-					{
-						href: `${SITE_URL}/.well-known/agent-skills/index.json`,
-						type: "application/json",
-					},
-				],
-				status: [
-					{
-						href: SITE_URL,
-					},
-				],
-			},
-		],
-	};
-}
-
-function a2aAgentCard() {
-	return {
-		name: SITE_TITLE,
-		description: SITE_DESCRIPTION,
-		url: SITE_URL,
-		version: "1.0.0",
-		capabilities: {
-			streaming: false,
-			pushNotifications: false,
-			stateTransitionHistory: false,
-		},
-		authentication: {
-			schemes: ["none"],
-		},
-		defaultInputModes: ["text"],
-		defaultOutputModes: ["text"],
-		supportedInterfaces: [
-			{
-				type: "https://a2a-protocol.org/schemas/interface/http-v1.json",
-				url: `${SITE_URL}/mcp`,
-			},
-		],
-		skills: [
-			{
-				id: "site-overview",
-				name: "Site Overview",
-				description:
-					"Provides a concise overview of the public sections and discovery URLs on ta93abe.com.",
-				tags: ["portfolio", "blog", "discovery"],
-				examples: [
-					"What is ta93abe.com?",
-					"List the public sections of this site.",
-				],
-			},
-		],
-	};
-}
-
-function oauthAuthorizationServer() {
-	return {
-		issuer: SITE_URL,
-		// Public-read site: no interactive OAuth login or token minting.
-		// Agents should follow agent_auth.register_uri instead.
-		response_types_supported: ["none"],
-		grant_types_supported: ["urn:workos:agent-auth:grant-type:claim"],
-		token_endpoint_auth_methods_supported: ["none"],
-		agent_auth: agentAuthMetadata(),
-	};
-}
-
-function oauthProtectedResource() {
-	return {
-		resource: SITE_URL,
-		authorization_servers: [
-			`${SITE_URL}/.well-known/oauth-authorization-server`,
-		],
-		scopes_supported: ["public:read"],
-		bearer_methods_supported: ["header"],
-		resource_signing_alg_values_supported: [],
-		agent_auth: {
-			required: false,
-			skill: `${SITE_URL}/auth.md`,
-			description:
-				"ta93abe.com is a public content site. No authentication is required to access public resources.",
-		},
-	};
-}
-
 function agentAuthRegisterResponse() {
 	return {
 		identity_type: "anonymous",
-		credential_type: "api_key",
-		api_key: "public",
+		credential_type: "none",
 		scopes: ["public:read"],
-		note: "Public content on ta93abe.com requires no secret. This key is a no-op acknowledgment for agent_auth anonymous registration.",
+		note: "Public content on ta93abe.com requires no authentication, secret, or bearer token.",
+		resources: {
+			home: `${SITE_URL}/`,
+			llms: `${SITE_URL}/llms.txt`,
+			sitemap: `${SITE_URL}/sitemap.xml`,
+		},
+	};
+}
+
+function agentAuthClaimResponse() {
+	return {
+		identity_type: "anonymous",
+		claimed: true,
+		status: "complete",
+		credential_required: false,
+		scopes: ["public:read"],
+		note: "Public content on ta93abe.com requires no claim ceremony or secret. This acknowledgment completes immediately.",
 		resources: {
 			home: `${SITE_URL}/`,
 			llms: `${SITE_URL}/llms.txt`,
@@ -416,6 +308,7 @@ async function fetchAstro(
 	) {
 		const headers = new Headers(response.headers);
 		headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
+		headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
 		const cached = new Response(response.body, {
 			status: response.status,
 			statusText: response.statusText,
@@ -465,26 +358,19 @@ async function handleSiteRequest(
 		return Response.redirect(new URL("/", url), 301);
 	}
 
-	if (
-		request.method !== "GET" &&
-		request.method !== "HEAD" &&
-		pathname !== "/mcp"
-	) {
-		return handle(request, env, ctx);
+	if (request.method === "GET" || request.method === "HEAD") {
+		const alias = pageAliasRedirect(pathname);
+		if (alias) {
+			return Response.redirect(new URL(alias, url), 301);
+		}
+		const location = trailingSlashRedirectUrl(url);
+		if (location) {
+			return Response.redirect(location, 301);
+		}
 	}
 
-	if (pathname === "/" && acceptsMarkdown(request)) {
-		const overview = await siteOverviewMarkdown(env);
-		return textResponse(request, overview, "text/markdown; charset=utf-8", {
-			headers: {
-				Link: DISCOVERY_LINKS,
-				Vary: "Accept",
-				"Cache-Control": BLOG_HTML_CACHE_CONTROL,
-				"X-Markdown-Tokens": String(
-					overview.split(/\s+/).filter(Boolean).length,
-				),
-			},
-		});
+	if (shouldDelegateToAstroHandler(request.method, pathname)) {
+		return handle(request, env, ctx);
 	}
 
 	if (pathname === "/llms.txt") {
@@ -510,16 +396,28 @@ async function handleSiteRequest(
 	}
 
 	if (
-		isSitemapIndexAlias(pathname) &&
+		isSitemapIndexDocument(pathname) &&
 		(request.method === "GET" || request.method === "HEAD")
 	) {
-		return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
-	}
-
-	if (pathname === SITEMAP_INDEX_PATH) {
+		let xml: string | undefined;
+		let lastModified: string | null = null;
+		try {
+			const staticSitemap = await env.ASSETS.fetch(
+				new URL("/sitemap-0.xml", request.url),
+			);
+			if (staticSitemap.ok) {
+				xml = await staticSitemap.text();
+				lastModified = staticSitemap.headers.get("Last-Modified");
+			}
+		} catch {
+			// fall through to the request-time lastmod fallback
+		}
 		return textResponse(
 			request,
-			buildSitemapIndexXml(SITE_URL),
+			await loadSitemapIndexXml(env.CONTENT, SITE_URL, {
+				xml,
+				lastModified,
+			}),
 			"application/xml; charset=utf-8",
 			{
 				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
@@ -552,8 +450,13 @@ async function handleSiteRequest(
 		return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
 	}
 
-	if (pathname === "/agent/auth") {
+	if (pathname === "/agent/auth" || pathname === AGENT_CLAIM_PATH) {
 		const method = request.method.toUpperCase();
+		if (method === "OPTIONS") {
+			const headers = new Headers({ Allow: AGENT_AUTH_ALLOW });
+			setGeneratedHeaders(headers);
+			return new Response(null, { status: 204, headers });
+		}
 		if (method !== "GET" && method !== "POST" && method !== "HEAD") {
 			return textResponse(
 				request,
@@ -561,18 +464,28 @@ async function handleSiteRequest(
 				"text/plain; charset=utf-8",
 				{
 					status: 405,
-					headers: { Allow: "GET, POST, HEAD" },
+					headers: { Allow: AGENT_AUTH_ALLOW },
 				},
 			);
 		}
-		return jsonResponse(request, agentAuthRegisterResponse());
+		return jsonResponse(
+			request,
+			pathname === AGENT_CLAIM_PATH
+				? agentAuthClaimResponse()
+				: agentAuthRegisterResponse(),
+			{ headers: { Allow: AGENT_AUTH_ALLOW } },
+		);
+	}
+
+	if (pathname === SECURITY_TXT_PATH) {
+		return textResponse(request, SECURITY_TXT, SECURITY_TXT_CONTENT_TYPE);
 	}
 
 	if (pathname === "/.well-known/api-catalog") {
 		return textResponse(
 			request,
-			JSON.stringify(apiCatalog(), null, 2),
-			"application/linkset+json; charset=utf-8",
+			JSON.stringify(buildApiCatalog(SITE_URL), null, 2),
+			API_CATALOG_MEDIA_TYPE,
 		);
 	}
 
@@ -612,15 +525,12 @@ async function handleSiteRequest(
 		return jsonResponse(request, a2aAgentCard());
 	}
 
-	if (
-		pathname === "/.well-known/oauth-authorization-server" ||
-		pathname === "/.well-known/openid-configuration"
-	) {
-		return jsonResponse(request, oauthAuthorizationServer());
+	if (pathname === "/.well-known/oauth-authorization-server") {
+		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
 	}
 
 	if (pathname === "/.well-known/oauth-protected-resource") {
-		return jsonResponse(request, oauthProtectedResource());
+		return jsonResponse(request, oauthProtectedResource(SITE_URL));
 	}
 
 	if (pathname === "/mcp") {
@@ -634,11 +544,31 @@ async function handleSiteRequest(
 		);
 	}
 
-	// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+	if (pathname === A2A_PATH) {
+		return handleA2a(request, await siteOverviewMarkdown(env), (value, init) =>
+			jsonResponse(request, value, init),
+		);
+	}
+
+	// この host は OIDC OP ではない。AS metadata の複製を置かない。
+	if (pathname === OPENID_CONFIGURATION_PATH) {
+		return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
+	}
+
+	// Catch-all after the implemented discovery routes above.
+	const wellKnownMissing = wellKnownMissingKind(
+		pathname,
+		request.headers.get("Accept"),
+	);
+	if (wellKnownMissing === "json") {
+		return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
+	}
+	if (wellKnownMissing === "text") {
+		return notFoundResponse(request);
+	}
+
+	// Explicit 404 for optional endpoints this site does not implement.
 	if (
-		pathname === "/.well-known/http-message-signatures-directory" ||
-		pathname === "/.well-known/ucp" ||
-		pathname === "/.well-known/acp.json" ||
 		pathname === "/openapi.json" ||
 		pathname === "/api/v1" ||
 		pathname === "/api"
@@ -646,8 +576,12 @@ async function handleSiteRequest(
 		return notFoundResponse(request);
 	}
 
-	const response = await fetchAstro(request, env, ctx);
-	return addPublicHtmlDiscoveryHeaders(request, response);
+	const astroRequest = htmlOriginRequest(request);
+	const response = await fetchAstro(astroRequest, env, ctx);
+	const negotiated = await negotiateHtmlMarkdown(request, response, {
+		contentSignal: CONTENT_SIGNAL,
+	});
+	return addPublicHtmlDiscoveryHeaders(request, negotiated);
 }
 
 export default {

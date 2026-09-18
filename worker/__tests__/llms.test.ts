@@ -70,7 +70,7 @@ describe("llms.txt file lists", () => {
 		const markdown = buildLlmsOverviewMarkdown(ORIGIN, BLOG_SECTION);
 
 		expect(LLMS_PRIMARY_SECTIONS).toHaveLength(8);
-		expect(LLMS_MACHINE_RESOURCES).toHaveLength(7);
+		expect(LLMS_MACHINE_RESOURCES).toHaveLength(11);
 
 		for (const item of [...LLMS_PRIMARY_SECTIONS, ...LLMS_MACHINE_RESOURCES]) {
 			expect(markdown).toContain(formatLlmsFileListItem(item, ORIGIN));
@@ -83,6 +83,13 @@ describe("llms.txt file lists", () => {
 		);
 		expect(markdown).toContain(
 			`- [API catalog](${ORIGIN}/.well-known/api-catalog): Machine-readable API catalog.`,
+		);
+		expect(markdown).toContain(
+			`- [A2A Agent Card](${ORIGIN}/.well-known/agent-card.json): A2A Agent Card for agent-to-agent discovery.`,
+		);
+		expect(markdown).toContain(`- [RSS](${ORIGIN}/rss.xml): Blog update feed.`);
+		expect(markdown).toContain(
+			`- [Sitemap](${ORIGIN}/sitemap-index.xml): Crawl index of public pages.`,
 		);
 	});
 
@@ -100,7 +107,7 @@ describe("llms.txt file lists", () => {
 		expect(full).toContain(
 			"Content-Signal: ai-train=no, search=yes, ai-input=yes",
 		);
-		expect(full).toContain(`${ORIGIN}/sitemap-index.xml`);
+		expect(full).toContain(`${ORIGIN}/sitemap.xml`);
 
 		const overviewLists = fileListsByH2(overview).filter((section) =>
 			["Primary sections", "Machine-readable resources"].includes(
