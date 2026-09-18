@@ -1,33 +1,82 @@
-const PROTOCOL_VERSION = "2025-06-18";
-const SUPPORTED_PROTOCOL_VERSIONS = [
-	"2025-11-25",
-	"2025-06-18",
-	"2025-03-26",
-] as const;
+const SITE_URL = "https://ta93abe.com";
+const SITE_HOST = "ta93abe.com";
 const SESSION_HEADER = "Mcp-Session-Id";
-const PROTOCOL_VERSION_HEADER = "MCP-Protocol-Version";
-const ALLOWED_METHODS = "POST";
 
-export type McpServerInfo = {
+export const MCP_ENDPOINT = `${SITE_URL}/mcp`;
+
+export type McpJsonResponse = (value: unknown, init?: ResponseInit) => Response;
+
+export type McpSiteContent = {
+	siteOverviewMarkdown: () => Promise<string>;
+	llmsFullText: () => Promise<string>;
+};
+
+type JsonRpcId = string | number | null;
+
+type McpResource = {
 	name: string;
-	version: string;
+	uri: string;
+	mimeType: string;
+	description: string;
 };
 
-export type McpContext = {
-	serverInfo: McpServerInfo;
-	siteOverview: () => Promise<string>;
-};
+function normalizeResourceUri(uri: string): string {
+	return uri.trim().replace(/\/+$/, "");
+}
 
-type JsonRpcId = string | number;
+export function mcpResources(): McpResource[] {
+	return [
+		{
+			name: "site_overview",
+			uri: `${SITE_URL}/llms.txt`,
+			mimeType: "text/plain",
+			description: "Concise overview of the public site.",
+		},
+		{
+			name: "site_overview_full",
+			uri: `${SITE_URL}/llms-full.txt`,
+			mimeType: "text/plain",
+			description:
+				"Fuller agent notes, including crawl and Content-Signal guidance.",
+		},
+	];
+}
 
-type JsonRpcMessage = {
-	jsonrpc?: unknown;
-	id?: JsonRpcId | null;
-	method?: unknown;
-	params?: unknown;
-	result?: unknown;
-	error?: unknown;
-};
+export function mcpServerCard() {
+	return {
+		serverInfo: {
+			name: `${SITE_HOST} site discovery`,
+			version: "1.0.0",
+		},
+		description:
+			"Read-only discovery endpoint for the public ta93abe.com portfolio site.",
+		url: MCP_ENDPOINT,
+		transport: {
+			type: "streamable-http",
+		},
+		capabilities: {
+			tools: true,
+			resources: true,
+		},
+		tools: mcpToolList(),
+		resources: mcpResources(),
+	};
+}
+
+export function mcpToolList() {
+	return [
+		{
+			name: "get_site_overview",
+			description:
+				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
+			inputSchema: {
+				type: "object",
+				properties: {},
+				additionalProperties: false,
+			},
+		},
+	];
+}
 
 function mediaTypes(header: string | null): string[] {
 	if (!header) {
@@ -46,131 +95,8 @@ function acceptsEventStream(request: Request): boolean {
 	);
 }
 
-function isJsonContentType(request: Request): boolean {
-	const contentType = request.headers.get("Content-Type");
-	return !contentType || contentType.toLowerCase().includes("application/json");
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isJsonRpcRequest(
-	message: JsonRpcMessage,
-): message is JsonRpcMessage & { method: string } {
-	return typeof message.method === "string" && "id" in message;
-}
-
-function isJsonRpcNotification(
-	message: JsonRpcMessage,
-): message is JsonRpcMessage & { method: string } {
-	return typeof message.method === "string" && !("id" in message);
-}
-
-function jsonBody(value: unknown, init: ResponseInit = {}): Response {
-	const headers = new Headers(init.headers);
-	headers.set("Content-Type", "application/json; charset=utf-8");
-	headers.set("Vary", "Accept");
-	return new Response(JSON.stringify(value), {
-		...init,
-		headers,
-	});
-}
-
-function methodNotAllowed(): Response {
-	return jsonBody(
-		{
-			jsonrpc: "2.0",
-			id: null,
-			error: {
-				code: -32000,
-				message: "Method not allowed",
-			},
-		},
-		{
-			status: 405,
-			headers: {
-				Allow: ALLOWED_METHODS,
-			},
-		},
-	);
-}
-
-function jsonRpcError(
-	id: JsonRpcId | null,
-	code: number,
-	message: string,
-	status = 200,
-	extraHeaders?: HeadersInit,
-): Response {
-	return jsonBody(
-		{
-			jsonrpc: "2.0",
-			id,
-			error: { code, message },
-		},
-		{ status, headers: extraHeaders },
-	);
-}
-
 function sseMessage(value: unknown): string {
 	return `event: message\ndata: ${JSON.stringify(value)}\n\n`;
-}
-
-function rpcResponse(
-	request: Request,
-	payload: unknown,
-	extraHeaders?: HeadersInit,
-): Response {
-	const headers = new Headers(extraHeaders);
-	headers.set("Vary", "Accept");
-
-	if (acceptsEventStream(request)) {
-		headers.set("Content-Type", "text/event-stream");
-		headers.set("Cache-Control", "no-cache");
-		return new Response(sseMessage(payload), { headers });
-	}
-
-	headers.set("Content-Type", "application/json; charset=utf-8");
-	return new Response(JSON.stringify(payload), { headers });
-}
-
-function rpcResult(
-	request: Request,
-	id: JsonRpcId | null,
-	result: unknown,
-	extraHeaders?: HeadersInit,
-): Response {
-	return rpcResponse(request, { jsonrpc: "2.0", id, result }, extraHeaders);
-}
-
-function rpcError(
-	request: Request,
-	id: JsonRpcId | null,
-	code: number,
-	message: string,
-	extraHeaders?: HeadersInit,
-): Response {
-	return rpcResponse(
-		request,
-		{
-			jsonrpc: "2.0",
-			id,
-			error: { code, message },
-		},
-		extraHeaders,
-	);
-}
-
-function sessionIdFor(request: Request, isInitialize: boolean): string | null {
-	const existing = request.headers.get(SESSION_HEADER)?.trim();
-	if (existing) {
-		return existing;
-	}
-	if (isInitialize) {
-		return crypto.randomUUID();
-	}
-	return null;
 }
 
 function withSession(
@@ -184,165 +110,309 @@ function withSession(
 	return next;
 }
 
-function unsupportedProtocolVersion(request: Request): Response | null {
-	const version = request.headers.get(PROTOCOL_VERSION_HEADER);
-	if (!version) {
-		return null;
+function withSessionAndVary(
+	headers: HeadersInit | undefined,
+	sessionId: string | null,
+): Headers {
+	const next = withSession(headers, sessionId);
+	next.set("Vary", "Accept");
+	return next;
+}
+
+function sessionIdFor(request: Request, isInitialize: boolean): string | null {
+	const existing = request.headers.get(SESSION_HEADER)?.trim();
+	if (existing) {
+		return existing;
 	}
-	if (
-		(SUPPORTED_PROTOCOL_VERSIONS as readonly string[]).includes(version.trim())
-	) {
-		return null;
+	if (isInitialize) {
+		return crypto.randomUUID();
 	}
-	return jsonRpcError(
-		null,
-		-32000,
-		`Bad Request: Unsupported protocol version: ${version}`,
-		400,
+	return null;
+}
+
+function rpcResponse(
+	request: Request,
+	jsonResponse: McpJsonResponse,
+	payload: unknown,
+	sessionId: string | null,
+	init?: ResponseInit,
+): Response {
+	const headers = withSessionAndVary(init?.headers, sessionId);
+
+	if (acceptsEventStream(request)) {
+		headers.set("Content-Type", "text/event-stream");
+		headers.set("Cache-Control", "no-cache");
+		return new Response(sseMessage(payload), {
+			status: init?.status,
+			headers,
+		});
+	}
+
+	return jsonResponse(payload, { ...init, headers });
+}
+
+function jsonRpcResult(
+	request: Request,
+	jsonResponse: McpJsonResponse,
+	id: JsonRpcId,
+	result: unknown,
+	sessionId: string | null,
+): Response {
+	return rpcResponse(
+		request,
+		jsonResponse,
+		{
+			jsonrpc: "2.0",
+			id,
+			result,
+		},
+		sessionId,
 	);
 }
 
-function mcpToolList() {
-	return [
-		{
-			name: "get_site_overview",
-			description:
-				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
-			inputSchema: {
-				type: "object",
-				properties: {},
-				additionalProperties: false,
-			},
-		},
-	];
-}
-
-function negotiateProtocolVersion(params: unknown): string {
-	if (!isRecord(params) || typeof params.protocolVersion !== "string") {
-		return PROTOCOL_VERSION;
-	}
-	return (SUPPORTED_PROTOCOL_VERSIONS as readonly string[]).includes(
-		params.protocolVersion,
-	)
-		? params.protocolVersion
-		: PROTOCOL_VERSION;
-}
-
-async function handleJsonRpcRequest(
+function jsonRpcError(
 	request: Request,
-	message: JsonRpcMessage & { method: string },
-	ctx: McpContext,
+	jsonResponse: McpJsonResponse,
+	id: JsonRpcId,
+	code: number,
+	message: string,
 	sessionId: string | null,
-): Promise<Response> {
-	const id = message.id ?? null;
-	const headers = withSession(undefined, sessionId);
-
-	if (message.method === "initialize") {
-		return rpcResult(
-			request,
+	data?: unknown,
+	status?: number,
+): Response {
+	return rpcResponse(
+		request,
+		jsonResponse,
+		{
+			jsonrpc: "2.0",
 			id,
-			{
-				protocolVersion: negotiateProtocolVersion(message.params),
-				capabilities: {
-					tools: {},
-					resources: {},
-				},
-				serverInfo: ctx.serverInfo,
-			},
-			headers,
-		);
-	}
-
-	if (message.method === "tools/list") {
-		return rpcResult(request, id, { tools: mcpToolList() }, headers);
-	}
-
-	if (message.method === "tools/call") {
-		const toolName =
-			isRecord(message.params) && typeof message.params.name === "string"
-				? message.params.name
-				: undefined;
-		if (toolName !== "get_site_overview") {
-			return rpcError(request, id, -32602, "Unknown tool", headers);
-		}
-
-		return rpcResult(
-			request,
-			id,
-			{
-				content: [
-					{
-						type: "text",
-						text: await ctx.siteOverview(),
-					},
-				],
-			},
-			headers,
-		);
-	}
-
-	return rpcError(request, id, -32601, "Method not found", headers);
+			error: data === undefined ? { code, message } : { code, message, data },
+		},
+		sessionId,
+		status === undefined ? undefined : { status },
+	);
 }
 
-/**
- * Streamable HTTP MCP endpoint (spec 2025-06-18).
- *
- * POST JSON-RPC requests reply as `text/event-stream` when the client Accept
- * lists that type, otherwise as `application/json`. Notifications and client
- * responses return 202. GET does not open a standalone SSE stream (405).
- */
+function transportError(
+	jsonResponse: McpJsonResponse,
+	id: JsonRpcId,
+	code: number,
+	message: string,
+	status?: number,
+): Response {
+	return jsonResponse(
+		{
+			jsonrpc: "2.0",
+			id,
+			error: { code, message },
+		},
+		status === undefined ? undefined : { status },
+	);
+}
+
+function findResource(uri: string): McpResource | undefined {
+	const normalized = normalizeResourceUri(uri);
+	return mcpResources().find(
+		(resource) => normalizeResourceUri(resource.uri) === normalized,
+	);
+}
+
+async function readResourceText(
+	resource: McpResource,
+	content: McpSiteContent,
+): Promise<string> {
+	if (resource.name === "site_overview_full") {
+		return content.llmsFullText();
+	}
+	return content.siteOverviewMarkdown();
+}
+
 export async function handleMcp(
 	request: Request,
-	ctx: McpContext,
+	content: McpSiteContent,
+	jsonResponse: McpJsonResponse,
 ): Promise<Response> {
-	const method = request.method.toUpperCase();
-	if (method !== "POST") {
-		return methodNotAllowed();
+	if (request.method.toUpperCase() !== "POST") {
+		// Streamable HTTP: GET is optional SSE. This read-only server does not
+		// stream, so unsupported methods (including GET) are 405.
+		return new Response("Method Not Allowed", {
+			status: 405,
+			headers: {
+				Allow: "POST",
+				"Content-Type": "text/plain; charset=utf-8",
+			},
+		});
 	}
 
-	const protocolError = unsupportedProtocolVersion(request);
-	if (protocolError) {
-		return protocolError;
-	}
+	let raw: unknown;
 
-	if (!isJsonContentType(request)) {
-		return jsonRpcError(
-			null,
-			-32000,
-			"Unsupported Media Type: Content-Type must be application/json",
-			415,
-		);
-	}
-
-	let payload: unknown;
 	try {
-		payload = await request.json();
+		raw = await request.json();
 	} catch {
-		return jsonRpcError(null, -32700, "Parse error", 400);
+		return transportError(jsonResponse, null, -32700, "Parse error", 400);
 	}
 
-	if (Array.isArray(payload) || !isRecord(payload)) {
-		return jsonRpcError(
-			null,
-			-32600,
-			"Invalid Request: Streamable HTTP requires a single JSON-RPC message",
-			400,
-		);
+	if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+		return transportError(jsonResponse, null, -32600, "Invalid Request", 400);
 	}
 
-	const message = payload as JsonRpcMessage;
+	const payload = raw as {
+		id?: JsonRpcId;
+		method?: string;
+		params?: Record<string, unknown>;
+		jsonrpc?: string;
+	};
 
-	if (isJsonRpcNotification(message) || !("method" in message)) {
+	if (!Object.hasOwn(payload, "id")) {
 		return new Response(null, {
 			status: 202,
 			headers: withSession(undefined, sessionIdFor(request, false)),
 		});
 	}
 
-	if (!isJsonRpcRequest(message)) {
-		return jsonRpcError(null, -32600, "Invalid Request", 400);
+	const id = payload.id ?? null;
+	const sessionId = sessionIdFor(request, payload.method === "initialize");
+
+	if (payload.method === "initialize") {
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				protocolVersion: "2025-06-18",
+				capabilities: {
+					tools: {},
+					resources: {
+						subscribe: false,
+						listChanged: false,
+					},
+				},
+				serverInfo: mcpServerCard().serverInfo,
+			},
+			sessionId,
+		);
 	}
 
-	const sessionId = sessionIdFor(request, message.method === "initialize");
-	return handleJsonRpcRequest(request, message, ctx, sessionId);
+	if (payload.method === "tools/list") {
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				tools: mcpToolList(),
+			},
+			sessionId,
+		);
+	}
+
+	if (payload.method === "tools/call") {
+		const toolName = payload.params?.name;
+		if (toolName !== "get_site_overview") {
+			return jsonRpcError(
+				request,
+				jsonResponse,
+				id,
+				-32602,
+				"Unknown tool",
+				sessionId,
+			);
+		}
+
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				content: [
+					{
+						type: "text",
+						text: await content.siteOverviewMarkdown(),
+					},
+				],
+			},
+			sessionId,
+		);
+	}
+
+	if (payload.method === "resources/list") {
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				resources: mcpResources(),
+			},
+			sessionId,
+		);
+	}
+
+	if (payload.method === "resources/templates/list") {
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				resourceTemplates: [],
+			},
+			sessionId,
+		);
+	}
+
+	if (payload.method === "resources/read") {
+		const uri = payload.params?.uri;
+		if (typeof uri !== "string" || uri.trim() === "") {
+			return jsonRpcError(
+				request,
+				jsonResponse,
+				id,
+				-32602,
+				"Invalid params",
+				sessionId,
+				{
+					reason: "uri is required",
+				},
+			);
+		}
+
+		const resource = findResource(uri);
+		if (!resource) {
+			return jsonRpcError(
+				request,
+				jsonResponse,
+				id,
+				-32002,
+				"Resource not found",
+				sessionId,
+				{
+					uri,
+				},
+			);
+		}
+
+		return jsonRpcResult(
+			request,
+			jsonResponse,
+			id,
+			{
+				contents: [
+					{
+						uri: resource.uri,
+						name: resource.name,
+						mimeType: resource.mimeType,
+						text: await readResourceText(resource, content),
+					},
+				],
+			},
+			sessionId,
+		);
+	}
+
+	return jsonRpcError(
+		request,
+		jsonResponse,
+		id,
+		-32601,
+		"Method not found",
+		sessionId,
+	);
 }
