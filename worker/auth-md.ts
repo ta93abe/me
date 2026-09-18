@@ -1,19 +1,26 @@
+import { AUTH_MD_OIDC_PARAGRAPH } from "./oauth-discovery.ts";
+
+/** Same JSON `/agent/auth` returns — keep auth.md examples in lockstep. */
 export function agentAuthRegisterResponse(siteUrl: string) {
 	return {
 		identity_type: "anonymous",
-		credential_type: "api_key",
-		api_key: "public",
+		credential_type: "none",
 		scopes: ["public:read"],
-		note: "Public content on ta93abe.com requires no secret. This key is a no-op acknowledgment for agent_auth anonymous registration.",
+		note: "Public content on ta93abe.com requires no authentication, secret, or bearer token.",
 		resources: {
 			home: `${siteUrl}/`,
 			llms: `${siteUrl}/llms.txt`,
-			sitemap: `${siteUrl}/sitemap-index.xml`,
+			sitemap: `${siteUrl}/sitemap.xml`,
 		},
 	};
 }
 
-export function buildAuthMd(siteUrl: string, siteHost: string): string {
+/** Auth.md served at `/auth.md` — self-contained agent registration notes. */
+export function authMarkdown(
+	siteUrl: string,
+	siteHost: string,
+	oidcParagraph: string = AUTH_MD_OIDC_PARAGRAPH,
+): string {
 	const registerUri = `${siteUrl}/agent/auth`;
 	const registration = JSON.stringify(
 		agentAuthRegisterResponse(siteUrl),
@@ -23,7 +30,15 @@ export function buildAuthMd(siteUrl: string, siteHost: string): string {
 
 	return `# auth.md
 
-You are an agent. This document is a **self-contained registration flow** for autonomous agents that want to read public content on ${siteHost}. Reading public pages does not require authentication, a paid credential, or a stored secret.
+You are an agent. This file is a **self-contained registration flow** for AI agents. Complete registration from this document alone; you do not need OAuth metadata first.
+
+This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
+
+${oidcParagraph}
+
+## Audience
+
+Agent audience: AI agents that want to read public content on ${siteUrl}. Browser visitors can ignore this file.
 
 ## Contract
 
@@ -39,69 +54,86 @@ http_methods:
 identity_types_supported: ["anonymous"]
 anonymous:
   credential_types_supported:
-    - api_key
+    - none
 \`\`\`
 
-- Audience: autonomous agents (LLM assistants, crawlers, MCP/A2A clients)
-- \`register_uri\`: \`${registerUri}\`
-- Allowed methods: **POST** (GET and HEAD return the same JSON)
-- Supported method: **anonymous**
-- Credentials: not required for public read. Registration returns a no-op \`api_key\` (accept \`apiKey\`) value \`public\`.
+## Self-contained registration flow
 
-## Register
+Standalone registration — audience, register endpoint, method, and credential use:
 
-No request body. No authentication.
+1. **Audience** — AI agents (see above).
+2. **Supported method** — \`anonymous\`. \`identity_types_supported\` is \`["anonymous"]\`. \`anonymous.credential_types_supported\` is \`["none"]\`.
+3. **Registration endpoint** — \`register_uri\` is \`${registerUri}\`. HTTP method: \`POST\`.
+4. **Credential use** — public read does not require a secret credential. Do not send \`Authorization: Bearer\` or an \`access_token\` for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${siteHost}. Registration returns \`credential_type: none\`. Treat that as confirmation, not a secret.
+
+Register with an origin-form request (RFC 9112). Absolute-form \`POST ${registerUri}\` is the same endpoint:
 
 \`\`\`http
 POST /agent/auth HTTP/1.1
 Host: ${siteHost}
 Accept: application/json
+Content-Type: application/json
+
+{
+  "identity_type": "anonymous"
+}
 \`\`\`
 
-Response (200):
+Example response:
 
 \`\`\`json
 ${registration}
 \`\`\`
 
-## Use the credential
+GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. Do not treat the response as a secret, and do not send a bearer token afterward.
 
-Public HTML, \`llms.txt\`, sitemap, and other discovery documents on ${siteHost} do **not** require \`Authorization\`. The \`api_key\` / \`apiKey\` value \`public\` is an acknowledgment only; do not store a secret.
+## Step 1 — Discover
 
-If a client still wants to send the no-op key:
-
-\`\`\`http
-GET /llms.txt HTTP/1.1
-Host: ${siteHost}
-Authorization: Bearer public
-\`\`\`
-
-That header is ignored. Proceed to public resources without a bearer token.
-
-## Optional OAuth discovery
-
-OAuth Protected Resource Metadata and Authorization Server metadata are published for agents that prefer RFC 8414 / RFC 9728. Those documents advertise the same \`register_uri\`. They are not required to complete this flow.
+Fetch Authorization Server and Protected Resource metadata (optional; this document stays self-contained if they are missing):
 
 \`\`\`http
-GET /.well-known/oauth-authorization-server HTTP/1.1
-Host: ${siteHost}
-
-GET /.well-known/oauth-protected-resource HTTP/1.1
-Host: ${siteHost}
+GET ${siteUrl}/.well-known/oauth-authorization-server
+GET ${siteUrl}/.well-known/oauth-protected-resource
 \`\`\`
 
-The Authorization Server metadata includes an \`agent_auth\` object. The \`skill\` field points back to this document.
+The Authorization Server \`issuer\` is \`${siteUrl}\`. Metadata includes an \`agent_auth\` object. The \`skill\` field points back to this document.
 
-## Claim ceremony
+## Step 2 — Pick a method
 
-Not required for anonymous public read access.
+Supported identity type: **anonymous**.
+
+Authorization Server metadata advertises \`identity_types_supported: ["anonymous"]\`, \`anonymous.credential_types_supported: ["none"]\`, and \`anonymous.claim_uri\`. No long-lived secret is required to read public content. Prefer the anonymous path. Do not request or attach an API key.
+
+## Step 3 — Register
+
+Call the registration endpoint declared in metadata (\`agent_auth.register_uri\`):
+
+\`\`\`http
+POST ${registerUri}
+Accept: application/json
+\`\`\`
+
+The JSON confirms anonymous public access (\`credential_type: none\`).
+
+## Step 4 — Claim
+
+Anonymous public read does not require a user-in-the-loop claim ceremony. \`agent_auth.anonymous.claim_uri\` is a no-op that completes immediately and issues no credential.
+
+\`\`\`http
+POST ${siteUrl}/agent/claim
+Accept: application/json
+\`\`\`
+
+GET returns the same JSON. Do not wait for a \`user_code\`, and do not poll a token endpoint. There is no secret to store.
+
+## Step 5 — Use the credential
+
+No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${siteHost}. Do not send an \`Authorization\` header. There is no \`access_token\` to store, and \`Authorization: Bearer\` is ignored because public read uses \`credential_type: none\`.
 
 ## Errors
 
 - \`404\` — endpoint or resource does not exist
-- \`405\` — unsupported HTTP method on \`/agent/auth\`
-
-Allowed methods on \`/agent/auth\`: \`GET\`, \`POST\`, \`HEAD\`.
+- \`405\` — unsupported HTTP method on \`/agent/auth\` or \`/agent/claim\`
 
 ## Revocation
 
@@ -110,11 +142,13 @@ There is nothing to revoke for anonymous public read access.
 ## Public resources
 
 - Homepage: ${siteUrl}/
-- Sitemap: ${siteUrl}/sitemap-index.xml
+- Sitemap: ${siteUrl}/sitemap.xml
 - llms.txt: ${siteUrl}/llms.txt
 - API catalog: ${siteUrl}/.well-known/api-catalog
+- ARD capability manifest: ${siteUrl}/.well-known/ai-catalog.json
 - MCP server card: ${siteUrl}/.well-known/mcp/server-card.json
 - Agent skills: ${siteUrl}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${siteUrl}/.well-known/agent-card.json
+- security.txt: ${siteUrl}/.well-known/security.txt
 `;
 }

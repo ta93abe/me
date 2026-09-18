@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { agentAuthRegisterResponse, buildAuthMd } from "../auth-md.ts";
+import { agentAuthRegisterResponse, authMarkdown } from "../auth-md.ts";
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
@@ -23,42 +23,65 @@ function credentialMarkers(markdown: string): string[] {
 		.map(([name]) => name);
 }
 
-describe("auth.md self-contained registration flow", () => {
-	const markdown = buildAuthMd(SITE_URL, SITE_HOST);
+describe("auth.md", () => {
+	const md = authMarkdown(SITE_URL, SITE_HOST);
+	const firstLine = md.split("\n")[0] ?? "";
 
 	it("uses an H1 that contains auth.md", () => {
-		expect(markdown).toMatch(/^# .*auth\.md/i);
+		expect(firstLine.startsWith("# ")).toBe(true);
+		expect(firstLine).toContain("auth.md");
 	});
 
-	it("identifies the agent audience", () => {
-		expect(markdown).toMatch(/You are an agent/i);
+	it("documents a self-contained registration flow", () => {
+		expect(md).toMatch(/self-contained registration flow/i);
+		expect(md).toMatch(/agent audience/i);
+		expect(md).toContain("register_uri");
+		expect(md).toContain(`${SITE_URL}/agent/auth`);
+		expect(md).toContain(`POST ${SITE_URL}/agent/auth`);
+		expect(md).toMatch(/supported method/i);
+		expect(md).toContain("anonymous");
+		expect(md).toMatch(/credential use/i);
+		expect(md).toContain("identity_type");
+		expect(md).toContain("credential_type: none");
+		expect(md).not.toMatch(/api_key/);
+		expect(md).not.toMatch(/apiKey/);
 	});
 
-	it("declares register_uri and the POST registration path", () => {
-		expect(markdown).toContain(`register_uri: ${SITE_URL}/agent/auth`);
-		expect(registrationEndpoints(markdown)).toContain("/agent/auth");
+	it("keeps claim_uri and anonymous public read from current auth.md", () => {
+		expect(md).toMatch(/claim_uri/);
+		expect(md).toContain(`${SITE_URL}/agent/claim`);
+		expect(md).toMatch(/## Step 4 — Claim/);
+		expect(md.toLowerCase()).toMatch(/no secret|no credential|no bearer/);
+		expect(md).toContain("issuer");
+		expect(md).toContain(SITE_URL);
+		expect(md).toContain(SITE_HOST);
+		expect(md).toContain("/.well-known/oauth-authorization-server");
+		expect(md).toContain("/.well-known/oauth-protected-resource");
+		expect(md).toContain(`${SITE_URL}/sitemap.xml`);
+		expect(md).not.toMatch(/sitemap-index\.xml/);
 	});
 
-	it("documents anonymous registration and the no-op public api_key", () => {
-		expect(markdown).toMatch(
-			/identity_types_supported:\s*\[?"?anonymous"?\]?/i,
-		);
-		expect(markdown).toContain('"credential_type": "api_key"');
-		expect(markdown).toContain('"api_key": "public"');
-	});
-
-	it("explains credential use with a bearer example that is not required", () => {
-		expect(markdown).toMatch(/Authorization:\s*Bearer public/);
-		expect(markdown).toMatch(/does not require/i);
+	it("declares register_uri and the origin-form POST registration path", () => {
+		expect(md).toContain(`register_uri: ${SITE_URL}/agent/auth`);
+		expect(md).toContain("POST /agent/auth HTTP/1.1");
+		expect(md).toContain(`Host: ${SITE_HOST}`);
+		expect(registrationEndpoints(md)).toContain("/agent/auth");
 	});
 
 	it("keeps the documented JSON contract aligned with POST /agent/auth", () => {
 		const response = agentAuthRegisterResponse(SITE_URL);
-		expect(markdown).toContain(JSON.stringify(response, null, 2));
+		expect(response.credential_type).toBe("none");
+		expect(response).not.toHaveProperty("api_key");
+		expect(md).toContain(JSON.stringify(response, null, 2));
 	});
 
-	it("looks like a complete standalone flow to the scanner heuristics", () => {
-		expect(registrationEndpoints(markdown).length).toBeGreaterThanOrEqual(1);
-		expect(credentialMarkers(markdown).length).toBeGreaterThanOrEqual(3);
+	it("looks like a complete standalone flow to scanner path heuristics", () => {
+		expect(registrationEndpoints(md).length).toBeGreaterThanOrEqual(1);
+		expect(credentialMarkers(md)).toEqual([
+			"access_token",
+			"Authorization: Bearer",
+		]);
+		expect(credentialMarkers(md)).not.toContain("api_key");
+		expect(credentialMarkers(md)).not.toContain("apiKey");
 	});
 });
