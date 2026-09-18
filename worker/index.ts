@@ -14,6 +14,7 @@ import {
 	AGENT_SKILL_PATH,
 	agentSkillsIndex,
 } from "./agent-skills.ts";
+import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
@@ -235,61 +236,6 @@ function notFoundResponse(request: Request): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
 	});
-}
-
-function apiCatalog() {
-	return {
-		linkset: [
-			{
-				anchor: SITE_URL,
-				"service-doc": [
-					{
-						href: `${SITE_URL}/llms.txt`,
-						type: "text/plain",
-					},
-					{
-						href: `${SITE_URL}/llms-full.txt`,
-						type: "text/plain",
-					},
-					{
-						href: `${SITE_URL}/auth.md`,
-						type: "text/markdown",
-					},
-					{
-						href: `${SITE_URL}${SECURITY_TXT_PATH}`,
-						type: "text/plain",
-					},
-				],
-				"auth-endpoint": [
-					{
-						href: `${SITE_URL}/agent/auth`,
-						type: "application/json",
-					},
-				],
-				"service-desc": [
-					{
-						href: `${SITE_URL}/.well-known/mcp/server-card.json`,
-						type: "application/json",
-					},
-					{
-						href: `${SITE_URL}/.well-known/agent-card.json`,
-						type: "application/json",
-					},
-				],
-				describedby: [
-					{
-						href: `${SITE_URL}/.well-known/agent-skills/index.json`,
-						type: "application/json",
-					},
-				],
-				status: [
-					{
-						href: SITE_URL,
-					},
-				],
-			},
-		],
-	};
 }
 
 function agentAuthRegisterResponse() {
@@ -539,8 +485,8 @@ async function handleSiteRequest(
 	if (pathname === "/.well-known/api-catalog") {
 		return textResponse(
 			request,
-			JSON.stringify(apiCatalog(), null, 2),
-			"application/linkset+json; charset=utf-8",
+			JSON.stringify(buildApiCatalog(SITE_URL), null, 2),
+			API_CATALOG_MEDIA_TYPE,
 		);
 	}
 
