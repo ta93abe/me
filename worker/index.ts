@@ -26,17 +26,17 @@ import {
 } from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
-import { aiCatalog } from "./discovery/ai-catalog.ts";
-import {
-	oauthAuthorizationServer,
-	oauthProtectedResource,
-} from "./oauth-metadata.ts";
 import {
 	CONTENT_SIGNAL,
 	DISCOVERY_LINKS,
 	addPublicHtmlDiscoveryHeaders,
 } from "./discovery-headers.ts";
+import { aiCatalog } from "./discovery/ai-catalog.ts";
 import { handleMcp, mcpServerCard } from "./mcp.ts";
+import {
+	oauthAuthorizationServer,
+	oauthProtectedResource,
+} from "./oauth-metadata.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {

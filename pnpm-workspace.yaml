@@ -10,6 +10,11 @@ allowBuilds:
 
 overrides:
   vite: 8.3.0
+  browserslist: ">=4.28.7"
+  fast-uri: ">=3.1.6"
+  picomatch: ">=2.3.2"
+  sharp: ">=0.35.4"
+  smol-toml: ">=1.7.1"
 
 minimumReleaseAgeExclude:
   - alchemy@2.0.0-beta.79

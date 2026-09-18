@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Contact Page", () => {
+test.describe("Contact Page", { tag: "@smoke" }, () => {
 	test("returns 200 with SNS links and no form", async ({ page }) => {
 		const response = await page.goto("/contact");
 		expect(response?.status()).toBe(200);

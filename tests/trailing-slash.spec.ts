@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Trailing slash canonicalization", () => {
+test.describe("Trailing slash canonicalization", { tag: "@smoke" }, () => {
 	test("bare HTML paths 301 to the slashed URL", async ({ request }) => {
 		const cases = [
 			"/about",

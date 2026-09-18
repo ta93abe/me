@@ -86,46 +86,54 @@ async function expectHeroCtasReachable(page: Page) {
 }
 
 test.describe("Home", () => {
-	test("shows the name and CTAs without a poster or tagline", async ({
-		page,
-	}) => {
-		await page.goto("/");
+	test(
+		"shows the name and CTAs without a poster or tagline",
+		{
+			tag: "@smoke",
+		},
+		async ({ page }) => {
+			await page.goto("/");
 
-		await expect(page).toHaveTitle(/Takumi Abe/);
-		await expect(
-			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
-		).toBeVisible();
+			await expect(page).toHaveTitle(/Takumi Abe/);
+			await expect(
+				page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
+			).toBeVisible();
 
-		const ctas = page.getByRole("navigation", { name: "主なページ" });
-		await expect(ctas.getByRole("link", { name: "Works" })).toHaveAttribute(
-			"href",
-			"/works/",
-		);
-		await expect(ctas.getByRole("link", { name: "About" })).toHaveAttribute(
-			"href",
-			"/about/",
-		);
-		await expect(ctas.getByRole("link", { name: "Blog" })).toHaveAttribute(
-			"href",
-			"/blog/",
-		);
-		await expect(ctas.getByRole("link", { name: "Contact" })).toHaveAttribute(
-			"href",
-			"/contact/",
-		);
-		await expect(ctas.getByRole("link", { name: "Gallery" })).toHaveCount(0);
-		await expect(page.getByRole("link", { name: "Atelier" })).toHaveCount(0);
-		await expect(page.getByRole("link", { name: "Bookshelf" })).toHaveCount(0);
+			const ctas = page.getByRole("navigation", { name: "主なページ" });
+			await expect(ctas.getByRole("link", { name: "Works" })).toHaveAttribute(
+				"href",
+				"/works/",
+			);
+			await expect(ctas.getByRole("link", { name: "About" })).toHaveAttribute(
+				"href",
+				"/about/",
+			);
+			await expect(ctas.getByRole("link", { name: "Blog" })).toHaveAttribute(
+				"href",
+				"/blog/",
+			);
+			await expect(ctas.getByRole("link", { name: "Contact" })).toHaveAttribute(
+				"href",
+				"/contact/",
+			);
+			await expect(ctas.getByRole("link", { name: "Gallery" })).toHaveCount(0);
+			await expect(page.getByRole("link", { name: "Atelier" })).toHaveCount(0);
+			await expect(page.getByRole("link", { name: "Bookshelf" })).toHaveCount(
+				0,
+			);
 
-		await expect(page.getByRole("heading", { name: "代表作" })).toHaveCount(0);
-		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
-		await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
-		await expect(
-			page
-				.locator("main")
-				.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
-		).toHaveCount(0);
-	});
+			await expect(page.getByRole("heading", { name: "代表作" })).toHaveCount(
+				0,
+			);
+			await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
+			await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
+			await expect(
+				page
+					.locator("main")
+					.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
+			).toHaveCount(0);
+		},
+	);
 
 	test("keeps the name at a quiet size", async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
@@ -258,43 +266,46 @@ test.describe("Home", () => {
 		).toHaveCount(0);
 	});
 
-	test("about, contact, and works pages return 200", async ({
-		page,
-		request,
-	}) => {
-		for (const path of ["/about", "/contact", "/works"] as const) {
-			const res = await request.get(path);
-			expect(res.status(), path).toBe(200);
-		}
+	test(
+		"about, contact, and works pages return 200",
+		{
+			tag: "@smoke",
+		},
+		async ({ page, request }) => {
+			for (const path of ["/about", "/contact", "/works"] as const) {
+				const res = await request.get(path);
+				expect(res.status(), path).toBe(200);
+			}
 
-		await page.goto("/");
-		await page
-			.getByRole("navigation", { name: "主なページ" })
-			.getByRole("link", { name: "About" })
-			.click();
-		await expect(page).toHaveURL(/\/about\/?$/);
-		await expect(
-			page.getByRole("heading", { level: 1, name: "About" }),
-		).toBeVisible();
+			await page.goto("/");
+			await page
+				.getByRole("navigation", { name: "主なページ" })
+				.getByRole("link", { name: "About" })
+				.click();
+			await expect(page).toHaveURL(/\/about\/?$/);
+			await expect(
+				page.getByRole("heading", { level: 1, name: "About" }),
+			).toBeVisible();
 
-		await page.goto("/");
-		await page
-			.getByRole("navigation", { name: "主なページ" })
-			.getByRole("link", { name: "Contact" })
-			.click();
-		await expect(page).toHaveURL(/\/contact\/?$/);
-		await expect(
-			page.getByRole("heading", { level: 1, name: "Contact" }),
-		).toBeVisible();
+			await page.goto("/");
+			await page
+				.getByRole("navigation", { name: "主なページ" })
+				.getByRole("link", { name: "Contact" })
+				.click();
+			await expect(page).toHaveURL(/\/contact\/?$/);
+			await expect(
+				page.getByRole("heading", { level: 1, name: "Contact" }),
+			).toBeVisible();
 
-		await page.goto("/");
-		await page
-			.getByRole("navigation", { name: "主なページ" })
-			.getByRole("link", { name: "Works" })
-			.click();
-		await expect(page).toHaveURL(/\/works\/?$/);
-		await expect(
-			page.getByRole("heading", { level: 1, name: "Works" }),
-		).toBeVisible();
-	});
+			await page.goto("/");
+			await page
+				.getByRole("navigation", { name: "主なページ" })
+				.getByRole("link", { name: "Works" })
+				.click();
+			await expect(page).toHaveURL(/\/works\/?$/);
+			await expect(
+				page.getByRole("heading", { level: 1, name: "Works" }),
+			).toBeVisible();
+		},
+	);
 });
