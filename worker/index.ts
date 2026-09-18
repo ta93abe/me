@@ -9,7 +9,11 @@ import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
 } from "./agent-discovery-cors.ts";
-import { AGENT_SKILL_PATH, agentSkillsIndex } from "./agent-skills.ts";
+import {
+	AGENT_SKILL_MARKDOWN,
+	AGENT_SKILL_PATH,
+	agentSkillsIndex,
+} from "./agent-skills.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
@@ -159,26 +163,6 @@ There is nothing to revoke for anonymous public read access.
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
-`;
-
-const AGENT_SKILL_MARKDOWN = `# Site Overview
-
-Use this skill when an agent needs to understand or summarize ${SITE_HOST}.
-
-## What this site contains
-
-- Technical blog posts.
-- Public slide links.
-- Tool, gadget, and social-link directories.
-
-## How to use
-
-1. Start with ${SITE_URL}/llms.txt for a concise overview.
-2. Use the MCP server at ${SITE_URL}/mcp (card: ${SITE_URL}/.well-known/mcp/server-card.json).
-3. Use ${SITE_URL}/sitemap.xml for URL discovery.
-4. Respect robots.txt and Content-Signal preferences.
-
-This site does not implement A2A JSON-RPC methods such as message/send.
 `;
 
 function isHead(request: Request): boolean {
