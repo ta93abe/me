@@ -29,6 +29,7 @@ import {
 	DISCOVERY_LINKS,
 	addPublicHtmlDiscoveryHeaders,
 } from "./discovery-headers.ts";
+import { aiCatalog } from "./discovery/ai-catalog.ts";
 import { handleMcp, mcpServerCard } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
@@ -133,6 +134,7 @@ There is nothing to revoke for anonymous public read access.
 - Sitemap: ${SITE_URL}/sitemap-index.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
+- ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
@@ -572,6 +574,13 @@ async function handleSiteRequest(
 			JSON.stringify(apiCatalog(), null, 2),
 			"application/linkset+json; charset=utf-8",
 		);
+	}
+
+	if (
+		pathname === "/.well-known/ai-catalog.json" ||
+		pathname === "/.well-known/ard.json"
+	) {
+		return jsonResponse(request, aiCatalog());
 	}
 
 	if (

@@ -1,0 +1,114 @@
+const SITE_URL = "https://ta93abe.com";
+const SITE_HOST = "ta93abe.com";
+const SITE_TITLE = "Takumi Abe / ta93abe";
+
+export type AiCatalogEntry = {
+	identifier: string;
+	displayName: string;
+	type: string;
+	url: string;
+	description: string;
+	tags: string[];
+	capabilities: string[];
+	representativeQueries: string[];
+};
+
+export type AiCatalogManifest = {
+	specVersion: "1.0";
+	host: {
+		displayName: string;
+		identifier: string;
+		documentationUrl: string;
+	};
+	entries: AiCatalogEntry[];
+};
+
+export function aiCatalog(): AiCatalogManifest {
+	return {
+		specVersion: "1.0",
+		host: {
+			displayName: SITE_TITLE,
+			identifier: `did:web:${SITE_HOST}`,
+			documentationUrl: `${SITE_URL}/llms.txt`,
+		},
+		entries: [
+			{
+				identifier: `urn:air:${SITE_HOST}:mcp:site`,
+				displayName: `${SITE_HOST} MCP server`,
+				type: "application/mcp-server-card+json",
+				url: `${SITE_URL}/.well-known/mcp/server-card.json`,
+				description:
+					"Read-only MCP server that returns a concise overview of the public ta93abe.com portfolio.",
+				tags: ["mcp", "portfolio", "discovery"],
+				capabilities: ["get_site_overview"],
+				representativeQueries: [
+					"ta93abe のサイト概要を MCP で取る",
+					"MCP の入口は？",
+					"What is ta93abe.com?",
+					"Give me a concise overview of this site.",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:skill:site-overview`,
+				displayName: "Site Overview skill",
+				type: "application/ai-skill+md",
+				url: `${SITE_URL}/.well-known/agent-skills/site-overview/SKILL.md`,
+				description:
+					"Skill for understanding public content, discovery files, and crawl preferences on ta93abe.com.",
+				tags: ["skill", "portfolio", "discovery"],
+				capabilities: ["site-overview"],
+				representativeQueries: [
+					"エージェントはどう ta93abe.com を読むべき？",
+					"How should an agent crawl ta93abe.com?",
+					"Where are the public sections and discovery URLs?",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:doc:llms`,
+				displayName: "llms.txt",
+				type: "text/plain",
+				url: `${SITE_URL}/llms.txt`,
+				description:
+					"Plain-text overview of public pages and machine-readable discovery URLs.",
+				tags: ["llms.txt", "portfolio"],
+				capabilities: ["site-overview"],
+				representativeQueries: [
+					"ta93abe のブログは？",
+					"About はどこ？",
+					"Summarize ta93abe.com for an LLM.",
+					"List the public pages on this site.",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:auth:public`,
+				displayName: "auth.md",
+				type: "text/markdown",
+				url: `${SITE_URL}/auth.md`,
+				description:
+					"Agent authentication notes. Public content requires no credential.",
+				tags: ["auth", "anonymous"],
+				capabilities: ["anonymous-access"],
+				representativeQueries: [
+					"ta93abe.com の閲覧に認証は必要？",
+					"Does ta93abe.com require authentication?",
+					"How should an agent register for public access?",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:agent:site`,
+				displayName: SITE_TITLE,
+				type: "application/a2a-agent-card+json",
+				url: `${SITE_URL}/.well-known/agent-card.json`,
+				description:
+					"A2A Agent Card for the public ta93abe.com portfolio site.",
+				tags: ["a2a", "portfolio"],
+				capabilities: ["site-overview"],
+				representativeQueries: [
+					"ta93abe.com のエージェントは何ができる？",
+					"What can the ta93abe.com agent do?",
+					"List the public sections of this site.",
+				],
+			},
+		],
+	};
+}

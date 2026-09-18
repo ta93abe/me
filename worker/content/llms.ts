@@ -71,6 +71,11 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 		description: "Machine-readable API catalog.",
 	},
 	{
+		name: "ARD capability manifest",
+		path: "/.well-known/ai-catalog.json",
+		description: "Agentic Resource Discovery catalog.",
+	},
+	{
 		name: "MCP server card",
 		path: "/.well-known/mcp/server-card.json",
 		description: "MCP server discovery card.",
