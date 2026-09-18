@@ -5,7 +5,9 @@ test.describe("Slides", () => {
 		page,
 	}) => {
 		await page.goto("/slides");
-		await expect(page.getByRole("heading", { name: "Slides", level: 1 })).toBeVisible();
+		await expect(
+			page.getByRole("heading", { name: "Slides", level: 1 }),
+		).toBeVisible();
 
 		const showcase = page.getByRole("link", {
 			name: /デザインシステム ショーケース/,

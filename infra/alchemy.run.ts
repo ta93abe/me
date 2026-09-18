@@ -79,8 +79,8 @@ export default Alchemy.Stack(
 			main: new URL("./sveltia-cms-auth/index.js", import.meta.url).pathname,
 			domain: AUTH_DOMAIN,
 			env: {
-				GITHUB_CLIENT_ID: Config.string("GITHUB_CLIENT_ID"),
-				GITHUB_CLIENT_SECRET: Config.redacted("GITHUB_CLIENT_SECRET"),
+				GITHUB_CLIENT_ID: Config.String("GITHUB_CLIENT_ID"),
+				GITHUB_CLIENT_SECRET: Config.Redacted("GITHUB_CLIENT_SECRET"),
 				// このドメイン以外からの認証要求を拒否する
 				ALLOWED_DOMAINS: "ta93abe.com",
 			},
