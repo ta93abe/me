@@ -55,19 +55,18 @@ type AuthorizationServerMetadata = {
 };
 
 describe("agent_auth anonymous claim_uri", () => {
-	it("advertises claim_uri on AS and OIDC metadata", async () => {
+	it("advertises claim_uri on AS metadata and keeps OIDC unimplemented", async () => {
 		const asResponse = await fetchPath(
 			"/.well-known/oauth-authorization-server",
 		);
 		const oidcResponse = await fetchPath("/.well-known/openid-configuration");
 
 		expect(asResponse.status).toBe(200);
-		expect(oidcResponse.status).toBe(200);
+		// TA-928: この host は OIDC OP ではないので AS metadata を複製しない。
+		expect(oidcResponse.status).toBe(404);
 
 		const asJson = (await asResponse.json()) as AuthorizationServerMetadata;
-		const oidcJson = (await oidcResponse.json()) as AuthorizationServerMetadata;
 
-		expect(asJson.agent_auth).toEqual(oidcJson.agent_auth);
 		expect(asJson.agent_auth.identity_types_supported).toEqual(["anonymous"]);
 		expect(asJson.agent_auth.anonymous.credential_types_supported).toEqual([
 			"api_key",
@@ -75,9 +74,8 @@ describe("agent_auth anonymous claim_uri", () => {
 		expect(asJson.agent_auth.anonymous.claim_uri).toBe(
 			"https://ta93abe.com/agent/claim",
 		);
-		expect(asJson.grant_types_supported).toContain(
-			"urn:workos:agent-auth:grant-type:claim",
-		);
+		// TA-928: この site は token endpoint を持たないので grant は広告しない。
+		expect(asJson.grant_types_supported).toEqual([]);
 	});
 
 	it("completes GET and POST claim_uri immediately without a secret", async () => {
