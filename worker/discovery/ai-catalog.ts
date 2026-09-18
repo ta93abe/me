@@ -4,23 +4,27 @@ const SITE_TITLE = "Takumi Abe / ta93abe";
 
 export const HOST_DID = `did:web:${SITE_HOST}`;
 export const DID_WEB_PATH = "/.well-known/did.json";
-export const AI_CATALOG_PATH = "/.well-known/ai-catalog.json";
-export const ARD_MANIFEST_PATH = "/.well-known/ard.json";
 
-export const AI_CATALOG_PATHS = [AI_CATALOG_PATH, ARD_MANIFEST_PATH] as const;
+export type AiCatalogEntry = {
+	identifier: string;
+	displayName: string;
+	type: string;
+	url: string;
+	description: string;
+	tags: string[];
+	capabilities: string[];
+	representativeQueries: string[];
+};
 
-export const AI_CATALOG_CORS_HEADERS = {
-	"Access-Control-Allow-Origin": "*",
-} as const;
-
-export const AGENT_CATALOG_LINKS = [
-	`<${AI_CATALOG_PATH}>; rel="ai-catalog"; type="application/json"`,
-	`<${ARD_MANIFEST_PATH}>; rel="ard"; type="application/json"`,
-].join(", ");
-
-export function isAiCatalogPath(pathname: string): boolean {
-	return (AI_CATALOG_PATHS as readonly string[]).includes(pathname);
-}
+export type AiCatalogManifest = {
+	specVersion: "1.0";
+	host: {
+		displayName: string;
+		identifier: string;
+		documentationUrl: string;
+	};
+	entries: AiCatalogEntry[];
+};
 
 export function didWebDocument() {
 	return {
@@ -31,7 +35,7 @@ export function didWebDocument() {
 	};
 }
 
-export function aiCatalog() {
+export function aiCatalog(): AiCatalogManifest {
 	return {
 		specVersion: "1.0",
 		host: {
@@ -51,6 +55,7 @@ export function aiCatalog() {
 				capabilities: ["get_site_overview"],
 				representativeQueries: [
 					"MCP でサイト概要を取る",
+					"MCP の入口は？",
 					"What can the ta93abe.com MCP server do?",
 					"get_site_overview で公開ページを要約して",
 				],
@@ -125,9 +130,25 @@ export function aiCatalog() {
 				tags: ["llms.txt", "portfolio"],
 				capabilities: ["site-overview"],
 				representativeQueries: [
-					"ta93abe.com のブログ一覧",
+					"ta93abe のブログは？",
+					"About はどこ？",
 					"Summarize ta93abe.com for an LLM.",
 					"List the public pages on this site.",
+				],
+			},
+			{
+				identifier: `urn:air:${SITE_HOST}:auth:public`,
+				displayName: "auth.md",
+				type: "text/markdown",
+				url: `${SITE_URL}/auth.md`,
+				description:
+					"Agent authentication notes. Public content requires no credential.",
+				tags: ["auth", "anonymous"],
+				capabilities: ["anonymous-access"],
+				representativeQueries: [
+					"ta93abe.com は認証が必要？",
+					"Does ta93abe.com require authentication?",
+					"How should an agent register for public access?",
 				],
 			},
 		],

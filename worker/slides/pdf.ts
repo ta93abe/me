@@ -109,5 +109,11 @@ export async function purgePdfCache(url: string): Promise<void> {
 }
 
 export function isPrintQuery(value: string | null | undefined): boolean {
-	return value !== undefined && value !== null && value !== "" && value !== "0" && value !== "false";
+	return (
+		value !== undefined &&
+		value !== null &&
+		value !== "" &&
+		value !== "0" &&
+		value !== "false"
+	);
 }
