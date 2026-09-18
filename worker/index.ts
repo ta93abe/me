@@ -1,6 +1,10 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import {
+	SITEMAP_INDEX_PATH,
+	isSitemapIndexAlias,
+} from "../src/lib/content/sitemap-aliases.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -520,7 +524,14 @@ export default {
 			);
 		}
 
-		if (pathname === "/sitemap-index.xml") {
+		if (
+			isSitemapIndexAlias(pathname) &&
+			(request.method === "GET" || request.method === "HEAD")
+		) {
+			return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
+		}
+
+		if (pathname === SITEMAP_INDEX_PATH) {
 			return textResponse(
 				request,
 				buildSitemapIndexXml(SITE_URL),
