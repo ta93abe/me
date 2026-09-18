@@ -5,6 +5,8 @@ export const SITE = {
 	description:
 		"データ基盤と CI を書くソフトウェアエンジニア、Takumi Abe (ta93abe) のポートフォリオ。絵と音楽も置く。",
 	author: "Takumi Abe",
+	/** 著者の正規 URL。JSON-LD Person.url と記事 byline がこれを読む */
+	authorPath: "/about/",
 	url: "https://ta93abe.com",
 	locale: "ja_JP",
 	lang: "ja",
@@ -23,10 +25,10 @@ export type SiteConfig = typeof SITE;
  * 代表作の一覧は `/works`。
  */
 export const HOME_CTAS = [
-	{ href: "/works", label: "Works" },
-	{ href: "/about", label: "About" },
-	{ href: "/blog", label: "Blog" },
-	{ href: "/contact", label: "Contact" },
+	{ href: "/works/", label: "Works" },
+	{ href: "/about/", label: "About" },
+	{ href: "/blog/", label: "Blog" },
+	{ href: "/contact/", label: "Contact" },
 ] as const;
 
 export type FeaturedWork = {

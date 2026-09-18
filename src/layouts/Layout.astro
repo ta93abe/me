@@ -54,7 +54,8 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
+		<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="color-scheme" content="light" />
 		<meta name="theme-color" content="#ffffff" />
@@ -66,6 +67,16 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+		<link
+			rel="ai-catalog"
+			href={`${SITE.url}/.well-known/ai-catalog.json`}
+			type="application/json"
+		/>
+		<link
+			rel="ard"
+			href={`${SITE.url}/.well-known/ard.json`}
+			type="application/json"
+		/>
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content={ogType} />
@@ -121,7 +132,7 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 		<div id="main-content" class:list={[{ "main-flush": flushTop }]}>
 			<slot />
 		</div>
-		{!noFooter && <Footer />}
+		{!noFooter && <Footer docked={lockViewport} />}
 		<script>
 			import "../scripts/animations/observer.ts";
 		</script>
@@ -138,48 +149,6 @@ const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 
 	#main-content:not(.main-flush) {
 		padding-top: var(--header-height);
-	}
-
-	body.lock-viewport {
-		height: 100dvh;
-		height: 100svh;
-		overflow: hidden;
-		overscroll-behavior: none;
-	}
-
-	:global(html:has(body.lock-viewport)) {
-		height: 100%;
-		overflow: hidden;
-		overscroll-behavior: none;
-	}
-
-	body.lock-viewport #main-content {
-		height: 100%;
-		overflow-x: hidden;
-		overflow-y: auto;
-	}
-
-	body.lock-viewport :global(footer) {
-		position: fixed;
-		inset-inline: 0;
-		bottom: 0;
-		z-index: 50;
-	}
-
-	body.lock-viewport :global(footer > div) {
-		padding-block: 0.75rem;
-		flex-wrap: nowrap;
-		gap: 0.75rem 1rem;
-	}
-
-	body.lock-viewport :global(footer nav ul) {
-		flex-wrap: nowrap;
-	}
-
-	@media (max-width: 639px) {
-		body.lock-viewport :global(footer .footer-credit) {
-			display: none;
-		}
 	}
 
 	/* スキップリンク */
