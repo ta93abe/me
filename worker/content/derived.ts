@@ -198,14 +198,24 @@ export function lastmodFromFeedPosts(posts: FeedPost[]): string | undefined {
 	);
 }
 
+export function lastmodFromGeneratedAt(
+	generatedAt: string | undefined,
+): string | undefined {
+	const date = toDate(generatedAt);
+	if (!date || date.getTime() <= 0) {
+		return undefined;
+	}
+	return formatSitemapLastmod(date);
+}
+
 export function childSitemapLastmod(
 	xml: string | undefined,
 	httpLastModified: string | null | undefined,
 	fallback: Date = new Date(),
 ): string {
 	return (
-		lastmodFromSitemapXml(xml ?? "") ??
 		formatSitemapLastmod(httpLastModified ?? undefined) ??
+		lastmodFromSitemapXml(xml ?? "") ??
 		formatSitemapLastmod(fallback) ??
 		"1970-01-01"
 	);
@@ -248,7 +258,10 @@ export async function loadSitemapIndexXml(
 			staticSitemap.lastModified,
 			now,
 		),
-		blogSitemap: lastmodFromFeedPosts(posts) ?? formatSitemapLastmod(now),
+		blogSitemap:
+			lastmodFromGeneratedAt(index.generatedAt) ??
+			lastmodFromFeedPosts(posts) ??
+			formatSitemapLastmod(now),
 	});
 }
 
