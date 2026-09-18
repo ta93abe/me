@@ -105,7 +105,33 @@ describe("derived discovery feeds", () => {
 		expect(
 			urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod,
 		).toBe("2026-08-30");
+		expect(
+			urls.find((entry) => entry.loc === "https://ta93abe.com/blog/")?.lastmod,
+		).toBe("2026-08-30");
 		expect(locs.join(" ")).not.toMatch(/gallery|atelier|bookshelf/);
+	});
+
+	it("uses the newest revise_date for the blog index lastmod", () => {
+		const urls = sitemapUrlEntries(
+			[
+				HELLO,
+				{
+					...OLDER,
+					revise_date: new Date("2026-09-16T00:00:00.000Z"),
+				},
+			],
+			"https://ta93abe.com",
+		);
+
+		expect(
+			urls.find((entry) => entry.loc === "https://ta93abe.com/blog/")?.lastmod,
+		).toBe("2026-09-16");
+		expect(
+			urls.find((entry) => entry.loc.endsWith("/hello-world/"))?.lastmod,
+		).toBe("2026-08-30");
+		expect(
+			urls.find((entry) => entry.loc.endsWith("/older-note/"))?.lastmod,
+		).toBe("2026-09-16");
 	});
 
 	it("lists published posts in the llms blog section", () => {
