@@ -20,10 +20,10 @@ describe("SITE intro", () => {
 describe("HOME_CTAS", () => {
 	it("points to Works, About, Blog, and Contact without unpublished collections", () => {
 		expect(HOME_CTAS.map((cta) => cta.href)).toEqual([
-			"/works",
-			"/about",
-			"/blog",
-			"/contact",
+			"/works/",
+			"/about/",
+			"/blog/",
+			"/contact/",
 		]);
 		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/gallery");
 		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/atelier");
