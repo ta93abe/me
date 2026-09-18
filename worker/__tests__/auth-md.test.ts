@@ -24,16 +24,21 @@ describe("auth.md", () => {
 		expect(md).toContain("anonymous");
 		expect(md).toMatch(/credential use/i);
 		expect(md).toContain("identity_type");
-		expect(md).toContain('"api_key": "public"');
+		expect(md).toContain("credential_type: none");
+		expect(md).not.toMatch(/api_key/);
 	});
 
-	it("stays consistent with anonymous public read", () => {
-		expect(md).not.toMatch(/claim_uri/);
-		expect(md.toLowerCase()).toContain("no secret");
-		expect(md).toContain(`issuer`);
+	it("keeps claim_uri and anonymous public read from current auth.md", () => {
+		expect(md).toMatch(/claim_uri/);
+		expect(md).toContain(`${SITE_URL}/agent/claim`);
+		expect(md).toMatch(/## Step 4 — Claim/);
+		expect(md.toLowerCase()).toMatch(/no secret|no credential|no bearer/);
+		expect(md).toContain("issuer");
 		expect(md).toContain(SITE_URL);
 		expect(md).toContain(SITE_HOST);
 		expect(md).toContain("/.well-known/oauth-authorization-server");
 		expect(md).toContain("/.well-known/oauth-protected-resource");
+		expect(md).toContain(`${SITE_URL}/sitemap.xml`);
+		expect(md).not.toMatch(/sitemap-index\.xml/);
 	});
 });
