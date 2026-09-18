@@ -463,6 +463,7 @@ tags:
 			"hello-world",
 		);
 		expect(purged).toContain("https://ta93abe.com/rss.xml");
+		expect(purged).toContain("https://ta93abe.com/sitemap.xml");
 		expect(purged).toContain("https://ta93abe.com/sitemap-index.xml");
 		expect(purged).toContain("https://ta93abe.com/sitemap-blog.xml");
 		expect(purged).toContain("https://ta93abe.com/llms.txt");

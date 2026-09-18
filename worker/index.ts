@@ -2,10 +2,7 @@ import { handle } from "@astrojs/cloudflare/handler";
 
 import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
-import {
-	SITEMAP_INDEX_PATH,
-	isSitemapIndexAlias,
-} from "../src/lib/content/sitemap-aliases.ts";
+import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
 import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
 import { a2aAgentCard } from "./agent-card.ts";
 import {
@@ -27,24 +24,24 @@ import {
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
-	AUTH_MD_OIDC_PARAGRAPH,
-	OPENID_CONFIGURATION_PATH,
-} from "./oauth-discovery.ts";
+	CONTENT_SIGNAL,
+	addPublicHtmlDiscoveryHeaders,
+} from "./discovery-headers.ts";
+import { aiCatalog } from "./discovery/ai-catalog.ts";
 import {
 	appendHeaderToken,
 	htmlOriginRequest,
 	negotiateHtmlMarkdown,
 } from "./markdown-response.ts";
-import { aiCatalog } from "./discovery/ai-catalog.ts";
+import { handleMcp, mcpServerCard } from "./mcp.ts";
+import {
+	AUTH_MD_OIDC_PARAGRAPH,
+	OPENID_CONFIGURATION_PATH,
+} from "./oauth-discovery.ts";
 import {
 	oauthAuthorizationServer,
 	oauthProtectedResource,
 } from "./oauth-metadata.ts";
-import {
-	CONTENT_SIGNAL,
-	addPublicHtmlDiscoveryHeaders,
-} from "./discovery-headers.ts";
-import { handleMcp, mcpServerCard } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -159,7 +156,7 @@ There is nothing to revoke for anonymous public read access.
 ## Public resources
 
 - Homepage: ${SITE_URL}/
-- Sitemap: ${SITE_URL}/sitemap-index.xml
+- Sitemap: ${SITE_URL}/sitemap.xml
 - llms.txt: ${SITE_URL}/llms.txt
 - API catalog: ${SITE_URL}/.well-known/api-catalog
 - ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
@@ -295,7 +292,7 @@ function agentAuthRegisterResponse() {
 		resources: {
 			home: `${SITE_URL}/`,
 			llms: `${SITE_URL}/llms.txt`,
-			sitemap: `${SITE_URL}/sitemap-index.xml`,
+			sitemap: `${SITE_URL}/sitemap.xml`,
 		},
 	};
 }
@@ -444,13 +441,9 @@ async function handleSiteRequest(
 	}
 
 	if (
-		isSitemapIndexAlias(pathname) &&
+		isSitemapIndexDocument(pathname) &&
 		(request.method === "GET" || request.method === "HEAD")
 	) {
-		return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
-	}
-
-	if (pathname === SITEMAP_INDEX_PATH) {
 		let xml: string | undefined;
 		let lastModified: string | null = null;
 		try {

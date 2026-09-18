@@ -140,7 +140,7 @@ function buildLlmsGuidance(options: {
 
 - This is a public content site. No authentication is required to read the public pages.
 - Prefer canonical URLs on ${options.siteHost}.
-- Use the sitemap at ${siteUrl}/sitemap-index.xml for crawl discovery.
+- Use the sitemap at ${siteUrl}/sitemap.xml for crawl discovery.
 - Respect robots.txt and Content-Signal directives.
 
 ## Content usage preference
