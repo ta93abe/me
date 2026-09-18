@@ -35,7 +35,7 @@ describe("GADGETS catalog", () => {
 			);
 			expect(gadget.imageSource?.href.startsWith("https://")).toBe(true);
 			expect(getGadget(gadget.slug)).toEqual(gadget);
-			expect(gadgetPath(gadget.slug)).toBe(`/gadgets/${gadget.slug}`);
+			expect(gadgetPath(gadget.slug)).toBe(`/gadgets/${gadget.slug}/`);
 			expect(gadgetViewTransitionName(gadget.slug)).toBe(
 				`gadget-${gadget.slug}`,
 			);

@@ -54,15 +54,15 @@ test.describe("Published content", () => {
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
@@ -72,6 +72,11 @@ test.describe("Published content", () => {
 	}) => {
 		const rss = await request.get("/rss.xml");
 		expect(rss.ok()).toBeTruthy();
+		expect(rss.headers()["content-type"]).toContain("application/rss+xml");
+		expect(rss.headers()["content-signal"]).toBe(
+			"ai-train=no, search=yes, ai-input=yes",
+		);
+		expect(rss.headers().link).toContain('</llms.txt>; rel="describedby"');
 		const rssBody = await rss.text();
 		expect(rssBody).toContain("<language>ja</language>");
 		expect(rssBody).not.toContain("dbt-jobs");
@@ -79,9 +84,21 @@ test.describe("Published content", () => {
 		const sitemap = await request.get("/sitemap-blog.xml");
 		expect(sitemap.ok()).toBeTruthy();
 		const sitemapBody = await sitemap.text();
-		expect(sitemapBody).toContain("/blog/");
+		expect(sitemapBody).toContain("<urlset");
 		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
+	});
+
+	test("conventional sitemap URLs redirect to the sitemap index", async ({
+		request,
+	}) => {
+		for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
+			const response = await request.fetch(path, { maxRedirects: 0 });
+			expect([301, 308], path).toContain(response.status());
+			expect(response.headers()["location"], path).toMatch(
+				/\/sitemap-index\.xml\/?$/,
+			);
+		}
 	});
 
 	test("retired collection URLs redirect home", async ({ page }) => {

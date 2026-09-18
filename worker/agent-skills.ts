@@ -65,7 +65,14 @@ Content-Signal is \`ai-train=no, search=yes, ai-input=yes\`: do not use this sit
 4. Respect [robots.txt](${SITE_URL}/robots.txt) and the Content-Signal above.
 `;
 
-async function sha256Digest(value: string): Promise<string> {
+export const AGENT_SKILLS_SCHEMA =
+	"https://schemas.agentskills.io/discovery/0.2.0/schema.json";
+
+export function skillArtifactUrl(siteUrl: string, skillPath: string): string {
+	return new URL(skillPath, siteUrl).href;
+}
+
+export async function sha256Digest(value: string): Promise<string> {
 	const bytes = new TextEncoder().encode(value);
 	const digest = await crypto.subtle.digest("SHA-256", bytes);
 	return `sha256:${[...new Uint8Array(digest)]
@@ -73,16 +80,16 @@ async function sha256Digest(value: string): Promise<string> {
 		.join("")}`;
 }
 
-export async function agentSkillsIndex() {
+export async function agentSkillsIndex(siteUrl: string, markdown: string) {
 	return {
-		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+		$schema: AGENT_SKILLS_SCHEMA,
 		skills: [
 			{
 				name: AGENT_SKILL_NAME,
 				type: "skill-md",
 				description: AGENT_SKILL_DESCRIPTION,
-				url: AGENT_SKILL_PATH,
-				digest: await sha256Digest(AGENT_SKILL_MARKDOWN),
+				url: skillArtifactUrl(siteUrl, AGENT_SKILL_PATH),
+				digest: await sha256Digest(markdown),
 			},
 		],
 	};

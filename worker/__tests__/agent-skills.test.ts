@@ -96,14 +96,14 @@ describe("site-overview SKILL.md", () => {
 	});
 
 	it("keeps the discovery index pointed at this SKILL.md with a matching digest", async () => {
-		const index = await agentSkillsIndex();
+		const index = await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN);
 		const skill = index.skills[0];
 		const parsed = parseMarkdownDocument(AGENT_SKILL_MARKDOWN);
 
 		expect(skill).toMatchObject({
 			name: parsed.frontmatter.name,
 			type: "skill-md",
-			url: AGENT_SKILL_PATH,
+			url: `${SITE_URL}${AGENT_SKILL_PATH}`,
 		});
 		expect(skill.url.endsWith("/site-overview/SKILL.md")).toBe(true);
 		expect(skill.digest).toBe(sha256DigestFromRawBytes(AGENT_SKILL_MARKDOWN));
