@@ -25,6 +25,7 @@ import {
 } from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
+import { discoveryResponse } from "./discovery-cache.ts";
 import {
 	CONTENT_SIGNAL,
 	addPublicHtmlDiscoveryHeaders,
@@ -161,6 +162,33 @@ function jsonResponse(
 	init: ResponseInit = {},
 ): Response {
 	return textResponse(
+		request,
+		JSON.stringify(value, null, 2),
+		"application/json; charset=utf-8",
+		init,
+	);
+}
+
+async function discoveryTextResponse(
+	request: Request,
+	body: string,
+	contentType: string,
+	init: ResponseInit = {},
+): Promise<Response> {
+	const headers = new Headers(init.headers);
+	setGeneratedHeaders(headers);
+	return discoveryResponse(request, body, contentType, {
+		...init,
+		headers,
+	});
+}
+
+async function discoveryJsonResponse(
+	request: Request,
+	value: unknown,
+	init: ResponseInit = {},
+): Promise<Response> {
+	return discoveryTextResponse(
 		request,
 		JSON.stringify(value, null, 2),
 		"application/json; charset=utf-8",
@@ -369,7 +397,11 @@ async function handleSiteRequest(
 	}
 
 	if (pathname === "/auth.md") {
-		return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
+		return discoveryTextResponse(
+			request,
+			AUTH_MD,
+			"text/markdown; charset=utf-8",
+		);
 	}
 
 	if (pathname === "/agent/auth" || pathname === AGENT_CLAIM_PATH) {
@@ -405,7 +437,7 @@ async function handleSiteRequest(
 	}
 
 	if (pathname === "/.well-known/api-catalog") {
-		return textResponse(
+		return discoveryTextResponse(
 			request,
 			JSON.stringify(buildApiCatalog(SITE_URL), null, 2),
 			API_CATALOG_MEDIA_TYPE,
@@ -424,25 +456,25 @@ async function handleSiteRequest(
 		pathname === "/.well-known/ai-catalog.json" ||
 		pathname === "/.well-known/ard.json"
 	) {
-		return jsonResponse(request, aiCatalog());
+		return discoveryJsonResponse(request, aiCatalog());
 	}
 
 	if (
 		pathname === "/.well-known/mcp/server-card.json" ||
 		pathname === "/.well-known/mcp.json"
 	) {
-		return jsonResponse(request, mcpServerCard());
+		return discoveryJsonResponse(request, mcpServerCard());
 	}
 
 	if (pathname === "/.well-known/agent-skills/index.json") {
-		return jsonResponse(
+		return discoveryJsonResponse(
 			request,
 			await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN),
 		);
 	}
 
 	if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
-		return textResponse(
+		return discoveryTextResponse(
 			request,
 			AGENT_SKILL_MARKDOWN,
 			"text/markdown; charset=utf-8",
@@ -453,7 +485,7 @@ async function handleSiteRequest(
 		pathname === "/.well-known/agent-card.json" ||
 		pathname === "/.well-known/agent.json"
 	) {
-		return jsonResponse(request, a2aAgentCard());
+		return discoveryJsonResponse(request, a2aAgentCard());
 	}
 
 	if (pathname === "/.well-known/oauth-authorization-server") {
