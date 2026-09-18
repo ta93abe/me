@@ -78,6 +78,48 @@ export function mcpToolList() {
 	];
 }
 
+export const SITE_OVERVIEW = {
+	site: `${SITE_URL}/`,
+	sections: [
+		`${SITE_URL}/about/`,
+		`${SITE_URL}/works/`,
+		`${SITE_URL}/blog/`,
+		`${SITE_URL}/contact/`,
+		`${SITE_URL}/slides/`,
+		`${SITE_URL}/tools/`,
+		`${SITE_URL}/gadgets/`,
+		`${SITE_URL}/links/`,
+	],
+	discovery: {
+		llms: `${SITE_URL}/llms.txt`,
+		apiCatalog: `${SITE_URL}/.well-known/api-catalog`,
+		mcpServerCard: `${SITE_URL}/.well-known/mcp/server-card.json`,
+		agentSkills: `${SITE_URL}/.well-known/agent-skills/index.json`,
+		agentCard: `${SITE_URL}/.well-known/agent-card.json`,
+		auth: `${SITE_URL}/auth.md`,
+	},
+} as const;
+
+export function getSiteOverview() {
+	return {
+		...SITE_OVERVIEW,
+		sections: [...SITE_OVERVIEW.sections],
+		discovery: { ...SITE_OVERVIEW.discovery },
+	};
+}
+
+export function mcpGetSiteOverviewResult(markdown: string) {
+	return {
+		content: [
+			{
+				type: "text" as const,
+				text: markdown,
+			},
+		],
+		structuredContent: getSiteOverview(),
+	};
+}
+
 function mediaTypes(header: string | null): string[] {
 	if (!header) {
 		return [];
@@ -322,14 +364,7 @@ export async function handleMcp(
 			request,
 			jsonResponse,
 			id,
-			{
-				content: [
-					{
-						type: "text",
-						text: await content.siteOverviewMarkdown(),
-					},
-				],
-			},
+			mcpGetSiteOverviewResult(await content.siteOverviewMarkdown()),
 			sessionId,
 		);
 	}

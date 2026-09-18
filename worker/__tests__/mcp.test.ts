@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
 	handleMcp,
+	mcpGetSiteOverviewResult,
 	mcpResources,
 	mcpServerCard,
 	mcpToolList,
+	SITE_OVERVIEW,
 	type McpSiteContent,
 } from "../mcp.ts";
 
@@ -213,6 +215,51 @@ describe("MCP resources", () => {
 				},
 			},
 		]);
+	});
+
+	it("includes the A2A agent card in get_site_overview structured discovery", async () => {
+		const response = await postMcp("tools/call", {
+			name: "get_site_overview",
+		});
+		const body = await readJson(response);
+		const result = body.result as {
+			content: Array<{ type: string; text: string }>;
+			structuredContent: {
+				discovery: { agentCard?: string };
+			};
+		};
+
+		expect(body.error).toBeUndefined();
+		expect(result.content[0]).toEqual({ type: "text", text: OVERVIEW });
+		expect(result.structuredContent.discovery.agentCard).toBe(
+			"https://ta93abe.com/.well-known/agent-card.json",
+		);
+		expect(result.structuredContent).toEqual(SITE_OVERVIEW);
+		expect(SITE_OVERVIEW.discovery.auth).toBe("https://ta93abe.com/auth.md");
+		expect(JSON.stringify(result)).toContain(
+			"https://ta93abe.com/.well-known/agent-card.json",
+		);
+	});
+
+	it("does not let a caller mutate later get_site_overview results", () => {
+		const first = mcpGetSiteOverviewResult("# first");
+		const discovery = first.structuredContent.discovery as {
+			agentCard?: string;
+		};
+		delete discovery.agentCard;
+		first.structuredContent.sections.pop();
+
+		const second = mcpGetSiteOverviewResult("# second");
+
+		expect(second.structuredContent.discovery.agentCard).toBe(
+			"https://ta93abe.com/.well-known/agent-card.json",
+		);
+		expect(second.structuredContent.sections).toEqual([
+			...SITE_OVERVIEW.sections,
+		]);
+		expect(SITE_OVERVIEW.discovery.agentCard).toBe(
+			"https://ta93abe.com/.well-known/agent-card.json",
+		);
 	});
 
 	it("still lists tools and rejects unknown methods", async () => {
