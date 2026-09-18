@@ -90,6 +90,11 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 		path: "/auth.md",
 		description: "Public-read authentication notes for agents.",
 	},
+	{
+		name: "security.txt",
+		path: "/.well-known/security.txt",
+		description: "Vulnerability disclosure contact.",
+	},
 ];
 
 function originBase(origin: string): string {

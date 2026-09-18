@@ -70,7 +70,7 @@ describe("llms.txt file lists", () => {
 		const markdown = buildLlmsOverviewMarkdown(ORIGIN, BLOG_SECTION);
 
 		expect(LLMS_PRIMARY_SECTIONS).toHaveLength(8);
-		expect(LLMS_MACHINE_RESOURCES).toHaveLength(7);
+		expect(LLMS_MACHINE_RESOURCES).toHaveLength(8);
 
 		for (const item of [...LLMS_PRIMARY_SECTIONS, ...LLMS_MACHINE_RESOURCES]) {
 			expect(markdown).toContain(formatLlmsFileListItem(item, ORIGIN));

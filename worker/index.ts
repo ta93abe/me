@@ -43,6 +43,11 @@ import {
 	oauthProtectedResource,
 } from "./oauth-metadata.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
+import {
+	SECURITY_TXT,
+	SECURITY_TXT_CONTENT_TYPE,
+	SECURITY_TXT_PATH,
+} from "./security-txt.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
 	isPrintQuery,
@@ -163,6 +168,7 @@ There is nothing to revoke for anonymous public read access.
 - MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
 - Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
 - A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
+- security.txt: ${SITE_URL}/.well-known/security.txt
 `;
 
 function isHead(request: Request): boolean {
@@ -248,6 +254,10 @@ function apiCatalog() {
 					{
 						href: `${SITE_URL}/auth.md`,
 						type: "text/markdown",
+					},
+					{
+						href: `${SITE_URL}${SECURITY_TXT_PATH}`,
+						type: "text/plain",
 					},
 				],
 				"auth-endpoint": [
@@ -520,6 +530,10 @@ async function handleSiteRequest(
 				: agentAuthRegisterResponse(),
 			{ headers: { Allow: AGENT_AUTH_ALLOW } },
 		);
+	}
+
+	if (pathname === SECURITY_TXT_PATH) {
+		return textResponse(request, SECURITY_TXT, SECURITY_TXT_CONTENT_TYPE);
 	}
 
 	if (pathname === "/.well-known/api-catalog") {
