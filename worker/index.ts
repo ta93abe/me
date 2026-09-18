@@ -5,6 +5,10 @@ import {
 	SITEMAP_INDEX_PATH,
 	isSitemapIndexAlias,
 } from "../src/lib/content/sitemap-aliases.ts";
+import {
+	handleAgentDiscoveryPreflight,
+	withAgentDiscoveryCors,
+} from "./agent-discovery-cors.ts";
 import { AGENT_SKILL_PATH, agentSkillsIndex } from "./agent-skills.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
@@ -422,213 +426,227 @@ async function fetchAstro(
 	return response;
 }
 
+async function handleSiteRequest(
+	request: Request,
+	env: Env,
+	ctx: ExecutionContext,
+): Promise<Response> {
+	const url = new URL(request.url);
+	const pathname = url.pathname.replace(/\/+$/, "") || "/";
+
+	const contentResponse = await handleContentApi(request, env);
+	if (contentResponse) {
+		return contentResponse;
+	}
+
+	const pdfSlug = parseSlidePdfSlug(pathname);
+	if (pdfSlug && (request.method === "GET" || request.method === "HEAD")) {
+		return servePdf(request, env, pdfSlug);
+	}
+
+	const printSlug = parseSlideDeckSlug(pathname);
+	if (
+		printSlug &&
+		isPrintQuery(url.searchParams.get("print")) &&
+		(request.method === "GET" || request.method === "HEAD")
+	) {
+		return Response.redirect(
+			new URL(`/slides/${printSlug}/print/`, request.url),
+			301,
+		);
+	}
+
+	if (
+		isRetiredSitePath(pathname) &&
+		(request.method === "GET" || request.method === "HEAD")
+	) {
+		return Response.redirect(new URL("/", url), 301);
+	}
+
+	if (
+		request.method !== "GET" &&
+		request.method !== "HEAD" &&
+		pathname !== "/mcp"
+	) {
+		return handle(request, env, ctx);
+	}
+
+	if (pathname === "/" && acceptsMarkdown(request)) {
+		const overview = await siteOverviewMarkdown(env);
+		return textResponse(request, overview, "text/markdown; charset=utf-8", {
+			headers: {
+				Link: DISCOVERY_LINKS,
+				Vary: "Accept",
+				"Cache-Control": BLOG_HTML_CACHE_CONTROL,
+				"X-Markdown-Tokens": String(
+					overview.split(/\s+/).filter(Boolean).length,
+				),
+			},
+		});
+	}
+
+	if (pathname === "/llms.txt") {
+		return textResponse(
+			request,
+			await siteOverviewMarkdown(env),
+			"text/plain; charset=utf-8",
+			{
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			},
+		);
+	}
+
+	if (pathname === "/llms-full.txt") {
+		return textResponse(
+			request,
+			await llmsFullText(env),
+			"text/plain; charset=utf-8",
+			{
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			},
+		);
+	}
+
+	if (
+		isSitemapIndexAlias(pathname) &&
+		(request.method === "GET" || request.method === "HEAD")
+	) {
+		return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
+	}
+
+	if (pathname === SITEMAP_INDEX_PATH) {
+		return textResponse(
+			request,
+			buildSitemapIndexXml(SITE_URL),
+			"application/xml; charset=utf-8",
+			{
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			},
+		);
+	}
+
+	const ogSlug = parseOgBlogPath(pathname);
+	if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
+		const title = await loadOgTitle(env.CONTENT, ogSlug);
+		if (title) {
+			if (shouldCacheBlogHtml(request)) {
+				const cached = await defaultCache().match(request);
+				if (cached) {
+					return cached;
+				}
+			}
+			const png = await renderBlogOgPng(title);
+			const response = binaryResponse(request, png, "image/png", {
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			});
+			if (shouldCacheBlogHtml(request) && request.method === "GET") {
+				ctx.waitUntil(defaultCache().put(request, response.clone()));
+			}
+			return response;
+		}
+	}
+
+	if (pathname === "/auth.md") {
+		return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
+	}
+
+	if (pathname === "/agent/auth") {
+		const method = request.method.toUpperCase();
+		if (method !== "GET" && method !== "POST" && method !== "HEAD") {
+			return textResponse(
+				request,
+				"Method Not Allowed",
+				"text/plain; charset=utf-8",
+				{
+					status: 405,
+					headers: { Allow: "GET, POST, HEAD" },
+				},
+			);
+		}
+		return jsonResponse(request, agentAuthRegisterResponse());
+	}
+
+	if (pathname === "/.well-known/api-catalog") {
+		return textResponse(
+			request,
+			JSON.stringify(apiCatalog(), null, 2),
+			"application/linkset+json; charset=utf-8",
+		);
+	}
+
+	if (
+		pathname === "/.well-known/mcp/server-card.json" ||
+		pathname === "/.well-known/mcp.json"
+	) {
+		return jsonResponse(request, mcpServerCard());
+	}
+
+	if (pathname === "/.well-known/agent-skills/index.json") {
+		return jsonResponse(
+			request,
+			await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN),
+		);
+	}
+
+	if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
+		return textResponse(
+			request,
+			AGENT_SKILL_MARKDOWN,
+			"text/markdown; charset=utf-8",
+		);
+	}
+
+	if (pathname === "/.well-known/agent-card.json") {
+		return jsonResponse(request, a2aAgentCard());
+	}
+
+	if (
+		pathname === "/.well-known/oauth-authorization-server" ||
+		pathname === "/.well-known/openid-configuration"
+	) {
+		return jsonResponse(request, oauthAuthorizationServer());
+	}
+
+	if (pathname === "/.well-known/oauth-protected-resource") {
+		return jsonResponse(request, oauthProtectedResource());
+	}
+
+	if (pathname === "/mcp") {
+		return handleMcp(
+			request,
+			{
+				siteOverviewMarkdown: () => siteOverviewMarkdown(env),
+				llmsFullText: () => llmsFullText(env),
+			},
+			(value, init) => jsonResponse(request, value, init),
+		);
+	}
+
+	// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+	if (
+		pathname === "/.well-known/http-message-signatures-directory" ||
+		pathname === "/.well-known/ucp" ||
+		pathname === "/.well-known/acp.json" ||
+		pathname === "/openapi.json" ||
+		pathname === "/api/v1" ||
+		pathname === "/api"
+	) {
+		return notFoundResponse(request);
+	}
+
+	const response = await fetchAstro(request, env, ctx);
+	return addPublicHtmlDiscoveryHeaders(request, response);
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const url = new URL(request.url);
-		const pathname = url.pathname.replace(/\/+$/, "") || "/";
-
-		const contentResponse = await handleContentApi(request, env);
-		if (contentResponse) {
-			return contentResponse;
+		const preflight = handleAgentDiscoveryPreflight(request);
+		if (preflight) {
+			return preflight;
 		}
 
-		const pdfSlug = parseSlidePdfSlug(pathname);
-		if (pdfSlug && (request.method === "GET" || request.method === "HEAD")) {
-			return servePdf(request, env, pdfSlug);
-		}
-
-		const printSlug = parseSlideDeckSlug(pathname);
-		if (
-			printSlug &&
-			isPrintQuery(url.searchParams.get("print")) &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
-			return Response.redirect(
-				new URL(`/slides/${printSlug}/print/`, request.url),
-				301,
-			);
-		}
-
-		if (
-			isRetiredSitePath(pathname) &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
-			return Response.redirect(new URL("/", url), 301);
-		}
-
-		if (
-			request.method !== "GET" &&
-			request.method !== "HEAD" &&
-			pathname !== "/mcp"
-		) {
-			return handle(request, env, ctx);
-		}
-
-		if (pathname === "/" && acceptsMarkdown(request)) {
-			const overview = await siteOverviewMarkdown(env);
-			return textResponse(request, overview, "text/markdown; charset=utf-8", {
-				headers: {
-					Link: DISCOVERY_LINKS,
-					Vary: "Accept",
-					"Cache-Control": BLOG_HTML_CACHE_CONTROL,
-					"X-Markdown-Tokens": String(
-						overview.split(/\s+/).filter(Boolean).length,
-					),
-				},
-			});
-		}
-
-		if (pathname === "/llms.txt") {
-			return textResponse(
-				request,
-				await siteOverviewMarkdown(env),
-				"text/plain; charset=utf-8",
-				{
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				},
-			);
-		}
-
-		if (pathname === "/llms-full.txt") {
-			return textResponse(
-				request,
-				await llmsFullText(env),
-				"text/plain; charset=utf-8",
-				{
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				},
-			);
-		}
-
-		if (
-			isSitemapIndexAlias(pathname) &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
-			return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
-		}
-
-		if (pathname === SITEMAP_INDEX_PATH) {
-			return textResponse(
-				request,
-				buildSitemapIndexXml(SITE_URL),
-				"application/xml; charset=utf-8",
-				{
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				},
-			);
-		}
-
-		const ogSlug = parseOgBlogPath(pathname);
-		if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
-			const title = await loadOgTitle(env.CONTENT, ogSlug);
-			if (title) {
-				if (shouldCacheBlogHtml(request)) {
-					const cached = await defaultCache().match(request);
-					if (cached) {
-						return cached;
-					}
-				}
-				const png = await renderBlogOgPng(title);
-				const response = binaryResponse(request, png, "image/png", {
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				});
-				if (shouldCacheBlogHtml(request) && request.method === "GET") {
-					ctx.waitUntil(defaultCache().put(request, response.clone()));
-				}
-				return response;
-			}
-		}
-
-		if (pathname === "/auth.md") {
-			return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
-		}
-
-		if (pathname === "/agent/auth") {
-			const method = request.method.toUpperCase();
-			if (method !== "GET" && method !== "POST" && method !== "HEAD") {
-				return textResponse(
-					request,
-					"Method Not Allowed",
-					"text/plain; charset=utf-8",
-					{
-						status: 405,
-						headers: { Allow: "GET, POST, HEAD" },
-					},
-				);
-			}
-			return jsonResponse(request, agentAuthRegisterResponse());
-		}
-
-		if (pathname === "/.well-known/api-catalog") {
-			return textResponse(
-				request,
-				JSON.stringify(apiCatalog(), null, 2),
-				"application/linkset+json; charset=utf-8",
-			);
-		}
-
-		if (
-			pathname === "/.well-known/mcp/server-card.json" ||
-			pathname === "/.well-known/mcp.json"
-		) {
-			return jsonResponse(request, mcpServerCard());
-		}
-
-		if (pathname === "/.well-known/agent-skills/index.json") {
-			return jsonResponse(
-				request,
-				await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN),
-			);
-		}
-
-		if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
-			return textResponse(
-				request,
-				AGENT_SKILL_MARKDOWN,
-				"text/markdown; charset=utf-8",
-			);
-		}
-
-		if (pathname === "/.well-known/agent-card.json") {
-			return jsonResponse(request, a2aAgentCard());
-		}
-
-		if (
-			pathname === "/.well-known/oauth-authorization-server" ||
-			pathname === "/.well-known/openid-configuration"
-		) {
-			return jsonResponse(request, oauthAuthorizationServer());
-		}
-
-		if (pathname === "/.well-known/oauth-protected-resource") {
-			return jsonResponse(request, oauthProtectedResource());
-		}
-
-		if (pathname === "/mcp") {
-			return handleMcp(
-				request,
-				{
-					siteOverviewMarkdown: () => siteOverviewMarkdown(env),
-					llmsFullText: () => llmsFullText(env),
-				},
-				(value, init) => jsonResponse(request, value, init),
-			);
-		}
-
-		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
-		if (
-			pathname === "/.well-known/http-message-signatures-directory" ||
-			pathname === "/.well-known/ucp" ||
-			pathname === "/.well-known/acp.json" ||
-			pathname === "/openapi.json" ||
-			pathname === "/api/v1" ||
-			pathname === "/api"
-		) {
-			return notFoundResponse(request);
-		}
-
-		const response = await fetchAstro(request, env, ctx);
-		return addPublicHtmlDiscoveryHeaders(request, response);
+		const response = await handleSiteRequest(request, env, ctx);
+		return withAgentDiscoveryCors(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
