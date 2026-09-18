@@ -27,4 +27,4 @@ User-agent: CCBot
 Allow: /
 
 Content-Signal: ai-train=no, search=yes, ai-input=yes
-Sitemap: https://ta93abe.com/sitemap-index.xml
+Sitemap: https://ta93abe.com/sitemap.xml
