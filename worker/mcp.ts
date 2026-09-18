@@ -130,18 +130,15 @@ export async function handleMcp(
 	jsonResponse: McpJsonResponse,
 ): Promise<Response> {
 	if (request.method.toUpperCase() !== "POST") {
-		return jsonResponse(
-			{
-				name: `${SITE_HOST} MCP endpoint`,
-				description:
-					"Send JSON-RPC 2.0 POST requests to use read-only tools and resources.",
+		// Streamable HTTP: GET is optional SSE. This read-only server does not
+		// stream, so unsupported methods (including GET) are 405.
+		return new Response("Method Not Allowed", {
+			status: 405,
+			headers: {
+				Allow: "POST",
+				"Content-Type": "text/plain; charset=utf-8",
 			},
-			{
-				headers: {
-					Allow: "POST",
-				},
-			},
-		);
+		});
 	}
 
 	let raw: unknown;

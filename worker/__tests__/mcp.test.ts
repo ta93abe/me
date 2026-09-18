@@ -52,9 +52,39 @@ async function postMcp(
 	);
 }
 
+function mcpHttp(method: string, headers?: HeadersInit): Promise<Response> {
+	const request = new Request("https://ta93abe.com/mcp", { method, headers });
+	return handleMcp(request, content, (value, init) =>
+		jsonResponse(value, init),
+	);
+}
+
 async function readJson(response: Response): Promise<Record<string, unknown>> {
 	return (await response.json()) as Record<string, unknown>;
 }
+
+describe("MCP Streamable HTTP methods", () => {
+	it("returns 405 for GET instead of a description JSON document", async () => {
+		const response = await mcpHttp("GET", {
+			Accept: "application/json, text/event-stream",
+		});
+
+		expect(response.status).toBe(405);
+		expect(response.headers.get("Allow")).toBe("POST");
+		expect(response.headers.get("Content-Type")).toMatch(/text\/plain/);
+		const body = await response.text();
+		expect(body).not.toContain("MCP endpoint");
+		expect(() => JSON.parse(body)).toThrow();
+	});
+
+	it("returns 405 for HEAD and DELETE without offering SSE", async () => {
+		for (const method of ["HEAD", "DELETE"]) {
+			const response = await mcpHttp(method);
+			expect(response.status).toBe(405);
+			expect(response.headers.get("Allow")).toBe("POST");
+		}
+	});
+});
 
 describe("MCP resources", () => {
 	it("advertises the same resources on the server card and resources/list", async () => {
