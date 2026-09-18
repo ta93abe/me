@@ -32,11 +32,17 @@ import { HOME_CTAS, SITE } from "@/config/site";
 		flex: 1 0 auto;
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
+		justify-content: flex-start;
 		box-sizing: border-box;
 		width: 100%;
-		padding: calc(var(--header-height) + 1rem) 1.5rem 5.75rem;
+		padding: calc(var(--header-height) + 5rem) 1.5rem 5.75rem;
 		text-align: center;
+	}
+
+	@media (min-width: 768px) {
+		.hero-copy {
+			padding-top: calc(var(--header-height) + 8rem);
+		}
 	}
 
 	.hero-name {

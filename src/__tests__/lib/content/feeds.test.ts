@@ -36,6 +36,7 @@ describe("request-time feeds", () => {
 		expect(rss).toContain("<language>ja</language>");
 		expect(rss).not.toContain("dbt-jobs");
 		expect(sitemap).toContain("/blog/hello-world/");
+		expect(sitemap).toContain("/blog/");
 		expect(sitemap).toMatch(
 			/<loc>https:\/\/ta93abe\.com\/blog\/<\/loc>\s*<lastmod>2026-08-30<\/lastmod>/,
 		);
