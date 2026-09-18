@@ -251,6 +251,18 @@ describe("renderSummary", () => {
 		expect(summary).toContain("/about/");
 		expect(summary).toContain("text/html");
 		expect(summary).toContain("<!-- agent-ready-scan -->");
+		expect(summary).toContain("はゲートしません");
+	});
+
+	it("says known fails are gated when that flag is on", () => {
+		const scan = evaluateScan(sampleScan, baseline);
+		const summary = renderSummary({
+			scan,
+			markdown: [],
+			uiUrl: "https://isitagentready.com/ta93abe.com",
+			gateKnownFails: true,
+		});
+		expect(summary).toContain("もゲートします");
 	});
 });
 

@@ -135,7 +135,11 @@ async function fetchScanAgentMarkdown(apiUrl, siteUrl) {
 		},
 		body: JSON.stringify({ url: siteUrl, format: "agent" }),
 	});
-	return response.text();
+	const text = await response.text();
+	if (!response.ok) {
+		throw new Error(`agent scan ${response.status}: ${text.slice(0, 400)}`);
+	}
+	return text;
 }
 
 async function probeMarkdown(baseUrl, pathname) {
