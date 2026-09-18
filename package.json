@@ -30,7 +30,8 @@
 		"infra:deploy": "alchemy deploy infra/alchemy.run.ts --stage prod",
 		"infra:plan": "alchemy plan infra/alchemy.run.ts --stage prod",
 		"perf:lighthouse": "node scripts/perf/lighthouse-audit.mjs",
-		"perf:cwv": "node scripts/perf/collect-cwv.mjs"
+		"perf:cwv": "node scripts/perf/collect-cwv.mjs",
+		"agent-ready:scan": "node scripts/agent-ready/scan.mjs"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.10",

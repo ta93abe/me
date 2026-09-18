@@ -42,6 +42,9 @@ screenshots/
 # Performance CI (Lighthouse / Browser Run CWV)
 /perf-results/
 
+# Agent Readiness CI (isitagentready scan)
+/agent-ready-results/
+
 # Claude Code
 .claude/settings.local.json
 
