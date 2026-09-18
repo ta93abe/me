@@ -114,4 +114,90 @@ describe("renderBlogMarkdown", () => {
 			html.match(/class="tweet-embed tweet-embed-fallback"/g)?.length,
 		).toBe(2);
 	});
+
+	it("embeds Zenn @[youtube] syntax as a static card", async () => {
+		const fetchYoutube = vi.fn(async () => ({
+			id: "dQw4w9WgXcQ",
+			url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+			title: "Rick Astley - Never Gonna Give You Up",
+			authorName: "Rick Astley",
+			thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+		}));
+		const html = await renderBlogMarkdown(
+			"Intro.\n\n@[youtube](dQw4w9WgXcQ)\n\nOutro.",
+			{ fetchYoutube },
+		);
+
+		expect(fetchYoutube).toHaveBeenCalledWith("dQw4w9WgXcQ");
+		expect(html).toContain('class="youtube-embed"');
+		expect(html).toContain("Rick Astley - Never Gonna Give You Up");
+		expect(html).toContain("<p>Intro.</p>");
+		expect(html).toContain("<p>Outro.</p>");
+		expect(html).not.toContain("data-youtube-embed");
+	});
+
+	it("embeds a standalone YouTube URL on its own line", async () => {
+		const fetchYoutube = vi.fn(async () => ({
+			id: "dQw4w9WgXcQ",
+			url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+			title: "Never Gonna Give You Up",
+			authorName: "Rick Astley",
+			thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+		}));
+		const html = await renderBlogMarkdown("https://youtu.be/dQw4w9WgXcQ\n", {
+			fetchYoutube,
+		});
+		expect(html).toContain('class="youtube-embed"');
+		expect(html).not.toContain("<p>https://youtu.be/dQw4w9WgXcQ</p>");
+	});
+
+	it("does not embed a YouTube URL inside a sentence or a fence", async () => {
+		const fetchYoutube = vi.fn(async () => null);
+		const paragraph = await renderBlogMarkdown(
+			"See https://youtu.be/dQw4w9WgXcQ here.",
+			{ fetchYoutube },
+		);
+		const fenced = await renderBlogMarkdown(
+			"```\nhttps://youtu.be/dQw4w9WgXcQ\n```",
+			{ fetchYoutube },
+		);
+
+		expect(fetchYoutube).not.toHaveBeenCalled();
+		expect(paragraph).not.toContain("youtube-embed");
+		expect(fenced).toContain("<pre");
+		expect(fenced).not.toContain("youtube-embed");
+	});
+
+	it("fetches a duplicate YouTube id once and falls back when missing", async () => {
+		const fetchYoutube = vi.fn(async () => null);
+		const html = await renderBlogMarkdown(
+			"@[youtube](dQw4w9WgXcQ)\n\nhttps://youtu.be/dQw4w9WgXcQ\n",
+			{ fetchYoutube },
+		);
+
+		expect(fetchYoutube).toHaveBeenCalledOnce();
+		expect(
+			html.match(/class="youtube-embed youtube-embed-fallback"/g)?.length,
+		).toBe(2);
+	});
+
+	it("embeds a tweet and a YouTube card in the same article", async () => {
+		const fetchTweet = vi.fn(async () => jack);
+		const fetchYoutube = vi.fn(async () => ({
+			id: "dQw4w9WgXcQ",
+			url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+			title: "Never Gonna Give You Up",
+			authorName: "Rick Astley",
+			thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+		}));
+		const html = await renderBlogMarkdown(
+			"@[tweet](https://x.com/jack/status/20)\n\n@[youtube](dQw4w9WgXcQ)\n",
+			{ fetchTweet, fetchYoutube },
+		);
+
+		expect(html).toContain('class="tweet-embed"');
+		expect(html).toContain('class="youtube-embed"');
+		expect(html).toContain("just setting up my twttr");
+		expect(html).toContain("Never Gonna Give You Up");
+	});
 });
