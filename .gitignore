@@ -19,6 +19,7 @@ pnpm-debug.log*
 .env.production
 .dev.vars
 .wrangler/
+.alchemy/
 
 # macOS-specific files
 .DS_Store
@@ -46,3 +47,6 @@ screenshots/
 
 # Claude Code
 .claude/settings.local.json
+
+# Agent security-audit-skill output (never commit)
+/audits/
