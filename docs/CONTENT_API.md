@@ -121,3 +121,28 @@ Zenn 記法も使える。
 ```
 
 `twitter.com` / `x.com` / `mobile.` / `www.` / `/i/status/` に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときは「Xでポストを見る」リンクカードになる。
+
+## ブログ本文の YouTube 埋め込み
+
+動画 URL を単独行に貼ると、公開時に Worker が oEmbed で題名を取得して静的カードにする（iframe は使わない）。
+
+```md
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+```
+
+短縮 URL や Markdown リンク、プロトコルなしでも同じ。
+
+```md
+https://youtu.be/dQw4w9WgXcQ
+[動画](https://youtu.be/dQw4w9WgXcQ)
+youtu.be/dQw4w9WgXcQ
+```
+
+Zenn 記法も使える。
+
+```md
+@[youtube](dQw4w9WgXcQ)
+@[youtube](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+```
+
+`youtube.com` / `youtu.be` / `m.` / `music.` / Shorts / Live / embed に対応する。コードブロック内や文中の URL は埋め込まない。取得に失敗したときはサムネイル付きの「YouTubeで動画を見る」カードになる。

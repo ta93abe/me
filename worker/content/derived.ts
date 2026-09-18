@@ -125,14 +125,16 @@ export function buildBlogSitemapXml(
 	origin: string = DEFAULT_ORIGIN,
 ): string {
 	const base = originBase(origin);
+	const datedPosts = sortFeedPosts(posts).map((post) => ({
+		loc: `${base}/blog/${post.slug}/`,
+		lastmod: (post.revise_date ?? post.publish_date).toISOString().slice(0, 10),
+	}));
 	const urls: SitemapUrlEntry[] = [
-		{ loc: `${base}/blog/` },
-		...sortFeedPosts(posts).map((post) => ({
-			loc: `${base}/blog/${post.slug}/`,
-			lastmod: (post.revise_date ?? post.publish_date)
-				.toISOString()
-				.slice(0, 10),
-		})),
+		{
+			loc: `${base}/blog/`,
+			lastmod: datedPosts[0]?.lastmod,
+		},
+		...datedPosts,
 	];
 
 	const body = urls
