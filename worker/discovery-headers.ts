@@ -1,4 +1,11 @@
 import { AGENT_DISCOVERY_HTTP_LINK_HEADER } from "../src/config/agent-discovery.ts";
+import { SITE } from "../src/config/site.ts";
+import { canonicalPageUrl } from "../src/utils/canonical.ts";
+import {
+	composeLinkHeader,
+	hasMarkdownAlternateLink,
+	markdownAlternateLinkHeader,
+} from "../src/utils/markdown-alternate.ts";
 
 export const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 
@@ -53,14 +60,25 @@ export function shouldAttachHtmlDiscoveryHeaders(
 	return !isNoindexHtmlPath(new URL(request.url).pathname);
 }
 
-function withDiscoveryLinkHeader(existing: string | null): string {
-	if (!existing) {
+function markdownAlternateFor(request: Request): string {
+	const href = canonicalPageUrl(new URL(request.url).pathname, SITE.url).href;
+	return markdownAlternateLinkHeader(href);
+}
+
+function withDiscoveryLinkHeader(
+	existing: string | null,
+	request: Request,
+): string {
+	const base = hasMarkdownAlternateLink(existing)
+		? existing
+		: composeLinkHeader(markdownAlternateFor(request), existing);
+	if (!base) {
 		return DISCOVERY_LINKS;
 	}
-	if (existing.includes("/llms.txt")) {
-		return existing;
+	if (base.includes("/llms.txt")) {
+		return base;
 	}
-	return `${existing}, ${DISCOVERY_LINKS}`;
+	return composeLinkHeader(base, DISCOVERY_LINKS);
 }
 
 export function addPublicHtmlDiscoveryHeaders(
@@ -72,7 +90,7 @@ export function addPublicHtmlDiscoveryHeaders(
 	}
 
 	const headers = new Headers(response.headers);
-	headers.set("Link", withDiscoveryLinkHeader(headers.get("Link")));
+	headers.set("Link", withDiscoveryLinkHeader(headers.get("Link"), request));
 	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
 	headers.set("Content-Signal", CONTENT_SIGNAL);
 

@@ -40,6 +40,25 @@ test.describe("Sitewide SEO", () => {
 		expect(html).toContain("https://ta93abe.com/.well-known/ard.json");
 	});
 
+	test("public HTML advertises a markdown alternate of the same URL", async ({
+		request,
+	}) => {
+		const cases = [
+			["/", "https://ta93abe.com/"],
+			["/about", "https://ta93abe.com/about/"],
+			["/blog", "https://ta93abe.com/blog/"],
+			["/blog/hello-world", "https://ta93abe.com/blog/hello-world/"],
+		] as const;
+
+		for (const [path, href] of cases) {
+			const html = await pageHtml(request, path);
+			expect(html, path).toContain(
+				`rel="alternate" type="text/markdown" href="${href}"`,
+			);
+			expect(html, path).not.toContain(`${href}.md`);
+		}
+	});
+
 	test("home has WebSite, Person, and the default OG image", async ({
 		request,
 	}) => {

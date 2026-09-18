@@ -86,6 +86,11 @@ const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
 		<link rel="canonical" href={canonicalURL} />
+		{
+			!noindex && (
+				<link rel="alternate" type="text/markdown" href={canonicalURL} />
+			)
+		}
 
 		<!-- Agent discovery（HTTP Link と同じ rel / href / type） -->
 		{
