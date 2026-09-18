@@ -30,8 +30,9 @@ type RobotsTxtAudit = {
 /**
  * RFC 9309 group parse: consecutive `User-agent` lines start a group,
  * following rule lines belong to it, and a later `User-agent` after rules
- * starts a new group. Blank lines do not split groups. `Sitemap` is
- * file-level and ignored for membership. Named groups do not inherit `*`.
+ * starts a new group. Blank lines do not split groups. `Sitemap` and
+ * `Agentmap` are file-level and ignored for membership. Named groups do
+ * not inherit `*`.
  */
 function parseRobotsGroups(robots: string): RobotsGroup[] {
 	const groups: RobotsGroup[] = [];
@@ -60,7 +61,7 @@ function parseRobotsGroups(robots: string): RobotsGroup[] {
 			continue;
 		}
 
-		if (/^sitemap:/i.test(line)) {
+		if (/^sitemap:/i.test(line) || /^agentmap:/i.test(line)) {
 			continue;
 		}
 
@@ -140,6 +141,12 @@ describe("robots.txt Content-Signal groups", () => {
 		expect(robotsTxt).not.toMatch(/Sitemap:.*sitemap-index\.xml/);
 	});
 
+	it("advertises the ARD catalog with a file-level Agentmap URL", () => {
+		expect(robotsTxt).toMatch(
+			/^Agentmap: https:\/\/ta93abe\.com\/\.well-known\/ai-catalog\.json$/m,
+		);
+	});
+
 	it("allows search and live-fetch user agents, including Applebot and Meta-ExternalFetcher", () => {
 		const groups = parseRobotsGroups(robotsTxt);
 		const allowed = [
@@ -184,13 +191,17 @@ describe("robots.txt Content-Signal groups", () => {
 		}
 	});
 
-	it("passes the Lighthouse 13.4.1 robots-txt audit", async () => {
+	it("passes the Lighthouse 13.4.1 robots-txt audit for Content-Signal groups", async () => {
 		const { default: RobotsTxt } =
 			(await import("lighthouse/core/audits/seo/robots-txt.js")) as {
 				default: RobotsTxtAudit;
 			};
+		const withoutAgentmap = robotsTxt
+			.split(/\r?\n/)
+			.filter((line) => !/^agentmap:/i.test(line.trim()))
+			.join("\n");
 		const result = RobotsTxt.audit({
-			RobotsTxt: { status: 200, content: robotsTxt },
+			RobotsTxt: { status: 200, content: withoutAgentmap },
 		});
 		expect(result.score).toBe(1);
 	});

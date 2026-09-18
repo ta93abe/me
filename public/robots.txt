@@ -64,3 +64,4 @@ Disallow: /
 Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://ta93abe.com/sitemap.xml
+Agentmap: https://ta93abe.com/.well-known/ai-catalog.json
