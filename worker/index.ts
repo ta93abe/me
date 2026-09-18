@@ -15,6 +15,7 @@ import {
 	agentSkillsIndex,
 } from "./agent-skills.ts";
 import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
+import { authMarkdown } from "./auth-md.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
@@ -101,76 +102,7 @@ async function llmsFullText(env: Env): Promise<string> {
 	});
 }
 
-const AUTH_MD = `# Auth.md
-
-You are an agent. This service is a **public content site**. Reading public pages does not require authentication, registration, or paid credentials.
-
-${AUTH_MD_OIDC_PARAGRAPH}
-
-## Step 1 — Discover
-
-Fetch Authorization Server and Protected Resource metadata:
-
-\`\`\`http
-GET ${SITE_URL}/.well-known/oauth-authorization-server
-GET ${SITE_URL}/.well-known/oauth-protected-resource
-\`\`\`
-
-The Authorization Server metadata includes an \`agent_auth\` object. The \`skill\` field points back to this document.
-
-## Step 2 — Pick a method
-
-Supported identity type: **anonymous**.
-
-Authorization Server metadata advertises \`identity_types_supported: ["anonymous"]\`, \`anonymous.credential_types_supported: ["none"]\`, and \`anonymous.claim_uri\`. No long-lived secret is required to read public content. Prefer the anonymous path. Do not request or attach an API key.
-
-## Step 3 — Register
-
-Call the registration endpoint declared in metadata (\`agent_auth.register_uri\`):
-
-\`\`\`http
-POST ${SITE_URL}/agent/auth
-Accept: application/json
-\`\`\`
-
-GET returns the same JSON. OPTIONS advertises \`Allow: GET, HEAD, POST, OPTIONS\`. The JSON confirms anonymous public access (\`credential_type: none\`). Do not treat the response as a secret, and do not send a bearer token afterward.
-
-## Step 4 — Claim
-
-Anonymous public read does not require a user-in-the-loop claim ceremony. \`agent_auth.anonymous.claim_uri\` is a no-op that completes immediately and issues no credential.
-
-\`\`\`http
-POST ${SITE_URL}/agent/claim
-Accept: application/json
-\`\`\`
-
-GET returns the same JSON. Do not wait for a \`user_code\`, and do not poll a token endpoint. There is no secret to store.
-
-## Step 5 — Use the credential
-
-No bearer token is required for HTML pages, \`llms.txt\`, sitemap, or other public discovery documents on ${SITE_HOST}. Do not send an \`Authorization\` header.
-
-## Errors
-
-- \`404\` — endpoint or resource does not exist
-- \`405\` — unsupported HTTP method on \`/agent/auth\` or \`/agent/claim\`
-
-## Revocation
-
-There is nothing to revoke for anonymous public read access.
-
-## Public resources
-
-- Homepage: ${SITE_URL}/
-- Sitemap: ${SITE_URL}/sitemap.xml
-- llms.txt: ${SITE_URL}/llms.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- ARD capability manifest: ${SITE_URL}/.well-known/ai-catalog.json
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent skills: ${SITE_URL}/.well-known/agent-skills/index.json
-- A2A Agent Card: ${SITE_URL}/.well-known/agent-card.json
-- security.txt: ${SITE_URL}/.well-known/security.txt
-`;
+const AUTH_MD = authMarkdown(SITE_URL, SITE_HOST, AUTH_MD_OIDC_PARAGRAPH);
 
 function isHead(request: Request): boolean {
 	return request.method.toUpperCase() === "HEAD";
@@ -478,6 +410,7 @@ async function handleSiteRequest(
 	}
 
 	if (pathname === SECURITY_TXT_PATH) {
+		// RFC 9116: /.well-known/security.txt
 		return textResponse(request, SECURITY_TXT, SECURITY_TXT_CONTENT_TYPE);
 	}
 
