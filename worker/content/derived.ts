@@ -40,8 +40,29 @@ function originBase(origin: string): string {
 	return origin.replace(/\/+$/, "");
 }
 
+function isLegalXmlChar(code: number): boolean {
+	return (
+		code === 0x9 ||
+		code === 0xa ||
+		code === 0xd ||
+		(code >= 0x20 && code <= 0xd7ff) ||
+		(code >= 0xe000 && code <= 0xfffd) ||
+		(code >= 0x10000 && code <= 0x10ffff)
+	);
+}
+
+function stripIllegalXmlChars(value: string): string {
+	let result = "";
+	for (const char of value) {
+		if (isLegalXmlChar(char.codePointAt(0) ?? 0)) {
+			result += char;
+		}
+	}
+	return result;
+}
+
 function escapeXml(value: string): string {
-	return value
+	return stripIllegalXmlChars(value)
 		.replaceAll("&", "&amp;")
 		.replaceAll("<", "&lt;")
 		.replaceAll(">", "&gt;")
@@ -57,7 +78,8 @@ function tagsFrom(value: unknown): string[] {
 }
 
 function cdata(value: string): string {
-	return `<![CDATA[${value.replaceAll("]]>", "]]]]><![CDATA[>")}]]>`;
+	const safe = stripIllegalXmlChars(value).replaceAll("]]>", "]]]]><![CDATA[>");
+	return `<![CDATA[${safe}]]>`;
 }
 
 export function sortFeedPosts(posts: FeedPost[]): FeedPost[] {
@@ -113,13 +135,15 @@ export async function withFeedContent(
 	bucket: R2Bucket,
 	posts: FeedPost[],
 ): Promise<FeedPost[]> {
-	return Promise.all(
-		posts.map(async (post) => ({
+	const result: FeedPost[] = [];
+	for (const post of posts) {
+		result.push({
 			...post,
 			contentHtml:
 				post.contentHtml ?? (await readPostBodyHtml(bucket, post.slug)),
-		})),
-	);
+		});
+	}
+	return result;
 }
 
 export function buildBlogRssXml(

@@ -80,6 +80,24 @@ describe("derived discovery feeds", () => {
 		expect(xml).not.toContain("posthog");
 	});
 
+	it("strips XML 1.0 illegal characters from RSS text", () => {
+		const xml = buildBlogRssXml(
+			[
+				{
+					...HELLO,
+					title: `Hello\u000B & Friends`,
+					excerpt: "first\u000Bsecond",
+					contentHtml: "<p>first\u000Bsecond</p>",
+				},
+			],
+			"https://ta93abe.com",
+		);
+
+		expect(xml).not.toContain("\u000B");
+		expect(xml).toContain("Hello &amp; Friends");
+		expect(xml).toContain("firstsecond");
+	});
+
 	it("lists blog URLs and static sections for the sitemap", () => {
 		const urls = sitemapUrlEntries([HELLO], "https://ta93abe.com");
 		const locs = urls.map((entry) => entry.loc);
