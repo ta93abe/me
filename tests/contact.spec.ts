@@ -16,7 +16,7 @@ test.describe("Contact Page", () => {
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
 		await expect(nav.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 	});
 });

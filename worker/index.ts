@@ -1,18 +1,41 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
+import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
+import {
+	SITEMAP_INDEX_PATH,
+	isSitemapIndexAlias,
+} from "../src/lib/content/sitemap-aliases.ts";
+import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
+import {
+	handleAgentDiscoveryPreflight,
+	withAgentDiscoveryCors,
+} from "./agent-discovery-cors.ts";
+import { AGENT_SKILL_PATH, agentSkillsIndex } from "./agent-skills.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
 	buildSitemapIndexXml,
 	readLlmsBlogSection,
 } from "./content/derived.ts";
+import {
+	LLMS_SITE_DESCRIPTION,
+	LLMS_SITE_TITLE,
+	buildLlmsFullText,
+	buildLlmsOverviewMarkdown,
+} from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import {
 	oauthAuthorizationServer,
 	oauthProtectedResource,
 } from "./oauth-metadata.ts";
+import {
+	CONTENT_SIGNAL,
+	DISCOVERY_LINKS,
+	addPublicHtmlDiscoveryHeaders,
+} from "./discovery-headers.ts";
+import { handleMcp, mcpServerCard } from "./mcp.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import { servePdf } from "./slides/pdf-route.ts";
 import {
@@ -29,21 +52,8 @@ function defaultCache(): Cache {
 
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
-const SITE_TITLE = "Takumi Abe / ta93abe";
-const SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
-const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-const MCP_ENDPOINT = `${SITE_URL}/mcp`;
-const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
-
-const DISCOVERY_LINKS = [
-	`</llms.txt>; rel="describedby"; type="text/plain"`,
-	`</llms-full.txt>; rel="describedby"; type="text/plain"`,
-	`</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"`,
-	`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
-	`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-	`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
-].join(", ");
+const SITE_TITLE = LLMS_SITE_TITLE;
+const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -61,50 +71,17 @@ const SECURITY_HEADERS = {
 
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
-const SITE_OVERVIEW_MARKDOWN = `# ${SITE_TITLE}
-
-${SITE_DESCRIPTION}
-
-## Primary sections
-
-- About: ${SITE_URL}/about/
-- Works: ${SITE_URL}/works/
-- Blog: ${SITE_URL}/blog/
-- Contact: ${SITE_URL}/contact/
-- Slides: ${SITE_URL}/slides/
-- Tools: ${SITE_URL}/tools/
-- Gadgets: ${SITE_URL}/gadgets/
-- Links: ${SITE_URL}/links/
-
-## Machine-readable resources
-
-- llms.txt: ${SITE_URL}/llms.txt
-- Full agent notes: ${SITE_URL}/llms-full.txt
-- API catalog: ${SITE_URL}/.well-known/api-catalog
-- MCP server card: ${SITE_URL}/.well-known/mcp/server-card.json
-- Agent Skills index: ${SITE_URL}/.well-known/agent-skills/index.json
-- Authentication notes: ${SITE_URL}/auth.md
-`;
-
-const LLMS_GUIDANCE = `## Agent guidance
-
-- This is a public content site. No authentication is required to read the public pages.
-- Prefer canonical URLs on ${SITE_HOST}.
-- Use the sitemap at ${SITE_URL}/sitemap-index.xml for crawl discovery.
-- Respect robots.txt and Content-Signal directives.
-
-## Content usage preference
-
-Content-Signal: ${CONTENT_SIGNAL}
-`;
-
 async function siteOverviewMarkdown(env: Env): Promise<string> {
 	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
-	return `${SITE_OVERVIEW_MARKDOWN}\n${blogSection}`;
+	return buildLlmsOverviewMarkdown(SITE_URL, blogSection);
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return `${await siteOverviewMarkdown(env)}\n${LLMS_GUIDANCE}`;
+	return buildLlmsFullText(await siteOverviewMarkdown(env), {
+		siteUrl: SITE_URL,
+		siteHost: SITE_HOST,
+		contentSignal: CONTENT_SIGNAL,
+	});
 }
 
 const AUTH_MD = `# Auth.md
@@ -195,19 +172,6 @@ function acceptsMarkdown(request: Request): boolean {
 	);
 }
 
-function appendHeaderToken(value: string | null, token: string): string {
-	if (!value) {
-		return token;
-	}
-
-	const tokens = value
-		.split(",")
-		.map((part) => part.trim().toLowerCase())
-		.filter(Boolean);
-
-	return tokens.includes(token.toLowerCase()) ? value : `${value}, ${token}`;
-}
-
 function setGeneratedHeaders(headers: Headers): void {
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
 		headers.set(name, value);
@@ -270,40 +234,6 @@ function notFoundResponse(request: Request): Response {
 	});
 }
 
-function addHomepageDiscoveryHeaders(
-	request: Request,
-	response: Response,
-): Response {
-	const url = new URL(request.url);
-	if (url.pathname !== "/" && url.pathname !== "/index.html") {
-		return response;
-	}
-
-	const headers = new Headers(response.headers);
-	headers.set(
-		"Link",
-		headers.get("Link")
-			? `${headers.get("Link")}, ${DISCOVERY_LINKS}`
-			: DISCOVERY_LINKS,
-	);
-	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
-	headers.set("Content-Signal", CONTENT_SIGNAL);
-
-	return new Response(response.body, {
-		status: response.status,
-		statusText: response.statusText,
-		headers,
-	});
-}
-
-async function sha256Digest(value: string): Promise<string> {
-	const bytes = new TextEncoder().encode(value);
-	const digest = await crypto.subtle.digest("SHA-256", bytes);
-	return `sha256:${[...new Uint8Array(digest)]
-		.map((byte) => byte.toString(16).padStart(2, "0"))
-		.join("")}`;
-}
-
 function apiCatalog() {
 	return {
 		linkset: [
@@ -350,33 +280,6 @@ function apiCatalog() {
 						href: SITE_URL,
 					},
 				],
-			},
-		],
-	};
-}
-
-function mcpServerCard() {
-	return {
-		serverInfo: {
-			name: `${SITE_HOST} site discovery`,
-			version: "1.0.0",
-		},
-		description:
-			"Read-only discovery endpoint for the public ta93abe.com portfolio site.",
-		url: MCP_ENDPOINT,
-		transport: {
-			type: "streamable-http",
-		},
-		capabilities: {
-			tools: true,
-			resources: true,
-		},
-		resources: [
-			{
-				name: "site_overview",
-				uri: `${SITE_URL}/llms.txt`,
-				mimeType: "text/plain",
-				description: "Concise overview of the public site.",
 			},
 		],
 	};
@@ -435,141 +338,6 @@ function agentAuthRegisterResponse() {
 	};
 }
 
-async function agentSkillsIndex() {
-	return {
-		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-		skills: [
-			{
-				name: "site-overview",
-				type: "skill-md",
-				description:
-					"Understand the public content, discovery files, and crawl preferences for ta93abe.com.",
-				url: AGENT_SKILL_PATH,
-				digest: await sha256Digest(AGENT_SKILL_MARKDOWN),
-			},
-		],
-	};
-}
-
-function mcpToolList() {
-	return [
-		{
-			name: "get_site_overview",
-			description:
-				"Return a concise, read-only overview of ta93abe.com and its machine-readable discovery URLs.",
-			inputSchema: {
-				type: "object",
-				properties: {},
-				additionalProperties: false,
-			},
-		},
-	];
-}
-
-async function handleMcp(request: Request, env: Env): Promise<Response> {
-	if (request.method.toUpperCase() !== "POST") {
-		return jsonResponse(
-			request,
-			{
-				name: `${SITE_HOST} MCP endpoint`,
-				description: "Send JSON-RPC 2.0 POST requests to use read-only tools.",
-			},
-			{
-				headers: {
-					Allow: "POST",
-				},
-			},
-		);
-	}
-
-	let payload: {
-		id?: string | number | null;
-		method?: string;
-		params?: Record<string, unknown>;
-		jsonrpc?: string;
-	};
-
-	try {
-		payload = await request.json();
-	} catch {
-		return jsonResponse(
-			request,
-			{
-				jsonrpc: "2.0",
-				id: null,
-				error: {
-					code: -32700,
-					message: "Parse error",
-				},
-			},
-			{ status: 400 },
-		);
-	}
-
-	const id = payload.id ?? null;
-
-	if (payload.method === "initialize") {
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				protocolVersion: "2025-06-18",
-				capabilities: {
-					tools: {},
-					resources: {},
-				},
-				serverInfo: mcpServerCard().serverInfo,
-			},
-		});
-	}
-
-	if (payload.method === "tools/list") {
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				tools: mcpToolList(),
-			},
-		});
-	}
-
-	if (payload.method === "tools/call") {
-		const toolName = payload.params?.name;
-		if (toolName !== "get_site_overview") {
-			return jsonResponse(request, {
-				jsonrpc: "2.0",
-				id,
-				error: {
-					code: -32602,
-					message: "Unknown tool",
-				},
-			});
-		}
-
-		return jsonResponse(request, {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				content: [
-					{
-						type: "text",
-						text: await siteOverviewMarkdown(env),
-					},
-				],
-			},
-		});
-	}
-
-	return jsonResponse(request, {
-		jsonrpc: "2.0",
-		id,
-		error: {
-			code: -32601,
-			message: "Method not found",
-		},
-	});
-}
-
 function isBlogHtmlPath(pathname: string): boolean {
 	return pathname === "/blog" || pathname.startsWith("/blog/");
 }
@@ -622,196 +390,241 @@ async function fetchAstro(
 	return response;
 }
 
+async function handleSiteRequest(
+	request: Request,
+	env: Env,
+	ctx: ExecutionContext,
+): Promise<Response> {
+	const url = new URL(request.url);
+	const pathname = url.pathname.replace(/\/+$/, "") || "/";
+
+	const contentResponse = await handleContentApi(request, env);
+	if (contentResponse) {
+		return contentResponse;
+	}
+
+	const pdfSlug = parseSlidePdfSlug(pathname);
+	if (pdfSlug && (request.method === "GET" || request.method === "HEAD")) {
+		return servePdf(request, env, pdfSlug);
+	}
+
+	const printSlug = parseSlideDeckSlug(pathname);
+	if (
+		printSlug &&
+		isPrintQuery(url.searchParams.get("print")) &&
+		(request.method === "GET" || request.method === "HEAD")
+	) {
+		return Response.redirect(
+			new URL(`/slides/${printSlug}/print/`, request.url),
+			301,
+		);
+	}
+
+	if (
+		isRetiredSitePath(pathname) &&
+		(request.method === "GET" || request.method === "HEAD")
+	) {
+		return Response.redirect(new URL("/", url), 301);
+	}
+
+	if (request.method === "GET" || request.method === "HEAD") {
+		const alias = pageAliasRedirect(pathname);
+		if (alias) {
+			return Response.redirect(new URL(alias, url), 301);
+		}
+		const location = trailingSlashRedirectUrl(url);
+		if (location) {
+			return Response.redirect(location, 301);
+		}
+	}
+
+	if (
+		request.method !== "GET" &&
+		request.method !== "HEAD" &&
+		pathname !== "/mcp"
+	) {
+		return handle(request, env, ctx);
+	}
+
+	if (pathname === "/" && acceptsMarkdown(request)) {
+		const overview = await siteOverviewMarkdown(env);
+		return textResponse(request, overview, "text/markdown; charset=utf-8", {
+			headers: {
+				Link: DISCOVERY_LINKS,
+				Vary: "Accept",
+				"Cache-Control": BLOG_HTML_CACHE_CONTROL,
+				"X-Markdown-Tokens": String(
+					overview.split(/\s+/).filter(Boolean).length,
+				),
+			},
+		});
+	}
+
+	if (pathname === "/llms.txt") {
+		return textResponse(
+			request,
+			await siteOverviewMarkdown(env),
+			"text/plain; charset=utf-8",
+			{
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			},
+		);
+	}
+
+	if (pathname === "/llms-full.txt") {
+		return textResponse(
+			request,
+			await llmsFullText(env),
+			"text/plain; charset=utf-8",
+			{
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			},
+		);
+	}
+
+	if (
+		isSitemapIndexAlias(pathname) &&
+		(request.method === "GET" || request.method === "HEAD")
+	) {
+		return Response.redirect(new URL(SITEMAP_INDEX_PATH, url), 301);
+	}
+
+	if (pathname === SITEMAP_INDEX_PATH) {
+		return textResponse(
+			request,
+			buildSitemapIndexXml(SITE_URL),
+			"application/xml; charset=utf-8",
+			{
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			},
+		);
+	}
+
+	const ogSlug = parseOgBlogPath(pathname);
+	if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
+		const title = await loadOgTitle(env.CONTENT, ogSlug);
+		if (title) {
+			if (shouldCacheBlogHtml(request)) {
+				const cached = await defaultCache().match(request);
+				if (cached) {
+					return cached;
+				}
+			}
+			const png = await renderBlogOgPng(title);
+			const response = binaryResponse(request, png, "image/png", {
+				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+			});
+			if (shouldCacheBlogHtml(request) && request.method === "GET") {
+				ctx.waitUntil(defaultCache().put(request, response.clone()));
+			}
+			return response;
+		}
+	}
+
+	if (pathname === "/auth.md") {
+		return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
+	}
+
+	if (pathname === "/agent/auth") {
+		const method = request.method.toUpperCase();
+		if (method !== "GET" && method !== "POST" && method !== "HEAD") {
+			return textResponse(
+				request,
+				"Method Not Allowed",
+				"text/plain; charset=utf-8",
+				{
+					status: 405,
+					headers: { Allow: "GET, POST, HEAD" },
+				},
+			);
+		}
+		return jsonResponse(request, agentAuthRegisterResponse());
+	}
+
+	if (pathname === "/.well-known/api-catalog") {
+		return textResponse(
+			request,
+			JSON.stringify(apiCatalog(), null, 2),
+			"application/linkset+json; charset=utf-8",
+		);
+	}
+
+	if (
+		pathname === "/.well-known/mcp/server-card.json" ||
+		pathname === "/.well-known/mcp.json"
+	) {
+		return jsonResponse(request, mcpServerCard());
+	}
+
+	if (pathname === "/.well-known/agent-skills/index.json") {
+		return jsonResponse(
+			request,
+			await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN),
+		);
+	}
+
+	if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
+		return textResponse(
+			request,
+			AGENT_SKILL_MARKDOWN,
+			"text/markdown; charset=utf-8",
+		);
+	}
+
+	if (
+		pathname === "/.well-known/agent-card.json" ||
+		pathname === "/.well-known/agent.json"
+	) {
+		return jsonResponse(request, a2aAgentCard());
+	}
+
+	if (
+		pathname === "/.well-known/oauth-authorization-server" ||
+		pathname === "/.well-known/openid-configuration"
+	) {
+		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
+	}
+
+	if (pathname === "/.well-known/oauth-protected-resource") {
+		return jsonResponse(request, oauthProtectedResource(SITE_URL));
+	}
+
+	if (pathname === "/mcp") {
+		return handleMcp(
+			request,
+			{
+				siteOverviewMarkdown: () => siteOverviewMarkdown(env),
+				llmsFullText: () => llmsFullText(env),
+			},
+			(value, init) => jsonResponse(request, value, init),
+		);
+	}
+
+	// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+	if (
+		pathname === "/.well-known/http-message-signatures-directory" ||
+		pathname === "/.well-known/ucp" ||
+		pathname === "/.well-known/acp.json" ||
+		pathname === "/openapi.json" ||
+		pathname === "/api/v1" ||
+		pathname === "/api"
+	) {
+		return notFoundResponse(request);
+	}
+
+	const response = await fetchAstro(request, env, ctx);
+	return addPublicHtmlDiscoveryHeaders(request, response);
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const url = new URL(request.url);
-		const pathname = url.pathname.replace(/\/+$/, "") || "/";
-
-		const contentResponse = await handleContentApi(request, env);
-		if (contentResponse) {
-			return contentResponse;
+		const preflight = handleAgentDiscoveryPreflight(request);
+		if (preflight) {
+			return preflight;
 		}
 
-		const pdfSlug = parseSlidePdfSlug(pathname);
-		if (pdfSlug && (request.method === "GET" || request.method === "HEAD")) {
-			return servePdf(request, env, pdfSlug);
-		}
-
-		const printSlug = parseSlideDeckSlug(pathname);
-		if (
-			printSlug &&
-			isPrintQuery(url.searchParams.get("print")) &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
-			return Response.redirect(
-				new URL(`/slides/${printSlug}/print/`, request.url),
-				301,
-			);
-		}
-
-		if (
-			isRetiredSitePath(pathname) &&
-			(request.method === "GET" || request.method === "HEAD")
-		) {
-			return Response.redirect(new URL("/", url), 301);
-		}
-
-		if (
-			request.method !== "GET" &&
-			request.method !== "HEAD" &&
-			pathname !== "/mcp"
-		) {
-			return handle(request, env, ctx);
-		}
-
-		if (pathname === "/" && acceptsMarkdown(request)) {
-			const overview = await siteOverviewMarkdown(env);
-			return textResponse(request, overview, "text/markdown; charset=utf-8", {
-				headers: {
-					Link: DISCOVERY_LINKS,
-					Vary: "Accept",
-					"Cache-Control": BLOG_HTML_CACHE_CONTROL,
-					"X-Markdown-Tokens": String(
-						overview.split(/\s+/).filter(Boolean).length,
-					),
-				},
-			});
-		}
-
-		if (pathname === "/llms.txt") {
-			return textResponse(
-				request,
-				await siteOverviewMarkdown(env),
-				"text/plain; charset=utf-8",
-				{
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				},
-			);
-		}
-
-		if (pathname === "/llms-full.txt") {
-			return textResponse(
-				request,
-				await llmsFullText(env),
-				"text/plain; charset=utf-8",
-				{
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				},
-			);
-		}
-
-		if (pathname === "/sitemap-index.xml") {
-			return textResponse(
-				request,
-				buildSitemapIndexXml(SITE_URL),
-				"application/xml; charset=utf-8",
-				{
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				},
-			);
-		}
-
-		const ogSlug = parseOgBlogPath(pathname);
-		if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
-			const title = await loadOgTitle(env.CONTENT, ogSlug);
-			if (title) {
-				if (shouldCacheBlogHtml(request)) {
-					const cached = await defaultCache().match(request);
-					if (cached) {
-						return cached;
-					}
-				}
-				const png = await renderBlogOgPng(title);
-				const response = binaryResponse(request, png, "image/png", {
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				});
-				if (shouldCacheBlogHtml(request) && request.method === "GET") {
-					ctx.waitUntil(defaultCache().put(request, response.clone()));
-				}
-				return response;
-			}
-		}
-
-		if (pathname === "/auth.md") {
-			return textResponse(request, AUTH_MD, "text/markdown; charset=utf-8");
-		}
-
-		if (pathname === "/agent/auth") {
-			const method = request.method.toUpperCase();
-			if (method !== "GET" && method !== "POST" && method !== "HEAD") {
-				return textResponse(
-					request,
-					"Method Not Allowed",
-					"text/plain; charset=utf-8",
-					{
-						status: 405,
-						headers: { Allow: "GET, POST, HEAD" },
-					},
-				);
-			}
-			return jsonResponse(request, agentAuthRegisterResponse());
-		}
-
-		if (pathname === "/.well-known/api-catalog") {
-			return textResponse(
-				request,
-				JSON.stringify(apiCatalog(), null, 2),
-				"application/linkset+json; charset=utf-8",
-			);
-		}
-
-		if (
-			pathname === "/.well-known/mcp/server-card.json" ||
-			pathname === "/.well-known/mcp.json"
-		) {
-			return jsonResponse(request, mcpServerCard());
-		}
-
-		if (pathname === "/.well-known/agent-skills/index.json") {
-			return jsonResponse(request, await agentSkillsIndex());
-		}
-
-		if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
-			return textResponse(
-				request,
-				AGENT_SKILL_MARKDOWN,
-				"text/markdown; charset=utf-8",
-			);
-		}
-
-		if (pathname === "/.well-known/agent-card.json") {
-			return jsonResponse(request, a2aAgentCard());
-		}
-
-		if (
-			pathname === "/.well-known/oauth-authorization-server" ||
-			pathname === "/.well-known/openid-configuration"
-		) {
-			return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
-		}
-
-		if (pathname === "/.well-known/oauth-protected-resource") {
-			return jsonResponse(request, oauthProtectedResource(SITE_URL));
-		}
-
-		if (pathname === "/mcp") {
-			return handleMcp(request, env);
-		}
-
-		// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
-		if (
-			pathname === "/.well-known/http-message-signatures-directory" ||
-			pathname === "/.well-known/ucp" ||
-			pathname === "/.well-known/acp.json" ||
-			pathname === "/openapi.json" ||
-			pathname === "/api/v1" ||
-			pathname === "/api"
-		) {
-			return notFoundResponse(request);
-		}
-
-		const response = await fetchAstro(request, env, ctx);
-		return addHomepageDiscoveryHeaders(request, response);
+		const response = await handleSiteRequest(request, env, ctx);
+		return withAgentDiscoveryCors(request, response);
 	},
 
 	async queue(batch, env): Promise<void> {
