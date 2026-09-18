@@ -1,0 +1,107 @@
+# isitagentready 再スキャン + Markdown content negotiation smoke
+#
+# - 本番 URL を POST https://isitagentready.com/api/scan で計測し JSON を保存
+# - 当面 dnsAid / authMd / ard の fail は情報収集（warning）
+# - 以前 pass だったチェックが fail に戻ったら job を落とす
+# - `/` `/about/` `/blog/hello-world/` の Accept: text/markdown を併せて記録
+#   （`/` の回帰だけゲート。下位パスの html は TA-892）
+name: Agent Readiness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # 週次（月曜 16:17 UTC ≈ 火曜 01:17 JST）。perf.yml の毎日 15:17 UTC とずらす
+    - cron: "17 16 * * 1"
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Site URL to scan"
+        required: false
+        default: "https://ta93abe.com"
+      gate_known_fails:
+        description: "Fail the job if dnsAid / authMd / ard still fail"
+        type: boolean
+        default: false
+
+concurrency:
+  group: agent-ready-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  scan:
+    name: isitagentready scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          # package.json の packageManager=pnpm を見にいかない（この job は node だけ使う）
+          package-manager-cache: false
+
+      - name: Scan site and probe markdown
+        env:
+          AGENT_READY_URL: ${{ inputs.base_url || 'https://ta93abe.com' }}
+          AGENT_READY_GATE_KNOWN_FAILS: ${{ inputs.gate_known_fails == true && '1' || '0' }}
+          AGENT_READY_GATE_REGRESSIONS: "1"
+        run: node scripts/agent-ready/scan.mjs
+
+      - name: Upload scan artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: agent-ready-scan
+          path: agent-ready-results/
+          retention-days: 30
+
+      - name: Comment summary on PR
+        if: >
+          !cancelled() &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const summaryPath = "agent-ready-results/summary.md";
+            if (!fs.existsSync(summaryPath)) {
+              core.warning("summary.md がないため PR コメントをスキップします");
+              return;
+            }
+            const body = fs.readFileSync(summaryPath, "utf8");
+            const marker = "<!-- agent-ready-scan -->";
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                per_page: 100,
+              },
+            );
+            const existing = comments.find((comment) =>
+              comment.body?.includes(marker),
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+              return;
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
