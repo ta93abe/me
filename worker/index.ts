@@ -5,7 +5,6 @@ import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
 import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
 import { a2aAgentCard } from "./agent-card.ts";
-import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import {
 	handleAgentDiscoveryPreflight,
 	withAgentDiscoveryCors,
@@ -15,6 +14,7 @@ import {
 	AGENT_SKILL_PATH,
 	agentSkillsIndex,
 } from "./agent-skills.ts";
+import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
