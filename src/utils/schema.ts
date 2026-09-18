@@ -1,5 +1,11 @@
 import { FEATURED_WORKS, SITE } from "@/config/site";
 import linksData from "@/data/links.json";
+import {
+	articleBodyText,
+	countWords,
+	extractShortListItems,
+	markdownToPlainText,
+} from "@/utils/article-text";
 import { withTrailingSlash } from "@/utils/canonical";
 import { toDatetimeAttr } from "@/utils/date";
 import { ogSectionPath } from "@/utils/og/sections";
@@ -368,6 +374,18 @@ interface BlogPostingSchema {
 		url: string;
 	};
 	keywords?: string;
+	wordCount?: number;
+	articleBody?: string;
+}
+
+interface ArticleItemListSchema {
+	"@context": "https://schema.org";
+	"@type": "ItemList";
+	itemListElement: Array<{
+		"@type": "ListItem";
+		position: number;
+		name: string;
+	}>;
 }
 
 function websitePart(origin: string) {
@@ -562,6 +580,7 @@ export const generateBlogPostingSchema = (
 		image: string;
 		updatedDate?: Date | string;
 		tags?: readonly string[];
+		body?: string;
 	},
 ): BlogPostingSchema => {
 	const origin = originBase(siteUrl);
@@ -594,7 +613,35 @@ export const generateBlogPostingSchema = (
 	if (post.tags && post.tags.length > 0) {
 		schema.keywords = post.tags.join(", ");
 	}
+	if (post.body) {
+		const plain = markdownToPlainText(post.body);
+		const wordCount = countWords(plain);
+		if (wordCount > 0) {
+			schema.wordCount = wordCount;
+		}
+		if (plain) {
+			schema.articleBody = articleBodyText(plain, url);
+		}
+	}
 	return schema;
+};
+
+export const generateArticleItemListSchema = (
+	markdown: string,
+): ArticleItemListSchema | undefined => {
+	const names = extractShortListItems(markdown);
+	if (names.length === 0) {
+		return undefined;
+	}
+	return {
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		itemListElement: names.map((name, index) => ({
+			"@type": "ListItem" as const,
+			position: index + 1,
+			name,
+		})),
+	};
 };
 
 /**
