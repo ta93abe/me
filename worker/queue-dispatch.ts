@@ -1,6 +1,6 @@
 import { handleContentQueue } from "./content/queue.ts";
-import { PDF_QUEUE_NAME, type PdfJob } from "./slides/pdf.ts";
 import { handlePdfQueue } from "./slides/pdf-queue.ts";
+import { PDF_QUEUE_NAME, type PdfJob } from "./slides/pdf.ts";
 
 export async function dispatchWorkerQueue(
 	batch: MessageBatch<unknown>,

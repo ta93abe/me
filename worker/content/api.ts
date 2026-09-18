@@ -4,10 +4,10 @@ import {
 	MAX_MARKDOWN_BYTES,
 	MAX_MEDIA_BYTES,
 } from "./collections.ts";
+import { writeDerivedDiscovery } from "./derived.ts";
 import type { ContentBindings } from "./env.ts";
 import { looksLikeMdx, parseMarkdownDocument } from "./frontmatter.ts";
 import { verifyContentHmac } from "./hmac.ts";
-import { writeDerivedDiscovery } from "./derived.ts";
 import {
 	readAllIndex,
 	readCollectionIndex,
