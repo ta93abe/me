@@ -44,6 +44,11 @@ import {
 	parseSlideDeckSlug,
 	parseSlidePdfSlug,
 } from "./slides/pdf.ts";
+import {
+	WELL_KNOWN_JSON_NOT_FOUND,
+	shouldDelegateToAstroHandler,
+	wellKnownMissingKind,
+} from "./well-known.ts";
 
 type CacheStore = { default: Cache };
 
@@ -54,7 +59,6 @@ function defaultCache(): Cache {
 const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
-const WORKER_NON_GET_PATHS = new Set(["/mcp", "/agent/auth"]);
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -399,11 +403,7 @@ async function handleSiteRequest(
 		}
 	}
 
-	if (
-		request.method !== "GET" &&
-		request.method !== "HEAD" &&
-		!WORKER_NON_GET_PATHS.has(pathname)
-	) {
+	if (shouldDelegateToAstroHandler(request.method, pathname)) {
 		return handle(request, env, ctx);
 	}
 
@@ -577,11 +577,20 @@ async function handleSiteRequest(
 		);
 	}
 
-	// Explicit 404 for optional discovery/protocol endpoints this site does not implement.
+	// Catch-all after the implemented discovery routes above.
+	const wellKnownMissing = wellKnownMissingKind(
+		pathname,
+		request.headers.get("Accept"),
+	);
+	if (wellKnownMissing === "json") {
+		return jsonResponse(request, WELL_KNOWN_JSON_NOT_FOUND, { status: 404 });
+	}
+	if (wellKnownMissing === "text") {
+		return notFoundResponse(request);
+	}
+
+	// Explicit 404 for optional endpoints this site does not implement.
 	if (
-		pathname === "/.well-known/http-message-signatures-directory" ||
-		pathname === "/.well-known/ucp" ||
-		pathname === "/.well-known/acp.json" ||
 		pathname === "/openapi.json" ||
 		pathname === "/api/v1" ||
 		pathname === "/api"
