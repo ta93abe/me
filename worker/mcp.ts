@@ -4,6 +4,39 @@ const SESSION_HEADER = "Mcp-Session-Id";
 
 export const MCP_ENDPOINT = `${SITE_URL}/mcp`;
 
+export const MCP_CORS_ALLOW_ORIGIN = "*";
+export const MCP_CORS_ALLOW_METHODS = "POST, GET, OPTIONS";
+export const MCP_CORS_ALLOW_HEADERS =
+	"Content-Type, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
+export const MCP_CORS_EXPOSE_HEADERS =
+	"MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
+
+export function applyMcpCorsHeaders(headers: Headers): void {
+	headers.set("Access-Control-Allow-Origin", MCP_CORS_ALLOW_ORIGIN);
+	headers.set("Access-Control-Allow-Methods", MCP_CORS_ALLOW_METHODS);
+	headers.set("Access-Control-Allow-Headers", MCP_CORS_ALLOW_HEADERS);
+	headers.set("Access-Control-Expose-Headers", MCP_CORS_EXPOSE_HEADERS);
+}
+
+export function withMcpCors(response: Response): Response {
+	const headers = new Headers(response.headers);
+	applyMcpCorsHeaders(headers);
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	});
+}
+
+export function mcpPreflightResponse(): Response {
+	const headers = new Headers();
+	applyMcpCorsHeaders(headers);
+	return new Response(null, {
+		status: 204,
+		headers,
+	});
+}
+
 export type McpJsonResponse = (value: unknown, init?: ResponseInit) => Response;
 
 export type McpSiteContent = {
@@ -184,13 +217,15 @@ function rpcResponse(
 	if (acceptsEventStream(request)) {
 		headers.set("Content-Type", "text/event-stream");
 		headers.set("Cache-Control", "no-cache");
-		return new Response(sseMessage(payload), {
-			status: init?.status,
-			headers,
-		});
+		return withMcpCors(
+			new Response(sseMessage(payload), {
+				status: init?.status,
+				headers,
+			}),
+		);
 	}
 
-	return jsonResponse(payload, { ...init, headers });
+	return withMcpCors(jsonResponse(payload, { ...init, headers }));
 }
 
 function jsonRpcResult(
@@ -242,13 +277,15 @@ function transportError(
 	message: string,
 	status?: number,
 ): Response {
-	return jsonResponse(
-		{
-			jsonrpc: "2.0",
-			id,
-			error: { code, message },
-		},
-		status === undefined ? undefined : { status },
+	return withMcpCors(
+		jsonResponse(
+			{
+				jsonrpc: "2.0",
+				id,
+				error: { code, message },
+			},
+			status === undefined ? undefined : { status },
+		),
 	);
 }
 
@@ -274,16 +311,24 @@ export async function handleMcp(
 	content: McpSiteContent,
 	jsonResponse: McpJsonResponse,
 ): Promise<Response> {
-	if (request.method.toUpperCase() !== "POST") {
+	const method = request.method.toUpperCase();
+
+	if (method === "OPTIONS") {
+		return mcpPreflightResponse();
+	}
+
+	if (method !== "POST") {
 		// Streamable HTTP: GET is optional SSE. This read-only server does not
 		// stream, so unsupported methods (including GET) are 405.
-		return new Response("Method Not Allowed", {
-			status: 405,
-			headers: {
-				Allow: "POST",
-				"Content-Type": "text/plain; charset=utf-8",
-			},
-		});
+		return withMcpCors(
+			new Response("Method Not Allowed", {
+				status: 405,
+				headers: {
+					Allow: "POST",
+					"Content-Type": "text/plain; charset=utf-8",
+				},
+			}),
+		);
 	}
 
 	let raw: unknown;
@@ -306,10 +351,12 @@ export async function handleMcp(
 	};
 
 	if (!Object.hasOwn(payload, "id")) {
-		return new Response(null, {
-			status: 202,
-			headers: withSession(undefined, sessionIdFor(request, false)),
-		});
+		return withMcpCors(
+			new Response(null, {
+				status: 202,
+				headers: withSession(undefined, sessionIdFor(request, false)),
+			}),
+		);
 	}
 
 	const id = payload.id ?? null;
