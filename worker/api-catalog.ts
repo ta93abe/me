@@ -52,6 +52,11 @@ export function buildApiCatalog(siteUrl: string): ApiCatalogDocument {
 			type: "text/markdown",
 			title: "Authentication notes",
 		},
+		{
+			href: `${siteUrl}/.well-known/security.txt`,
+			type: "text/plain",
+			title: "security.txt",
+		},
 	];
 
 	return {
