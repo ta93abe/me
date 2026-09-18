@@ -13,15 +13,15 @@ test.describe("404 recovery", () => {
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(index.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 		await expect(index.getByRole("link", { name: "Tools" })).toHaveCount(0);

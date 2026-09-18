@@ -99,19 +99,19 @@ test.describe("Home", () => {
 		const ctas = page.getByRole("navigation", { name: "主なページ" });
 		await expect(ctas.getByRole("link", { name: "Works" })).toHaveAttribute(
 			"href",
-			"/works",
+			"/works/",
 		);
 		await expect(ctas.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(ctas.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(ctas.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(ctas.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 		await expect(page.getByRole("link", { name: "Atelier" })).toHaveCount(0);
@@ -141,6 +141,32 @@ test.describe("Home", () => {
 
 		expect(metrics.fontSize).toBeLessThanOrEqual(24);
 		expect(metrics.width).toBeLessThan(320);
+	});
+
+	test("keeps the hero name pinned when viewport height changes", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 900 });
+		await page.goto("/");
+
+		const before = await page.locator(".hero-name").boundingBox();
+		expect(before).not.toBeNull();
+
+		await page.setViewportSize({ width: 1280, height: 700 });
+		const after = await page.locator(".hero-name").boundingBox();
+		expect(after).not.toBeNull();
+		expect(Math.abs((after?.y ?? 0) - (before?.y ?? 0))).toBeLessThanOrEqual(1);
+	});
+
+	test("keeps the closed mobile menu out of layout on a phone", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto("/");
+
+		const dialog = page.locator("dialog[aria-label='メニュー']");
+		await expect(dialog).toBeAttached();
+		expect(await dialog.boundingBox()).toBeNull();
 	});
 
 	test("keeps home CTAs above the fixed footer on a narrow phone", async ({

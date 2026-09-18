@@ -54,15 +54,15 @@ test.describe("Published content", () => {
 		const index = page.getByRole("navigation", { name: "主要ページ" });
 		await expect(index.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(index.getByRole("link", { name: "Blog" })).toHaveAttribute(
 			"href",
-			"/blog",
+			"/blog/",
 		);
 		await expect(index.getByRole("link", { name: "Contact" })).toHaveAttribute(
 			"href",
-			"/contact",
+			"/contact/",
 		);
 		await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
@@ -82,6 +82,18 @@ test.describe("Published content", () => {
 		expect(sitemapBody).toContain("/blog/");
 		expect(sitemapBody).not.toContain("dbt-jobs");
 		expect(sitemapBody).not.toMatch(/gallery|atelier|bookshelf/);
+	});
+
+	test("conventional sitemap URLs redirect to the sitemap index", async ({
+		request,
+	}) => {
+		for (const path of ["/sitemap.xml", "/sitemap_index.xml"]) {
+			const response = await request.fetch(path, { maxRedirects: 0 });
+			expect([301, 308], path).toContain(response.status());
+			expect(response.headers()["location"], path).toMatch(
+				/\/sitemap-index\.xml\/?$/,
+			);
+		}
 	});
 
 	test("retired collection URLs redirect home", async ({ page }) => {

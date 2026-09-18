@@ -12,6 +12,7 @@ test.describe("About", () => {
 		const html = await res.text();
 		expect(html).toContain('"@type":"Person"');
 		expect(html).toContain('"jobTitle":"Software Engineer"');
+		expect(html).toContain('"image":"https://ta93abe.com/og/about.png"');
 		expect(html).toContain("https://github.com/ta93abe");
 
 		await page.goto("/about");
@@ -26,7 +27,7 @@ test.describe("About", () => {
 			page
 				.locator("#main-content")
 				.getByRole("link", { name: "Works", exact: true }),
-		).toHaveAttribute("href", "/works");
+		).toHaveAttribute("href", "/works/");
 		const sns = page.locator(".sns-links");
 		await expect(
 			sns.getByRole("link", { name: "GitHub", exact: true }),
@@ -39,12 +40,12 @@ test.describe("About", () => {
 		).toBeVisible();
 		await expect(
 			page.locator("#main-content").getByRole("link", { name: "Contact" }),
-		).toHaveAttribute("href", "/contact");
+		).toHaveAttribute("href", "/contact/");
 
 		const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
 		await expect(nav.getByRole("link", { name: "About" })).toHaveAttribute(
 			"href",
-			"/about",
+			"/about/",
 		);
 		await expect(nav.getByRole("link", { name: "Gallery" })).toHaveCount(0);
 	});
@@ -54,20 +55,24 @@ test.describe("About", () => {
 		request,
 	}) => {
 		for (const path of recruiterPaths) {
-			const res = await request.get(path, { maxRedirects: 0 });
-			expect(res.status(), path).toBeGreaterThanOrEqual(300);
-			expect(res.status(), path).toBeLessThan(400);
-			expect(res.headers().location, path).toMatch(/\/about\/?$/);
+			const res = await request.get(path);
+			expect(res.status(), path).toBe(200);
+			expect(res.url(), path).toMatch(/\/about\/$/);
 
 			await page.goto(path);
-			await expect(page, path).toHaveURL(/\/about\/?$/);
+			await expect(page, path).toHaveURL(/\/about\/$/);
 			await expect(
 				page.getByRole("heading", { level: 1, name: "About" }),
 			).toBeVisible();
 		}
 
 		const contact = await request.get("/contact", { maxRedirects: 0 });
-		expect(contact.status()).toBe(200);
+		expect(contact.status()).toBe(301);
+		expect(contact.headers().location).toMatch(/\/contact\/$/);
+		const contactCanonical = await request.get("/contact/", {
+			maxRedirects: 0,
+		});
+		expect(contactCanonical.status()).toBe(200);
 		await page.goto("/contact");
 		await expect(page).toHaveURL(/\/contact\/?$/);
 		await expect(
