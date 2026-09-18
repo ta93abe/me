@@ -5,6 +5,7 @@ import {
 	SITEMAP_INDEX_PATH,
 	isSitemapIndexAlias,
 } from "../src/lib/content/sitemap-aliases.ts";
+import { AGENT_SKILL_PATH, agentSkillsIndex } from "./agent-skills.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
@@ -43,7 +44,6 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const SITE_TITLE = LLMS_SITE_TITLE;
 const SITE_DESCRIPTION = LLMS_SITE_DESCRIPTION;
-const AGENT_SKILL_PATH = "/.well-known/agent-skills/site-overview/SKILL.md";
 
 // HTML ページの CSP は Astro security.csp（meta）に委譲。
 // Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
@@ -236,14 +236,6 @@ function notFoundResponse(request: Request): Response {
 	});
 }
 
-async function sha256Digest(value: string): Promise<string> {
-	const bytes = new TextEncoder().encode(value);
-	const digest = await crypto.subtle.digest("SHA-256", bytes);
-	return `sha256:${[...new Uint8Array(digest)]
-		.map((byte) => byte.toString(16).padStart(2, "0"))
-		.join("")}`;
-}
-
 function apiCatalog() {
 	return {
 		linkset: [
@@ -375,22 +367,6 @@ function agentAuthRegisterResponse() {
 			llms: `${SITE_URL}/llms.txt`,
 			sitemap: `${SITE_URL}/sitemap-index.xml`,
 		},
-	};
-}
-
-async function agentSkillsIndex() {
-	return {
-		$schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-		skills: [
-			{
-				name: "site-overview",
-				type: "skill-md",
-				description:
-					"Understand the public content, discovery files, and crawl preferences for ta93abe.com.",
-				url: AGENT_SKILL_PATH,
-				digest: await sha256Digest(AGENT_SKILL_MARKDOWN),
-			},
-		],
 	};
 }
 
@@ -599,7 +575,10 @@ export default {
 		}
 
 		if (pathname === "/.well-known/agent-skills/index.json") {
-			return jsonResponse(request, await agentSkillsIndex());
+			return jsonResponse(
+				request,
+				await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN),
+			);
 		}
 
 		if (pathname === AGENT_SKILL_PATH.replace(/\/+$/, "")) {
