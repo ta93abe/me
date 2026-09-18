@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
   group: quality-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -30,7 +33,7 @@ jobs:
         run: pnpm lint
 
       - name: Format check
-        run: pnpm exec oxfmt --check src
+        run: pnpm format:check
 
       - name: Unit tests
         run: pnpm test:run

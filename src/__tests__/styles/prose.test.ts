@@ -36,4 +36,19 @@ describe("blog article prose", () => {
 			"text-decoration: none",
 		);
 	});
+
+	it("styles YouTube embeds as bordered 16:9 cards", () => {
+		expect(declarations(".prose .youtube-embed")).toContain(
+			'font-family: "Inter", system-ui, sans-serif',
+		);
+		expect(declarations(".prose .youtube-embed")).toContain(
+			"border: 1px solid var(--border-color)",
+		);
+		expect(declarations(".prose .youtube-embed-media")).toContain(
+			"aspect-ratio: 16 / 9",
+		);
+		expect(declarations(".prose .youtube-embed-card")).toContain(
+			"text-decoration: none",
+		);
+	});
 });

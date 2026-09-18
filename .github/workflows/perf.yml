@@ -1,7 +1,21 @@
+# Performance (Lighthouse + Browser Run CWV)
+#
+# Lighthouse は毎 PR では回さない。見た目・依存・Worker が変わった PR と main。
+# 本番 CWV は main / 日次 / 手動。PR では走らせない。
 name: Performance (Lighthouse + Browser Run CWV)
 
 on:
   pull_request:
+    paths:
+      - "src/**"
+      - "public/**"
+      - "astro.config.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "perf/**"
+      - "worker/**"
+      - "scripts/perf/**"
+      - "wrangler.jsonc"
   push:
     branches: [main]
   schedule:
@@ -17,6 +31,9 @@ on:
 concurrency:
   group: perf-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   lighthouse-preview:
@@ -80,10 +97,7 @@ jobs:
 
   browser-run-cwv:
     name: Browser Run CWV (production)
-    # fork PR ではシークレットが無いのでジョブ自体は動かし、中でスキップする
-    if: >
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

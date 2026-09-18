@@ -10,9 +10,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
 import puppeteer from "puppeteer-core";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const root = path.resolve(
+	path.dirname(fileURLToPath(import.meta.url)),
+	"../..",
+);
 const outDir = path.join(root, "perf-results");
 
 const accountId =
@@ -51,7 +55,9 @@ async function collectPageMetrics(page, settleMs) {
 		const lcpEntries = performance.getEntriesByType("largest-contentful-paint");
 		const shiftEntries = performance.getEntriesByType("layout-shift");
 
-		const fcp = paints.find((p) => p.name === "first-contentful-paint")?.startTime;
+		const fcp = paints.find(
+			(p) => p.name === "first-contentful-paint",
+		)?.startTime;
 		const lcp = lcpEntries.at(-1)?.startTime;
 		const cls = shiftEntries
 			.filter((e) => !e.hadRecentInput)
@@ -84,9 +90,7 @@ function checkBudgets(metrics, budgets) {
 		const limit = budgets[key];
 		if (limit == null || value == null) continue;
 		if (value > limit) {
-			failures.push(
-				`${key}=${value}${unit} exceeds budget ${limit}${unit}`,
-			);
+			failures.push(`${key}=${value}${unit} exceeds budget ${limit}${unit}`);
 		}
 	}
 	return failures;
@@ -101,8 +105,7 @@ async function main() {
 
 	const config = await loadBudgets();
 	const settleMs = config.browserRun?.settleMs ?? 5000;
-	const navigationTimeoutMs =
-		config.browserRun?.navigationTimeoutMs ?? 45_000;
+	const navigationTimeoutMs = config.browserRun?.navigationTimeoutMs ?? 45_000;
 
 	const browserWSEndpoint = `wss://api.cloudflare.com/client/v4/accounts/${accountId}/browser-rendering/devtools/browser?keep_alive=600000`;
 
@@ -121,7 +124,11 @@ async function main() {
 		for (const pathname of config.urls) {
 			const url = `${baseUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 			const page = await browser.newPage();
-			await page.setViewport({ width: 1350, height: 940, deviceScaleFactor: 1 });
+			await page.setViewport({
+				width: 1350,
+				height: 940,
+				deviceScaleFactor: 1,
+			});
 			page.setDefaultNavigationTimeout(navigationTimeoutMs);
 
 			console.log(`[cwv] Navigating ${url}`);
