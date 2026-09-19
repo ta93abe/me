@@ -50,6 +50,7 @@ describe("TALKS catalog", () => {
 		expect(talkThumbnailUrl(TALKS[1]!)).toBe(
 			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
 		);
+		expect(TALKS[1]?.youtubeThumbnailFit).toBe("square");
 		expect(
 			TALKS.flatMap((talk) => (talk.links ?? []).map((link) => link.href)),
 		).toEqual(

@@ -38,7 +38,10 @@ const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
 		rel="noopener noreferrer"
 		aria-label={`${talk.title}を YouTube で見る`}
 	>
-		<span class="talk-card-media">
+		<span
+			class="talk-card-media"
+			data-thumb={talk.youtubeThumbnailFit ?? "wide"}
+		>
 			<img
 				class="talk-card-thumb"
 				src={thumbnailUrl}
@@ -162,6 +165,14 @@ const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
 		height: 100%;
 		margin: 0;
 		object-fit: cover;
+	}
+
+	.talk-card-media[data-thumb="square"] .talk-card-thumb {
+		inset: 0 auto 0 50%;
+		width: auto;
+		height: 100%;
+		aspect-ratio: 1 / 1;
+		transform: translateX(-50%);
 	}
 
 	.talk-card-play {

@@ -15,6 +15,7 @@ export type Talk = {
 	readonly excerpt: string;
 	readonly youtubeId: string;
 	readonly youtubeThumbnail?: YoutubeThumbnail;
+	readonly youtubeThumbnailFit?: "wide" | "square";
 	readonly links?: readonly TalkLink[];
 };
 
@@ -45,6 +46,7 @@ export const TALKS: readonly Talk[] = [
 		excerpt: "みん強'26前期 前夜祭。Cloudflare 上でデータ基盤を組む話。",
 		youtubeId: "7yvAfZ8vCDU",
 		youtubeThumbnail: "maxresdefault",
+		youtubeThumbnailFit: "square",
 		links: [
 			{
 				label: "イベント",
