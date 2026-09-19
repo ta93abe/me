@@ -8,7 +8,7 @@ export type LlmsFileListItem = {
 
 export const LLMS_SITE_TITLE = "Takumi Abe / ta93abe";
 export const LLMS_SITE_DESCRIPTION =
-	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, slides, tools, gadgets, and social links.";
+	"Personal portfolio site for Takumi Abe (ta93abe), including blog posts, talks, slides, tools, gadgets, and social links.";
 
 export const LLMS_PRIMARY_SECTIONS: readonly LlmsFileListItem[] = [
 	{
@@ -35,6 +35,11 @@ export const LLMS_PRIMARY_SECTIONS: readonly LlmsFileListItem[] = [
 		name: "Slides",
 		path: "/slides/",
 		description: "Public talk and lightning-talk decks.",
+	},
+	{
+		name: "Talks",
+		path: "/talks/",
+		description: "Recorded talks and live appearances.",
 	},
 	{
 		name: "Tools",

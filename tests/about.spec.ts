@@ -30,6 +30,17 @@ test.describe("About", () => {
 					.locator("#main-content")
 					.getByRole("link", { name: "Works", exact: true }),
 			).toHaveAttribute("href", "/works/");
+			await expect(
+				page.getByRole("heading", { level: 2, name: "登壇" }),
+			).toBeVisible();
+			await expect(
+				page
+					.locator("#main-content")
+					.getByRole("link", { name: "Talks", exact: true }),
+			).toHaveAttribute("href", "/talks/");
+			await expect(
+				page.getByRole("link", { name: /Cloudflare で始める Data Platform/ }),
+			).toBeVisible();
 			const sns = page.locator(".sns-links");
 			await expect(
 				sns.getByRole("link", { name: "GitHub", exact: true }),

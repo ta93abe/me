@@ -10,6 +10,7 @@ export type SitemapLastmodItem = {
 };
 
 const GADGETS_SOURCE = "src/data/gadgets.ts";
+const TALKS_SOURCE = "src/data/talks.ts";
 const SLIDES_DECKS_DIR = "src/slides/decks";
 
 const STATIC_PAGE_SOURCES = [
@@ -156,6 +157,10 @@ export function createStaticSitemapSerializer(
 	lastmodByPath.set(
 		"/gadgets/",
 		toW3cLastmod(readSourceLastmod(GADGETS_SOURCE, now, rootDir)),
+	);
+	lastmodByPath.set(
+		"/talks/",
+		toW3cLastmod(readSourceLastmod(TALKS_SOURCE, now, rootDir)),
 	);
 
 	const slides = readSlideDates(rootDir);

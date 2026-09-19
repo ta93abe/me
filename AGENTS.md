@@ -333,7 +333,7 @@ Conventional Commits に従う:
 
 ポートフォリオサイトとして運用中:
 - Astro 7 + Tailwind CSS 4 + Cloudflare Workers
-- ページ: About / Works / Blog / Contact / Links / Tools / Slides
+- ページ: About / Works / Blog / Contact / Links / Tools / Talks / Slides
 - SEO（OG / JSON-LD / sitemap / robots）、PostHog、perf CI まで実装済み
 - 公開本文は pubme → 非公開 R2 `me-content`。Git に原稿は置かない
 - `/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクト

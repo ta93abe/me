@@ -108,6 +108,12 @@ test.describe("Sitewide SEO", () => {
 				canonical: "https://ta93abe.com/works/",
 			},
 			{
+				path: "/talks",
+				og: "https://ta93abe.com/og/talks.png",
+				type: "Event",
+				canonical: "https://ta93abe.com/talks/",
+			},
+			{
 				path: "/blog",
 				og: "https://ta93abe.com/og/blog.png",
 				type: "CollectionPage",

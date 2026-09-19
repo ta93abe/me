@@ -1,0 +1,51 @@
+---
+import TalkCard from "@/components/TalkCard.astro";
+import { SITE } from "@/config/site";
+import { TALKS } from "@/data/talks";
+import Layout from "@/layouts/Layout.astro";
+import { ogSectionPath } from "@/utils/og/sections";
+import {
+	generateBreadcrumbSchema,
+	generateTalksCollectionSchema,
+	stringifySchema,
+	TALKS_COLLECTION_DESCRIPTION,
+} from "@/utils/schema";
+
+const site = Astro.site?.href || SITE.url;
+const collectionSchema = generateTalksCollectionSchema(site);
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Talks", path: "/talks/" },
+]);
+---
+
+<Layout
+	title={`Talks | ${SITE.name}`}
+	description={TALKS_COLLECTION_DESCRIPTION}
+	ogImage={ogSectionPath("talks")}
+	ogImageAlt="Talks"
+>
+	<Fragment slot="head">
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(collectionSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
+	</Fragment>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
+				Talks
+			</h1>
+			<p class="text-(--text-secondary)">
+				{TALKS_COLLECTION_DESCRIPTION}
+			</p>
+		</header>
+
+		<div class="talks-cards">
+			{TALKS.map((talk) => <TalkCard talk={talk} />)}
+		</div>
+	</main>
+</Layout>

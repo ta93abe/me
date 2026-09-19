@@ -32,6 +32,7 @@ export const SECONDARY_LINKS: readonly NavLink[] = [
 	{ href: "/links/", text: "Links" },
 	{ href: "/tools/", text: "Tools" },
 	{ href: "/gadgets/", text: "Gadgets" },
+	{ href: "/talks/", text: "Talks" },
 	{ href: "/slides/", text: "Slides" },
 ];
 

@@ -1,6 +1,7 @@
 ---
 import FeaturedWorksList from "@/components/FeaturedWorksList.astro";
 import SnsLinks from "@/components/SnsLinks.astro";
+import TalksList from "@/components/TalksList.astro";
 import Button from "@/components/ui/Button.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
@@ -69,6 +70,24 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 				</a>
 			</div>
 			<FeaturedWorksList source="about" />
+		</section>
+
+		<section class="mb-14" aria-labelledby="about-talks-heading">
+			<div class="mb-4 flex items-baseline justify-between gap-4">
+				<h2
+					id="about-talks-heading"
+					class="font-display text-xl font-bold text-(--text-primary)"
+				>
+					登壇
+				</h2>
+				<a
+					href="/talks/"
+					class="text-sm text-(--text-muted) no-underline hover:text-(--text-primary)"
+				>
+					Talks
+				</a>
+			</div>
+			<TalksList />
 		</section>
 
 		<section class="mb-14" aria-labelledby="about-sns-heading">

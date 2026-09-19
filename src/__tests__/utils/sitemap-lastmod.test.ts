@@ -32,6 +32,7 @@ const STATIC_SITEMAP_URLS = [
 	"https://ta93abe.com/gadgets/sony-mdr-7506/",
 	"https://ta93abe.com/gadgets/volt-276/",
 	"https://ta93abe.com/links/",
+	"https://ta93abe.com/talks/",
 	"https://ta93abe.com/slides/",
 	"https://ta93abe.com/slides/light/",
 	"https://ta93abe.com/slides/showcase/",

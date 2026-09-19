@@ -170,6 +170,7 @@ describe("derived discovery feeds", () => {
 			"https://ta93abe.com/contact/",
 			"https://ta93abe.com/links/",
 			"https://ta93abe.com/slides/",
+			"https://ta93abe.com/talks/",
 			"https://ta93abe.com/tools/",
 			"https://ta93abe.com/gadgets/",
 		]);
