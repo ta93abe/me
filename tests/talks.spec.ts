@@ -51,6 +51,17 @@ test.describe("Talks", () => {
 			"href",
 			"https://speakerdeck.com/ta93abe/cloudflare-dehazimeru-data-platform",
 		);
+
+		const thumbs = page.locator(".talk-card-thumb");
+		await expect(thumbs).toHaveCount(2);
+		await expect(thumbs.nth(0)).toHaveAttribute(
+			"src",
+			"https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg",
+		);
+		await expect(thumbs.nth(1)).toHaveAttribute(
+			"src",
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
+		);
 	});
 
 	test("stays reachable from the footer", async ({ page }) => {

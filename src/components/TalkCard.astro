@@ -1,7 +1,6 @@
 ---
 import type { Talk } from "@/data/talks";
-import { talkYoutubeUrl } from "@/data/talks";
-import { youtubeThumbnailUrl } from "@/lib/content/youtube-url";
+import { talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
 import { formatDate, toDatetimeAttr } from "@/utils/date";
 
 interface Props {
@@ -10,8 +9,9 @@ interface Props {
 
 const { talk } = Astro.props;
 const youtubeUrl = talkYoutubeUrl(talk);
-const thumbnailUrl = youtubeThumbnailUrl(talk.youtubeId);
+const thumbnailUrl = talkThumbnailUrl(talk);
 const extraLinks = talk.links ?? [];
+const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
 ---
 
 <article class="talk-card">
@@ -43,8 +43,8 @@ const extraLinks = talk.links ?? [];
 				class="talk-card-thumb"
 				src={thumbnailUrl}
 				alt=""
-				width="480"
-				height="360"
+				width={thumbIsMaxRes ? 1280 : 480}
+				height={thumbIsMaxRes ? 720 : 360}
 				loading="lazy"
 				decoding="async"
 				referrerpolicy="no-referrer"

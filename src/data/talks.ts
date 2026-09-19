@@ -5,6 +5,8 @@ export type TalkLink = {
 	readonly href: string;
 };
 
+export type YoutubeThumbnail = "hqdefault" | "maxresdefault";
+
 export type Talk = {
 	readonly slug: string;
 	readonly title: string;
@@ -12,6 +14,7 @@ export type Talk = {
 	readonly date: string;
 	readonly excerpt: string;
 	readonly youtubeId: string;
+	readonly youtubeThumbnail?: YoutubeThumbnail;
 	readonly links?: readonly TalkLink[];
 };
 
@@ -41,6 +44,7 @@ export const TALKS: readonly Talk[] = [
 		date: "2026-05-14",
 		excerpt: "みん強'26前期 前夜祭。Cloudflare 上でデータ基盤を組む話。",
 		youtubeId: "7yvAfZ8vCDU",
+		youtubeThumbnail: "maxresdefault",
 		links: [
 			{
 				label: "イベント",
@@ -56,4 +60,9 @@ export const TALKS: readonly Talk[] = [
 
 export function talkYoutubeUrl(talk: Talk): string {
 	return youtubeWatchUrl(talk.youtubeId);
+}
+
+export function talkThumbnailUrl(talk: Talk): string {
+	const variant = talk.youtubeThumbnail ?? "hqdefault";
+	return `https://i.ytimg.com/vi/${talk.youtubeId}/${variant}.jpg`;
 }

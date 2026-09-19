@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { TALKS, talkYoutubeUrl } from "@/data/talks";
+import { TALKS, talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
 import { isYoutubeId } from "@/lib/content/youtube-url";
 
 describe("TALKS catalog", () => {
@@ -29,6 +29,9 @@ describe("TALKS catalog", () => {
 			expect(talkYoutubeUrl(talk)).toBe(
 				`https://www.youtube.com/watch?v=${talk.youtubeId}`,
 			);
+			expect(talkThumbnailUrl(talk)).toBe(
+				`https://i.ytimg.com/vi/${talk.youtubeId}/${talk.youtubeThumbnail ?? "hqdefault"}.jpg`,
+			);
 			for (const link of talk.links ?? []) {
 				expect(link.href.startsWith("https://")).toBe(true);
 				expect(link.label.length).toBeGreaterThan(0);
@@ -41,6 +44,12 @@ describe("TALKS catalog", () => {
 			"KLEApocYmww",
 			"7yvAfZ8vCDU",
 		]);
+		expect(talkThumbnailUrl(TALKS[0]!)).toBe(
+			"https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg",
+		);
+		expect(talkThumbnailUrl(TALKS[1]!)).toBe(
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
+		);
 		expect(
 			TALKS.flatMap((talk) => (talk.links ?? []).map((link) => link.href)),
 		).toEqual(

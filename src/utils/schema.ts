@@ -1,7 +1,6 @@
 import { FEATURED_WORKS, SITE } from "@/config/site";
 import linksData from "@/data/links.json";
-import { TALKS, talkYoutubeUrl } from "@/data/talks";
-import { youtubeThumbnailUrl } from "@/lib/content/youtube-url";
+import { TALKS, talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
 import {
 	articleBodyText,
 	countWords,
@@ -583,7 +582,7 @@ export const generateTalksCollectionSchema = (
 					name: talk.title,
 					url: youtubeUrl,
 					contentUrl: youtubeUrl,
-					thumbnailUrl: youtubeThumbnailUrl(talk.youtubeId),
+					thumbnailUrl: talkThumbnailUrl(talk),
 					uploadDate: talk.date,
 				},
 			};
