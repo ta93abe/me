@@ -69,7 +69,7 @@ describe("llms.txt file lists", () => {
 	it("formats Primary sections and machine-readable resources with notes", () => {
 		const markdown = buildLlmsOverviewMarkdown(ORIGIN, BLOG_SECTION);
 
-		expect(LLMS_PRIMARY_SECTIONS).toHaveLength(8);
+		expect(LLMS_PRIMARY_SECTIONS).toHaveLength(9);
 		expect(LLMS_MACHINE_RESOURCES).toHaveLength(11);
 
 		for (const item of [...LLMS_PRIMARY_SECTIONS, ...LLMS_MACHINE_RESOURCES]) {

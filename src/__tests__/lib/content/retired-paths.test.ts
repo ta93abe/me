@@ -19,6 +19,7 @@ describe("isRetiredSitePath", () => {
 		expect(isRetiredSitePath("/tools")).toBe(false);
 		expect(isRetiredSitePath("/slides")).toBe(false);
 		expect(isRetiredSitePath("/works")).toBe(false);
+		expect(isRetiredSitePath("/talks")).toBe(false);
 		expect(isRetiredSitePath("/works/dbt-jobs")).toBe(false);
 		expect(isRetiredSitePath("/gadgets")).toBe(false);
 		expect(isRetiredSitePath("/gadgets/mac-studio")).toBe(false);

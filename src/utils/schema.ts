@@ -1,5 +1,7 @@
 import { FEATURED_WORKS, SITE } from "@/config/site";
 import linksData from "@/data/links.json";
+import { TALKS, talkYoutubeUrl } from "@/data/talks";
+import { youtubeThumbnailUrl } from "@/lib/content/youtube-url";
 import {
 	articleBodyText,
 	countWords,
@@ -419,6 +421,7 @@ export const TOOLS_COLLECTION_DESCRIPTION =
 	"Nix + Home Manager で管理している開発環境。毎日使っているツールと、そうしている理由。";
 export const GADGETS_COLLECTION_DESCRIPTION =
 	"毎日触っている物。ソフトウェアは Tools に置き、ここでは物だけを置く。";
+export const TALKS_COLLECTION_DESCRIPTION = "登壇と配信に出た回です。";
 
 export const generateProfilePageSchema = (
 	siteUrl: string,
@@ -499,6 +502,92 @@ export const generateWorksCollectionSchema = (
 			url: work.href,
 			codeRepository: work.href,
 		})),
+	};
+};
+
+interface TalksCollectionSchema {
+	"@context": "https://schema.org";
+	"@type": "CollectionPage";
+	name: string;
+	description: string;
+	url: string;
+	inLanguage: string;
+	isPartOf: {
+		"@type": "WebSite";
+		name: string;
+		url: string;
+	};
+	hasPart: Array<{
+		"@type": "Event";
+		name: string;
+		description: string;
+		startDate: string;
+		url: string;
+		eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode";
+		eventStatus: "https://schema.org/EventScheduled";
+		location: {
+			"@type": "VirtualLocation";
+			url: string;
+		};
+		performer: PersonFields;
+		superEvent: {
+			"@type": "Event";
+			name: string;
+		};
+		recordedIn: {
+			"@type": "VideoObject";
+			name: string;
+			url: string;
+			contentUrl: string;
+			thumbnailUrl: string;
+			uploadDate: string;
+		};
+	}>;
+}
+
+export const generateTalksCollectionSchema = (
+	siteUrl: string,
+	description: string = TALKS_COLLECTION_DESCRIPTION,
+): TalksCollectionSchema => {
+	const origin = originBase(siteUrl);
+	return {
+		"@context": "https://schema.org",
+		"@type": "CollectionPage",
+		name: "Talks",
+		description,
+		url: `${origin}/talks/`,
+		inLanguage: SITE.lang,
+		isPartOf: websitePart(origin),
+		hasPart: TALKS.map((talk) => {
+			const youtubeUrl = talkYoutubeUrl(talk);
+			return {
+				"@type": "Event" as const,
+				name: talk.title,
+				description: talk.excerpt,
+				startDate: talk.date,
+				url: youtubeUrl,
+				eventAttendanceMode:
+					"https://schema.org/OnlineEventAttendanceMode" as const,
+				eventStatus: "https://schema.org/EventScheduled" as const,
+				location: {
+					"@type": "VirtualLocation" as const,
+					url: youtubeUrl,
+				},
+				performer: personFields(siteUrl),
+				superEvent: {
+					"@type": "Event" as const,
+					name: talk.event,
+				},
+				recordedIn: {
+					"@type": "VideoObject" as const,
+					name: talk.title,
+					url: youtubeUrl,
+					contentUrl: youtubeUrl,
+					thumbnailUrl: youtubeThumbnailUrl(talk.youtubeId),
+					uploadDate: talk.date,
+				},
+			};
+		}),
 	};
 };
 

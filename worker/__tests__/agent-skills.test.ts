@@ -59,6 +59,7 @@ describe("site-overview SKILL.md", () => {
 			markdownLink("Works", `${SITE_URL}/works/`),
 			markdownLink("Contact", `${SITE_URL}/contact/`),
 			markdownLink("Slides", `${SITE_URL}/slides/`),
+			markdownLink("Talks", `${SITE_URL}/talks/`),
 			markdownLink("Tools", `${SITE_URL}/tools/`),
 			markdownLink("Gadgets", `${SITE_URL}/gadgets/`),
 			markdownLink("llms.txt", `${SITE_URL}/llms.txt`),
