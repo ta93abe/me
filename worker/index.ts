@@ -35,6 +35,7 @@ import {
 	aiCatalog,
 	didWebDocument,
 } from "./discovery/ai-catalog.ts";
+import { promoteHtmlCspHeader } from "./html-csp-header.ts";
 import {
 	appendHeaderToken,
 	htmlOriginRequest,
@@ -78,16 +79,15 @@ const SITE_HOST = "ta93abe.com";
 const AGENT_CLAIM_PATH = "/agent/claim";
 const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
 
-// HTML ページの CSP は Astro security.csp（meta）に委譲。
-// Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
+// Worker 生成レスポンス（JSON / text）向けのベースライン。
+// HTML のハッシュ付き CSP は Astro security.csp（meta）を
+// promoteHtmlCspHeader で HTTP ヘッダへ昇格する。ここには置かない。
 const SECURITY_HEADERS = {
 	"X-Frame-Options": "DENY",
 	"X-Content-Type-Options": "nosniff",
 	"Referrer-Policy": "strict-origin-when-cross-origin",
 	"Permissions-Policy":
 		"accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
-	// HTML ページの CSP は Astro security.csp（meta）と public/_headers に委譲。
-	// Worker 生成レスポンス（JSON / text）向けのベースラインのみ維持する。
 	"Content-Security-Policy":
 		"default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
 } as const;
@@ -539,12 +539,26 @@ async function handleSiteRequest(
 		return notFoundResponse(request);
 	}
 
-	const astroRequest = htmlOriginRequest(request);
+	// prerender HTML の CSP は meta にしか無い。HEAD でも同じヘッダを
+	// 返すため、本体を読んでから空 body に戻す。
+	const method = request.method.toUpperCase();
+	const originRequest =
+		method === "HEAD" ? new Request(request, { method: "GET" }) : request;
+	const astroRequest = htmlOriginRequest(originRequest);
 	const response = await fetchAstro(astroRequest, env, ctx);
 	const negotiated = await negotiateHtmlMarkdown(request, response, {
 		contentSignal: CONTENT_SIGNAL,
 	});
-	return addPublicHtmlDiscoveryHeaders(request, negotiated);
+	const withCsp = await promoteHtmlCspHeader(negotiated);
+	const discovered = addPublicHtmlDiscoveryHeaders(request, withCsp);
+	if (method !== "HEAD") {
+		return discovered;
+	}
+	return new Response(null, {
+		status: discovered.status,
+		statusText: discovered.statusText,
+		headers: discovered.headers,
+	});
 }
 
 export default {
