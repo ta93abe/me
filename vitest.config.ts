@@ -12,11 +12,11 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": srcDir,
-			"@cf-wasm/resvg": path.resolve(
+			"@cf-wasm/resvg/workerd": path.resolve(
 				path.dirname(fileURLToPath(import.meta.url)),
 				"node_modules/@cf-wasm/resvg/dist/node.js",
 			),
-			"@cf-wasm/satori": path.resolve(
+			"@cf-wasm/satori/workerd": path.resolve(
 				path.dirname(fileURLToPath(import.meta.url)),
 				"node_modules/@cf-wasm/satori/dist/node.js",
 			),
