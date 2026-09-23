@@ -54,6 +54,10 @@ import {
 } from "./oauth-metadata.ts";
 import { dispatchWorkerQueue } from "./queue-dispatch.ts";
 import {
+	SECURITY_HEADERS,
+	withBaselineSecurityHeaders,
+} from "./security-headers.ts";
+import {
 	SECURITY_TXT,
 	SECURITY_TXT_CONTENT_TYPE,
 	SECURITY_TXT_PATH,
@@ -80,19 +84,6 @@ const SITE_URL = "https://ta93abe.com";
 const SITE_HOST = "ta93abe.com";
 const AGENT_CLAIM_PATH = "/agent/claim";
 const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
-
-// Worker 生成レスポンス（JSON / text）向けのベースライン。
-// HTML のハッシュ付き CSP は Astro security.csp（meta）を
-// promoteHtmlCspHeader で HTTP ヘッダへ昇格する。ここには置かない。
-const SECURITY_HEADERS = {
-	"X-Frame-Options": "DENY",
-	"X-Content-Type-Options": "nosniff",
-	"Referrer-Policy": "strict-origin-when-cross-origin",
-	"Permissions-Policy":
-		"accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
-	"Content-Security-Policy":
-		"default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
-} as const;
 
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
@@ -618,7 +609,10 @@ export default {
 		}
 
 		const response = await handleSiteRequest(request, env, ctx);
-		return withAgentDiscoveryCors(request, response);
+		return withAgentDiscoveryCors(
+			request,
+			withBaselineSecurityHeaders(response),
+		);
 	},
 
 	async queue(batch, env): Promise<void> {
