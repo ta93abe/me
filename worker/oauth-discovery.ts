@@ -9,6 +9,16 @@
  * advertises no OAuth grants and does not mint tokens.
  */
 
+export const OAUTH_AUTHORIZATION_SERVER_PATH =
+	"/.well-known/oauth-authorization-server";
+
+/**
+ * Some clients apply RFC 8414 §3 twice: they treat the metadata document URL
+ * as an issuer and insert `/.well-known/oauth-authorization-server` again.
+ * Redirect that nested probe to the canonical document.
+ */
+export const NESTED_OAUTH_AUTHORIZATION_SERVER_PATH = `${OAUTH_AUTHORIZATION_SERVER_PATH}${OAUTH_AUTHORIZATION_SERVER_PATH}`;
+
 export const OPENID_CONFIGURATION_PATH = "/.well-known/openid-configuration";
 
 export const AUTH_MD_OIDC_PARAGRAPH =

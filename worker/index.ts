@@ -43,6 +43,8 @@ import {
 import { handleMcp, mcpServerCard } from "./mcp.ts";
 import {
 	AUTH_MD_OIDC_PARAGRAPH,
+	NESTED_OAUTH_AUTHORIZATION_SERVER_PATH,
+	OAUTH_AUTHORIZATION_SERVER_PATH,
 	OPENID_CONFIGURATION_PATH,
 } from "./oauth-discovery.ts";
 import {
@@ -488,7 +490,14 @@ async function handleSiteRequest(
 		return discoveryJsonResponse(request, a2aAgentCard());
 	}
 
-	if (pathname === "/.well-known/oauth-authorization-server") {
+	if (pathname === NESTED_OAUTH_AUTHORIZATION_SERVER_PATH) {
+		return Response.redirect(
+			new URL(OAUTH_AUTHORIZATION_SERVER_PATH, url),
+			308,
+		);
+	}
+
+	if (pathname === OAUTH_AUTHORIZATION_SERVER_PATH) {
 		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
 	}
 
