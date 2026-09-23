@@ -204,6 +204,37 @@ function notFoundResponse(request: Request): Response {
 	});
 }
 
+async function serveFallbackBlogOg(
+	request: Request,
+	env: Env,
+): Promise<Response | null> {
+	if (!env.ASSETS) {
+		return null;
+	}
+
+	try {
+		const fallback = await env.ASSETS.fetch(
+			new Request(new URL("/og/blog.png", request.url)),
+		);
+		if (!fallback.ok) {
+			return null;
+		}
+
+		const headers = new Headers(fallback.headers);
+		headers.set("Content-Type", "image/png");
+		headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
+		setGeneratedHeaders(headers);
+
+		return new Response(isHead(request) ? null : fallback.body, {
+			status: 200,
+			headers,
+		});
+	} catch (error) {
+		console.error("blog OG fallback failed", error);
+		return null;
+	}
+}
+
 function agentAuthClaimResponse() {
 	return {
 		identity_type: "anonymous",
@@ -379,22 +410,31 @@ async function handleSiteRequest(
 
 	const ogSlug = parseOgBlogPath(pathname);
 	if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
-		const title = await loadOgTitle(env.CONTENT, ogSlug);
-		if (title) {
-			if (shouldCacheBlogHtml(request)) {
-				const cached = await defaultCache().match(request);
-				if (cached) {
-					return cached;
+		try {
+			const title = await loadOgTitle(env.CONTENT, ogSlug);
+			if (title) {
+				if (shouldCacheBlogHtml(request)) {
+					const cached = await defaultCache().match(request);
+					if (cached) {
+						return cached;
+					}
 				}
+				const png = await renderBlogOgPng(title);
+				const response = binaryResponse(request, png, "image/png", {
+					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
+				});
+				if (shouldCacheBlogHtml(request) && request.method === "GET") {
+					ctx.waitUntil(defaultCache().put(request, response.clone()));
+				}
+				return response;
 			}
-			const png = await renderBlogOgPng(title);
-			const response = binaryResponse(request, png, "image/png", {
-				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-			});
-			if (shouldCacheBlogHtml(request) && request.method === "GET") {
-				ctx.waitUntil(defaultCache().put(request, response.clone()));
-			}
-			return response;
+		} catch (error) {
+			console.error("blog OG render failed", error);
+		}
+
+		const fallback = await serveFallbackBlogOg(request, env);
+		if (fallback) {
+			return fallback;
 		}
 	}
 

@@ -1,5 +1,7 @@
-import { Resvg } from "@cf-wasm/resvg";
-import { satori } from "@cf-wasm/satori";
+// Pin workerd builds. `nodejs_compat` can resolve `@cf-wasm/*` to the Node
+// entry, which calls `new WebAssembly.Module(bytes)` and throws CF 1101.
+import { Resvg } from "@cf-wasm/resvg/workerd";
+import { satori } from "@cf-wasm/satori/workerd";
 
 import {
 	buildOgCardElement,
@@ -37,5 +39,6 @@ export async function renderBlogOgPng(title: string): Promise<Uint8Array> {
 		},
 	});
 
-	return resvg.render().asPng();
+	// Copy out of WASM memory before the module can detach the view.
+	return Uint8Array.from(resvg.render().asPng());
 }
