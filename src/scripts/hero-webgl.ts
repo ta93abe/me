@@ -74,8 +74,9 @@ void main() {
 	float ribbons = smoothstep(0.42, 0.78, field + 0.12 * sin(ripple * 8.0 - uTime * 1.4));
 
 	vec3 color = uPaper;
-	color = mix(color, uOchre, ribbons * 0.45);
-	color = mix(color, uInk, pow(ribbons, 1.8) * 0.38);
+	color = mix(color, uOchre, ribbons * 0.52);
+	color = mix(color, uInk, pow(ribbons, 2.0) * 0.22);
+	color = mix(color, vec3(0.49, 0.23, 0.93), ribbons * 0.18);
 
 	float vignette = smoothstep(1.35, 0.25, length(p * 1.1));
 	color = mix(color * 0.96, color, vignette);
@@ -113,16 +114,25 @@ export function initHeroWebGL(
 		return null;
 	}
 
-	renderer.setClearColor(0xfaf9f6, 1);
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+
+	const theme = document.body.dataset.theme === "home" ? document.body : null;
+	const themeStyle = theme ? getComputedStyle(theme) : null;
+	const paperHex =
+		themeStyle?.getPropertyValue("--home-paper").trim() || "#f4eef8";
+	const inkHex = themeStyle?.getPropertyValue("--home-ink").trim() || "#1c1228";
+	const bloomHotHex =
+		themeStyle?.getPropertyValue("--home-bloom-hot").trim() || "#a855f7";
+
+	renderer.setClearColor(new Color(paperHex).getHex(), 1);
 
 	const uniforms = {
 		uTime: { value: 0 },
 		uResolution: { value: new Vector2(1, 1) },
 		uMouse: { value: new Vector2(0.5, 0.5) },
-		uInk: { value: new Color("#6b4c9a") },
-		uOchre: { value: new Color("#8a6d3b") },
-		uPaper: { value: new Color("#faf9f6") },
+		uInk: { value: new Color(inkHex) },
+		uOchre: { value: new Color(bloomHotHex) },
+		uPaper: { value: new Color(paperHex) },
 	};
 
 	const bgGeometry = new PlaneGeometry(18, 12);

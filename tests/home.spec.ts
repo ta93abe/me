@@ -67,7 +67,11 @@ test.describe("Home", () => {
 				0,
 			);
 			await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
-			await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
+			await expect(page.locator("[data-hero-canvas]")).toHaveCount(1);
+			await expect(page.locator("[data-hero-canvas]")).toHaveAttribute(
+				"aria-hidden",
+				"true",
+			);
 			await expect(page.locator(".home-stage")).toBeAttached();
 			await expect(
 				page.getByRole("heading", { name: "入口として" }),
@@ -144,6 +148,7 @@ test.describe("Home", () => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/");
 
+		await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
 		await expect(
 			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
 		).toBeVisible();
