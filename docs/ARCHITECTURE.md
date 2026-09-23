@@ -132,6 +132,7 @@ pnpm install
 
 - TypeScript strict
 - Astro CSP 設定
+- HSTS: `public/_headers` と `worker/security-headers.ts`（手順は `docs/hsts-cloudflare.md`、TA-1133）
 - Cloudflare HTTPS / DDoS 保護
 - Worker サンドボックス
 

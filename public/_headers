@@ -2,6 +2,9 @@
 # https://developers.cloudflare.com/workers/static-assets/headers/
 
 /*
+  # HTTPS-only for repeat visits (Lighthouse has-hsts; no preload until stable)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
   # Prevent clickjacking
   X-Frame-Options: DENY
 
