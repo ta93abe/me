@@ -119,6 +119,7 @@ export const SITE_OVERVIEW = {
 		`${SITE_URL}/blog/`,
 		`${SITE_URL}/contact/`,
 		`${SITE_URL}/slides/`,
+		`${SITE_URL}/talks/`,
 		`${SITE_URL}/tools/`,
 		`${SITE_URL}/gadgets/`,
 		`${SITE_URL}/links/`,

@@ -28,6 +28,7 @@ Personal portfolio for Takumi Abe (ta93abe), a software engineer who writes data
 - [Works](${SITE_URL}/works/)
 - [Contact](${SITE_URL}/contact/)
 - [Slides](${SITE_URL}/slides/)
+- [Talks](${SITE_URL}/talks/)
 - [Tools](${SITE_URL}/tools/)
 - [Gadgets](${SITE_URL}/gadgets/)
 

@@ -32,6 +32,7 @@ const STATIC_SECTION_PATHS = [
 	"/contact/",
 	"/links/",
 	"/slides/",
+	"/talks/",
 	"/tools/",
 	"/gadgets/",
 ] as const;

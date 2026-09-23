@@ -13,6 +13,7 @@
 - [Links](https://ta93abe.com/links/): いま更新している場所
 - [Tools](https://ta93abe.com/tools/): 開発環境
 - [Gadgets](https://ta93abe.com/gadgets/): 毎日触っている物
+- [Talks](https://ta93abe.com/talks/): 登壇と配信
 - [Slides](https://ta93abe.com/slides/): 登壇や LT のスライド
 
 ## 技術

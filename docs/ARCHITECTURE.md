@@ -52,6 +52,7 @@ src/pages/
 ├── contact.astro            → /contact
 ├── links.astro              → /links
 ├── tools.astro              → /tools
+├── talks.astro              → /talks
 ├── slides/                  → /slides, /slides/:slug, /slides/:slug/print
 ├── og/                      → 動的 OG 画像
 ├── rss.xml.ts               → /rss.xml

@@ -3,6 +3,7 @@ import type { OgImageType } from "@/utils/og/generate-og-image";
 export const OG_SECTIONS = [
 	{ slug: "about", title: "About", type: "default" },
 	{ slug: "works", title: "Works", type: "works" },
+	{ slug: "talks", title: "Talks", type: "default" },
 	{ slug: "blog", title: "Blog", type: "blog" },
 	{ slug: "contact", title: "Contact", type: "default" },
 	{ slug: "links", title: "Links", type: "default" },

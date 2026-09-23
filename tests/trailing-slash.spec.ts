@@ -7,6 +7,7 @@ test.describe("Trailing slash canonicalization", { tag: "@smoke" }, () => {
 			"/blog",
 			"/contact",
 			"/works",
+			"/talks",
 			"/gadgets",
 			"/blog/hello-world",
 		] as const;

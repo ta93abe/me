@@ -1,0 +1,231 @@
+---
+import type { Talk } from "@/data/talks";
+import { talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
+import { formatDate, toDatetimeAttr } from "@/utils/date";
+
+interface Props {
+	talk: Talk;
+}
+
+const { talk } = Astro.props;
+const youtubeUrl = talkYoutubeUrl(talk);
+const thumbnailUrl = talkThumbnailUrl(talk);
+const extraLinks = talk.links ?? [];
+const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
+---
+
+<article class="talk-card">
+	<header class="talk-card-header">
+		<div class="talk-card-meta">
+			<time datetime={toDatetimeAttr(talk.date)}>{formatDate(talk.date)}</time>
+			<span class="talk-card-event">{talk.event}</span>
+		</div>
+		<h2 class="talk-card-title">
+			<a
+				href={youtubeUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				{talk.title}
+			</a>
+		</h2>
+	</header>
+	<p class="talk-card-excerpt">{talk.excerpt}</p>
+	<a
+		class="talk-card-video"
+		href={youtubeUrl}
+		target="_blank"
+		rel="noopener noreferrer"
+		aria-label={`${talk.title}を YouTube で見る`}
+	>
+		<span
+			class="talk-card-media"
+			data-thumb={talk.youtubeThumbnailFit ?? "wide"}
+		>
+			<img
+				class="talk-card-thumb"
+				src={thumbnailUrl}
+				alt=""
+				width={thumbIsMaxRes ? 1280 : 480}
+				height={thumbIsMaxRes ? 720 : 360}
+				loading="lazy"
+				decoding="async"
+				referrerpolicy="no-referrer"
+			/>
+			<span class="talk-card-play" aria-hidden="true">
+				<svg
+					class="talk-card-play-icon"
+					viewBox="0 0 68 48"
+					width="68"
+					height="48"
+				>
+					<path
+						class="talk-card-play-bg"
+						d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z"
+						fill="#f00"></path>
+					<path fill="#fff" d="M45 24 27 14v20z"></path>
+				</svg>
+			</span>
+		</span>
+	</a>
+	{
+		extraLinks.length > 0 && (
+			<ul class="talk-card-links">
+				{extraLinks.map((link) => (
+					<li>
+						<a href={link.href} target="_blank" rel="noopener noreferrer">
+							{link.label}
+						</a>
+					</li>
+				))}
+			</ul>
+		)
+	}
+</article>
+
+<style>
+	.talk-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding: 1.5rem 0;
+		border-top: 1px solid var(--border-color);
+	}
+
+	.talk-card:first-child {
+		border-top: 0;
+		padding-top: 0;
+	}
+
+	.talk-card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.35rem 0.75rem;
+		margin-bottom: 0.35rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+	}
+
+	.talk-card-event {
+		min-width: 0;
+	}
+
+	.talk-card-title {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 700;
+		line-height: 1.4;
+	}
+
+	.talk-card-title a {
+		color: var(--text-primary);
+		text-decoration: none;
+	}
+
+	.talk-card-title a:hover,
+	.talk-card-title a:focus-visible {
+		color: var(--primary-color);
+	}
+
+	.talk-card-excerpt {
+		margin: 0;
+		color: var(--text-secondary);
+	}
+
+	.talk-card-video {
+		display: block;
+		max-width: 100%;
+		overflow: hidden;
+		color: inherit;
+		text-decoration: none;
+		border: 1px solid var(--border-color);
+		border-radius: 1rem;
+		background: var(--bg-elevated);
+		box-shadow: 0 1px 0 color-mix(in srgb, var(--border-color) 70%, transparent);
+	}
+
+	.talk-card-video:hover,
+	.talk-card-video:focus-visible {
+		border-color: color-mix(in srgb, var(--border-color) 40%, var(--text-muted));
+	}
+
+	.talk-card-media {
+		position: relative;
+		display: block;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: #0f0f0f;
+	}
+
+	.talk-card-thumb {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		object-fit: cover;
+	}
+
+	.talk-card-media[data-thumb="square"] .talk-card-thumb {
+		inset: 0 auto 0 50%;
+		width: auto;
+		height: 100%;
+		aspect-ratio: 1 / 1;
+		transform: translateX(-50%);
+	}
+
+	.talk-card-play {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		display: grid;
+		place-items: center;
+		transform: translate(-50%, -50%);
+		transition: transform 0.15s ease;
+	}
+
+	.talk-card-video:hover .talk-card-play,
+	.talk-card-video:focus-visible .talk-card-play {
+		transform: translate(-50%, -50%) scale(1.06);
+	}
+
+	.talk-card-play-icon {
+		display: block;
+		filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.35));
+	}
+
+	.talk-card-video:hover .talk-card-play-bg,
+	.talk-card-video:focus-visible .talk-card-play-bg {
+		fill: #cc0000;
+	}
+
+	.talk-card-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-size: 0.875rem;
+	}
+
+	.talk-card-links a {
+		color: var(--primary-color);
+		text-decoration: none;
+	}
+
+	.talk-card-links a:hover,
+	.talk-card-links a:focus-visible {
+		text-decoration: underline;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.talk-card-play,
+		.talk-card-video:hover .talk-card-play,
+		.talk-card-video:focus-visible .talk-card-play {
+			transition: none;
+			transform: translate(-50%, -50%);
+		}
+	}
+</style>

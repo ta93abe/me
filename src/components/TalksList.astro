@@ -1,0 +1,71 @@
+---
+import { TALKS, talkYoutubeUrl } from "@/data/talks";
+---
+
+<ul class="talks-list">
+	{
+		TALKS.map((talk) => (
+			<li>
+				<a
+					href={talkYoutubeUrl(talk)}
+					class="talks-list-link"
+					aria-label={talk.title}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<span class="talks-list-title">{talk.title}</span>
+					<span class="talks-list-excerpt">{talk.excerpt}</span>
+				</a>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.talks-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-top: 1px solid var(--border-color);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.talks-list-link {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 1rem 0;
+		text-decoration: none;
+		color: inherit;
+		border-top: 1px solid var(--border-color);
+		transition: color 0.15s ease;
+	}
+
+	.talks-list li:first-child .talks-list-link {
+		border-top: 0;
+	}
+
+	.talks-list-title {
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--text-primary);
+	}
+
+	.talks-list-excerpt {
+		font-size: 0.875rem;
+		line-height: 1.7;
+		color: var(--text-secondary);
+	}
+
+	.talks-list-link:hover .talks-list-title,
+	.talks-list-link:focus-visible .talks-list-title {
+		color: var(--primary-color);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.talks-list-link {
+			transition: none;
+		}
+	}
+</style>

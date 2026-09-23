@@ -15,6 +15,7 @@ import {
 	generateProfilePageSchema,
 	generateSlideDeckSchema,
 	generateSlidesCollectionSchema,
+	generateTalksCollectionSchema,
 	generateToolsCollectionSchema,
 	generateWebSiteSchema,
 	generateWorksCollectionSchema,
@@ -162,6 +163,37 @@ describe("generateWorksCollectionSchema", () => {
 			"enbu",
 		]);
 		expect(schema.hasPart[0]?.codeRepository).toContain("github.com");
+	});
+});
+
+describe("generateTalksCollectionSchema", () => {
+	it("lists appearances as Event parts with YouTube recordings", () => {
+		const schema = generateTalksCollectionSchema("https://example.com/");
+		expect(schema["@type"]).toBe("CollectionPage");
+		expect(schema.url).toBe("https://example.com/talks/");
+		expect(schema.hasPart.map((part) => part.name)).toEqual([
+			"Frosty Friday Live Challenge Vol.56",
+			"Cloudflare で始める Data Platform",
+		]);
+		expect(schema.hasPart[0]).toMatchObject({
+			"@type": "Event",
+			startDate: "2026-08-27",
+			url: "https://www.youtube.com/watch?v=KLEApocYmww",
+			eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+			superEvent: { "@type": "Event", name: "SnowVillage" },
+			recordedIn: {
+				"@type": "VideoObject",
+				contentUrl: "https://www.youtube.com/watch?v=KLEApocYmww",
+				thumbnailUrl: "https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg",
+			},
+		});
+		expect(schema.hasPart[1]?.performer.name).toBe("Takumi Abe");
+		expect(schema.hasPart[1]?.recordedIn.contentUrl).toBe(
+			"https://www.youtube.com/watch?v=7yvAfZ8vCDU",
+		);
+		expect(schema.hasPart[1]?.recordedIn.thumbnailUrl).toBe(
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
+		);
 	});
 });
 
