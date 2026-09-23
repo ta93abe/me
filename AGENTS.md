@@ -6,7 +6,7 @@
 
 - `README.md` は GitHub の外部読者向け。サイトの紹介とローカル起動を書く。Linear、Graphite、Content API、デプロイ変数、エージェント向け手順は書かない。
 - このファイルは、このリポジトリで作業するエージェント向け。
-- 内部設計は `docs/`。
+- 内部設計は `docs/`。決定（ADR）は Linear の me プロジェクト文書に書く。git に ADR 本文は置かない。一覧: https://linear.app/ta93abe/document/adr-一覧-07b836fe1a33
 
 ## プロジェクト概要
 

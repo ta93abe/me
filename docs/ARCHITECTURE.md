@@ -99,6 +99,7 @@ gallery / atelier / books のサイトページはいったん外している。
 - Tailwind CSS ユーティリティ
 - `src/styles/global.css` のデザイントークン（CSS 変数）
 - コンポーネントスコープの `<style>`
+- `/` の見た目とモーションは [ADR-0001](https://linear.app/ta93abe/document/adr-0001-トップは紫基調のスクロール物語にする-5f56f22268fc)（紫基調のスクロール物語。他ページの紙白は維持。正は Linear）
 
 ### 4. Worker 拡張
 
