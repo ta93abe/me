@@ -41,10 +41,11 @@ theme: dark
 <!-- type: cover -->
 
 # タイトル
+
 サブタイトル
 ```
 
-使える型: `cover` / `section` / `body` / `split` / `quote` / `code` / `figure`
+使える型: `cover` / `section` / `body` / `split` / `quote` / `code` / `figure` / `center` / `end`
 
 ### split
 
@@ -64,6 +65,57 @@ theme: dark
 本文
 ```
 
+### クリック
+
+`<!-- click -->` で、それ以降のブロックを次のキー操作まで隠す。スペース / → はクリックを先に消化し、終わったら次の枚へ進む。
+
+```markdown
+# 話の順番
+
+最初に見える
+
+<!-- click -->
+
+次に出る
+```
+
+リストを 1 項目ずつ出すときは `<!-- clicks -->`。
+
+```markdown
+# 要点
+
+<!-- clicks -->
+
+- 一つ
+- 二つ
+- 三つ
+```
+
+共有 URL は `#3` が 3 枚目、`#3.2` が 3 枚目の 2 クリック目。印刷 HTML と PDF ではすべて出した状態になる。
+
+### コードの行ハイライト
+
+フェンスの meta に行番号を書く。見た目の色はデッキに書かない。
+
+````markdown
+```ts {2-4}
+const a = 1;
+const b = 2;
+const c = 3;
+const d = 4;
+```
+````
+
+`{2|4-5}` のように `|` で区切ると、クリックごとにハイライトが移る。
+
+### 数式
+
+KaTeX。インラインは `$...$`、別行は `$$...$$`。
+
+```markdown
+オイラーの等式は $e^{i\pi}+1=0$。
+```
+
 ### ノート
 
 ```markdown
@@ -71,6 +123,8 @@ theme: dark
 ここで話すこと。
 -->
 ```
+
+発表中に `p` でノート・次枚・経過時間を出す。
 
 ### 画像
 
@@ -87,6 +141,8 @@ theme: dark
 - 未知の型、未知の frontmatter キー
 - 型コメントをスライド先頭以外に置くこと
 
+許可する HTML コメント指令は `type` / `column` / `notes` / `click` / `clicks`。
+
 ## 見る
 
 ```bash
@@ -100,8 +156,8 @@ pnpm dev
 - `https://ta93abe.com/slides/<slug>.pdf` が PDF
 - `https://ta93abe.com/og/slides.png` が一覧の OG 画像
 - `https://ta93abe.com/og/slides/<slug>.png` がデッキの OG 画像
-- `#3` が 3 枚目
+- `#3` が 3 枚目、`#3.2` がクリック位置
 
 紙面の決め方は [docs/slides-pdf.md](slides-pdf.md)。
 
-操作: ← → / Home / End / スペース / スワイプ / `f` フルスクリーン / `o` 概要グリッド
+操作: ← → / Home / End / スペース / スワイプ / `f` フルスクリーン / `o` 概要グリッド / `p` 発表者ノート / `?` 操作一覧

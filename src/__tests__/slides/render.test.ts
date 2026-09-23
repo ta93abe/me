@@ -12,8 +12,8 @@ const twoSlides: Deck = {
 		theme: "dark",
 	},
 	slides: [
-		{ type: "cover", html: "<h1>表紙</h1>", notes: "" },
-		{ type: "body", html: "<p>本文</p>", notes: "話す" },
+		{ type: "cover", html: "<h1>表紙</h1>", notes: "", clicks: 0 },
+		{ type: "body", html: "<p>本文</p>", notes: "話す", clicks: 0 },
 	],
 };
 
@@ -23,6 +23,7 @@ describe("renderSlideSections", () => {
 		expect(html).not.toContain(" hidden");
 		expect(html.match(/<section class="slide/g)?.length).toBe(2);
 		expect(html).toContain("speaker-notes");
+		expect(html).toContain('data-clicks="0"');
 	});
 
 	it("hides later slides on the live player page", () => {

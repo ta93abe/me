@@ -1,12 +1,15 @@
 import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
+import rehypeKatex from "rehype-katex";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { createHighlighter, createJavaScriptRegexEngine } from "shiki";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
+import { transformerSlideHighlight } from "./highlight.ts";
 import { rehypeShikiToClasses } from "./shiki-classes.ts";
 import type { ColorTheme } from "./types.ts";
 
@@ -68,12 +71,15 @@ export async function markdownToHtml(
 	const file = await unified()
 		.use(remarkParse)
 		.use(remarkGfm)
+		.use(remarkMath)
 		.use(rewriteRelativeImages(slug))
 		.use(remarkRehype, { allowDangerousHtml: false })
+		.use(rehypeKatex, { strict: "ignore" })
 		.use(() =>
 			rehypeShikiFromHighlighter(highlighter, {
 				theme: themeName,
 				fallbackLanguage: "javascript",
+				transformers: [transformerSlideHighlight()],
 			}),
 		)
 		.use(rehypeShikiToClasses)

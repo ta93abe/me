@@ -55,7 +55,9 @@ describe("parseDeck", () => {
 		const deck = await parse("# 本文\n\n```ts\nconst n = 1;\n```");
 		expect(deck.frontmatter.theme).toBe("dark");
 		expect(deck.slides[0]?.html).toContain("min-dark");
+		expect(deck.slides[0]?.html).toContain("shiki-fg-");
 		expect(deck.slides[0]?.html).not.toMatch(/\sstyle=/i);
+		expect(deck.slides[0]?.html).not.toMatch(/class="[^"]*"[^>]*\sclass="/);
 	});
 
 	it("accepts theme light", async () => {
@@ -110,5 +112,62 @@ describe("parseDeck", () => {
 	it("rewrites relative images under /slides/media", async () => {
 		const deck = await parse("![枠](./frame.svg)");
 		expect(deck.slides[0]?.html).toContain("/slides/media/sample/frame.svg");
+	});
+
+	it("defaults clicks to 0", async () => {
+		const deck = await parse("# 本文\n\n段落");
+		expect(deck.slides[0]?.clicks).toBe(0);
+	});
+
+	it("wraps click fragments", async () => {
+		const deck = await parse("# 先\n\n見える\n\n<!-- click -->\n\n隠す");
+		expect(deck.slides[0]?.clicks).toBe(1);
+		expect(deck.slides[0]?.html).toContain('data-click="1"');
+		expect(deck.slides[0]?.html).toContain('class="fragment"');
+	});
+
+	it("turns lists into click steps", async () => {
+		const deck = await parse("# 要点\n\n<!-- clicks -->\n\n- 一\n- 二\n- 三");
+		expect(deck.slides[0]?.clicks).toBe(3);
+		expect(deck.slides[0]?.html.match(/data-click="/g)?.length).toBe(3);
+	});
+
+	it("highlights code lines from fence meta", async () => {
+		const deck = await parse("```ts {2}\nconst a = 1;\nconst b = 2;\n```");
+		expect(deck.slides[0]?.html).toContain("line-highlighted");
+		expect(deck.slides[0]?.html).toContain("has-highlight");
+	});
+
+	it("treats piped line groups as click highlights", async () => {
+		const deck = await parse("```ts {1|2}\nconst a = 1;\nconst b = 2;\n```");
+		expect(deck.slides[0]?.clicks).toBe(1);
+		expect(deck.slides[0]?.html).toContain("data-click-highlight");
+	});
+
+	it("renders katex math", async () => {
+		const deck = await parse("式は $e=mc^2$。");
+		expect(deck.slides[0]?.html).toContain("katex");
+		expect(deck.slides[0]?.html).toMatch(/strut[^>]*style="/);
+	});
+
+	it("keeps katex strut styles while stripping shiki styles", async () => {
+		const deck = await parse("式は $e=mc^2$。\n\n```ts\nconst n = 1;\n```");
+		const html = deck.slides[0]?.html ?? "";
+		expect(html).toMatch(/strut[^>]*style="/);
+		expect(html).not.toMatch(/<pre[^>]*style=/i);
+		expect(html).toContain("shiki-fg-");
+	});
+
+	it("accepts center and end types", async () => {
+		const deck = await parse(
+			"<!-- type: center -->\n\n# 中央\n\n---\n\n<!-- type: end -->\n\n# おわり",
+		);
+		expect(deck.slides.map((slide) => slide.type)).toEqual(["center", "end"]);
+	});
+
+	it("rejects empty click gaps", async () => {
+		await expect(
+			parse("# x\n\n<!-- click -->\n\n<!-- click -->\n\nあと"),
+		).rejects.toBeInstanceOf(DeckError);
 	});
 });
