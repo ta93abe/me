@@ -1,0 +1,77 @@
+---
+/** 紫ディザの装飾ステージ。操作 UI ではない。 */
+---
+
+<section class="home-stage" aria-hidden="true">
+	<div class="home-stage-frame">
+		<div class="home-stage-screen">
+			<div class="home-stage-dither"></div>
+			<div class="home-stage-bar"></div>
+			<div class="home-stage-bar home-stage-bar--short"></div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.home-stage {
+		position: relative;
+		padding: 2rem 1.5rem 3.5rem;
+		background: var(--home-paper, var(--bg-primary));
+	}
+
+	.home-stage-frame {
+		box-sizing: border-box;
+		max-width: 52rem;
+		margin-inline: auto;
+		padding: 1.25rem;
+		border: 1px solid color-mix(in srgb, var(--home-dither) 35%, transparent);
+		border-radius: 0.75rem;
+		background: color-mix(in srgb, var(--home-paper) 88%, white);
+		box-shadow:
+			0 1px 0 color-mix(in srgb, var(--home-ink) 6%, transparent),
+			0 24px 48px color-mix(in srgb, var(--home-field) 12%, transparent);
+	}
+
+	.home-stage-screen {
+		position: relative;
+		overflow: hidden;
+		min-height: 14rem;
+		border-radius: 0.35rem;
+		background: linear-gradient(
+			165deg,
+			color-mix(in srgb, var(--home-field) 92%, black) 0%,
+			color-mix(in srgb, var(--home-dither) 75%, var(--home-field)) 100%
+		);
+	}
+
+	.home-stage-dither {
+		position: absolute;
+		inset: 0;
+		opacity: 0.55;
+		background-image: radial-gradient(
+			circle at 1px 1px,
+			color-mix(in srgb, var(--home-bloom-hot) 55%, transparent) 1px,
+			transparent 0
+		);
+		background-size: 5px 5px;
+		mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+	}
+
+	.home-stage-bar {
+		position: absolute;
+		left: 8%;
+		right: 28%;
+		height: 0.65rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--home-paper) 22%, transparent);
+	}
+
+	.home-stage-bar:nth-of-type(2) {
+		top: 38%;
+	}
+
+	.home-stage-bar--short {
+		top: 52%;
+		right: 46%;
+	}
+</style>

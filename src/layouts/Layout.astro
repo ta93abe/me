@@ -25,6 +25,8 @@ interface Props {
 	flushTop?: boolean;
 	/** true のときビューポートに固定しスクロールを無効化 */
 	lockViewport?: boolean;
+	/** true のとき `/` 用の紫トークン（`data-theme="home"`） */
+	homeTheme?: boolean;
 	ogImageWidth?: number;
 	ogImageHeight?: number;
 	ogImageType?: string;
@@ -43,6 +45,7 @@ const {
 	noFooter = false,
 	flushTop = false,
 	lockViewport = false,
+	homeTheme = false,
 	ogImageWidth = 1200,
 	ogImageHeight = 630,
 	ogImageType,
@@ -77,7 +80,7 @@ const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="color-scheme" content="light" />
-		<meta name="theme-color" content="#ffffff" />
+		<meta name="theme-color" content={homeTheme ? "#6b21a8" : "#ffffff"} />
 
 		<!-- Primary Meta Tags -->
 		<title>{title}</title>
@@ -149,7 +152,10 @@ const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 			</style>
 		</noscript>
 	</head>
-	<body class:list={["transition-colors", { "lock-viewport": lockViewport }]}>
+	<body
+		class:list={["transition-colors", { "lock-viewport": lockViewport }]}
+		data-theme={homeTheme ? "home" : undefined}
+	>
 		<!-- スキップリンク -->
 		<a href="#main-content" class="skip-link">
 			コンテンツにスキップ

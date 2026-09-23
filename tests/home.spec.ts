@@ -1,93 +1,30 @@
 import { expect, type Page, test } from "@playwright/test";
 
 const HOME_CTA_NAMES = ["Works", "About", "Blog", "Contact"] as const;
+const HOME_TAGLINE =
+	"データ基盤と CI を書くソフトウェアエンジニア。絵と音楽も置く。";
 
 async function expectHeroCtasReachable(page: Page) {
-	const clip = await page.evaluate(() => {
-		const hero = document.querySelector(".hero");
-		const main = document.getElementById("main-content");
-		if (!(hero instanceof HTMLElement) || !main) {
-			return { ok: false, reason: "missing" };
-		}
-		const overflowY = getComputedStyle(hero).overflowY;
-		if (
-			(overflowY === "hidden" || overflowY === "clip") &&
-			hero.scrollHeight > hero.clientHeight + 1
-		) {
-			return { ok: false, reason: "hero-clips-content" };
-		}
-		if (
-			hero.scrollHeight > main.clientHeight + 1 &&
-			main.scrollHeight <= main.clientHeight + 1
-		) {
-			return { ok: false, reason: "main-cannot-scroll" };
-		}
-		return { ok: true, reason: "" };
-	});
-	expect(clip).toEqual({ ok: true, reason: "" });
+	const nav = page
+		.locator("section#hero")
+		.getByRole("navigation", { name: "主なページ" });
 
 	for (const name of HOME_CTA_NAMES) {
-		const state = await page.evaluate((label) => {
-			const main = document.getElementById("main-content");
-			const footer = document.querySelector("footer");
-			const hero = document.querySelector(".hero");
-			const navEl = document.querySelector('nav[aria-label="主なページ"]');
-			const target = [...(navEl?.querySelectorAll("a") ?? [])].find(
-				(anchor) => anchor.textContent?.trim() === label,
-			);
-
-			if (
-				!main ||
-				!footer ||
-				!(hero instanceof HTMLElement) ||
-				!(target instanceof HTMLElement)
-			) {
-				return { ok: false, reason: "missing" };
-			}
-
-			const mainRect = () => main.getBoundingClientRect();
-			const footerTop = () => footer.getBoundingClientRect().top;
-			const visibleBottom = () => Math.min(mainRect().bottom, footerTop()) - 4;
-
-			let rect = target.getBoundingClientRect();
-			if (rect.bottom > visibleBottom()) {
-				main.scrollTop += rect.bottom - visibleBottom();
-			}
-			rect = target.getBoundingClientRect();
-			if (rect.top < mainRect().top) {
-				main.scrollTop -= mainRect().top - rect.top;
-			}
-
-			rect = target.getBoundingClientRect();
-			const heroRect = hero.getBoundingClientRect();
-			const mainBox = mainRect();
-			const bandBottom = visibleBottom();
-
-			if (rect.width === 0 || rect.height === 0) {
-				return { ok: false, reason: "zero-size" };
-			}
-			if (
-				rect.bottom > heroRect.bottom + 1.5 ||
-				rect.top < heroRect.top - 1.5
-			) {
-				return { ok: false, reason: "clipped-by-hero" };
-			}
-			if (rect.bottom <= mainBox.top + 1 || rect.top >= bandBottom) {
-				return { ok: false, reason: "outside-main" };
-			}
-			if (rect.bottom > footerTop() + 1.5) {
-				return { ok: false, reason: "under-footer" };
-			}
-			return { ok: true, reason: "" };
-		}, name);
-
-		expect(state, name).toEqual({ ok: true, reason: "" });
+		const link = nav.getByRole("link", { name });
+		await link.scrollIntoViewIfNeeded();
+		await expect(link).toBeVisible();
+		const box = await link.boundingBox();
+		expect(box).not.toBeNull();
+		if (box) {
+			expect(box.width).toBeGreaterThan(0);
+			expect(box.height).toBeGreaterThan(0);
+		}
 	}
 }
 
 test.describe("Home", () => {
 	test(
-		"shows the name and CTAs without a poster or tagline",
+		"shows the scroll-story hero with name, tagline, and CTAs",
 		{
 			tag: "@smoke",
 		},
@@ -95,11 +32,15 @@ test.describe("Home", () => {
 			await page.goto("/");
 
 			await expect(page).toHaveTitle(/Takumi Abe/);
+			await expect(page.locator("body")).toHaveAttribute("data-theme", "home");
 			await expect(
 				page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
 			).toBeVisible();
+			await expect(page.locator(".home-hero-tagline")).toHaveText(HOME_TAGLINE);
 
-			const ctas = page.getByRole("navigation", { name: "主なページ" });
+			const ctas = page
+				.locator("section#hero")
+				.getByRole("navigation", { name: "主なページ" });
 			await expect(ctas.getByRole("link", { name: "Works" })).toHaveAttribute(
 				"href",
 				"/works/",
@@ -127,19 +68,20 @@ test.describe("Home", () => {
 			);
 			await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
 			await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
+			await expect(page.locator(".home-stage")).toBeAttached();
 			await expect(
-				page
-					.locator("main")
-					.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
-			).toHaveCount(0);
+				page.getByRole("heading", { name: "入口として" }),
+			).toBeVisible();
 		},
 	);
 
-	test("keeps the name at a quiet size", async ({ page }) => {
+	test("uses a large display name without a lock-viewport poster", async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto("/");
 
-		const metrics = await page.locator(".hero-name").evaluate((el) => {
+		const metrics = await page.locator(".home-hero-name").evaluate((el) => {
 			const style = getComputedStyle(el);
 			return {
 				fontSize: Number.parseFloat(style.fontSize),
@@ -147,23 +89,9 @@ test.describe("Home", () => {
 			};
 		});
 
-		expect(metrics.fontSize).toBeLessThanOrEqual(24);
-		expect(metrics.width).toBeLessThan(320);
-	});
-
-	test("keeps the hero name pinned when viewport height changes", async ({
-		page,
-	}) => {
-		await page.setViewportSize({ width: 1280, height: 900 });
-		await page.goto("/");
-
-		const before = await page.locator(".hero-name").boundingBox();
-		expect(before).not.toBeNull();
-
-		await page.setViewportSize({ width: 1280, height: 700 });
-		const after = await page.locator(".hero-name").boundingBox();
-		expect(after).not.toBeNull();
-		expect(Math.abs((after?.y ?? 0) - (before?.y ?? 0))).toBeLessThanOrEqual(1);
+		expect(metrics.fontSize).toBeGreaterThanOrEqual(32);
+		expect(metrics.width).toBeLessThan(640);
+		await expect(page.locator("body")).not.toHaveClass(/lock-viewport/);
 	});
 
 	test("keeps the closed mobile menu out of layout on a phone", async ({
@@ -177,37 +105,7 @@ test.describe("Home", () => {
 		expect(await dialog.boundingBox()).toBeNull();
 	});
 
-	test("keeps home CTAs above the fixed footer on a narrow phone", async ({
-		page,
-	}) => {
-		await page.setViewportSize({ width: 320, height: 568 });
-		await page.goto("/");
-
-		const footer = page.getByRole("contentinfo");
-		const footerBox = await footer.boundingBox();
-		expect(footerBox).not.toBeNull();
-
-		const reserved = await page
-			.locator(".hero-copy")
-			.evaluate((el) => Number.parseFloat(getComputedStyle(el).paddingBottom));
-		expect(reserved).toBeGreaterThanOrEqual(
-			footerBox?.height ?? Number.POSITIVE_INFINITY,
-		);
-
-		await page.locator("#main-content").evaluate((el) => {
-			el.scrollTop = el.scrollHeight;
-		});
-		const contact = page
-			.getByRole("navigation", { name: "主なページ" })
-			.getByRole("link", { name: "Contact" });
-		const ctaBox = await contact.boundingBox();
-		expect(ctaBox).not.toBeNull();
-		if (ctaBox && footerBox) {
-			expect(ctaBox.y + ctaBox.height).toBeLessThanOrEqual(footerBox.y);
-		}
-	});
-
-	test("keeps all home CTAs reachable on a short landscape viewport", async ({
+	test("keeps home CTAs reachable on a short landscape viewport", async ({
 		page,
 	}) => {
 		await page.setViewportSize({ width: 667, height: 360 });
@@ -218,8 +116,6 @@ test.describe("Home", () => {
 	test("keeps all home CTAs reachable at 200% browser zoom", async ({
 		page,
 	}) => {
-		// Chrome のページ拡大はレイアウトビューポートを縮める。
-		// 1600x900 を 200% にした幅・高さ。
 		await page.setViewportSize({ width: 800, height: 450 });
 		await page.goto("/");
 		await expectHeroCtasReachable(page);
@@ -234,6 +130,7 @@ test.describe("Home", () => {
 			name: "Takumi Abe",
 		});
 		await expect(name).toBeVisible();
+		await expect(page.locator(".home-hero-tagline")).toBeVisible();
 
 		const box = await name.boundingBox();
 		expect(box).not.toBeNull();
@@ -241,12 +138,6 @@ test.describe("Home", () => {
 			expect(box.y).toBeGreaterThan(48);
 			expect(box.y + box.height).toBeLessThan(844);
 		}
-
-		await expect(
-			page
-				.locator("main")
-				.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
-		).toHaveCount(0);
 	});
 
 	test("keeps the intro readable with reduced motion", async ({ page }) => {
@@ -256,14 +147,15 @@ test.describe("Home", () => {
 		await expect(
 			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
 		).toBeVisible();
-		await expect(
-			page.getByRole("navigation", { name: "主なページ" }),
-		).toBeVisible();
+		await expect(page.locator(".home-hero-tagline")).toBeVisible();
 		await expect(
 			page
-				.locator("main")
-				.getByText("データ基盤と CI を書くソフトウェアエンジニア"),
-		).toHaveCount(0);
+				.locator("section#hero")
+				.getByRole("navigation", { name: "主なページ" }),
+		).toBeVisible();
+		await expect(
+			page.getByRole("heading", { name: "入口として" }),
+		).toBeVisible();
 	});
 
 	test(
@@ -279,6 +171,7 @@ test.describe("Home", () => {
 
 			await page.goto("/");
 			await page
+				.locator("section#hero")
 				.getByRole("navigation", { name: "主なページ" })
 				.getByRole("link", { name: "About" })
 				.click();
@@ -289,6 +182,7 @@ test.describe("Home", () => {
 
 			await page.goto("/");
 			await page
+				.locator("section#hero")
 				.getByRole("navigation", { name: "主なページ" })
 				.getByRole("link", { name: "Contact" })
 				.click();
@@ -299,6 +193,7 @@ test.describe("Home", () => {
 
 			await page.goto("/");
 			await page
+				.locator("section#hero")
 				.getByRole("navigation", { name: "主なページ" })
 				.getByRole("link", { name: "Works" })
 				.click();

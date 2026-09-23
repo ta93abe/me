@@ -1,0 +1,26 @@
+---
+import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
+---
+
+<section class="home-cta-section" aria-labelledby="home-cta-heading">
+	<h2 id="home-cta-heading" class="home-cta-heading">次に進む</h2>
+	<HomeCtaNav labelledBy="home-cta-heading" />
+</section>
+
+<style>
+	.home-cta-section {
+		padding: 3rem 1.5rem 4.5rem;
+		text-align: center;
+		background: var(--home-paper, var(--bg-primary));
+		color: var(--home-ink, var(--text-primary));
+	}
+
+	.home-cta-heading {
+		margin: 0 0 1.25rem;
+		font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+		font-size: 0.875rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		color: var(--home-ink-soft, var(--text-secondary));
+	}
+</style>

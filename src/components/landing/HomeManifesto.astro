@@ -1,0 +1,53 @@
+---
+import { SITE } from "@/config/site";
+---
+
+<section class="home-manifesto" aria-labelledby="home-manifesto-heading">
+	<div class="home-manifesto-inner">
+		<h2 id="home-manifesto-heading" class="home-manifesto-heading">
+			入口として
+		</h2>
+		<p class="home-manifesto-lede">{SITE.tagline}</p>
+		<p class="home-manifesto-body">
+			代表作の一覧は Works に、近況は Blog に置く。About と Contact
+			から、仕事の背景と連絡先へ進める。
+		</p>
+	</div>
+</section>
+
+<style>
+	.home-manifesto {
+		padding: 3.5rem 1.5rem 4rem;
+		background: var(--home-field, var(--primary-color));
+		color: var(--home-paper, #f4eef8);
+	}
+
+	.home-manifesto-inner {
+		max-width: 36rem;
+		margin-inline: auto;
+	}
+
+	.home-manifesto-heading {
+		margin: 0 0 1rem;
+		font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+		font-size: 0.8125rem;
+		font-weight: 600;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--home-paper) 88%, white);
+	}
+
+	.home-manifesto-lede {
+		margin: 0 0 1rem;
+		font-size: 1.125rem;
+		font-weight: 500;
+		line-height: 1.65;
+	}
+
+	.home-manifesto-body {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.8;
+		color: color-mix(in srgb, var(--home-paper) 92%, white);
+	}
+</style>

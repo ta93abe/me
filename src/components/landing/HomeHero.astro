@@ -1,0 +1,106 @@
+---
+import { SITE } from "@/config/site";
+import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
+---
+
+<section id="hero" class="home-hero" aria-labelledby="hero-name">
+	<div class="home-hero-bloom" aria-hidden="true"></div>
+	<div class="home-hero-copy">
+		<p class="home-hero-kicker">{SITE.handle}</p>
+		<h1 id="hero-name" class="home-hero-name">{SITE.name}</h1>
+		<p class="home-hero-tagline">{SITE.tagline}</p>
+		<HomeCtaNav class="home-hero-cta" />
+	</div>
+</section>
+
+<style>
+	.home-hero {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		min-height: 28rem;
+		padding-bottom: 2.5rem;
+		overflow: clip;
+		background: var(--home-paper, var(--bg-primary));
+		color: var(--home-ink, var(--text-primary));
+	}
+
+	.home-hero-bloom {
+		position: absolute;
+		inset: -12% -20% auto;
+		height: min(72vh, 36rem);
+		pointer-events: none;
+		background:
+			radial-gradient(
+				ellipse 70% 55% at 58% 42%,
+				color-mix(in srgb, var(--home-bloom-hot) 55%, transparent),
+				transparent 68%
+			),
+			radial-gradient(
+				ellipse 85% 60% at 32% 58%,
+				color-mix(in srgb, var(--home-bloom) 48%, transparent),
+				transparent 72%
+			),
+			radial-gradient(
+				circle at 50% 100%,
+				color-mix(in srgb, var(--home-dither) 18%, transparent),
+				transparent 55%
+			);
+		filter: blur(2px);
+		opacity: 0.92;
+	}
+
+	.home-hero-copy {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex: 1 0 auto;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 42rem;
+		margin-inline: auto;
+		padding: calc(var(--header-height) + 4.5rem) 1.5rem 3rem;
+		text-align: center;
+	}
+
+	@media (min-width: 768px) {
+		.home-hero-copy {
+			padding-top: calc(var(--header-height) + 6.5rem);
+		}
+	}
+
+	.home-hero-kicker {
+		margin: 0 0 0.75rem;
+		font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+		font-size: 0.8125rem;
+		font-weight: 500;
+		letter-spacing: 0.14em;
+		text-transform: lowercase;
+		color: var(--home-ink-soft, var(--text-secondary));
+	}
+
+	.home-hero-name {
+		margin: 0;
+		font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+		font-size: clamp(2.25rem, 8vw, 3.75rem);
+		font-weight: 700;
+		line-height: 1.05;
+		letter-spacing: -0.03em;
+		color: var(--home-ink, var(--text-primary));
+	}
+
+	.home-hero-tagline {
+		margin: 1.25rem 0 0;
+		max-width: 28rem;
+		font-size: 1rem;
+		line-height: 1.75;
+		color: var(--home-ink-soft, var(--text-secondary));
+	}
+
+	.home-hero-cta {
+		margin-top: 1.75rem;
+	}
+</style>
