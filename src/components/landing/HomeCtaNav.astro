@@ -1,0 +1,83 @@
+---
+import { HOME_CTAS } from "@/config/site";
+
+interface Props {
+	class?: string;
+	/** 同一ページ内の再掲 nav に付ける id（任意） */
+	id?: string;
+	/** ヒーロー以外の再掲 nav 用 */
+	labelledBy?: string;
+	ariaLabel?: string;
+}
+
+const {
+	class: className,
+	id,
+	labelledBy,
+	ariaLabel = "主なページ",
+} = Astro.props;
+
+const navLabelProps = labelledBy
+	? { "aria-labelledby": labelledBy }
+	: { "aria-label": ariaLabel };
+---
+
+<nav class:list={["home-cta", className]} {...navLabelProps} {...(id ? { id } : {})}>
+	{
+		HOME_CTAS.map((cta) => (
+			<a href={cta.href} class="home-cta-link">
+				{cta.label}
+			</a>
+		))
+	}
+</nav>
+
+<style>
+	.home-cta {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.35rem 1.75rem;
+		margin: 0;
+		padding: 0;
+	}
+
+	.home-cta-link {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.5rem;
+		padding: 0.15rem 0;
+		font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+		font-size: 0.9375rem;
+		font-weight: 500;
+		text-decoration: none;
+		text-underline-offset: 0.22em;
+		color: var(--home-ink-soft, var(--text-secondary));
+		border-bottom: 1px solid
+			color-mix(in srgb, var(--home-primary, var(--primary-color)) 45%, transparent);
+		transition: color 0.15s ease, border-color 0.15s ease;
+	}
+
+	.home-cta-link:hover,
+	.home-cta-link:focus-visible {
+		color: var(--home-primary, var(--primary-color));
+		border-bottom-color: var(--home-primary, var(--primary-color));
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.home-cta-link {
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	document.querySelectorAll(".home-cta a[href]").forEach((link) => {
+		link.addEventListener("click", () => {
+			window.posthog?.capture("home_cta_clicked", {
+				label: link.textContent?.trim(),
+				href: link.getAttribute("href"),
+			});
+		});
+	});
+</script>

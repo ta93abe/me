@@ -1,5 +1,8 @@
 ---
-import HeroSection from "@/components/landing/HeroSection.astro";
+import HomeCta from "@/components/landing/HomeCta.astro";
+import HomeHero from "@/components/landing/HomeHero.astro";
+import HomeManifesto from "@/components/landing/HomeManifesto.astro";
+import HomeStage from "@/components/landing/HomeStage.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
 import { generatePersonSchema, stringifySchema } from "@/utils/schema";
@@ -12,7 +15,7 @@ const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
 	description={SITE.description}
 	ogImageAlt={SITE.tagline}
 	flushTop
-	lockViewport
+	homeTheme
 >
 	<Fragment slot="head">
 		<script
@@ -20,20 +23,17 @@ const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
 			set:html={stringifySchema(personSchema)}
 		/>
 	</Fragment>
-	<main class="home-main">
-		<HeroSection />
+	<main class="home-scroll">
+		<HomeHero />
+		<HomeStage />
+		<HomeManifesto />
+		<HomeCta />
 	</main>
 </Layout>
 
 <style>
-	.home-main {
+	.home-scroll {
 		display: flex;
 		flex-direction: column;
-		min-height: 100%;
-	}
-
-	.home-main :global(.hero) {
-		flex: 1 0 auto;
-		min-height: 100%;
 	}
 </style>

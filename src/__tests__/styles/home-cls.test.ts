@@ -12,11 +12,17 @@ function readSrc(relativePath: string): string {
 
 describe("home layout shift guards", () => {
 	it("does not pin the home hero copy to viewport-centered flex or dvh/svh/vh", () => {
-		const hero = readSrc("components/landing/HeroSection.astro");
-		const copyBlock = hero.match(/\.hero-copy\s*\{[^}]+\}/)?.[0] ?? "";
-		expect(copyBlock).toMatch(/\.hero-copy/);
+		const hero = readSrc("components/landing/HomeHero.astro");
+		const copyBlock = hero.match(/\.home-hero-copy\s*\{[^}]+\}/)?.[0] ?? "";
+		expect(copyBlock).toMatch(/\.home-hero-copy/);
 		expect(copyBlock).not.toMatch(/justify-content:\s*center/);
 		expect(hero).not.toMatch(/\b100(?:d|s)?vh\b/);
+	});
+
+	it("does not lock the home page viewport", () => {
+		const index = readSrc("pages/index.astro");
+		expect(index).not.toMatch(/\blockViewport\b/);
+		expect(index).toMatch(/\bhomeTheme\b/);
 	});
 
 	it("keeps lock-viewport height on the layout viewport, not dynamic dvh", () => {

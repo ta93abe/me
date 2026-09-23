@@ -37,6 +37,30 @@
 	--code-text: #f2f0ea;
 }
 
+/* Top `/` only — ADR-0001 purple scroll story (stage 1+) */
+body[data-theme="home"] {
+	--home-paper: #f4eef8;
+	--home-ink: #1c1228;
+	--home-ink-soft: #4c3a63;
+	--home-bloom: #7c3aed;
+	--home-bloom-hot: #a855f7;
+	--home-field: #6b21a8;
+	--home-dither: #86198f;
+	--home-primary: #6b4c9a;
+
+	--bg-primary: var(--home-paper);
+	--bg-secondary: color-mix(in srgb, var(--home-paper) 88%, var(--home-field));
+	--bg-tertiary: color-mix(in srgb, var(--home-paper) 78%, var(--home-field));
+	--text-primary: var(--home-ink);
+	--text-secondary: var(--home-ink-soft);
+	--text-muted: color-mix(in srgb, var(--home-ink-soft) 72%, var(--home-paper));
+	--border-color: color-mix(in srgb, var(--home-dither) 22%, var(--home-paper));
+	--link-color: var(--home-primary);
+	--link-hover-color: var(--home-field);
+	--primary-color: var(--home-primary);
+	--primary-hover: var(--home-field);
+}
+
 /* Base */
 html {
 	scroll-behavior: smooth;
