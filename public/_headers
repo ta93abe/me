@@ -17,6 +17,6 @@
   # Permissions policy - disable unnecessary features
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
 
-  # Content-Security-Policy は Astro security.csp（ページ内 meta + ハッシュ）に委譲。
-  # ここで script-src/style-src を重ねると、ブラウザは両方を満たす必要があり
-  # ハッシュベース CSP と衝突する。
+  # Content-Security-Policy は Astro security.csp のページ内 meta（ハッシュ付き）を
+  # Worker が HTTP ヘッダへ昇格する。ここに固定の script-src/style-src を重ねると
+  # ブラウザは両方を満たす必要があり、ハッシュベース CSP と衝突する。
