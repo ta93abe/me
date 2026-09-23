@@ -61,6 +61,29 @@ body[data-theme="home"] {
 	--primary-hover: var(--home-field);
 }
 
+html:has(body[data-theme="home"]) {
+	scroll-behavior: auto;
+}
+
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+
+html.lenis.lenis-smooth body {
+	scroll-behavior: auto !important;
+}
+
+.home-split-word {
+	will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.home-split-word {
+		will-change: auto;
+	}
+}
+
 /* Base */
 html {
 	scroll-behavior: smooth;

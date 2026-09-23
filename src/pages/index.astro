@@ -37,3 +37,9 @@ const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
 		flex-direction: column;
 	}
 </style>
+
+<script>
+	import { initHomeExperience } from "@/scripts/home/mount.ts";
+
+	initHomeExperience();
+</script>

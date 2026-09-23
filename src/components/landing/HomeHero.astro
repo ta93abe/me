@@ -4,6 +4,11 @@ import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 ---
 
 <section id="hero" class="home-hero" aria-labelledby="hero-name">
+	<canvas
+		class="home-hero-canvas"
+		data-hero-canvas
+		aria-hidden="true"
+	></canvas>
 	<div class="home-hero-bloom" aria-hidden="true"></div>
 	<div class="home-hero-copy">
 		<p class="home-hero-kicker">{SITE.handle}</p>
@@ -23,6 +28,29 @@ import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 		overflow: clip;
 		background: var(--home-paper, var(--bg-primary));
 		color: var(--home-ink, var(--text-primary));
+	}
+
+	.home-hero-canvas {
+		position: absolute;
+		inset: -12% -20% auto;
+		width: calc(100% + 40%);
+		height: min(72vh, 36rem);
+		pointer-events: none;
+		opacity: 0;
+	}
+
+	:global(html.home-motion-ready) .home-hero-canvas {
+		opacity: 0.94;
+	}
+
+	:global(html.home-motion-ready) .home-hero-bloom {
+		opacity: 0.35;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.home-hero-canvas {
+			display: none;
+		}
 	}
 
 	.home-hero-bloom {
