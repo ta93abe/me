@@ -176,11 +176,13 @@ test.describe("Home", () => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/");
 
-		const order = await page.locator("main.home-scroll").evaluate((main) =>
-			[...main.querySelectorAll(":scope > section")].map(
-				(section) => section.classList[0] ?? "",
-			),
-		);
+		const order = await page
+			.locator("main.home-scroll")
+			.evaluate((main) =>
+				[...main.querySelectorAll(":scope > section")].map(
+					(section) => section.classList[0] ?? "",
+				),
+			);
 
 		expect(order).toEqual([
 			"home-hero",
