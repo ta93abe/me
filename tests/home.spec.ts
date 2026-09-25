@@ -144,11 +144,57 @@ test.describe("Home", () => {
 		}
 	});
 
+	test(
+		"exposes tagline and CTAs in HTML without JavaScript",
+		{
+			tag: "@smoke",
+		},
+		async ({ browser }) => {
+			const context = await browser.newContext({ javaScriptEnabled: false });
+			const page = await context.newPage();
+			await page.goto("/");
+
+			await expect(
+				page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
+			).toBeVisible();
+			await expect(page.locator(".home-hero-tagline")).toHaveText(HOME_TAGLINE);
+
+			const ctas = page
+				.locator("section#hero")
+				.getByRole("navigation", { name: "主なページ" });
+			for (const name of HOME_CTA_NAMES) {
+				await expect(ctas.getByRole("link", { name })).toBeVisible();
+			}
+
+			await context.close();
+		},
+	);
+
+	test("orders scroll-story sections from hero through CTA", async ({
+		page,
+	}) => {
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await page.goto("/");
+
+		const order = await page.locator("main.home-scroll").evaluate((main) =>
+			[...main.querySelectorAll(":scope > section")].map(
+				(section) => section.classList[0] ?? "",
+			),
+		);
+
+		expect(order).toEqual([
+			"home-hero",
+			"home-stage",
+			"home-manifesto",
+			"home-cta-section",
+		]);
+	});
+
 	test("keeps the intro readable with reduced motion", async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/");
 
-		await expect(page.locator("[data-hero-canvas]")).toHaveCount(0);
+		await expect(page.locator("[data-hero-canvas]")).toBeHidden();
 		await expect(
 			page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
 		).toBeVisible();
