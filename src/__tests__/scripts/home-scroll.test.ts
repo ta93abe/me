@@ -17,6 +17,15 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(index).toMatch(/scripts\/home\/mount\.ts/);
 	});
 
+	it("defers heavy motion modules until idle (TA-1109 stage 3)", () => {
+		const mount = readSrc("scripts/home/mount.ts");
+		expect(mount).toMatch(/scheduleWhenIdleOrInteractive/);
+		expect(mount).toMatch(/import\("\.\/bloom\.ts"\)/);
+		expect(mount).toMatch(/import\("\.\/scroll\.ts"\)/);
+		expect(mount).not.toMatch(/from "\.\/scroll\.ts"/);
+		expect(mount).not.toMatch(/from "\.\/bloom\.ts"/);
+	});
+
 	it("skips motion when reduced motion is preferred", () => {
 		const mount = readSrc("scripts/home/mount.ts");
 		expect(mount).toMatch(/prefersReducedMotion\(\)/);
