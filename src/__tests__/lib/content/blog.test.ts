@@ -190,7 +190,7 @@ https://youtu.be/dQw4w9WgXcQ
 		expect(withoutCache?.html).toContain("coosenp.ai");
 		expect(withoutCache?.html).not.toContain("CooSenpAI");
 		expect(withoutCache?.html).toContain("tweet-embed-fallback");
-		expect(withoutCache?.html).toContain("youtube-embed-fallback");
+		expect(withoutCache?.html).toContain("youtube-embed-lazy");
 	});
 
 	it("rejects invalid slugs and missing objects", async () => {
