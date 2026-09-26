@@ -108,6 +108,19 @@ export function evaluateScan(scan, baseline) {
  * @param {{ path: string, status: number, contentType?: string | null }} probe
  * @param {boolean} expectMarkdown
  */
+export function evaluateAgentAuthProbe(probe) {
+	const contentType = probe.contentType ?? "";
+	const ok =
+		probe.status === 200 && contentType.toLowerCase().includes("json");
+	return {
+		path: probe.path ?? "/agent/auth",
+		status: probe.status,
+		contentType,
+		ok,
+		regression: !ok,
+	};
+}
+
 export function evaluateMarkdownProbe(probe, expectMarkdown) {
 	const contentType = probe.contentType ?? "";
 	const ok =
@@ -136,13 +149,16 @@ export function shouldFailJob(input) {
 	const unexpectedFails = input.unexpectedFails ?? [];
 	const knownFails = input.knownFails ?? [];
 	const markdownRegressions = input.markdownRegressions ?? [];
+	const agentAuthRegression = input.agentAuth?.regression === true;
 
 	if (input.gateKnownFails && knownFails.length > 0) {
 		return true;
 	}
 	if (
 		input.gateRegressions &&
-		(unexpectedFails.length > 0 || markdownRegressions.length > 0)
+		(unexpectedFails.length > 0 ||
+			markdownRegressions.length > 0 ||
+			agentAuthRegression)
 	) {
 		return true;
 	}
@@ -168,6 +184,7 @@ function statusLabel(row) {
 export function renderSummary({
 	scan,
 	markdown,
+	agentAuth,
 	uiUrl,
 	gateRegressions = true,
 	gateKnownFails = false,
@@ -176,6 +193,7 @@ export function renderSummary({
 	const failJob = shouldFailJob({
 		...scan,
 		markdownRegressions,
+		agentAuth,
 		gateRegressions,
 		gateKnownFails,
 	});
@@ -228,9 +246,17 @@ ${newlyPassing ? `\n### 新たに pass\n\n${newlyPassing}\n` : ""}
 | --- | --- | --- | --- |
 ${markdownRows}
 
+### POST /agent/auth（TA-968）
+
+| 項目 | 値 |
+| --- | --- |
+| status | ${agentAuth?.status ?? "(not probed)"} |
+| content-type | \`${agentAuth?.contentType || "(none)"}\` |
+| 結果 | ${agentAuth?.regression ? "regression" : agentAuth?.ok ? "pass" : "fail"} |
+
 ### 判定
 
-- 回帰チェック: ${scan.unexpectedFails.length + markdownRegressions.length} 件
+- 回帰チェック: ${scan.unexpectedFails.length + markdownRegressions.length + (agentAuth?.regression ? 1 : 0)} 件
 - known fail: ${scan.knownFails.length} 件
 - job: ${failJob ? "fail" : "success"}
 `;
@@ -249,7 +275,7 @@ function escapeTable(value) {
  *   markdown: ReturnType<typeof evaluateMarkdownProbe>[],
  * }} input
  */
-export function renderGithubAnnotations({ scan, markdown }) {
+export function renderGithubAnnotations({ scan, markdown, agentAuth }) {
 	/** @type {string[]} */
 	const lines = [];
 	lines.push(
@@ -269,6 +295,11 @@ export function renderGithubAnnotations({ scan, markdown }) {
 	for (const row of scan.unexpectedFails) {
 		lines.push(
 			`::error title=isitagentready::${row.id} failed: ${row.message}`,
+		);
+	}
+	if (agentAuth?.regression) {
+		lines.push(
+			`::error title=isitagentready::POST /agent/auth が ${agentAuth.status} ${agentAuth.contentType || "(none)"} を返した`,
 		);
 	}
 	for (const row of markdown) {
