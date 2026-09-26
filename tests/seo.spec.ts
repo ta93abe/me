@@ -13,6 +13,8 @@ const AGENT_DISCOVERY_SNIPPETS = [
 	'rel="describedby" href="https://ta93abe.com/llms.txt" type="text/plain"',
 	'rel="describedby" href="https://ta93abe.com/llms-full.txt" type="text/plain"',
 	'rel="api-catalog" href="https://ta93abe.com/.well-known/api-catalog" type="application/linkset+json"',
+	'rel="ai-catalog" href="https://ta93abe.com/.well-known/ai-catalog.json" type="application/json"',
+	'rel="ard" href="https://ta93abe.com/.well-known/ard.json" type="application/json"',
 	'rel="service-desc" href="https://ta93abe.com/.well-known/mcp/server-card.json" type="application/json"',
 	'rel="describedby" href="https://ta93abe.com/.well-known/agent-skills/index.json" type="application/json"',
 	'rel="describedby" href="https://ta93abe.com/.well-known/agent-card.json" type="application/json"',
@@ -30,14 +32,6 @@ test.describe("Sitewide SEO", () => {
 				expect(html, `${path} missing ${snippet}`).toContain(snippet);
 			}
 		}
-	});
-
-	test("home advertises the ARD capability catalog", async ({ request }) => {
-		const html = await pageHtml(request, "/");
-		expect(html).toContain('rel="ai-catalog"');
-		expect(html).toContain("https://ta93abe.com/.well-known/ai-catalog.json");
-		expect(html).toContain('rel="ard"');
-		expect(html).toContain("https://ta93abe.com/.well-known/ard.json");
 	});
 
 	test("public HTML advertises a markdown alternate of the same URL", async ({
