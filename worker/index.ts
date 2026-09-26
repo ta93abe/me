@@ -529,11 +529,11 @@ async function handleSiteRequest(
 	}
 
 	if (pathname === OAUTH_AUTHORIZATION_SERVER_PATH) {
-		return jsonResponse(request, oauthAuthorizationServer(SITE_URL));
+		return discoveryJsonResponse(request, oauthAuthorizationServer(SITE_URL));
 	}
 
 	if (pathname === "/.well-known/oauth-protected-resource") {
-		return jsonResponse(request, oauthProtectedResource(SITE_URL));
+		return discoveryJsonResponse(request, oauthProtectedResource(SITE_URL));
 	}
 
 	if (pathname === "/mcp") {
