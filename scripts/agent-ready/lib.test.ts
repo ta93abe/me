@@ -72,7 +72,11 @@ describe("baseline.json", () => {
 			"/",
 			"/about/",
 			"/blog/hello-world/",
+			"/works/",
 		]);
+		expect(
+			shippedBaseline.markdownPaths.every((row) => row.expectMarkdown),
+		).toBe(true);
 	});
 });
 
@@ -155,26 +159,13 @@ describe("evaluateMarkdownProbe", () => {
 		).toMatchObject({ ok: false, regression: true });
 	});
 
-	it("does not treat known subpath html as a regression", () => {
+	it("flags subpath html as a regression when markdown is expected", () => {
 		expect(
 			evaluateMarkdownProbe(
 				{ path: "/about/", status: 200, contentType: "text/html" },
-				false,
+				true,
 			),
-		).toMatchObject({ ok: false, regression: false, unexpectedPass: false });
-	});
-
-	it("notes when a known-failing path starts returning markdown", () => {
-		expect(
-			evaluateMarkdownProbe(
-				{
-					path: "/about/",
-					status: 200,
-					contentType: "text/markdown; charset=utf-8",
-				},
-				false,
-			),
-		).toMatchObject({ ok: true, unexpectedPass: true, regression: false });
+		).toMatchObject({ ok: false, regression: true, unexpectedPass: false });
 	});
 });
 
@@ -230,15 +221,15 @@ describe("renderSummary", () => {
 			),
 			evaluateMarkdownProbe(
 				{ path: "/about/", status: 200, contentType: "text/html" },
-				false,
+				true,
 			),
 			evaluateMarkdownProbe(
 				{
 					path: "/blog/hello-world/",
 					status: 200,
-					contentType: "text/html",
-				},
-				false,
+					contentType: "text/markdown; charset=utf-8",
+			 },
+				true,
 			),
 		];
 		const summary = renderSummary({
