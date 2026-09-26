@@ -1,0 +1,173 @@
+---
+import { talkBySlug } from "@/data/talk-slide-crosslinks";
+import type { DeckFrontmatter } from "@/slides/parser/types";
+import {
+	slidePdfPath,
+	slidePlayerPath,
+	talkAnchorPath,
+} from "@/lib/slides/paths";
+import { talkYoutubeUrl } from "@/data/talks";
+import { formatDate, toDatetimeAttr } from "@/utils/date";
+
+interface Props {
+	frontmatter: DeckFrontmatter;
+}
+
+const { frontmatter } = Astro.props;
+const playerHref = slidePlayerPath(frontmatter.slug);
+const pdfHref = slidePdfPath(frontmatter.slug);
+const linkedTalk = frontmatter.talkSlug
+	? talkBySlug(frontmatter.talkSlug)
+	: undefined;
+---
+
+<article
+	class="slide-deck-card"
+	id={`deck-${frontmatter.slug}`}
+>
+	<header class="slide-deck-card-header">
+		<h2 class="slide-deck-card-title">
+			<a href={playerHref}>{frontmatter.title}</a>
+		</h2>
+		<p class="slide-deck-card-description">{frontmatter.description}</p>
+	</header>
+
+	<div class="slide-deck-card-meta">
+		<time datetime={toDatetimeAttr(frontmatter.date)}>
+			{formatDate(frontmatter.date)}
+		</time>
+		{
+			frontmatter.event ? (
+				<span class="slide-deck-card-event">{frontmatter.event}</span>
+			) : null
+		}
+	</div>
+
+	<nav class="slide-deck-card-actions" aria-label={`${frontmatter.title} へのリンク`}>
+		<a class="slide-deck-card-action is-primary" href={playerHref}>
+			Slides
+		</a>
+		<a class="slide-deck-card-action" href={pdfHref}>
+			PDF
+		</a>
+		{
+			linkedTalk ? (
+				<a class="slide-deck-card-action" href={talkAnchorPath(linkedTalk.slug)}>
+					Talk
+				</a>
+			) : null
+		}
+		{
+			linkedTalk ? (
+				<a
+					class="slide-deck-card-action"
+					href={talkYoutubeUrl(linkedTalk)}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Recording
+				</a>
+			) : null
+		}
+	</nav>
+</article>
+
+<style>
+	.slide-deck-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding: 1.75rem 0;
+		border-top: 1px solid var(--border-color);
+	}
+
+	.slide-deck-card:first-child {
+		border-top: 0;
+		padding-top: 0;
+	}
+
+	.slide-deck-card-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.slide-deck-card-title {
+		margin: 0;
+		font-family: var(--font-display, inherit);
+		font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+		font-weight: 700;
+		line-height: 1.35;
+	}
+
+	.slide-deck-card-title a {
+		color: var(--text-primary);
+		text-decoration: none;
+	}
+
+	.slide-deck-card-title a:hover,
+	.slide-deck-card-title a:focus-visible {
+		color: var(--primary-color);
+	}
+
+	.slide-deck-card-description {
+		margin: 0;
+		max-width: 62ch;
+		color: var(--text-secondary);
+		line-height: 1.6;
+	}
+
+	.slide-deck-card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.35rem 0.85rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+	}
+
+	.slide-deck-card-event {
+		min-width: 0;
+	}
+
+	.slide-deck-card-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 0.65rem;
+	}
+
+	.slide-deck-card-action {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.35rem 0.85rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		line-height: 1.25;
+		color: var(--text-primary);
+		text-decoration: none;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--bg-elevated);
+		transition:
+			border-color 0.15s ease,
+			color 0.15s ease;
+	}
+
+	.slide-deck-card-action:hover,
+	.slide-deck-card-action:focus-visible {
+		border-color: color-mix(in srgb, var(--primary-color) 45%, var(--border-color));
+		color: var(--primary-color);
+	}
+
+	.slide-deck-card-action.is-primary {
+		color: var(--primary-color);
+		border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-color));
+		background: color-mix(in srgb, var(--primary-color) 8%, var(--bg-elevated));
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.slide-deck-card-action {
+			transition: none;
+		}
+	}
+</style>

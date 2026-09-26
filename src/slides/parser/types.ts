@@ -26,6 +26,8 @@ export type ColorTheme = (typeof COLOR_THEMES)[number];
 export const DECK_FRONTMATTER_KEYS = [
 	...REQUIRED_FRONTMATTER_KEYS,
 	"theme",
+	"event",
+	"talkSlug",
 ] as const;
 
 export type DeckFrontmatter = {
@@ -34,6 +36,8 @@ export type DeckFrontmatter = {
 	description: string;
 	slug: string;
 	theme: ColorTheme;
+	event?: string;
+	talkSlug?: string;
 };
 
 export type Slide = {
