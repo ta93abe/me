@@ -4,7 +4,7 @@ import {
 } from "../posthog-boot.ts";
 import { prefersReducedMotion } from "./prefs.ts";
 
-/** Lighthouse TBT 予算内に収めるため、重い GSAP/Lenis/Three を初回描画後に読み込む */
+/** Lighthouse TBT 予算内に収めるため、重い GSAP/Lenis/Paper Shaders を初回描画後に読み込む */
 export const HOME_MOTION_IDLE_TIMEOUT_MS = 1200;
 
 export function initHomeExperience(): void {

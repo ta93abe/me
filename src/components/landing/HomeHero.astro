@@ -4,11 +4,11 @@ import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 ---
 
 <section id="hero" class="home-hero" aria-labelledby="hero-name">
-	<canvas
-		class="home-hero-canvas"
-		data-hero-canvas
+	<div
+		class="home-hero-shader"
+		data-hero-shader
 		aria-hidden="true"
-	></canvas>
+	></div>
 	<div class="home-hero-bloom" aria-hidden="true"></div>
 	<div class="home-hero-copy">
 		<p class="home-hero-kicker">{SITE.handle}</p>
@@ -30,7 +30,7 @@ import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 		color: var(--home-ink, var(--text-primary));
 	}
 
-	.home-hero-canvas {
+	.home-hero-shader {
 		position: absolute;
 		inset: -12% -20% auto;
 		width: calc(100% + 40%);
@@ -39,7 +39,12 @@ import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 		opacity: 0;
 	}
 
-	:global(html.home-motion-ready) .home-hero-canvas {
+	.home-hero-shader :global(canvas) {
+		width: 100%;
+		height: 100%;
+	}
+
+	:global(html.home-motion-ready) .home-hero-shader {
 		opacity: 0.94;
 	}
 
@@ -48,7 +53,7 @@ import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.home-hero-canvas {
+		.home-hero-shader {
 			display: none;
 		}
 	}
