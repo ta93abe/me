@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { FEATURED_WORKS, SITE } from "@/config/site";
+
 import {
 	BLOG_RSS_KEY,
 	LLMS_BLOG_KEY,
@@ -7,6 +9,8 @@ import {
 	buildBlogRssXml,
 	buildBlogSitemapXml,
 	buildLlmsBlogSection,
+	buildLlmsFullDocument,
+	buildLlmsFullText,
 	buildSitemapIndexXml,
 	childSitemapLastmod,
 	feedPostsFromEntries,
@@ -500,6 +504,95 @@ tags:
 		expect(purged).toContain("https://ta93abe.com/sitemap-index.xml");
 		expect(purged).toContain("https://ta93abe.com/sitemap-blog.xml");
 		expect(purged).toContain("https://ta93abe.com/llms.txt");
+		expect(purged).toContain("https://ta93abe.com/llms-full.txt");
 		expect(purged).toContain("https://ta93abe.com/og/blog/hello-world.png");
+	});
+});
+
+const SNOWFLAKE_BODY =
+	"シアターセッションを反復横跳びしていました。UNIQUE_SNOWFLAKE_BODY";
+
+describe("llms-full corpus", () => {
+	it("inlines About, Works, and published blog bodies under canonical URL headings", () => {
+		const full = buildLlmsFullDocument(
+			[
+				{
+					...HELLO,
+					body: SNOWFLAKE_BODY,
+				},
+			],
+			"https://ta93abe.com",
+		);
+
+		expect(full).toContain("## https://ta93abe.com/about/");
+		expect(full).toContain("## https://ta93abe.com/works/");
+		expect(full).toContain("## https://ta93abe.com/blog/hello-world/");
+		expect(full).toContain(SITE.name);
+		expect(full).toContain(SITE.tagline);
+		expect(full).toContain(SITE.handle);
+		for (const work of FEATURED_WORKS) {
+			expect(full).toContain(`[${work.title}](${work.href})`);
+			expect(full).toContain(work.excerpt);
+		}
+		expect(full).toContain("# Hello & Friends");
+		expect(full).toContain(SNOWFLAKE_BODY);
+		expect(full).toContain(
+			"Content-Signal: ai-train=no, search=yes, ai-input=yes",
+		);
+	});
+
+	it("keeps llms.txt blog index separate from the inlined corpus", () => {
+		const posts = [{ ...HELLO, body: SNOWFLAKE_BODY }];
+		const index = buildLlmsBlogSection(posts, "https://ta93abe.com");
+		const full = buildLlmsFullDocument(posts, "https://ta93abe.com");
+
+		expect(index).toContain(
+			"[Hello & Friends](https://ta93abe.com/blog/hello-world/)",
+		);
+		expect(index).not.toContain(SNOWFLAKE_BODY);
+		expect(full).toContain(SNOWFLAKE_BODY);
+		expect(full.length).toBeGreaterThan(index.length);
+	});
+
+	it("rebuilds the corpus from current published markdown and drops old bodies", async () => {
+		const bucket = createMemoryR2();
+		await bucket.put("md/blog/hello-world.md", SAMPLE);
+		await rebuildContentIndexes(bucket);
+
+		const first = await buildLlmsFullText(bucket, "https://ta93abe.com");
+		expect(first).toContain("Published from R2.");
+		expect(first).toContain("## https://ta93abe.com/blog/hello-world/");
+
+		await bucket.put(
+			"md/blog/hello-world.md",
+			`---
+title: Hello Workers
+excerpt: Stage 5 note
+date: 2026-08-30
+---
+
+Updated body from R2.
+`,
+		);
+		await bucket.put(
+			"md/gallery/secret.md",
+			`---
+title: Secret Piece
+excerpt: unpublished collection
+publish_date: 2026-08-30
+mediaType: drawing
+coverImage: https://images.ta93abe.com/content/gallery/secret/cover.jpg
+---
+
+Secret gallery body that must not leak.
+`,
+		);
+		await rebuildContentIndexes(bucket);
+
+		const updated = await buildLlmsFullText(bucket, "https://ta93abe.com");
+		expect(updated).toContain("Updated body from R2.");
+		expect(updated).not.toContain("Published from R2.");
+		expect(updated).not.toContain("Secret gallery body that must not leak.");
+		expect(updated).not.toMatch(/\/gallery\//);
 	});
 });

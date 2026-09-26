@@ -5,7 +5,6 @@ import {
 	LLMS_PRIMARY_SECTIONS,
 	LLMS_SITE_DESCRIPTION,
 	LLMS_SITE_TITLE,
-	buildLlmsFullText,
 	buildLlmsOverviewMarkdown,
 	formatLlmsFileListItem,
 } from "../content/llms.ts";
@@ -93,32 +92,10 @@ describe("llms.txt file lists", () => {
 		);
 	});
 
-	it("reuses the same overview for llms-full.txt and keeps agent guidance", () => {
-		const overview = buildLlmsOverviewMarkdown(ORIGIN, BLOG_SECTION);
-		const full = buildLlmsFullText(overview, {
-			siteUrl: ORIGIN,
-			siteHost: "ta93abe.com",
-			contentSignal: "ai-train=no, search=yes, ai-input=yes",
-		});
-
-		expect(full.startsWith(overview)).toBe(true);
-		expect(full).toContain("## Agent guidance");
-		expect(full).toContain("## Content usage preference");
-		expect(full).toContain(
-			"Content-Signal: ai-train=no, search=yes, ai-input=yes",
+	it("describes llms-full.txt as an inlined corpus in machine resources", () => {
+		const markdown = buildLlmsOverviewMarkdown(ORIGIN, BLOG_SECTION);
+		expect(markdown).toContain(
+			"Inlined Markdown for About, Works, and every published blog post.",
 		);
-		expect(full).toContain(`${ORIGIN}/sitemap.xml`);
-
-		const overviewLists = fileListsByH2(overview).filter((section) =>
-			["Primary sections", "Machine-readable resources"].includes(
-				section.heading,
-			),
-		);
-		const fullLists = fileListsByH2(full).filter((section) =>
-			["Primary sections", "Machine-readable resources"].includes(
-				section.heading,
-			),
-		);
-		expect(fullLists).toEqual(overviewLists);
 	});
 });
