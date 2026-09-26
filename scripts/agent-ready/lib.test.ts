@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import shippedBaseline from "./baseline.json" with { type: "json" };
 import {
+	evaluateAgentAuthProbe,
 	evaluateMarkdownProbe,
 	evaluateScan,
 	flattenChecks,
@@ -132,6 +133,28 @@ describe("evaluateScan", () => {
 	});
 });
 
+describe("evaluateAgentAuthProbe", () => {
+	it("passes when POST /agent/auth returns JSON 200", () => {
+		expect(
+			evaluateAgentAuthProbe({
+				path: "/agent/auth",
+				status: 200,
+				contentType: "application/json; charset=utf-8",
+			}),
+		).toMatchObject({ ok: true, regression: false });
+	});
+
+	it("regresses when the endpoint is missing or non-JSON", () => {
+		expect(
+			evaluateAgentAuthProbe({
+				path: "/agent/auth",
+				status: 404,
+				contentType: "text/html",
+			}),
+		).toMatchObject({ ok: false, regression: true });
+	});
+});
+
 describe("evaluateMarkdownProbe", () => {
 	it("accepts content-type that includes markdown", () => {
 		expect(
@@ -197,6 +220,23 @@ describe("shouldFailJob", () => {
 				unexpectedFails: [{ id: "discovery.apiCatalog" }],
 				knownFails: [],
 				markdownRegressions: [],
+				gateRegressions: true,
+				gateKnownFails: false,
+			}),
+		).toBe(true);
+	});
+
+	it("fails when POST /agent/auth stops returning JSON 200", () => {
+		expect(
+			shouldFailJob({
+				unexpectedFails: [],
+				knownFails: [],
+				markdownRegressions: [],
+				agentAuth: evaluateAgentAuthProbe({
+					path: "/agent/auth",
+					status: 404,
+					contentType: "text/html",
+				}),
 				gateRegressions: true,
 				gateKnownFails: false,
 			}),
