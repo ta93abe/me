@@ -19,7 +19,7 @@ describe("agent discovery links", () => {
 				`</.well-known/ard.json>; rel="ard"; type="application/json"`,
 				`</.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json"`,
 				`</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`,
-				`</.well-known/agent-card.json>; rel="service-desc"; type="application/json"`,
+				`</.well-known/agent-card.json>; rel="describedby"; type="application/json"`,
 				`</auth.md>; rel="describedby"; type="text/markdown"`,
 			].join(", "),
 		);
@@ -57,7 +57,7 @@ describe("agent discovery links", () => {
 			href: "https://ta93abe.com/.well-known/agent-skills/index.json",
 		});
 		expect(byPath["/.well-known/agent-card.json"]).toMatchObject({
-			rel: "service-desc",
+			rel: "describedby",
 			type: "application/json",
 			href: "https://ta93abe.com/.well-known/agent-card.json",
 		});

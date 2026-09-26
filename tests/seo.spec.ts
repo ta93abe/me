@@ -15,7 +15,7 @@ const AGENT_DISCOVERY_SNIPPETS = [
 	'rel="api-catalog" href="https://ta93abe.com/.well-known/api-catalog" type="application/linkset+json"',
 	'rel="service-desc" href="https://ta93abe.com/.well-known/mcp/server-card.json" type="application/json"',
 	'rel="describedby" href="https://ta93abe.com/.well-known/agent-skills/index.json" type="application/json"',
-	'rel="service-desc" href="https://ta93abe.com/.well-known/agent-card.json" type="application/json"',
+	'rel="describedby" href="https://ta93abe.com/.well-known/agent-card.json" type="application/json"',
 	'rel="describedby" href="https://ta93abe.com/auth.md" type="text/markdown"',
 	'rel="alternate" href="https://ta93abe.com/rss.xml" type="application/rss+xml"',
 ] as const;

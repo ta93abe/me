@@ -48,7 +48,7 @@ export const AGENT_DISCOVERY_RESOURCES = [
 		type: "application/json",
 	},
 	{
-		rel: "service-desc",
+		rel: "describedby",
 		path: "/.well-known/agent-card.json",
 		type: "application/json",
 	},
