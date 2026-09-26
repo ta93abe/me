@@ -20,6 +20,9 @@ describe("TALKS catalog", () => {
 		expect(new Set(slugs).size).toBe(slugs.length);
 
 		for (const talk of TALKS) {
+			if (talk.slideSlug) {
+				expect(talk.slideSlug).toMatch(/^[a-z][a-z0-9-]*$/);
+			}
 			expect(talk.slug).toMatch(/^[a-z][a-z0-9-]*$/);
 			expect(talk.title.length).toBeGreaterThan(0);
 			expect(talk.event.length).toBeGreaterThan(0);
