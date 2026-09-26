@@ -18,11 +18,12 @@ import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import { agentAuthRegisterResponse, authMarkdown } from "./auth-md.ts";
 import { handleContentApi } from "./content/api.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
-import { loadSitemapIndexXml, readLlmsBlogSection } from "./content/derived.ts";
 import {
 	buildLlmsFullText,
-	buildLlmsOverviewMarkdown,
-} from "./content/llms.ts";
+	loadSitemapIndexXml,
+	readLlmsBlogSection,
+} from "./content/derived.ts";
+import { buildLlmsOverviewMarkdown } from "./content/llms.ts";
 import { renderBlogOgPng } from "./content/og-png.ts";
 import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { discoveryResponse } from "./discovery-cache.ts";
@@ -93,11 +94,7 @@ async function siteOverviewMarkdown(env: Env): Promise<string> {
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return buildLlmsFullText(await siteOverviewMarkdown(env), {
-		siteUrl: SITE_URL,
-		siteHost: SITE_HOST,
-		contentSignal: CONTENT_SIGNAL,
-	});
+	return buildLlmsFullText(env.CONTENT, SITE_URL);
 }
 
 const AUTH_MD = authMarkdown(SITE_URL, SITE_HOST, AUTH_MD_OIDC_PARAGRAPH);

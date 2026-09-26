@@ -68,7 +68,7 @@ export const LLMS_MACHINE_RESOURCES: readonly LlmsFileListItem[] = [
 		name: "Full agent notes",
 		path: "/llms-full.txt",
 		description:
-			"Same overview plus agent guidance and content-usage preference.",
+			"Inlined Markdown for About, Works, and every published blog post.",
 	},
 	{
 		name: "API catalog",
@@ -153,34 +153,4 @@ ${formatFileList(LLMS_PRIMARY_SECTIONS, base)}
 ${formatFileList(LLMS_MACHINE_RESOURCES, base)}
 
 ${blogSection}`;
-}
-
-function buildLlmsGuidance(options: {
-	siteUrl: string;
-	siteHost: string;
-	contentSignal: string;
-}): string {
-	const siteUrl = originBase(options.siteUrl);
-	return `## Agent guidance
-
-- This is a public content site. No authentication is required to read the public pages.
-- Prefer canonical URLs on ${options.siteHost}.
-- Use the sitemap at ${siteUrl}/sitemap.xml for crawl discovery.
-- Respect robots.txt and Content-Signal directives.
-
-## Content usage preference
-
-Content-Signal: ${options.contentSignal}
-`;
-}
-
-export function buildLlmsFullText(
-	overview: string,
-	options: {
-		siteUrl: string;
-		siteHost: string;
-		contentSignal: string;
-	},
-): string {
-	return `${overview}\n${buildLlmsGuidance(options)}`;
 }
