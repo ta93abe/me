@@ -1,3 +1,4 @@
+import { parseSpotifyUrl } from "./spotify-url.ts";
 import { parseTweetUrl } from "./tweet-url.ts";
 import { parseYoutubeUrl } from "./youtube-url.ts";
 
@@ -30,7 +31,8 @@ export function parseLinkUrl(raw: string): ParsedLinkUrl | null {
 	if (
 		!isPublicHttpUrl(parsed) ||
 		parseTweetUrl(parsed.href) ||
-		parseYoutubeUrl(parsed.href)
+		parseYoutubeUrl(parsed.href) ||
+		parseSpotifyUrl(parsed.href)
 	) {
 		return null;
 	}

@@ -95,6 +95,16 @@ export async function resolveEmbedsForMarkdown(
 				return;
 			}
 
+			if (embed.kind === "spotify") {
+				await putRecord(bucket, key, {
+					url: embed.href,
+					kind: "spotify",
+					fetchedAt,
+					expiresAt,
+				});
+				return;
+			}
+
 			const link = await fetchLinkCard(embed.href, { fetch: fetchImpl });
 			await putRecord(bucket, key, {
 				url: embed.href,

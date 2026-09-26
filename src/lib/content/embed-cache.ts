@@ -21,11 +21,20 @@ export type BlogEmbedLink = {
 	href: string;
 };
 
-export type BlogEmbed = BlogEmbedTweet | BlogEmbedYoutube | BlogEmbedLink;
+export type BlogEmbedSpotify = {
+	kind: "spotify";
+	href: string;
+};
+
+export type BlogEmbed =
+	| BlogEmbedTweet
+	| BlogEmbedYoutube
+	| BlogEmbedLink
+	| BlogEmbedSpotify;
 
 export type EmbedCacheRecord = {
 	url: string;
-	kind: "link" | "tweet" | "youtube";
+	kind: "link" | "tweet" | "youtube" | "spotify";
 	fetchedAt: string;
 	expiresAt: string;
 	link?: LinkCardData;
@@ -146,7 +155,10 @@ export function parseEmbedRecord(value: unknown): EmbedCacheRecord | null {
 	}
 	const url = nonEmptyString(value.url);
 	const kind =
-		value.kind === "link" || value.kind === "tweet" || value.kind === "youtube"
+		value.kind === "link" ||
+		value.kind === "tweet" ||
+		value.kind === "youtube" ||
+		value.kind === "spotify"
 			? value.kind
 			: null;
 	const fetchedAt = nonEmptyString(value.fetchedAt);

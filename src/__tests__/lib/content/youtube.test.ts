@@ -34,7 +34,9 @@ describe("youtubeEmbedHtml", () => {
 			'src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"',
 		);
 		expect(html).toContain("youtube-embed-play");
-		expect(html).toContain(
+		expect(html).toContain('data-youtube-id="dQw4w9WgXcQ"');
+		expect(html).toContain("youtube-embed-lazy");
+		expect(html).not.toContain(
 			'href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"',
 		);
 	});
@@ -62,15 +64,12 @@ describe("youtubeEmbedHtml", () => {
 			null,
 		);
 
-		expect(html).toContain("youtube-embed-fallback");
 		expect(html).toContain("YouTubeで動画を見る");
-		expect(html).toContain("youtube.com/watch?v=dQw4w9WgXcQ");
 		expect(html).toContain(
 			'src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"',
 		);
-		expect(html).toContain(
-			'href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"',
-		);
+		expect(html).toContain('data-youtube-id="dQw4w9WgXcQ"');
+		expect(html).toContain("youtube-embed-lazy");
 	});
 });
 

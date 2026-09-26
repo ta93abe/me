@@ -69,11 +69,49 @@ function thumbnailFor(id: string, candidate?: string): string {
 	return httpsUrl(candidate) ?? youtubeThumbnailUrl(id);
 }
 
+function youtubeStartSeconds(href: string): number {
+	const parsed = parseYoutubeRef(href);
+	if (!parsed) {
+		return 0;
+	}
+	try {
+		const url = new URL(parsed.url);
+		const raw = url.searchParams.get("t") ?? url.searchParams.get("start");
+		if (raw && /^\d+$/.test(raw)) {
+			return Number(raw);
+		}
+	} catch {
+		// ignore
+	}
+	return 0;
+}
+
+function lazyYoutubeFigure(
+	href: string,
+	id: string,
+	title: string,
+	authorName: string,
+	thumbnail: string,
+): string {
+	const start = youtubeStartSeconds(href);
+	const startAttr = start > 0 ? ` data-youtube-start="${start}"` : "";
+	const label = title.length > 0 ? title : "YouTube動画を再生";
+	return `<figure class="youtube-embed" data-youtube-id="${escapeHtml(id)}"${startAttr}><button type="button" class="youtube-embed-card youtube-embed-lazy" aria-label="${escapeHtml(label)}">${thumbHtml(thumbnail, title)}<span class="youtube-embed-copy"><span class="youtube-embed-title">${escapeHtml(title.length > 0 ? title : "YouTubeで動画を見る")}</span><span class="youtube-embed-byline"><span class="youtube-embed-author">${escapeHtml(authorName)}</span><span class="youtube-embed-provider">YouTube</span></span></span></button></figure>\n`;
+}
+
 export function youtubeFallbackHtml(href: string): string {
 	const parsed = parseYoutubeRef(href);
-	const display = href.replace(/^https:\/\//, "");
-	const media = parsed ? thumbHtml(youtubeThumbnailUrl(parsed.id), "") : "";
-	return `<figure class="youtube-embed youtube-embed-fallback"><a class="youtube-embed-card" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${media}<span class="youtube-embed-copy"><span class="youtube-embed-title">YouTubeで動画を見る</span><span class="youtube-embed-byline"><span class="youtube-embed-url">${escapeHtml(display)}</span></span></span></a></figure>\n`;
+	if (!parsed) {
+		const display = href.replace(/^https:\/\//, "");
+		return `<figure class="youtube-embed youtube-embed-fallback"><a class="youtube-embed-card" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank"><span class="youtube-embed-copy"><span class="youtube-embed-title">YouTubeで動画を見る</span><span class="youtube-embed-byline"><span class="youtube-embed-url">${escapeHtml(display)}</span></span></span></a></figure>\n`;
+	}
+	return lazyYoutubeFigure(
+		href,
+		parsed.id,
+		"",
+		"",
+		youtubeThumbnailUrl(parsed.id),
+	);
 }
 
 export function youtubeEmbedHtml(
@@ -85,7 +123,13 @@ export function youtubeEmbedHtml(
 	}
 
 	const thumbnail = thumbnailFor(video.id, video.thumbnailUrl);
-	return `<figure class="youtube-embed"><a class="youtube-embed-card" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${thumbHtml(thumbnail, video.title)}<span class="youtube-embed-copy"><span class="youtube-embed-title">${escapeHtml(video.title)}</span><span class="youtube-embed-byline"><span class="youtube-embed-author">${escapeHtml(video.authorName)}</span><span class="youtube-embed-provider">YouTube</span></span></span></a></figure>\n`;
+	return lazyYoutubeFigure(
+		href,
+		video.id,
+		video.title,
+		video.authorName,
+		thumbnail,
+	);
 }
 
 function oembedRequestUrl(id: string): string {

@@ -20,6 +20,11 @@ import {
 } from "./link-card.ts";
 import { linkBlockStartIndex, matchStandaloneLinkBlock } from "./link-url.ts";
 import {
+	matchStandaloneSpotifyBlock,
+	spotifyBlockStartIndex,
+} from "./spotify-url.ts";
+import { spotifyEmbedHtml } from "./spotify.ts";
+import {
 	matchStandaloneTweetBlock,
 	tweetBlockStartIndex,
 } from "./tweet-url.ts";
@@ -33,6 +38,7 @@ import { youtubeEmbedHtml, type YoutubeEmbedData } from "./youtube.ts";
 export type {
 	BlogEmbed,
 	BlogEmbedLink,
+	BlogEmbedSpotify,
 	BlogEmbedTweet,
 	BlogEmbedYoutube,
 } from "./embed-cache.ts";
@@ -119,6 +125,35 @@ function createYoutubeExtension(pending: PendingEmbed[]) {
 	};
 }
 
+function createSpotifyExtension(pending: PendingEmbed[]) {
+	return {
+		name: "spotifyEmbed",
+		level: "block" as const,
+		start(src: string) {
+			return spotifyBlockStartIndex(src);
+		},
+		tokenizer(src: string) {
+			const match = matchStandaloneSpotifyBlock(src);
+			if (!match) {
+				return undefined;
+			}
+			return {
+				type: "spotifyEmbed",
+				raw: match.raw,
+				href: match.href,
+			};
+		},
+		renderer(token: { href?: unknown }) {
+			const index = pending.length;
+			pending.push({
+				kind: "spotify",
+				href: String(token.href ?? ""),
+			});
+			return `<div data-spotify-embed="${index}"></div>\n`;
+		},
+	};
+}
+
 function createLinkExtension(pending: PendingEmbed[]) {
 	return {
 		name: "linkCard",
@@ -160,6 +195,7 @@ function parsePendingEmbeds(markdown: string): PendingEmbed[] {
 		extensions: [
 			createTweetExtension(pending),
 			createYoutubeExtension(pending),
+			createSpotifyExtension(pending),
 			createLinkExtension(pending),
 		],
 	});
@@ -171,6 +207,7 @@ export function collectBlogEmbeds(markdown: string): BlogEmbed[] {
 	const seenTweet = new Set<string>();
 	const seenYoutube = new Set<string>();
 	const seenLink = new Set<string>();
+	const seenSpotify = new Set<string>();
 	const embeds: BlogEmbed[] = [];
 	for (const item of parsePendingEmbeds(markdown)) {
 		if (item.kind === "tweet") {
@@ -186,6 +223,14 @@ export function collectBlogEmbeds(markdown: string): BlogEmbed[] {
 				continue;
 			}
 			seenYoutube.add(item.id);
+			embeds.push(item);
+			continue;
+		}
+		if (item.kind === "spotify") {
+			if (seenSpotify.has(item.href)) {
+				continue;
+			}
+			seenSpotify.add(item.href);
 			embeds.push(item);
 			continue;
 		}
@@ -219,6 +264,7 @@ export async function renderBlogMarkdown(
 		extensions: [
 			createTweetExtension(pending),
 			createYoutubeExtension(pending),
+			createSpotifyExtension(pending),
 			createLinkExtension(pending),
 		],
 	});
@@ -261,6 +307,16 @@ export async function renderBlogMarkdown(
 					return "";
 				}
 				return linkCardHtml(links.get(ref.href) ?? fallbackLinkCard(ref.href));
+			},
+		)
+		.replace(
+			/<div data-spotify-embed="(\d+)"><\/div>/g,
+			(_match, index: string) => {
+				const ref = pending[Number(index)];
+				if (ref?.kind !== "spotify") {
+					return "";
+				}
+				return spotifyEmbedHtml(ref.href);
 			},
 		);
 }

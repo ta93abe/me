@@ -73,7 +73,7 @@ describe("renderBlogMarkdown", () => {
 		expect(html).toContain("embed-card");
 		expect(html).toContain("example.com");
 		expect(html).toContain("tweet-embed-fallback");
-		expect(html).toContain("youtube-embed-fallback");
+		expect(html).toContain("youtube-embed-lazy");
 		fetchSpy.mockRestore();
 	});
 
@@ -188,9 +188,8 @@ describe("renderBlogMarkdown", () => {
 			"@[youtube](dQw4w9WgXcQ)\n\nhttps://youtu.be/dQw4w9WgXcQ\n",
 		);
 
-		expect(
-			html.match(/class="youtube-embed youtube-embed-fallback"/g)?.length,
-		).toBe(2);
+		expect(html.match(/youtube-embed-lazy/g)?.length).toBe(2);
+		expect(html).toContain('data-youtube-id="dQw4w9WgXcQ"');
 	});
 
 	it("embeds a tweet and a YouTube card in the same article", async () => {
