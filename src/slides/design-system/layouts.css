@@ -54,15 +54,20 @@
 
 .slide[data-type="cover"] h1 {
 	font-size: var(--fs-display);
+	line-height: var(--lh-display);
+	letter-spacing: var(--track-display);
 	max-width: 14em;
 	margin: 0;
 }
 
 .slide[data-type="cover"] h1 + p,
 .slide[data-type="cover"] h2 {
+	font-family: var(--font-body);
 	color: var(--color-ink-dim);
 	font-size: var(--fs-h2);
 	font-weight: 500;
+	letter-spacing: var(--track-body);
+	line-height: var(--lh-heading);
 	margin: 0;
 }
 
@@ -81,6 +86,8 @@
 
 .slide[data-type="section"] h1 {
 	font-size: var(--fs-section);
+	line-height: var(--lh-section);
+	letter-spacing: var(--track-display);
 	margin: 0;
 	color: inherit;
 }
@@ -114,7 +121,7 @@
 
 .slide[data-type="quote"] .slide-body {
 	justify-content: center;
-	max-width: 18em;
+	max-width: var(--measure-quote);
 }
 
 .slide[data-type="quote"] blockquote::before {
@@ -129,8 +136,11 @@
 .slide[data-type="quote"] blockquote + p {
 	margin-top: var(--space-5);
 	color: var(--color-ink-dim);
+	font-family: var(--font-body);
 	font-size: var(--fs-caption);
 	font-weight: 500;
+	letter-spacing: var(--track-caption);
+	line-height: var(--lh-body);
 }
 
 .slide[data-type="code"] .slide-body {
@@ -181,9 +191,11 @@
 }
 
 .slide[data-type="center"] h1 + p {
+	font-family: var(--font-body);
 	color: var(--color-ink-dim);
 	font-size: var(--fs-h2);
 	font-weight: 500;
+	letter-spacing: var(--track-body);
 	margin: 0;
 }
 
@@ -206,14 +218,18 @@
 
 .slide[data-type="end"] h1 {
 	font-size: var(--fs-display);
+	line-height: var(--lh-display);
+	letter-spacing: var(--track-display);
 	max-width: 12em;
 	margin: 0;
 }
 
 .slide[data-type="end"] h1 + p {
+	font-family: var(--font-body);
 	color: var(--color-ink-dim);
 	font-size: var(--fs-h2);
 	font-weight: 500;
+	letter-spacing: var(--track-body);
 	margin: 0;
 }
 

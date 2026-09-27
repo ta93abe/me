@@ -1,3 +1,9 @@
+@import "@fontsource/shippori-mincho/500.css";
+@import "@fontsource/shippori-mincho/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/700.css";
+
 :root,
 html[data-theme="dark"] {
 	color-scheme: dark;
@@ -26,21 +32,31 @@ html[data-theme="dark"] {
 	--radius: 0.85rem;
 	--slide-w: 16;
 	--slide-h: 9;
-	--font:
-		"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
-		"Noto Sans JP", sans-serif;
+	/* Site parity: `.font-display` / `.font-sans` in global.css */
+	--font-display: "Shippori Mincho", "Noto Serif JP", serif;
+	--font-body:
+		"Inter", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
+		"Yu Gothic", "Noto Sans JP", sans-serif;
 	--font-mono:
 		ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
-	--fs-display: clamp(2.5rem, 5.8vw, 4.4rem);
-	--fs-section: clamp(2.2rem, 5.2vw, 3.8rem);
-	--fs-h1: clamp(1.7rem, 3.4vw, 2.45rem);
-	--fs-h2: clamp(1.2rem, 2.2vw, 1.55rem);
-	--fs-body: clamp(1.05rem, 1.7vw, 1.32rem);
-	--fs-caption: clamp(0.85rem, 1.3vw, 1rem);
-	--lh-heading: 1.35;
-	--lh-body: 1.75;
-	--track-heading: 0.04em;
-	--track-body: 0.02em;
+	--fs-display: clamp(2.65rem, 6vw, 4.6rem);
+	--fs-section: clamp(2.25rem, 5.4vw, 3.95rem);
+	--fs-h1: clamp(1.75rem, 3.5vw, 2.5rem);
+	--fs-h2: clamp(1.22rem, 2.25vw, 1.6rem);
+	--fs-body: clamp(1.06rem, 1.75vw, 1.34rem);
+	--fs-caption: clamp(0.86rem, 1.35vw, 1.02rem);
+	--fs-quote: clamp(1.38rem, 2.5vw, 1.9rem);
+	--lh-display: 1.22;
+	--lh-section: 1.28;
+	--lh-heading: 1.38;
+	--lh-body: 1.72;
+	--lh-quote: 1.62;
+	--track-display: 0.05em;
+	--track-heading: 0.035em;
+	--track-body: 0.015em;
+	--track-caption: 0.04em;
+	--measure-quote: 18em;
+	--measure-body: 36em;
 }
 
 html[data-theme="light"] {
@@ -72,11 +88,14 @@ body {
 	min-height: 100%;
 	background: var(--color-bg-deep);
 	color: var(--color-ink);
-	font-family: var(--font);
+	font-family: var(--font-body);
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
 }
 
 body {
 	letter-spacing: var(--track-body);
+	line-height: var(--lh-body);
 }
 
 img {

@@ -1,7 +1,7 @@
 ---
 title: デザインシステム ショーケース
 date: 2026-09-06
-description: 全スライド型とクリック・数式・日本語本文の見本。基盤の受け入れに使う。
+description: 全スライド型・typography（display/body/mono）・クリック・数式・日本語本文の見本。TA-1356 以降の見た目確認に使う。
 slug: showcase
 theme: dark
 event: デザインシステム検証
