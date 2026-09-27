@@ -131,6 +131,20 @@ test.describe("Slides", () => {
 		).toHaveCount(0);
 	});
 
+	test("hides deck chrome after idle and restores on key", async ({ page }) => {
+		test.setTimeout(15_000);
+		await page.goto("/slides/showcase/");
+		const chrome = page.locator(".player-ui");
+		await expect(chrome).toBeVisible();
+		await expect(chrome).not.toHaveClass(/is-chrome-idle/);
+
+		await page.waitForTimeout(3_200);
+		await expect(chrome).toHaveClass(/is-chrome-idle/);
+
+		await page.keyboard.press("ArrowRight");
+		await expect(chrome).not.toHaveClass(/is-chrome-idle/);
+	});
+
 	test("advances click fragments before the next slide", async ({ page }) => {
 		await page.goto("/slides/showcase/");
 		const index = await page
