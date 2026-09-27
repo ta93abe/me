@@ -228,7 +228,7 @@ describe("renderSummary", () => {
 					path: "/blog/hello-world/",
 					status: 200,
 					contentType: "text/markdown; charset=utf-8",
-			 },
+				},
 				true,
 			),
 		];
