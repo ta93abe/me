@@ -4,6 +4,8 @@ date: 2026-09-06
 description: 全スライド型とクリック・数式・日本語本文の見本。基盤の受け入れに使う。
 slug: showcase
 theme: dark
+event: デザインシステム検証
+talkSlug: frosty-friday-live-challenge-vol56
 ---
 
 <!-- type: cover -->

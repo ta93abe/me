@@ -96,7 +96,34 @@ function parseFrontmatter(
 		}
 	}
 
-	return { title, date, description, slug, theme };
+	const event =
+		data.event !== undefined ? String(data.event).trim() : undefined;
+	const talkSlug =
+		data.talkSlug !== undefined ? String(data.talkSlug).trim() : undefined;
+
+	if (event !== undefined && event.length === 0) {
+		throw new DeckError("event が空です");
+	}
+	if (talkSlug !== undefined) {
+		if (talkSlug.length === 0) {
+			throw new DeckError("talkSlug が空です");
+		}
+		if (!SLUG_PATTERN.test(talkSlug)) {
+			throw new DeckError(
+				`talkSlug は英小文字・数字・ハイフンだけです: ${talkSlug}`,
+			);
+		}
+	}
+
+	return {
+		title,
+		date,
+		description,
+		slug,
+		theme,
+		...(event ? { event } : {}),
+		...(talkSlug ? { talkSlug } : {}),
+	};
 }
 
 function extractNotes(source: string): { notes: string; body: string } {

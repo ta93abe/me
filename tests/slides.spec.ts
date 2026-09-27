@@ -9,11 +9,27 @@ test.describe("Slides", () => {
 			page.getByRole("heading", { name: "Slides", level: 1 }),
 		).toBeVisible();
 
-		const showcase = page.getByRole("link", {
-			name: /デザインシステム ショーケース/,
+		const showcaseTitle = page.getByRole("link", {
+			name: "デザインシステム ショーケース",
+			exact: true,
 		});
-		await expect(showcase).toHaveAttribute("href", "/slides/showcase/");
-		await showcase.click();
+		await expect(showcaseTitle).toHaveAttribute("href", "/slides/showcase/");
+		await expect(
+			page.getByRole("navigation", {
+				name: "デザインシステム ショーケース へのリンク",
+			}),
+		).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: "Slides", exact: true }).first(),
+		).toHaveAttribute("href", "/slides/showcase/");
+		await expect(
+			page.getByRole("link", { name: "PDF" }).first(),
+		).toHaveAttribute("href", "/slides/showcase.pdf");
+		await expect(page.getByRole("link", { name: "Talk" })).toHaveAttribute(
+			"href",
+			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		);
+		await showcaseTitle.click();
 		await expect(page).toHaveURL(/\/slides\/showcase\/?#/);
 
 		await expect(page.locator(".deck")).toBeVisible();
