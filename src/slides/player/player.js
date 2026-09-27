@@ -5,11 +5,15 @@ const currentLabel = document.querySelector("[data-current]");
 const clickLabel = document.querySelector("[data-click-current]");
 const clickWrap = document.querySelector("[data-click-label]");
 const counter = document.querySelector(".progress");
+const playerUi = document.querySelector(".player-ui");
 const presenter = document.querySelector("[data-presenter]");
 const presenterNotes = document.querySelector("[data-presenter-notes]");
 const presenterNext = document.querySelector("[data-presenter-next]");
 const presenterTimer = document.querySelector("[data-presenter-timer]");
 const helpDialog = document.querySelector("[data-help]");
+
+const CHROME_IDLE_MS = 2800;
+let chromeIdleTimer = null;
 
 if (!deck || slides.length === 0) {
 	throw new Error("deck is missing");
@@ -85,6 +89,53 @@ function stopTimerTick() {
 		window.clearInterval(timerId);
 		timerId = null;
 	}
+}
+
+function chromeShouldStayVisible() {
+	return (
+		overview ||
+		presenterOn ||
+		(helpDialog instanceof HTMLDialogElement && helpDialog.open)
+	);
+}
+
+function clearChromeIdleTimer() {
+	if (chromeIdleTimer != null) {
+		window.clearTimeout(chromeIdleTimer);
+		chromeIdleTimer = null;
+	}
+}
+
+function hideChromeIdle() {
+	if (!playerUi || chromeShouldStayVisible()) {
+		return;
+	}
+	playerUi.classList.add("is-chrome-idle");
+}
+
+function wakeChrome() {
+	if (!(playerUi instanceof HTMLElement)) {
+		return;
+	}
+	playerUi.classList.remove("is-chrome-idle");
+	if (chromeShouldStayVisible()) {
+		clearChromeIdleTimer();
+		return;
+	}
+	clearChromeIdleTimer();
+	chromeIdleTimer = window.setTimeout(hideChromeIdle, CHROME_IDLE_MS);
+}
+
+function syncChromeIdlePolicy() {
+	if (!(playerUi instanceof HTMLElement)) {
+		return;
+	}
+	if (chromeShouldStayVisible()) {
+		clearChromeIdleTimer();
+		playerUi.classList.remove("is-chrome-idle");
+		return;
+	}
+	wakeChrome();
 }
 
 function renderClicks(slide) {
@@ -199,6 +250,7 @@ function setOverview(on) {
 	overview = on;
 	deck.classList.toggle("is-overview", on);
 	render();
+	syncChromeIdlePolicy();
 }
 
 function setPresenter(on) {
@@ -207,6 +259,7 @@ function setPresenter(on) {
 		ensureTimer();
 	}
 	renderPresenter();
+	syncChromeIdlePolicy();
 }
 
 function toggleHelp() {
@@ -218,9 +271,12 @@ function toggleHelp() {
 	} else {
 		helpDialog.showModal();
 	}
+	syncChromeIdlePolicy();
 }
 
 window.addEventListener("keydown", (event) => {
+	wakeChrome();
+
 	if (
 		event.defaultPrevented ||
 		event.metaKey ||
@@ -345,7 +401,24 @@ deck.addEventListener(
 	{ passive: true },
 );
 
+window.addEventListener(
+	"mousemove",
+	() => {
+		wakeChrome();
+	},
+	{ passive: true },
+);
+
+window.addEventListener(
+	"touchstart",
+	() => {
+		wakeChrome();
+	},
+	{ passive: true },
+);
+
 const initial = parseHash();
 index = initial.slide;
 click = initial.click;
 render();
+wakeChrome();
