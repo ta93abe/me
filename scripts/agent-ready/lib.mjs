@@ -140,6 +140,7 @@ export function evaluateMarkdownProbe(probe, expectMarkdown) {
  *   unexpectedFails?: unknown[],
  *   knownFails?: unknown[],
  *   markdownRegressions?: unknown[],
+ *   agentAuth?: ReturnType<typeof evaluateAgentAuthProbe>,
  *   gateRegressions?: boolean,
  *   gateKnownFails?: boolean,
  * }} input
