@@ -110,8 +110,7 @@ export function evaluateScan(scan, baseline) {
  */
 export function evaluateAgentAuthProbe(probe) {
 	const contentType = probe.contentType ?? "";
-	const ok =
-		probe.status === 200 && contentType.toLowerCase().includes("json");
+	const ok = probe.status === 200 && contentType.toLowerCase().includes("json");
 	return {
 		path: probe.path ?? "/agent/auth",
 		status: probe.status,
