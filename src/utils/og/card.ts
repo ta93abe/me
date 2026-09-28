@@ -42,12 +42,17 @@ export interface OgCardNode {
 	};
 }
 
+export type OgCardLayout = "card" | "slides-cover";
+
 export interface OgCardOptions {
 	title: string;
 	subtitle?: string;
 	type?: OgImageType;
 	siteName?: string;
 	hostname?: string;
+	layout?: OgCardLayout;
+	/** Cover-style slides OG: accent meta line (e.g. event name). */
+	event?: string;
 }
 
 export function isWideOgChar(char: string): boolean {
