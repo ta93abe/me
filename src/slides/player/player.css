@@ -46,8 +46,8 @@
 
 .counter {
 	position: fixed;
-	right: 1rem;
-	bottom: 0.65rem;
+	right: max(1rem, env(safe-area-inset-right, 0px));
+	bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
 	margin: 0;
 	font-family: var(--font-body);
 	color: var(--color-ink-dim);
@@ -61,8 +61,8 @@
 .pdf-link {
 	pointer-events: auto;
 	position: fixed;
-	left: 1rem;
-	bottom: 0.65rem;
+	left: max(1rem, env(safe-area-inset-left, 0px));
+	bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
 	font-family: var(--font-body);
 	color: var(--color-ink-dim);
 	font-size: 0.72rem;
@@ -304,6 +304,10 @@ html.is-presenter .progress {
 }
 
 @media (max-width: 640px) {
+	.presenter {
+		padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+	}
+
 	.presenter-grid {
 		grid-template-columns: 1fr;
 		gap: var(--space-4);
@@ -311,6 +315,20 @@ html.is-presenter .progress {
 
 	.presenter-notes-scroll {
 		max-height: 6.5rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.counter,
+	.pdf-link {
+		font-size: 0.68rem;
+	}
+
+	.pdf-link {
+		padding: 0.35rem 0.15rem;
+		min-height: 2.75rem;
+		display: inline-flex;
+		align-items: center;
 	}
 }
 

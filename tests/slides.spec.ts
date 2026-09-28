@@ -184,4 +184,100 @@ test.describe("Slides", () => {
 		const response = await page.goto("/slides/no-such-deck/");
 		expect(response?.status()).toBe(404);
 	});
+
+	test("narrow viewport keeps deck within bounds and stacks split slides", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 320, height: 568 });
+		await page.goto("/slides/showcase/#4");
+
+		const deck = page.locator(".deck");
+		await expect(deck).toBeVisible();
+		const deckBox = await deck.boundingBox();
+		expect(deckBox).not.toBeNull();
+		if (deckBox) {
+			expect(deckBox.width).toBeLessThanOrEqual(320.5);
+			expect(deckBox.x).toBeGreaterThanOrEqual(-0.5);
+			expect(deckBox.x + deckBox.width).toBeLessThanOrEqual(320.5);
+		}
+
+		const splitBody = page.locator(
+			'.slide.is-active[data-type="split"] .slide-body',
+		);
+		await expect(splitBody).toBeVisible();
+		const columns = await splitBody.evaluate((el) => {
+			return window.getComputedStyle(el).gridTemplateColumns;
+		});
+		expect(columns).toMatch(/^[\d.]+px$/);
+
+		const pdf = page.getByRole("link", { name: "PDF" });
+		const counter = page.locator(".counter");
+		const pdfBox = await pdf.boundingBox();
+		const counterBox = await counter.boundingBox();
+		expect(pdfBox).not.toBeNull();
+		expect(counterBox).not.toBeNull();
+		if (pdfBox && counterBox) {
+			expect(pdfBox.x).toBeGreaterThanOrEqual(0);
+			expect(counterBox.x + counterBox.width).toBeLessThanOrEqual(320.5);
+		}
+	});
+
+	test("short horizontal tap does not change slide on touch", async ({
+		browser,
+	}) => {
+		const context = await browser.newContext({
+			viewport: { width: 390, height: 844 },
+			hasTouch: true,
+		});
+		const page = await context.newPage();
+		await page.goto("/slides/showcase/#4");
+
+		const deck = page.locator(".deck");
+		const box = await deck.boundingBox();
+		expect(box).not.toBeNull();
+		if (!box) {
+			return;
+		}
+
+		const startX = box.x + box.width * 0.5;
+		const startY = box.y + box.height * 0.55;
+
+		const swipeDeck = async (endX: number) => {
+			await page.evaluate(
+				({ endX, startX, startY }) => {
+					const deck = document.querySelector(".deck");
+					if (!(deck instanceof HTMLElement)) {
+						throw new Error("deck missing");
+					}
+					const touch = (x: number, y: number) =>
+						new Touch({
+							identifier: 1,
+							target: deck,
+							clientX: x,
+							clientY: y,
+						});
+					deck.dispatchEvent(
+						new TouchEvent("touchstart", {
+							bubbles: true,
+							changedTouches: [touch(startX, startY)],
+						}),
+					);
+					deck.dispatchEvent(
+						new TouchEvent("touchend", {
+							bubbles: true,
+							changedTouches: [touch(endX, startY)],
+						}),
+					);
+				},
+				{ endX, startX, startY },
+			);
+		};
+
+		await swipeDeck(startX + 4);
+		await expect(page).toHaveURL(/#4$/);
+
+		await swipeDeck(startX - 120);
+		await expect(page).toHaveURL(/#5$/);
+		await context.close();
+	});
 });
