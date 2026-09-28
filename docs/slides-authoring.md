@@ -28,8 +28,11 @@ date: 2026-09-06
 description: 一覧に出す一行
 slug: event-name-2026-09-06
 theme: dark
+event: イベント名
 ---
 ```
+
+`event` は任意。先頭の `cover` 枚の上部メタ行に出る。`date` は同じメタ行に日本語日付で出る（著者名と X ハンドルはサイト設定から自動）。
 
 ## スライド
 
@@ -44,6 +47,8 @@ theme: dark
 
 サブタイトル
 ```
+
+表紙は `#` がタイトル、直後の段落がサブタイトル。イベント名・日付・著者は frontmatter / サイト設定から自動で上段に並ぶ。`section` は全面アクセント + 大見出し（必要なら見出し下に短い一行）。`end` は中央寄せ + 左アクセントバー。
 
 使える型: `cover` / `section` / `body` / `split` / `quote` / `code` / `figure` / `center` / `end`
 

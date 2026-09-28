@@ -1,4 +1,7 @@
-import type { Deck } from "./parser/types.ts";
+import { SITE } from "@/config/site";
+import { formatDate, toDatetimeAttr } from "@/utils/date";
+
+import type { Deck, DeckFrontmatter, Slide } from "./parser/types.ts";
 
 export function escapeHtml(value: string): string {
 	return value
@@ -6,6 +9,39 @@ export function escapeHtml(value: string): string {
 		.replaceAll("<", "&lt;")
 		.replaceAll(">", "&gt;")
 		.replaceAll('"', "&quot;");
+}
+
+function renderCoverMeta(frontmatter: DeckFrontmatter): string {
+	const dateLabel = formatDate(frontmatter.date);
+	const dateTime = toDatetimeAttr(frontmatter.date);
+	const detailParts = [
+		`<time datetime="${escapeHtml(dateTime)}">${escapeHtml(dateLabel)}</time>`,
+		`<span>${escapeHtml(SITE.author)}</span>`,
+		`<span>${escapeHtml(SITE.twitter)}</span>`,
+	];
+	const details = detailParts.join(
+		'<span class="slide-cover-meta__sep" aria-hidden="true">·</span>',
+	);
+	const eventBlock = frontmatter.event
+		? `<p class="slide-cover-meta__event">${escapeHtml(frontmatter.event)}</p>`
+		: "";
+	return `<header class="slide-cover-meta">${eventBlock}<p class="slide-cover-meta__details">${details}</p></header>`;
+}
+
+function wrapCoverBody(deck: Deck, slide: Slide, index: number): string {
+	const firstCoverIndex = deck.slides.findIndex(
+		(item) => item.type === "cover",
+	);
+	const meta =
+		firstCoverIndex === index ? renderCoverMeta(deck.frontmatter) : "";
+	return `${meta}<div class="slide-cover-main">${slide.html}</div>`;
+}
+
+function slideBodyHtml(deck: Deck, slide: Slide, index: number): string {
+	if (slide.type === "cover") {
+		return wrapCoverBody(deck, slide, index);
+	}
+	return slide.html;
 }
 
 export function renderSlideSections(
@@ -20,8 +56,9 @@ export function renderSlideSections(
 				: "";
 			const active = print || index === 0 ? " is-active" : "";
 			const hidden = print || index === 0 ? "" : " hidden inert";
+			const body = slideBodyHtml(deck, slide, index);
 			return `<section class="slide${active}" data-type="${slide.type}" data-index="${index + 1}" data-clicks="${slide.clicks}" id="s${index + 1}" aria-label="${index + 1} / ${deck.slides.length}"${hidden}>
-  <div class="slide-body">${slide.html}</div>
+  <div class="slide-body">${body}</div>
   ${notes}
 </section>`;
 		})

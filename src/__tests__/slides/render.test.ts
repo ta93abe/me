@@ -32,4 +32,14 @@ describe("renderSlideSections", () => {
 		expect(html).toContain('data-type="cover"');
 		expect(html).toContain('data-index="2"');
 	});
+
+	it("injects cover meta from frontmatter on the first cover slide", () => {
+		const html = renderSlideSections(twoSlides);
+		expect(html).toContain('class="slide-cover-meta"');
+		expect(html).toContain('datetime="2026-09-06T00:00:00.000Z"');
+		expect(html).toContain("2026年9月6日");
+		expect(html).toContain("Takumi Abe");
+		expect(html).toContain("@ta93abe_");
+		expect(html).toContain('class="slide-cover-main"');
+	});
 });
