@@ -32,5 +32,9 @@ describe("slide design-system typography tokens", () => {
 
 		expect(typography).toContain("font-family: var(--font-body)");
 		expect(typography).toContain("font-family: var(--font-display)");
+		expect(tokens).toContain("--color-code-gutter:");
+		expect(tokens).toContain("--code-show-gutter:");
+		expect(typography).toContain("pre.shiki .line::before");
+		expect(typography).toContain(".no-line-gutter");
 	});
 });

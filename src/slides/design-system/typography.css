@@ -95,6 +95,41 @@
 	overflow: auto;
 	font-size: 0.86em;
 	line-height: 1.55;
+	tab-size: 2;
+}
+
+.slide-body pre.shiki code {
+	display: block;
+	counter-reset: slide-line;
+}
+
+.slide-body pre.shiki .line {
+	display: block;
+	position: relative;
+	padding-left: calc(
+		var(--code-show-gutter) * (var(--code-gutter-width) + 0.85ch)
+	);
+}
+
+.slide-body pre.shiki .line::before {
+	counter-increment: slide-line;
+	content: counter(slide-line);
+	position: absolute;
+	left: 0;
+	width: calc(var(--code-show-gutter) * var(--code-gutter-width));
+	padding-right: 0.55ch;
+	text-align: right;
+	color: var(--color-code-gutter);
+	font-size: 0.92em;
+	font-variant-numeric: tabular-nums;
+	opacity: calc(var(--code-show-gutter) * 0.88);
+	pointer-events: none;
+	user-select: none;
+}
+
+/* 行番号 OFF: pre に .no-line-gutter を付ける（CSS のみ） */
+.slide-body pre.shiki.no-line-gutter {
+	--code-show-gutter: 0;
 }
 
 .slide-body pre code {
@@ -140,25 +175,24 @@
 
 .slide-body pre.has-highlight .line,
 .slide-body pre.has-click-highlight .line {
-	display: inline-block;
-	width: 100%;
-	padding: 0 0.45em;
-	margin: 0 -0.45em;
-	border-radius: 0.25em;
-	box-decoration-break: clone;
+	padding-inline: 0.35em;
+	margin-inline: -0.35em;
+	border-radius: 0.28em;
 }
 
 .slide-body pre.has-click-highlight .line {
-	opacity: 0.42;
+	opacity: var(--color-code-dim-opacity);
 	transition:
 		opacity 0.22s ease,
-		background-color 0.22s ease;
+		background-color 0.22s ease,
+		box-shadow 0.22s ease;
 }
 
 .slide-body pre.has-highlight .line.line-highlighted,
 .slide-body pre.has-click-highlight .line.is-highlighted {
 	opacity: 1;
-	background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+	background: var(--color-code-highlight-bg);
+	box-shadow: inset 0.22em 0 0 var(--color-accent);
 }
 
 .speaker-notes {
