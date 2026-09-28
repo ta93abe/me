@@ -7,8 +7,10 @@ export const prerender = true;
 
 export const GET: APIRoute = async () => {
 	const png = await generateOgImage({
+		layout: "slides-cover",
 		title: "Slides",
-		subtitle: SITE.author,
+		subtitle: "Slides",
+		siteName: SITE.author,
 		type: "slides",
 	});
 
