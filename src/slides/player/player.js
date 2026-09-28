@@ -36,6 +36,12 @@ let click = 0;
 let overview = false;
 let presenterOn = false;
 let touchX = null;
+let touchY = null;
+
+/** Horizontal swipe must exceed this (px); scales slightly on narrow viewports. */
+function swipeThresholdPx() {
+	return Math.min(52, Math.max(34, Math.round(window.innerWidth * 0.11)));
+}
 let startedAt = null;
 let timerId = null;
 
@@ -513,7 +519,9 @@ deck.addEventListener("click", (event) => {
 deck.addEventListener(
 	"touchstart",
 	(event) => {
-		touchX = event.changedTouches[0]?.clientX ?? null;
+		const touch = event.changedTouches[0];
+		touchX = touch?.clientX ?? null;
+		touchY = touch?.clientY ?? null;
 	},
 	{ passive: true },
 );
@@ -521,16 +529,25 @@ deck.addEventListener(
 deck.addEventListener(
 	"touchend",
 	(event) => {
-		if (touchX == null) {
+		if (touchX == null || touchY == null) {
 			return;
 		}
-		const x = event.changedTouches[0]?.clientX ?? touchX;
-		const delta = x - touchX;
+		const touch = event.changedTouches[0];
+		const x = touch?.clientX ?? touchX;
+		const y = touch?.clientY ?? touchY;
+		const deltaX = x - touchX;
+		const deltaY = y - touchY;
 		touchX = null;
-		if (Math.abs(delta) < 48) {
+		touchY = null;
+		const threshold = swipeThresholdPx();
+		if (Math.abs(deltaX) < threshold) {
 			return;
 		}
-		if (delta < 0) {
+		if (Math.abs(deltaX) <= Math.abs(deltaY) * 1.15) {
+			return;
+		}
+		wakeChrome();
+		if (deltaX < 0) {
 			next();
 		} else {
 			prev();
