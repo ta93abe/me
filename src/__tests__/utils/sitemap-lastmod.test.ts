@@ -1,9 +1,14 @@
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
 	applyStaticSitemapLastmod,
 	createStaticSitemapSerializer,
 	toW3cLastmod,
+	type SitemapLastmodItem,
 } from "@/utils/sitemap-lastmod";
 
 const W3C_DATETIME =
@@ -40,6 +45,46 @@ const STATIC_SITEMAP_URLS = [
 	"https://ta93abe.com/works/",
 ] as const;
 
+const BUILD_TIME = "2099-01-01T00:00:00.000Z";
+
+function writeFixture(rootDir: string, relativePath: string, contents: string) {
+	const filePath = path.join(rootDir, relativePath);
+	mkdirSync(path.dirname(filePath), { recursive: true });
+	writeFileSync(filePath, contents);
+}
+
+function fixtureRoot(): string {
+	const rootDir = mkdtempSync(path.join(tmpdir(), "sitemap-lastmod-"));
+	writeFixture(
+		rootDir,
+		"src/data/talks.ts",
+		`export const TALKS = [
+	{
+		slug: "newer",
+		date: "2026-08-27",
+	},
+	{
+		slug: "older",
+		date: "2026-05-14",
+	},
+];
+`,
+	);
+	writeFixture(rootDir, "src/data/gadgets.ts", "export const GADGETS = [];\n");
+	writeFixture(
+		rootDir,
+		"src/slides/decks/demo.md",
+		`---
+slug: demo
+date: 2026-03-02
+updated: 2026-04-08
+---
+`,
+	);
+	writeFixture(rootDir, "src/pages/index.astro", "<h1>home</h1>\n");
+	return rootDir;
+}
+
 describe("toW3cLastmod", () => {
 	it("formats Date values as W3C Datetime", () => {
 		expect(toW3cLastmod(new Date("2026-09-16T15:00:00.000Z"))).toBe(
@@ -55,63 +100,128 @@ describe("toW3cLastmod", () => {
 describe("applyStaticSitemapLastmod", () => {
 	it("uses a path-specific lastmod when present", () => {
 		const item = applyStaticSitemapLastmod(
-			{ url: "https://ta93abe.com/about/" },
+			{
+				url: "https://ta93abe.com/about/",
+				changefreq: "monthly",
+			} as SitemapLastmodItem & { changefreq: string },
 			new Map([["/about/", "2026-04-01T00:00:00.000Z"]]),
-			"2026-09-16T15:00:00.000Z",
 		);
 
 		expect(item.lastmod).toBe("2026-04-01T00:00:00.000Z");
+		expect(
+			(item as SitemapLastmodItem & { changefreq: string }).changefreq,
+		).toBe("monthly");
 	});
 
-	it("falls back to the build time when the path is unknown", () => {
+	it("omits lastmod when the path has no content date", () => {
 		const item = applyStaticSitemapLastmod(
-			{ url: "https://ta93abe.com/unknown/" },
+			{
+				url: "https://ta93abe.com/unknown/",
+				lastmod: BUILD_TIME,
+			},
 			new Map(),
-			"2026-09-16T15:00:00.000Z",
 		);
 
-		expect(item.lastmod).toBe("2026-09-16T15:00:00.000Z");
+		expect(item.lastmod).toBeUndefined();
 	});
 });
 
 describe("createStaticSitemapSerializer", () => {
-	it("stamps every current static sitemap URL with a W3C lastmod", () => {
+	it("stamps known static URLs with a content lastmod, not a build time", () => {
 		const serialize = createStaticSitemapSerializer({
-			now: new Date("2026-09-16T15:00:00.000Z"),
 			rootDir: process.cwd(),
 		});
 
-		for (const url of STATIC_SITEMAP_URLS) {
-			const item = serialize({ url });
-			expect(item.lastmod, url).toMatch(W3C_DATETIME);
-			expect(Number.isNaN(new Date(item.lastmod).getTime()), url).toBe(false);
-		}
+		const lastmods = STATIC_SITEMAP_URLS.map((url) => {
+			const item = serialize({ url, lastmod: BUILD_TIME });
+			if (item.lastmod) {
+				expect(item.lastmod, url).toMatch(W3C_DATETIME);
+				expect(Number.isNaN(new Date(item.lastmod).getTime()), url).toBe(false);
+				expect(new Date(item.lastmod).getTime(), url).toBeLessThan(
+					new Date(BUILD_TIME).getTime(),
+				);
+			}
+			return item.lastmod;
+		});
+
+		const unique = new Set(lastmods.filter((value) => value !== undefined));
+		expect(unique.size).toBeGreaterThan(1);
+		expect(unique.has(BUILD_TIME)).toBe(false);
+	});
+
+	it("omits lastmod for /blog/ instead of using the build timestamp", () => {
+		const serialize = createStaticSitemapSerializer({
+			rootDir: process.cwd(),
+		});
+		const item = serialize({
+			url: "https://ta93abe.com/blog/",
+			lastmod: BUILD_TIME,
+		});
+
+		expect(item.lastmod).toBeUndefined();
 	});
 
 	it("prefers gadget source dates over the build timestamp", () => {
 		const serialize = createStaticSitemapSerializer({
-			now: new Date("2099-01-01T00:00:00.000Z"),
 			rootDir: process.cwd(),
 		});
 		const item = serialize({
 			url: "https://ta93abe.com/gadgets/mac-studio/",
+			lastmod: BUILD_TIME,
 		});
 
 		expect(item.lastmod).toMatch(W3C_DATETIME);
-		expect(new Date(item.lastmod).getTime()).toBeLessThan(
-			new Date("2099-01-01T00:00:00.000Z").getTime(),
+		expect(new Date(item.lastmod ?? "").getTime()).toBeLessThan(
+			new Date(BUILD_TIME).getTime(),
 		);
 	});
 
 	it("uses slide frontmatter dates for deck URLs", () => {
 		const serialize = createStaticSitemapSerializer({
-			now: new Date("2099-01-01T00:00:00.000Z"),
 			rootDir: process.cwd(),
 		});
 		const item = serialize({
 			url: "https://ta93abe.com/slides/showcase/",
+			lastmod: BUILD_TIME,
 		});
 
 		expect(item.lastmod).toBe("2026-09-06T00:00:00.000Z");
+	});
+
+	it("uses talk and slide content dates when git history is missing", () => {
+		const serialize = createStaticSitemapSerializer({
+			rootDir: fixtureRoot(),
+		});
+
+		expect(
+			serialize({
+				url: "https://ta93abe.com/talks/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe("2026-08-27T00:00:00.000Z");
+		expect(
+			serialize({
+				url: "https://ta93abe.com/slides/demo/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe("2026-04-08T00:00:00.000Z");
+		expect(
+			serialize({
+				url: "https://ta93abe.com/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBeUndefined();
+		expect(
+			serialize({
+				url: "https://ta93abe.com/gadgets/mac-studio/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBeUndefined();
+		expect(
+			serialize({
+				url: "https://ta93abe.com/blog/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBeUndefined();
 	});
 });
