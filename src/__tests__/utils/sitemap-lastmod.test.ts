@@ -3,8 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
 	applyStaticSitemapLastmod,
 	createStaticSitemapSerializer,
+	includeInStaticSitemap,
 	toW3cLastmod,
 } from "@/utils/sitemap-lastmod";
+
+import { buildBlogSitemapXml } from "../../../worker/content/derived.ts";
 
 const W3C_DATETIME =
 	/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
@@ -12,7 +15,6 @@ const W3C_DATETIME =
 const STATIC_SITEMAP_URLS = [
 	"https://ta93abe.com/",
 	"https://ta93abe.com/about/",
-	"https://ta93abe.com/blog/",
 	"https://ta93abe.com/contact/",
 	"https://ta93abe.com/gadgets/",
 	"https://ta93abe.com/gadgets/eufy-omni-e25/",
@@ -39,6 +41,58 @@ const STATIC_SITEMAP_URLS = [
 	"https://ta93abe.com/tools/",
 	"https://ta93abe.com/works/",
 ] as const;
+
+function sitemapLocs(xml: string): string[] {
+	return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+		(match) => match[1] ?? "",
+	);
+}
+
+describe("includeInStaticSitemap", () => {
+	it("keeps the current static sitemap URLs", () => {
+		for (const url of STATIC_SITEMAP_URLS) {
+			expect(includeInStaticSitemap(url), url).toBe(true);
+		}
+	});
+
+	it("leaves /blog/ and post URLs to sitemap-blog", () => {
+		expect(includeInStaticSitemap("https://ta93abe.com/blog/")).toBe(false);
+		expect(includeInStaticSitemap("https://ta93abe.com/blog")).toBe(false);
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/blog/hello-world/"),
+		).toBe(false);
+	});
+
+	it("still drops print and OG routes", () => {
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/slides/showcase/print/"),
+		).toBe(false);
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/og/blog/hello-world.png"),
+		).toBe(false);
+	});
+
+	it("has no overlap with the blog sitemap", () => {
+		const blogLocs = new Set(
+			sitemapLocs(
+				buildBlogSitemapXml(
+					[
+						{
+							slug: "hello-world",
+							title: "Hello",
+							excerpt: "from r2",
+							publish_date: new Date("2026-08-30T00:00:00.000Z"),
+						},
+					],
+					"https://ta93abe.com",
+				),
+			),
+		);
+
+		expect(blogLocs.has("https://ta93abe.com/blog/")).toBe(true);
+		expect(STATIC_SITEMAP_URLS.filter((url) => blogLocs.has(url))).toEqual([]);
+	});
+});
 
 describe("toW3cLastmod", () => {
 	it("formats Date values as W3C Datetime", () => {

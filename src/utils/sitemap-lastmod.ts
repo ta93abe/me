@@ -34,6 +34,15 @@ function sitemapPathname(url: string): string {
 	return withTrailingSlash(new URL(url).pathname);
 }
 
+/** sitemap-0 用。`/blog/` は sitemap-blog.xml の責務。 */
+export function includeInStaticSitemap(page: string): boolean {
+	if (page.includes("/print") || page.includes("/og/")) {
+		return false;
+	}
+
+	return !sitemapPathname(page).startsWith("/blog/");
+}
+
 function readSourceLastmod(
 	relativePath: string,
 	fallback: Date,
@@ -177,8 +186,6 @@ export function createStaticSitemapSerializer(
 	for (const slide of slides) {
 		lastmodByPath.set(`/slides/${slide.slug}/`, toW3cLastmod(slide.lastmod));
 	}
-
-	lastmodByPath.set("/blog/", fallbackLastmod);
 
 	return (item) =>
 		applyStaticSitemapLastmod(item, lastmodByPath, fallbackLastmod);
