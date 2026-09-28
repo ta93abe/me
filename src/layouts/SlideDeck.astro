@@ -125,16 +125,25 @@ const sections = renderSlideSections(deck, { print });
 		{
 			!print && (
 				<aside class="presenter" hidden data-presenter>
+					<header class="presenter-head">
+						<p class="presenter-head-label">発表者ビュー</p>
+						<p class="presenter-clock" data-presenter-timer aria-live="polite">
+							00:00
+						</p>
+					</header>
 					<div class="presenter-grid">
-						<section>
+						<section class="presenter-notes-block">
 							<h2 class="presenter-label">ノート</h2>
-							<p class="presenter-notes" data-presenter-notes></p>
+							<div class="presenter-notes-scroll">
+								<p class="presenter-notes" data-presenter-notes></p>
+							</div>
 						</section>
-						<section>
+						<section class="presenter-next-block">
 							<h2 class="presenter-label">次</h2>
-							<p class="presenter-next" data-presenter-next></p>
-							<p class="presenter-clock" data-presenter-timer>
-								00:00
+							<p class="presenter-next-title" data-presenter-next-title></p>
+							<p class="presenter-next-hint" data-presenter-next-hint hidden></p>
+							<p class="presenter-next-empty" data-presenter-next-empty hidden>
+								最後のスライド
 							</p>
 						</section>
 					</div>

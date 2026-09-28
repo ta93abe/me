@@ -170,7 +170,14 @@ test.describe("Slides", () => {
 		await expect(presenter.locator("[data-presenter-notes]")).toContainText(
 			"引用は短く止めて",
 		);
+		await expect(
+			presenter.locator("[data-presenter-next-title]"),
+		).toContainText("フェンス");
+		await expect(presenter.locator("[data-presenter-timer]")).toContainText(
+			/^\d{2}:\d{2}$/,
+		);
 		await expect(page.locator("html")).toHaveClass(/is-presenter/);
+		await expect(page.locator(".player-ui .counter")).toBeHidden();
 	});
 
 	test("unknown slug is 404", async ({ page }) => {
