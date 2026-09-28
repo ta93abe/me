@@ -145,17 +145,23 @@
 
 .slide[data-type="code"] .slide-body {
 	gap: var(--space-3);
+	min-height: 0;
 }
 
 .slide[data-type="code"] h1,
 .slide[data-type="code"] h2 {
 	flex: 0 0 auto;
+	margin-bottom: var(--space-2);
 }
 
-.slide[data-type="code"] pre {
+.slide[data-type="code"] pre.shiki {
 	flex: 1;
+	min-height: 0;
 	margin: 0;
-	font-size: 0.95em;
+	font-size: clamp(0.8rem, 1.12vw, 0.96rem);
+	line-height: 1.46;
+	padding: var(--space-3) var(--space-4);
+	--code-show-gutter: 1;
 }
 
 .slide[data-type="figure"] .slide-body {

@@ -312,3 +312,29 @@
 .shiki-fg-ffffff00 {
 	color: #ffffff00;
 }
+
+/* TA-1357: min-dark / min-light の半透明トークンをコード块で読みやすく */
+html[data-theme="dark"] .slide-body pre.shiki .shiki-fg-88063852 {
+	color: #e06c75;
+}
+html[data-theme="dark"] .slide-body pre.shiki .shiki-fg-3a632a4b {
+	color: #98c379;
+}
+html[data-theme="dark"] .slide-body pre.shiki .shiki-fg-b7e7a44b {
+	color: #d19a66;
+}
+html[data-theme="dark"] .slide-body pre.shiki .shiki-fg-e597af52 {
+	color: #c678dd;
+}
+html[data-theme="dark"] .slide-body pre.shiki .shiki-fg-fafafa1a {
+	color: #abb2bf;
+}
+html[data-theme="light"] .slide-body pre.shiki .shiki-fg-0000001a {
+	color: #7a7088;
+}
+html[data-theme="light"] .slide-body pre.shiki .shiki-fg-000000aa {
+	color: #5c5270;
+}
+html[data-theme="light"] .slide-body pre.shiki .shiki-fg-000000bb {
+	color: #4a4058;
+}
