@@ -160,4 +160,19 @@ pnpm dev
 
 紙面の決め方は [docs/slides-pdf.md](slides-pdf.md)。
 
+## プレイヤー（枚切り替え・モーション）
+
+枚 index の変更時だけ、約 320ms の fade + 短い slide トランジションをかける。`<!-- click -->` の fragment は opacity + ごく小さな translate（過剰な動きは避ける）。`prefers-reduced-motion: reduce` では枚・ fragment とも瞬時切替。概要（`o`）・印刷 HTML（`/print/`）・PDF 生成 DOM では枚トランジションは走らない。
+
+### 手動確認（TA-1358）
+
+| 項目 | 期待 |
+|------|------|
+| → / ← で枚変更 | 短い fade/slide。URL ハッシュが `#n` に追従 |
+| 深いリンク `#2` | 2 枚目が**アニメなし**で開く（hashchange は瞬時） |
+| `<!-- click -->` ありの枚 | → で fragment が先に出てから次枚（`#n.1`） |
+| `o` 概要 → 枚クリック | グリッドから選んだ枚へ**アニメなし**で遷移 |
+| OS「視差効果を減らす」ON | 枚・ fragment とも瞬時 |
+| `/slides/<slug>/print/` | 全枚表示・`player.js` なし（Playwright も参照） |
+
 操作: ← → / Home / End / スペース / スワイプ / `f` フルスクリーン / `o` 概要グリッド / `p` 発表者ノート / `?` 操作一覧

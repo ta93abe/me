@@ -13,7 +13,10 @@ const presenterTimer = document.querySelector("[data-presenter-timer]");
 const helpDialog = document.querySelector("[data-help]");
 
 const CHROME_IDLE_MS = 2800;
+const SLIDE_ANIM_FALLBACK_MS = 450;
 let chromeIdleTimer = null;
+let slideAnimTimer = null;
+let slideAnimating = false;
 
 if (!deck || slides.length === 0) {
 	throw new Error("deck is missing");
@@ -30,6 +33,91 @@ let timerId = null;
 
 function clamp(value) {
 	return Math.min(total - 1, Math.max(0, value));
+}
+
+function prefersReducedMotion() {
+	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function canAnimateSlides() {
+	return (
+		!overview &&
+		!prefersReducedMotion() &&
+		!document.documentElement.classList.contains("is-print")
+	);
+}
+
+function clearSlideAnimTimer() {
+	if (slideAnimTimer != null) {
+		window.clearTimeout(slideAnimTimer);
+		slideAnimTimer = null;
+	}
+}
+
+function finishSlideAnimation(outgoing, incoming) {
+	clearSlideAnimTimer();
+	slideAnimating = false;
+	deck.classList.remove("is-slide-animating");
+	outgoing?.classList.remove("is-leaving", "is-slide-run");
+	incoming?.classList.remove("is-entering", "is-slide-run");
+	incoming?.style.removeProperty("--slide-dir");
+	render();
+}
+
+function animateSlideChange(fromIndex, toIndex) {
+	const outgoing = slides[fromIndex];
+	const incoming = slides[toIndex];
+	if (!outgoing || !incoming) {
+		render();
+		return;
+	}
+
+	clearSlideAnimTimer();
+	slideAnimating = true;
+	const direction = toIndex > fromIndex ? 1 : -1;
+
+	deck.classList.add("is-slide-animating");
+	outgoing.classList.remove("is-active");
+	outgoing.classList.add("is-leaving");
+	outgoing.removeAttribute("hidden");
+	outgoing.classList.remove("is-slide-run");
+
+	incoming.classList.add("is-entering", "is-active");
+	incoming.style.setProperty("--slide-dir", String(direction));
+	incoming.removeAttribute("hidden");
+	incoming.classList.remove("is-slide-run");
+	renderClicks(incoming);
+	syncUi();
+
+	const runFrames = () => {
+		outgoing.classList.add("is-slide-run");
+		incoming.classList.add("is-slide-run");
+	};
+
+	requestAnimationFrame(() => {
+		requestAnimationFrame(runFrames);
+	});
+
+	const onDone = () => {
+		incoming.removeEventListener("transitionend", onTransitionEnd);
+		finishSlideAnimation(outgoing, incoming);
+	};
+
+	const onTransitionEnd = (event) => {
+		if (event.target !== incoming) {
+			return;
+		}
+		if (
+			event.propertyName !== "opacity" &&
+			event.propertyName !== "transform"
+		) {
+			return;
+		}
+		onDone();
+	};
+
+	incoming.addEventListener("transitionend", onTransitionEnd);
+	slideAnimTimer = window.setTimeout(onDone, SLIDE_ANIM_FALLBACK_MS);
 }
 
 function maxClicks(slide) {
@@ -178,16 +266,7 @@ function renderPresenter() {
 	}
 }
 
-function render() {
-	slides.forEach((slide, slideIndex) => {
-		const on = overview || slideIndex === index;
-		slide.classList.toggle("is-active", slideIndex === index);
-		slide.toggleAttribute("hidden", !on);
-		slide.toggleAttribute("inert", !on);
-		if (slideIndex === index || overview) {
-			renderClicks(slide);
-		}
-	});
+function syncUi() {
 	const ratio = ((index + 1) / total) * 100;
 	if (progress instanceof HTMLElement) {
 		progress.style.width = `${ratio}%`;
@@ -212,16 +291,53 @@ function render() {
 	renderPresenter();
 }
 
-function go(nextIndex, nextClick = 0) {
+function render() {
+	if (slideAnimating) {
+		syncUi();
+		return;
+	}
+	slides.forEach((slide, slideIndex) => {
+		const on = overview || slideIndex === index;
+		slide.classList.toggle("is-active", slideIndex === index);
+		slide.classList.remove("is-entering", "is-leaving", "is-slide-run");
+		slide.style.removeProperty("--slide-dir");
+		slide.toggleAttribute("hidden", !on);
+		slide.toggleAttribute("inert", !on);
+		if (slideIndex === index || overview) {
+			renderClicks(slide);
+		}
+	});
+	deck.classList.remove("is-slide-animating");
+	syncUi();
+}
+
+function go(nextIndex, nextClick = 0, { animate = true } = {}) {
+	if (slideAnimating) {
+		return;
+	}
+	const previousIndex = index;
 	index = clamp(nextIndex);
 	click = Math.min(maxClicks(slides[index]), Math.max(0, nextClick));
+	const leavingOverview = overview;
 	if (overview) {
 		setOverview(false);
+	}
+	if (
+		animate &&
+		!leavingOverview &&
+		previousIndex !== index &&
+		canAnimateSlides()
+	) {
+		animateSlideChange(previousIndex, index);
+		return;
 	}
 	render();
 }
 
 function next() {
+	if (slideAnimating) {
+		return;
+	}
 	ensureTimer();
 	const max = maxClicks(slides[index]);
 	if (!overview && click < max) {
@@ -235,6 +351,9 @@ function next() {
 }
 
 function prev() {
+	if (slideAnimating) {
+		return;
+	}
 	if (!overview && click > 0) {
 		click -= 1;
 		render();
@@ -355,6 +474,16 @@ window.addEventListener("hashchange", () => {
 	const parsed = parseHash();
 	index = parsed.slide;
 	click = parsed.click;
+	if (slideAnimating) {
+		const outgoing = slides.find((slide) =>
+			slide.classList.contains("is-leaving"),
+		);
+		const incoming = slides.find((slide) =>
+			slide.classList.contains("is-entering"),
+		);
+		finishSlideAnimation(outgoing, incoming);
+		return;
+	}
 	render();
 });
 

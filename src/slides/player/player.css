@@ -1,3 +1,10 @@
+:root {
+	--slide-enter-duration: 320ms;
+	--slide-enter-easing: cubic-bezier(0.22, 1, 0.36, 1);
+	--slide-enter-shift: 0.85rem;
+	--fragment-duration: 260ms;
+}
+
 .player-ui {
 	--chrome-fade-duration: 0.32s;
 	position: fixed;
@@ -13,6 +20,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	:root {
+		--slide-enter-duration: 0.01ms;
+		--fragment-duration: 0.01ms;
+	}
+
 	.player-ui {
 		--chrome-fade-duration: 0.01ms;
 	}
@@ -65,14 +77,66 @@
 	color: var(--color-accent);
 }
 
+.slide.is-active {
+	z-index: 1;
+}
+
+.deck.is-slide-animating .slide.is-leaving,
+.deck.is-slide-animating .slide.is-entering {
+	display: flex !important;
+	z-index: 2;
+}
+
+.deck.is-slide-animating .slide.is-leaving {
+	z-index: 1;
+}
+
+.slide.is-entering,
+.slide.is-leaving {
+	transition:
+		opacity var(--slide-enter-duration) var(--slide-enter-easing),
+		transform var(--slide-enter-duration) var(--slide-enter-easing);
+}
+
+.slide.is-entering {
+	opacity: 0;
+	transform: translateX(calc(var(--slide-enter-shift) * var(--slide-dir, 1)));
+}
+
+.slide.is-leaving {
+	opacity: 1;
+	transform: none;
+}
+
+.slide.is-entering.is-slide-run {
+	opacity: 1;
+	transform: none;
+}
+
+.slide.is-leaving.is-slide-run {
+	opacity: 0;
+	transform: translateX(
+		calc(var(--slide-enter-shift) * var(--slide-dir, 1) * -1)
+	);
+}
+
+html.is-print .slide.is-entering,
+html.is-print .slide.is-leaving,
+.deck.is-overview .slide.is-entering,
+.deck.is-overview .slide.is-leaving {
+	transition: none;
+	opacity: 1;
+	transform: none;
+}
+
 .fragment {
 	opacity: 0;
 	visibility: hidden;
-	transform: translateY(0.35rem);
+	transform: translateY(0.12rem);
 	transition:
-		opacity 0.28s ease,
-		transform 0.28s ease,
-		visibility 0s linear 0.28s;
+		opacity var(--fragment-duration) var(--slide-enter-easing),
+		transform var(--fragment-duration) var(--slide-enter-easing),
+		visibility 0s linear var(--fragment-duration);
 }
 
 .fragment.is-visible,
@@ -82,6 +146,15 @@ html.is-print .fragment,
 	visibility: visible;
 	transform: none;
 	transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.slide.is-entering,
+	.slide.is-leaving,
+	.fragment {
+		transition: none;
+		transform: none;
+	}
 }
 
 .counter [data-click-label][hidden] {
