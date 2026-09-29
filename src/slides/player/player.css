@@ -296,6 +296,12 @@ html.is-presenter .player-ui .pdf-link {
 	display: none;
 }
 
+html.is-overview .player-ui .progress,
+html.is-overview .player-ui .counter,
+html.is-overview .player-ui .pdf-link {
+	display: none;
+}
+
 html.is-presenter .progress {
 	position: fixed;
 	top: 0;
