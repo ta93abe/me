@@ -26,6 +26,37 @@ describe("renderSlideSections", () => {
 		expect(html).toContain('data-clicks="0"');
 	});
 
+	it("reveals click fragments and code steps on the print page", async () => {
+		const { parseDeck } = await import("@/slides/parser/parse-deck");
+		const source = `---
+title: Print
+date: 2026-09-06
+description: d
+slug: print-test
+theme: dark
+---
+
+# Click
+
+visible
+
+<!-- click -->
+
+hidden fragment
+
+---
+
+\`\`\`ts {1|2}
+const a = 1;
+const b = 2;
+\`\`\`
+`;
+		const deck = await parseDeck(source, { filename: "print-test.md" });
+		const html = renderSlideSections(deck, { print: true });
+		expect(html).toContain('class="fragment is-visible"');
+		expect(html).toContain('class="line is-highlighted" data-click-highlight=');
+	});
+
 	it("hides later slides on the live player page", () => {
 		const html = renderSlideSections(twoSlides);
 		expect(html).toContain(" hidden");

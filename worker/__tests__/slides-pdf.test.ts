@@ -75,6 +75,15 @@ describe("PDF page contract", () => {
 		expect(print).not.toContain("landscape");
 		expect(css).toContain("html.is-print .slide[hidden]");
 	});
+
+	it("keeps gradients, Shiki, and click highlights in print CSS", () => {
+		const css = readFileSync("src/slides/player/player.css", "utf8");
+		const print = css.split("@media print")[1] ?? "";
+		expect(css).toContain("print-color-adjust: exact");
+		expect(print).toContain(".slide-body pre.shiki");
+		expect(print).toContain(".line[data-click-highlight]");
+		expect(print).toContain(".fragment");
+	});
 });
 
 describe("GET /slides/<slug>.pdf", () => {
