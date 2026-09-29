@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { withTrailingSlash } from "./canonical.ts";
@@ -12,6 +12,7 @@ export type SitemapLastmodItem = {
 const GADGETS_SOURCE = "src/data/gadgets.ts";
 const TALKS_SOURCE = "src/data/talks.ts";
 const SLIDES_DECKS_DIR = "src/slides/decks";
+const SLIDES_INDEX_SOURCE = "src/pages/slides/index.astro";
 
 const STATIC_PAGE_SOURCES = [
 	{ pathname: "/", source: "src/pages/index.astro" },
@@ -34,11 +35,38 @@ function sitemapPathname(url: string): string {
 	return withTrailingSlash(new URL(url).pathname);
 }
 
-function readSourceLastmod(
+function parseFrontmatterDate(raw: string | undefined): Date | undefined {
+	if (!raw) {
+		return undefined;
+	}
+	const value = raw.replace(/^["']|["']$/g, "").trim();
+	if (!value) {
+		return undefined;
+	}
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) {
+		return undefined;
+	}
+	return date;
+}
+
+function maxDate(dates: Array<Date | undefined>): Date | undefined {
+	let latest: Date | undefined;
+	for (const date of dates) {
+		if (!date) {
+			continue;
+		}
+		if (!latest || date.getTime() > latest.getTime()) {
+			latest = date;
+		}
+	}
+	return latest;
+}
+
+function readGitLastmod(
 	relativePath: string,
-	fallback: Date,
 	rootDir: string,
-): Date {
+): Date | undefined {
 	try {
 		const iso = execFileSync(
 			"git",
@@ -49,21 +77,29 @@ function readSourceLastmod(
 				stdio: ["ignore", "pipe", "ignore"],
 			},
 		).trim();
-		if (iso) {
-			const date = new Date(iso);
-			if (!Number.isNaN(date.getTime())) {
-				return date;
-			}
+		if (!iso) {
+			return undefined;
 		}
+		const date = new Date(iso);
+		if (Number.isNaN(date.getTime())) {
+			return undefined;
+		}
+		return date;
 	} catch {
 		// git missing, not a repo, or the path has no history
+		return undefined;
 	}
+}
 
-	try {
-		return statSync(path.join(rootDir, relativePath)).mtime;
-	} catch {
-		return fallback;
+function setLastmod(
+	lastmodByPath: Map<string, string>,
+	pathname: string,
+	date: Date | undefined,
+): void {
+	if (!date) {
+		return;
 	}
+	lastmodByPath.set(pathname, toW3cLastmod(date));
 }
 
 function readSlideDates(
@@ -84,12 +120,11 @@ function readSlideDates(
 		}
 		const text = readFileSync(path.join(decksDir, file), "utf8");
 		const slug = text.match(/^slug:\s*(.+)$/m)?.[1]?.trim();
-		const date = text.match(/^date:\s*(.+)$/m)?.[1]?.trim();
-		if (!slug || !date) {
-			continue;
-		}
-		const lastmod = new Date(date);
-		if (Number.isNaN(lastmod.getTime())) {
+		const lastmod = parseFrontmatterDate(
+			text.match(/^updated:\s*(.+)$/m)?.[1] ??
+				text.match(/^date:\s*(.+)$/m)?.[1],
+		);
+		if (!slug || !lastmod) {
 			continue;
 		}
 		slides.push({ slug, lastmod });
@@ -97,89 +132,94 @@ function readSlideDates(
 	return slides;
 }
 
+function readTalkDates(rootDir: string): Date[] {
+	try {
+		const text = readFileSync(path.join(rootDir, TALKS_SOURCE), "utf8");
+		const dates: Date[] = [];
+		for (const match of text.matchAll(
+			/^\s*date:\s*["'](\d{4}-\d{2}-\d{2})["']/gm,
+		)) {
+			const date = parseFrontmatterDate(match[1]);
+			if (date) {
+				dates.push(date);
+			}
+		}
+		return dates;
+	} catch {
+		return [];
+	}
+}
+
 function lastmodForPath(
 	pathname: string,
 	lastmodByPath: ReadonlyMap<string, string>,
-	fallbackLastmod: string,
-): string {
+): string | undefined {
 	const exact = lastmodByPath.get(pathname);
 	if (exact) {
 		return exact;
 	}
 	if (pathname.startsWith("/gadgets/")) {
-		const gadget = lastmodByPath.get("/gadgets/");
-		if (gadget) {
-			return gadget;
-		}
+		return lastmodByPath.get("/gadgets/");
 	}
 	if (pathname.startsWith("/slides/")) {
-		const slides = lastmodByPath.get("/slides/");
-		if (slides) {
-			return slides;
-		}
+		return lastmodByPath.get("/slides/");
 	}
-	return fallbackLastmod;
+	return undefined;
 }
 
 export function applyStaticSitemapLastmod(
 	item: SitemapLastmodItem,
 	lastmodByPath: ReadonlyMap<string, string>,
-	fallbackLastmod: string,
-): SitemapLastmodItem & { lastmod: string } {
-	return {
-		...item,
-		lastmod: lastmodForPath(
-			sitemapPathname(item.url),
-			lastmodByPath,
-			fallbackLastmod,
-		),
-	};
+): SitemapLastmodItem {
+	const lastmod = lastmodForPath(sitemapPathname(item.url), lastmodByPath);
+	const next: SitemapLastmodItem = { ...item };
+	delete next.lastmod;
+	if (lastmod) {
+		next.lastmod = lastmod;
+	}
+	return next;
 }
 
+/** sitemap-0.xml の lastmod。git / frontmatter / データの実更新日だけ。ビルド時刻は使わない。 */
 export function createStaticSitemapSerializer(
 	options: {
-		now?: Date;
 		rootDir?: string;
 	} = {},
-): (item: SitemapLastmodItem) => SitemapLastmodItem & { lastmod: string } {
-	const now = options.now ?? new Date();
+): (item: SitemapLastmodItem) => SitemapLastmodItem {
 	const rootDir = options.rootDir ?? process.cwd();
-	const fallbackLastmod = toW3cLastmod(now);
 	const lastmodByPath = new Map<string, string>();
 
 	for (const page of STATIC_PAGE_SOURCES) {
-		lastmodByPath.set(
+		setLastmod(
+			lastmodByPath,
 			page.pathname,
-			toW3cLastmod(readSourceLastmod(page.source, now, rootDir)),
+			readGitLastmod(page.source, rootDir),
 		);
 	}
 
-	lastmodByPath.set(
+	setLastmod(
+		lastmodByPath,
 		"/gadgets/",
-		toW3cLastmod(readSourceLastmod(GADGETS_SOURCE, now, rootDir)),
+		readGitLastmod(GADGETS_SOURCE, rootDir),
 	);
-	lastmodByPath.set(
+	setLastmod(
+		lastmodByPath,
 		"/talks/",
-		toW3cLastmod(readSourceLastmod(TALKS_SOURCE, now, rootDir)),
+		readGitLastmod(TALKS_SOURCE, rootDir) ?? maxDate(readTalkDates(rootDir)),
 	);
 
 	const slides = readSlideDates(rootDir);
-	const slideTimes = slides.map((slide) => slide.lastmod.getTime());
-	const slidesIndexSource = readSourceLastmod(
-		"src/pages/slides/index.astro",
-		now,
-		rootDir,
+	setLastmod(
+		lastmodByPath,
+		"/slides/",
+		maxDate([
+			...slides.map((slide) => slide.lastmod),
+			readGitLastmod(SLIDES_INDEX_SOURCE, rootDir),
+		]),
 	);
-	const slidesIndex = slideTimes.length
-		? new Date(Math.max(...slideTimes, slidesIndexSource.getTime()))
-		: slidesIndexSource;
-	lastmodByPath.set("/slides/", toW3cLastmod(slidesIndex));
 	for (const slide of slides) {
-		lastmodByPath.set(`/slides/${slide.slug}/`, toW3cLastmod(slide.lastmod));
+		setLastmod(lastmodByPath, `/slides/${slide.slug}/`, slide.lastmod);
 	}
 
-	lastmodByPath.set("/blog/", fallbackLastmod);
-
-	return (item) =>
-		applyStaticSitemapLastmod(item, lastmodByPath, fallbackLastmod);
+	return (item) => applyStaticSitemapLastmod(item, lastmodByPath);
 }
