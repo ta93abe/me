@@ -318,6 +318,11 @@ function render() {
 		slide.style.removeProperty("--slide-dir");
 		slide.toggleAttribute("hidden", !on);
 		slide.toggleAttribute("inert", !on);
+		if (overview) {
+			slide.setAttribute("tabindex", slideIndex === index ? "0" : "-1");
+		} else {
+			slide.removeAttribute("tabindex");
+		}
 		if (slideIndex === index || overview) {
 			renderClicks(slide);
 		}
@@ -383,6 +388,13 @@ function prev() {
 function setOverview(on) {
 	overview = on;
 	deck.classList.toggle("is-overview", on);
+	document.documentElement.classList.toggle("is-overview", on);
+	if (on) {
+		slides[index]?.scrollIntoView({
+			block: "nearest",
+			behavior: prefersReducedMotion() ? "auto" : "smooth",
+		});
+	}
 	render();
 	syncChromeIdlePolicy();
 }
