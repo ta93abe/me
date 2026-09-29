@@ -146,10 +146,33 @@ test.describe("Sitewide SEO", () => {
 		}
 	});
 
-	test("404 is noindex and has no JSON-LD", async ({ request }) => {
-		const html = await pageHtml(request, "/blog/does-not-exist");
+	test("404 responses are noindex without rel=canonical", async ({
+		request,
+	}) => {
+		const paths = [
+			"/pricing/",
+			"/this-page-should-not-exist-xyz/",
+			"/blog/does-not-exist",
+		];
+
+		for (const path of paths) {
+			const response = await request.get(path);
+			expect(response.status(), path).toBe(404);
+			const html = await response.text();
+			expect(html, path).toContain('name="robots" content="noindex, nofollow"');
+			expect(html, path).not.toContain("application/ld+json");
+			expect(html, path).not.toMatch(/rel=["']canonical["']/);
+		}
+	});
+
+	test("static /404/ stays noindex without a self-referential canonical", async ({
+		request,
+	}) => {
+		const response = await request.get("/404/");
+		expect(response.status()).toBe(200);
+		const html = await response.text();
 		expect(html).toContain('name="robots" content="noindex, nofollow"');
-		expect(html).not.toContain("application/ld+json");
+		expect(html).not.toMatch(/rel=["']canonical["']/);
 	});
 
 	test("SNS profile links advertise rel=me", async ({ page }) => {
