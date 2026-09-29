@@ -388,6 +388,18 @@ html.is-print .deck {
 	place-items: unset;
 }
 
+html.is-print {
+	/* Match player typography at 1920×1080 inside 13.333×7.5in pages (1280×720 CSS px). */
+	--pad: calc(4.6rem * 1280 / 1920);
+	--fs-display: calc(4.6rem * 1280 / 1920);
+	--fs-section: calc(3.95rem * 1280 / 1920);
+	--fs-h1: calc(2.5rem * 1280 / 1920);
+	--fs-h2: calc(1.6rem * 1280 / 1920);
+	--fs-body: calc(1.34rem * 1280 / 1920);
+	--fs-caption: calc(1.02rem * 1280 / 1920);
+	--fs-quote: calc(1.9rem * 1280 / 1920);
+}
+
 html.is-print .slide,
 html.is-print .slide.is-active,
 html.is-print .slide[hidden] {
@@ -399,6 +411,8 @@ html.is-print .slide[hidden] {
 	overflow: hidden;
 	break-after: page;
 	page-break-after: always;
+	print-color-adjust: exact;
+	-webkit-print-color-adjust: exact;
 }
 
 html.is-print .slide:last-child {
@@ -410,6 +424,17 @@ html.is-print .player-ui,
 html.is-print .presenter,
 html.is-print .player-help {
 	display: none !important;
+}
+
+html.is-print .slide-body pre.shiki {
+	print-color-adjust: exact;
+	-webkit-print-color-adjust: exact;
+}
+
+html.is-print .slide-body pre.has-click-highlight .line[data-click-highlight] {
+	opacity: 1;
+	background: var(--color-code-highlight-bg);
+	box-shadow: inset 0.22em 0 0 var(--color-accent);
 }
 
 @media print {
@@ -442,11 +467,31 @@ html.is-print .player-help {
 		overflow: hidden;
 		break-after: page;
 		page-break-after: always;
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
 	}
 
 	.slide:last-child {
 		break-after: auto;
 		page-break-after: auto;
+	}
+
+	.fragment {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+		transition: none;
+	}
+
+	.slide-body pre.shiki {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	.slide-body pre.has-click-highlight .line[data-click-highlight] {
+		opacity: 1;
+		background: var(--color-code-highlight-bg);
+		box-shadow: inset 0.22em 0 0 var(--color-accent);
 	}
 
 	.player-ui,

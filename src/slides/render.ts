@@ -44,6 +44,16 @@ function slideBodyHtml(deck: Deck, slide: Slide, index: number): string {
 	return slide.html;
 }
 
+/** Print/PDF: reveal every click fragment and code step (player overview parity). */
+function revealPrintSlideHtml(html: string): string {
+	return html
+		.replace(/\bclass="fragment"/g, 'class="fragment is-visible"')
+		.replace(
+			/\bclass="line"(\s+data-click-highlight=)/g,
+			'class="line is-highlighted"$1',
+		);
+}
+
 export function renderSlideSections(
 	deck: Deck,
 	options: { print?: boolean } = {},
@@ -56,7 +66,10 @@ export function renderSlideSections(
 				: "";
 			const active = print || index === 0 ? " is-active" : "";
 			const hidden = print || index === 0 ? "" : " hidden inert";
-			const body = slideBodyHtml(deck, slide, index);
+			let body = slideBodyHtml(deck, slide, index);
+			if (print) {
+				body = revealPrintSlideHtml(body);
+			}
 			return `<section class="slide${active}" data-type="${slide.type}" data-index="${index + 1}" data-clicks="${slide.clicks}" id="s${index + 1}" aria-label="${index + 1} / ${deck.slides.length}"${hidden}>
   <div class="slide-body">${body}</div>
   ${notes}
