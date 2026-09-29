@@ -33,7 +33,7 @@ html[data-theme="dark"] {
 	--space-6: 2.25rem;
 	--space-7: 3.25rem;
 	--space-8: 4.5rem;
-	--pad: clamp(2.1rem, 5.4vw, 4.6rem);
+	--pad: clamp(0.85rem, 0.65rem + 3.2vw, 4.6rem);
 	--radius: 0.85rem;
 	--slide-w: 16;
 	--slide-h: 9;

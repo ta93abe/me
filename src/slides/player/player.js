@@ -1,3 +1,5 @@
+import { slideHeading, slidePreviewHint } from "./presenter-content.ts";
+
 const deck = document.querySelector(".deck");
 const slides = [...document.querySelectorAll(".slide")];
 const progress = document.querySelector(".progress i");
@@ -8,7 +10,13 @@ const counter = document.querySelector(".progress");
 const playerUi = document.querySelector(".player-ui");
 const presenter = document.querySelector("[data-presenter]");
 const presenterNotes = document.querySelector("[data-presenter-notes]");
-const presenterNext = document.querySelector("[data-presenter-next]");
+const presenterNextTitle = document.querySelector(
+	"[data-presenter-next-title]",
+);
+const presenterNextHint = document.querySelector("[data-presenter-next-hint]");
+const presenterNextEmpty = document.querySelector(
+	"[data-presenter-next-empty]",
+);
 const presenterTimer = document.querySelector("[data-presenter-timer]");
 const helpDialog = document.querySelector("[data-help]");
 
@@ -28,6 +36,12 @@ let click = 0;
 let overview = false;
 let presenterOn = false;
 let touchX = null;
+let touchY = null;
+
+/** Horizontal swipe must exceed this (px); scales slightly on narrow viewports. */
+function swipeThresholdPx() {
+	return Math.min(52, Math.max(34, Math.round(window.innerWidth * 0.11)));
+}
 let startedAt = null;
 let timerId = null;
 
@@ -141,14 +155,6 @@ function parseHash() {
 	};
 }
 
-function slideHeading(slide) {
-	const heading = slide?.querySelector("h1, h2");
-	return (
-		heading?.textContent?.trim() ||
-		`スライド ${slide?.getAttribute("data-index") ?? ""}`
-	);
-}
-
 function formatElapsed(ms) {
 	const totalSeconds = Math.max(0, Math.floor(ms / 1000));
 	const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
@@ -255,14 +261,23 @@ function renderPresenter() {
 	ensureTimer();
 	const current = slides[index];
 	const notes = current?.querySelector(".speaker-notes")?.textContent?.trim();
-	if (presenterNotes) {
+	if (presenterNotes instanceof HTMLElement) {
+		const empty = !notes;
 		presenterNotes.textContent = notes || "ノートなし";
+		presenterNotes.classList.toggle("is-empty", empty);
 	}
 	const upcoming = slides[index + 1];
-	if (presenterNext) {
-		presenterNext.textContent = upcoming
-			? slideHeading(upcoming)
-			: "最後のスライド";
+	if (presenterNextTitle instanceof HTMLElement) {
+		presenterNextTitle.textContent = upcoming ? slideHeading(upcoming) : "";
+		presenterNextTitle.toggleAttribute("hidden", !upcoming);
+	}
+	if (presenterNextHint instanceof HTMLElement) {
+		const hint = upcoming ? slidePreviewHint(upcoming) : "";
+		presenterNextHint.textContent = hint;
+		presenterNextHint.toggleAttribute("hidden", !hint);
+	}
+	if (presenterNextEmpty instanceof HTMLElement) {
+		presenterNextEmpty.toggleAttribute("hidden", Boolean(upcoming));
 	}
 }
 
@@ -504,7 +519,9 @@ deck.addEventListener("click", (event) => {
 deck.addEventListener(
 	"touchstart",
 	(event) => {
-		touchX = event.changedTouches[0]?.clientX ?? null;
+		const touch = event.changedTouches[0];
+		touchX = touch?.clientX ?? null;
+		touchY = touch?.clientY ?? null;
 	},
 	{ passive: true },
 );
@@ -512,16 +529,25 @@ deck.addEventListener(
 deck.addEventListener(
 	"touchend",
 	(event) => {
-		if (touchX == null) {
+		if (touchX == null || touchY == null) {
 			return;
 		}
-		const x = event.changedTouches[0]?.clientX ?? touchX;
-		const delta = x - touchX;
+		const touch = event.changedTouches[0];
+		const x = touch?.clientX ?? touchX;
+		const y = touch?.clientY ?? touchY;
+		const deltaX = x - touchX;
+		const deltaY = y - touchY;
 		touchX = null;
-		if (Math.abs(delta) < 48) {
+		touchY = null;
+		const threshold = swipeThresholdPx();
+		if (Math.abs(deltaX) < threshold) {
 			return;
 		}
-		if (delta < 0) {
+		if (Math.abs(deltaX) <= Math.abs(deltaY) * 1.15) {
+			return;
+		}
+		wakeChrome();
+		if (deltaX < 0) {
 			next();
 		} else {
 			prev();

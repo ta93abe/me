@@ -12,13 +12,15 @@ talkSlug: frosty-friday-live-challenge-vol56
 
 # スライドの見た目
 
-グローバルなデザインシステム
+デザインシステムで統一する登壇
 
 ---
 
 <!-- type: section -->
 
 # 本文
+
+見出しだけで章を切る
 
 ---
 
@@ -148,3 +150,5 @@ $$
 <!-- type: end -->
 
 # ありがとうございました
+
+@ta93abe_ · ta93abe.com/slides
