@@ -66,6 +66,7 @@ describe("loadDecks", () => {
 	it("lists git decks newest first", async () => {
 		const decks = await loadDecks();
 		expect(decks.map((deck) => deck.frontmatter.slug)).toEqual([
+			"snowflake-clickops-limits",
 			"light",
 			"showcase",
 		]);
