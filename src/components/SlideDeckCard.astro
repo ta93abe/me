@@ -11,9 +11,13 @@ import { formatDate, toDatetimeAttr } from "@/utils/date";
 
 interface Props {
 	frontmatter: DeckFrontmatter;
+	variant?: "standalone" | "grouped";
+	partLabel?: string;
 }
 
-const { frontmatter } = Astro.props;
+const { frontmatter, variant = "standalone", partLabel } = Astro.props;
+const isGrouped = variant === "grouped";
+const TitleTag = isGrouped ? "h3" : "h2";
 const playerHref = slidePlayerPath(frontmatter.slug);
 const pdfHref = slidePdfPath(frontmatter.slug);
 const linkedTalk = frontmatter.talkSlug
@@ -22,17 +26,22 @@ const linkedTalk = frontmatter.talkSlug
 ---
 
 <article
-	class="slide-deck-card"
+	class:list={["slide-deck-card", isGrouped && "is-grouped"]}
 	id={`deck-${frontmatter.slug}`}
 >
 	<header class="slide-deck-card-header">
-		<h2 class="slide-deck-card-title">
+		<TitleTag class="slide-deck-card-title">
 			<a href={playerHref}>{frontmatter.title}</a>
-		</h2>
+		</TitleTag>
 		<p class="slide-deck-card-description">{frontmatter.description}</p>
 	</header>
 
 	<div class="slide-deck-card-meta">
+		{
+			partLabel ? (
+				<span class="slide-deck-card-part">{partLabel}</span>
+			) : null
+		}
 		<time datetime={toDatetimeAttr(frontmatter.date)}>
 			{formatDate(frontmatter.date)}
 		</time>
@@ -84,6 +93,23 @@ const linkedTalk = frontmatter.talkSlug
 	.slide-deck-card:first-child {
 		border-top: 0;
 		padding-top: 0;
+	}
+
+	.slide-deck-card.is-grouped {
+		padding: 1.25rem 0;
+	}
+
+	.slide-deck-card.is-grouped:first-child {
+		padding-top: 0;
+	}
+
+	.slide-deck-card.is-grouped .slide-deck-card-title {
+		font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
+	}
+
+	.slide-deck-card-part {
+		font-weight: 600;
+		color: var(--primary-color);
 	}
 
 	.slide-deck-card-header {

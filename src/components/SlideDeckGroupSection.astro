@@ -1,0 +1,90 @@
+---
+import SlideDeckCard from "@/components/SlideDeckCard.astro";
+import type { SlideDeckGroupSection } from "@/lib/slides/partition-decks";
+
+interface Props {
+	section: SlideDeckGroupSection;
+}
+
+const { section } = Astro.props;
+const headingId = `slide-group-${section.group.id}`;
+const totalParts = section.decks.length;
+---
+
+<section
+	class="slide-deck-group"
+	aria-labelledby={headingId}
+>
+	<header class="slide-deck-group-header">
+		<h2 class="slide-deck-group-title" id={headingId}>
+			<a class="slide-deck-group-title-link" href={`#${headingId}`}>
+				{section.group.title}
+			</a>
+		</h2>
+		<p class="slide-deck-group-description">{section.group.description}</p>
+	</header>
+	<div class="slide-deck-group-list">
+		{
+			section.decks.map((deck, index) => (
+				<SlideDeckCard
+					frontmatter={deck.frontmatter}
+					variant="grouped"
+					partLabel={totalParts > 1 ? `${index + 1}/${totalParts}` : undefined}
+				/>
+			))
+		}
+	</div>
+</section>
+
+<style>
+	.slide-deck-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		padding-bottom: 1.75rem;
+		border-bottom: 1px solid var(--border-color);
+		margin-bottom: 0.5rem;
+	}
+
+	.slide-deck-group-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 0 0 1.25rem;
+	}
+
+	.slide-deck-group-title {
+		margin: 0;
+		font-family: var(--font-display, inherit);
+		font-size: clamp(1.375rem, 2.8vw, 1.625rem);
+		font-weight: 700;
+		line-height: 1.35;
+	}
+
+	.slide-deck-group-title-link {
+		color: var(--text-primary);
+		text-decoration: none;
+	}
+
+	.slide-deck-group-title-link:hover,
+	.slide-deck-group-title-link:focus-visible {
+		color: var(--primary-color);
+	}
+
+	.slide-deck-group-description {
+		margin: 0;
+		max-width: 62ch;
+		color: var(--text-secondary);
+		line-height: 1.6;
+		font-size: 0.9375rem;
+	}
+
+	.slide-deck-group-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		padding-left: clamp(0.75rem, 2.5vw, 1.25rem);
+		border-left: 2px solid
+			color-mix(in srgb, var(--primary-color) 28%, var(--border-color));
+	}
+</style>
