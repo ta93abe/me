@@ -66,6 +66,18 @@ describe("PDF page contract", () => {
 		expect(parseSlidePdfSlug("/slides/Not_Valid.pdf")).toBeNull();
 	});
 
+	it.each([
+		"snowflake-clickops-limits",
+		"snowflake-dbt",
+		"snowflake-observability",
+	])("keeps snowflake deck %s on the PDF route contract", (slug) => {
+		expect(parseSlidePdfSlug(`/slides/${slug}.pdf`)).toBe(slug);
+		expect(printDeckUrl(PDF_ORIGIN, slug)).toBe(
+			`https://ta93abe.com/slides/${slug}/print/`,
+		);
+		expect(pdfObjectKey(slug)).toBe(`derived/slides/pdf/${slug}.pdf`);
+	});
+
 	it("overrides hidden slides in print CSS so one slide is one page", () => {
 		const css = readFileSync("src/slides/player/player.css", "utf8");
 		const print = css.split("@media print")[1] ?? "";
