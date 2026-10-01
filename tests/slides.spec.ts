@@ -9,6 +9,45 @@ test.describe("Slides", () => {
 			page.getByRole("heading", { name: "Slides", level: 1 }),
 		).toBeVisible();
 
+		const snowflakeGroup = page.getByRole("region", {
+			name: "Snowflake 運用シリーズ",
+		});
+		await expect(snowflakeGroup).toBeVisible();
+		await expect(
+			snowflakeGroup.getByRole("heading", {
+				name: "SnowflakeとClickOpsの限界",
+				level: 3,
+			}),
+		).toBeVisible();
+		await expect(
+			snowflakeGroup.getByRole("heading", {
+				name: "Snowflake と dbt",
+				level: 3,
+			}),
+		).toBeVisible();
+		await expect(
+			snowflakeGroup.getByRole("heading", {
+				name: "Snowflake で何が起きているのかを把握する",
+				level: 3,
+			}),
+		).toBeVisible();
+		const snowflakeTitles = snowflakeGroup.locator(
+			"h3.slide-deck-card-title a",
+		);
+		await expect(snowflakeTitles).toHaveCount(3);
+		await expect(snowflakeTitles.nth(0)).toHaveAttribute(
+			"href",
+			"/slides/snowflake-clickops-limits/",
+		);
+		await expect(snowflakeTitles.nth(1)).toHaveAttribute(
+			"href",
+			"/slides/snowflake-dbt/",
+		);
+		await expect(snowflakeTitles.nth(2)).toHaveAttribute(
+			"href",
+			"/slides/snowflake-observability/",
+		);
+
 		const showcaseTitle = page.getByRole("link", {
 			name: "デザインシステム ショーケース",
 			exact: true,

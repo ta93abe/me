@@ -1,7 +1,9 @@
 ---
 import SlideDeckCard from "@/components/SlideDeckCard.astro";
+import SlideDeckGroupSection from "@/components/SlideDeckGroupSection.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { partitionDecksForIndex } from "@/lib/slides/partition-decks";
 import { loadDecks } from "@/slides/load-decks";
 import {
 	generateSlidesCollectionSchema,
@@ -10,6 +12,7 @@ import {
 } from "@/utils/schema";
 
 const decks = await loadDecks();
+const { groups, ungrouped } = partitionDecksForIndex(decks);
 const collectionSchema = generateSlidesCollectionSchema(
 	Astro.site?.href || SITE.url,
 	decks.map((deck) => ({
@@ -47,12 +50,34 @@ const collectionSchema = generateSlidesCollectionSchema(
 					スライドがありません。
 				</p>
 			) : (
-				<div class="slide-deck-list">
-					{decks.map((deck) => (
-						<SlideDeckCard frontmatter={deck.frontmatter} />
+				<div class="slides-index">
+					{groups.map((section) => (
+						<SlideDeckGroupSection section={section} />
 					))}
+					{
+						ungrouped.length > 0 ? (
+							<div class="slide-deck-list">
+								{ungrouped.map((deck) => (
+									<SlideDeckCard frontmatter={deck.frontmatter} />
+								))}
+							</div>
+						) : null
+					}
 				</div>
 			)
 		}
 	</main>
 </Layout>
+
+<style>
+	.slides-index {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.slide-deck-list :global(.slide-deck-card:first-child) {
+		border-top: 0;
+		padding-top: 0;
+	}
+</style>
