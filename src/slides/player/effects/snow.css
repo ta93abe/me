@@ -1,0 +1,41 @@
+.deck-effect-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 6;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.deck-effect-layer .snow-flake {
+	position: absolute;
+	top: -0.5rem;
+	left: var(--snow-x, 50%);
+	width: var(--snow-size, 4px);
+	height: var(--snow-size, 4px);
+	border-radius: 50%;
+	background: color-mix(in srgb, white 88%, var(--color-ink));
+	opacity: 0.72;
+	animation: deck-snow-fall var(--snow-duration, 12s) linear infinite;
+	animation-delay: var(--snow-delay, 0s);
+	will-change: transform;
+}
+
+html[data-theme="light"] .deck-effect-layer .snow-flake {
+	background: color-mix(in srgb, var(--color-ink) 28%, white);
+	opacity: 0.55;
+}
+
+@keyframes deck-snow-fall {
+	from {
+		transform: translate3d(0, -0.5rem, 0);
+	}
+	to {
+		transform: translate3d(var(--snow-drift, 0px), 100vh, 0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.deck-effect-layer {
+		display: none;
+	}
+}

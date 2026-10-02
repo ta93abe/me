@@ -10,6 +10,7 @@ import "@/slides/design-system/typography.css";
 import "@/slides/design-system/layouts.css";
 import "@/slides/design-system/shiki.css";
 import "@/slides/player/player.css";
+import "@/slides/player/effects/snow.css";
 
 interface Props {
 	deck: Deck;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const { deck, print = false } = Astro.props;
-const { title, description, slug, theme, date, accent, accentDeep } =
+const { title, description, slug, theme, date, accent, accentDeep, effect } =
 	deck.frontmatter;
 const accentVars =
 	accent && accentDeep
@@ -45,6 +46,7 @@ const sections = renderSlideSections(deck, { print });
 <html
 	lang="ja"
 	data-theme={theme}
+	data-effect={!print && effect ? effect : undefined}
 	data-print-ready={print ? true : undefined}
 	class:list={[{ "is-print": print }]}
 	style={htmlStyle}
@@ -99,6 +101,15 @@ const sections = renderSlideSections(deck, { print });
 		<PostHog />
 	</head>
 	<body>
+		{
+			!print && effect === "snow" && (
+				<div
+					class="deck-effect-layer"
+					data-deck-effect-layer="snow"
+					aria-hidden="true"
+				/>
+			)
+		}
 		<div class="stage-wrap">
 			<article
 				class="deck"

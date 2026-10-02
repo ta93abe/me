@@ -9,10 +9,12 @@ import {
 	DECK_FRONTMATTER_KEYS,
 	DeckError,
 	isColorTheme,
+	isDeckEffect,
 	isSlideType,
 	REQUIRED_FRONTMATTER_KEYS,
 	type ColorTheme,
 	type Deck,
+	type DeckEffect,
 	type DeckFrontmatter,
 	type Slide,
 	type SlideType,
@@ -124,6 +126,15 @@ function parseFrontmatter(
 		accentDeep = parsed.accentDeep;
 	}
 
+	let effect: DeckEffect | undefined;
+	if (data.effect !== undefined) {
+		const raw = String(data.effect).trim().toLowerCase();
+		if (!isDeckEffect(raw)) {
+			throw new DeckError(`effect は snow です: ${String(data.effect)}`);
+		}
+		effect = raw;
+	}
+
 	return {
 		title,
 		date,
@@ -131,6 +142,7 @@ function parseFrontmatter(
 		slug,
 		theme,
 		...(accent ? { accent, accentDeep } : {}),
+		...(effect ? { effect } : {}),
 		...(event ? { event } : {}),
 		...(talkSlug ? { talkSlug } : {}),
 	};
