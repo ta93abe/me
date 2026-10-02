@@ -1,6 +1,8 @@
 ---
 import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
+import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
+import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
 import { renderSlideSections } from "@/slides/render";
 import { generateSlideDeckSchema, stringifySchema } from "@/utils/schema";
@@ -40,6 +42,10 @@ const deckSchema = generateSlideDeckSchema(siteBase, {
 	date,
 });
 const sections = renderSlideSections(deck, { print });
+const seriesNeighbors = print
+	? {}
+	: getSeriesNeighbors(slug, await loadDecks());
+const hasSeriesNav = Boolean(seriesNeighbors.prev || seriesNeighbors.next);
 ---
 
 <!doctype html>
@@ -139,6 +145,31 @@ const sections = renderSlideSections(deck, { print });
 					<a class="pdf-link" href={pdfHref}>
 						PDF
 					</a>
+					{
+						hasSeriesNav && (
+							<nav
+								class="series-nav"
+								aria-label="シリーズ内の前後のスライド"
+							>
+								{seriesNeighbors.prev && (
+									<a
+										class="series-nav-link series-nav-link--prev"
+										href={`/slides/${seriesNeighbors.prev.slug}/`}
+									>
+										← {seriesNeighbors.prev.title}
+									</a>
+								)}
+								{seriesNeighbors.next && (
+									<a
+										class="series-nav-link series-nav-link--next"
+										href={`/slides/${seriesNeighbors.next.slug}/`}
+									>
+										{seriesNeighbors.next.title} →
+									</a>
+								)}
+							</nav>
+						)
+					}
 				</div>
 			)
 		}

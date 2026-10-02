@@ -219,6 +219,33 @@ test.describe("Slides", () => {
 		await expect(page.locator(".player-ui .counter")).toBeHidden();
 	});
 
+	test("Snowflake series player links prev and next decks", async ({
+		page,
+	}) => {
+		await page.goto("/slides/snowflake-dbt/");
+		const seriesNav = page.getByRole("navigation", {
+			name: "シリーズ内の前後のスライド",
+		});
+		await expect(seriesNav).toBeVisible();
+		await expect(
+			seriesNav.getByRole("link", { name: /SnowflakeとClickOpsの限界/ }),
+		).toHaveAttribute("href", "/slides/snowflake-clickops-limits/");
+		await expect(
+			seriesNav.getByRole("link", {
+				name: /Snowflake で何が起きているのかを把握する/,
+			}),
+		).toHaveAttribute("href", "/slides/snowflake-observability/");
+	});
+
+	test("ungrouped deck has no series navigation", async ({ page }) => {
+		await page.goto("/slides/showcase/");
+		await expect(
+			page.getByRole("navigation", {
+				name: "シリーズ内の前後のスライド",
+			}),
+		).toHaveCount(0);
+	});
+
 	test("unknown slug is 404", async ({ page }) => {
 		const response = await page.goto("/slides/no-such-deck/");
 		expect(response?.status()).toBe(404);

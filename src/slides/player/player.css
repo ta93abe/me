@@ -77,6 +77,47 @@
 	color: var(--color-accent);
 }
 
+.series-nav {
+	pointer-events: auto;
+	position: fixed;
+	left: 50%;
+	bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	max-width: min(72vw, 28rem);
+	margin: 0;
+	padding: 0;
+}
+
+.series-nav-link {
+	font-family: var(--font-body);
+	color: var(--color-ink-dim);
+	font-size: 0.72rem;
+	font-weight: 500;
+	letter-spacing: var(--track-caption);
+	text-decoration: none;
+	text-shadow: 0 0 12px color-mix(in srgb, var(--color-bg) 88%, transparent);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: min(34vw, 13rem);
+}
+
+.series-nav-link--prev {
+	text-align: right;
+}
+
+.series-nav-link--next {
+	text-align: left;
+}
+
+.player-ui:not(.is-chrome-idle) .series-nav-link:hover,
+.player-ui:not(.is-chrome-idle) .series-nav-link:focus-visible {
+	color: var(--color-accent);
+}
+
 .slide.is-active {
 	z-index: 1;
 }
@@ -292,13 +333,15 @@ html.is-presenter .stage-wrap {
 }
 
 html.is-presenter .player-ui .counter,
-html.is-presenter .player-ui .pdf-link {
+html.is-presenter .player-ui .pdf-link,
+html.is-presenter .player-ui .series-nav {
 	display: none;
 }
 
 html.is-overview .player-ui .progress,
 html.is-overview .player-ui .counter,
-html.is-overview .player-ui .pdf-link {
+html.is-overview .player-ui .pdf-link,
+html.is-overview .player-ui .series-nav {
 	display: none;
 }
 
