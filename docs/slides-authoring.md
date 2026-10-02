@@ -19,7 +19,7 @@ src/slides/decks/<slug>/図.png   # 任意。画像などの実体
 
 ## frontmatter
 
-ファイル先頭のみ。見た目のキーは `theme` と任意の `accent`。`theme` は `dark` か `light`。省略時は `dark`。`accent` は `#rrggbb` または `#rgb` だけ（parser がビルド時に `--color-accent` / `--color-accent-deep` を確定する）。省略時は紫のまま。スライド本文や CSS には色コードを書かない。
+ファイル先頭のみ。見た目のキーは `theme`、任意の `accent`、任意の `effect`。`theme` は `dark` か `light`。省略時は `dark`。`accent` は `#rrggbb` または `#rgb` だけ（parser がビルド時に `--color-accent` / `--color-accent-deep` を確定する）。省略時は紫のまま。`effect` は発表面プレイヤーだけの演出。初回は `snow`（画面全体に雪）。省略時は演出なし。未知の値はビルド失敗。スライド本文や CSS には色コードを書かない。
 
 ```yaml
 ---
@@ -29,9 +29,12 @@ description: 一覧に出す一行
 slug: event-name-2026-09-06
 theme: dark
 accent: "#f6821f"
+effect: snow
 event: イベント名
 ---
 ```
+
+`effect` は `/slides/<slug>/` のプレイヤーだけ。印刷 HTML（`/print/`）と PDF には出さない（静止の雪も禁止）。`prefers-reduced-motion: reduce` では動かない。
 
 `accent` を付けたデッキは発表面・印刷 HTML / PDF とも同じアクセントになる。OG 画像は初回は従来どおり（デッキ色には追従しない）。一覧・404 など著者が書かない面は紫のまま。
 

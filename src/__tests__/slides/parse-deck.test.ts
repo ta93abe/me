@@ -112,6 +112,28 @@ describe("parseDeck", () => {
 		expect(deck.frontmatter.accentDeep).toBeUndefined();
 	});
 
+	it("accepts effect snow", async () => {
+		const deck = await parseDeck(
+			`---\ntitle: t\ndate: 2026-12-24\ndescription: d\nslug: sample\neffect: snow\n---\n\n# x`,
+			{ filename: "sample.md" },
+		);
+		expect(deck.frontmatter.effect).toBe("snow");
+	});
+
+	it("omits effect when not set", async () => {
+		const deck = await parse("# 本文");
+		expect(deck.frontmatter.effect).toBeUndefined();
+	});
+
+	it("rejects unknown effect values", async () => {
+		await expect(
+			parseDeck(
+				`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\neffect: confetti\n---\n\n# x`,
+				{ filename: "sample.md" },
+			),
+		).rejects.toBeInstanceOf(DeckError);
+	});
+
 	it("rejects invalid accent values", async () => {
 		for (const accent of [
 			"orange",

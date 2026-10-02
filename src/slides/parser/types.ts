@@ -23,10 +23,15 @@ export const COLOR_THEMES = ["dark", "light"] as const;
 
 export type ColorTheme = (typeof COLOR_THEMES)[number];
 
+export const DECK_EFFECTS = ["snow"] as const;
+
+export type DeckEffect = (typeof DECK_EFFECTS)[number];
+
 export const DECK_FRONTMATTER_KEYS = [
 	...REQUIRED_FRONTMATTER_KEYS,
 	"theme",
 	"accent",
+	"effect",
 	"event",
 	"talkSlug",
 ] as const;
@@ -39,6 +44,7 @@ export type DeckFrontmatter = {
 	theme: ColorTheme;
 	accent?: string;
 	accentDeep?: string;
+	effect?: DeckEffect;
 	event?: string;
 	talkSlug?: string;
 };
@@ -69,4 +75,8 @@ export function isSlideType(value: string): value is SlideType {
 
 export function isColorTheme(value: string): value is ColorTheme {
 	return (COLOR_THEMES as readonly string[]).includes(value);
+}
+
+export function isDeckEffect(value: string): value is DeckEffect {
+	return (DECK_EFFECTS as readonly string[]).includes(value);
 }

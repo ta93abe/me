@@ -1,3 +1,4 @@
+import { initDeckEffects } from "./effects/deck-effects.js";
 import { slideHeading, slidePreviewHint } from "./presenter-content.ts";
 
 const deck = document.querySelector(".deck");
@@ -588,4 +589,5 @@ const initial = parseHash();
 index = initial.slide;
 click = initial.click;
 render();
+initDeckEffects();
 wakeChrome();
