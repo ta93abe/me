@@ -2,7 +2,7 @@
 
 1 デッキ = Markdown 1 ファイル。見た目は書かない。
 
-契約の決定: [ADR-0010](https://linear.app/ta93abe/document/adr-0010-スライド型は-html-コメントで指定する-e347dd843d49) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)
+契約の決定: [ADR-0010](https://linear.app/ta93abe/document/adr-0010-スライド型は-html-コメントで指定する-e347dd843d49) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)（`accent` は [TA-882](https://linear.app/ta93abe/issue/TA-882) で部分追記）
 
 ブログ本文（`marked` + Prism）とは別経路。スライドは remark + ビルド時 Shiki。
 
@@ -19,7 +19,7 @@ src/slides/decks/<slug>/図.png   # 任意。画像などの実体
 
 ## frontmatter
 
-ファイル先頭のみ。見た目のキーは `theme` だけ。値は `dark` か `light`。省略時は `dark`。色コードは置かない。
+ファイル先頭のみ。見た目のキーは `theme` と任意の `accent`。`theme` は `dark` か `light`。省略時は `dark`。`accent` は `#rrggbb` または `#rgb` だけ（parser がビルド時に `--color-accent` / `--color-accent-deep` を確定する）。省略時は紫のまま。スライド本文や CSS には色コードを書かない。
 
 ```yaml
 ---
@@ -28,9 +28,12 @@ date: 2026-09-06
 description: 一覧に出す一行
 slug: event-name-2026-09-06
 theme: dark
+accent: "#f6821f"
 event: イベント名
 ---
 ```
+
+`accent` を付けたデッキは発表面・印刷 HTML / PDF とも同じアクセントになる。OG 画像は初回は従来どおり（デッキ色には追従しない）。一覧・404 など著者が書かない面は紫のまま。
 
 `event` は任意。先頭の `cover` 枚の上部メタ行に出る。`date` は同じメタ行に日本語日付で出る（著者名と X ハンドルはサイト設定から自動）。
 
