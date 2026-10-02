@@ -17,7 +17,15 @@ interface Props {
 }
 
 const { deck, print = false } = Astro.props;
-const { title, description, slug, theme, date } = deck.frontmatter;
+const { title, description, slug, theme, date, accent, accentDeep } =
+	deck.frontmatter;
+const accentVars =
+	accent && accentDeep
+		? `--color-accent: ${accent}; --color-accent-deep: ${accentDeep};`
+		: "";
+const htmlStyle = accentVars
+	? `color-scheme: ${theme}; ${accentVars}`
+	: `color-scheme: ${theme};`;
 const siteBase = Astro.site?.href || SITE.url;
 const playerURL = new URL(`/slides/${slug}/`, siteBase);
 const ogImageURL = new URL(`/og/slides/${slug}.png`, siteBase);
@@ -39,7 +47,7 @@ const sections = renderSlideSections(deck, { print });
 	data-theme={theme}
 	data-print-ready={print ? true : undefined}
 	class:list={[{ "is-print": print }]}
-	style={`color-scheme: ${theme};`}
+	style={htmlStyle}
 >
 	<head>
 		<meta charset="UTF-8" />

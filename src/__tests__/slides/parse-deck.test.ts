@@ -79,13 +79,54 @@ describe("parseDeck", () => {
 		).rejects.toBeInstanceOf(DeckError);
 	});
 
-	it("rejects look keys other than theme", async () => {
+	it("rejects look keys other than theme and accent", async () => {
 		await expect(
 			parseDeck(
 				`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\nlayout: cover\n---\n\n# x`,
 				{ filename: "sample.md" },
 			),
 		).rejects.toBeInstanceOf(DeckError);
+	});
+
+	it("normalizes accent hex and derives accentDeep", async () => {
+		const deck = await parseDeck(
+			`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\naccent: "#F6821F"\n---\n\n# x`,
+			{ filename: "sample.md" },
+		);
+		expect(deck.frontmatter.accent).toBe("#f6821f");
+		expect(deck.frontmatter.accentDeep).toBe("#ca6108");
+	});
+
+	it("expands three-digit accent hex", async () => {
+		const deck = await parseDeck(
+			`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\naccent: "#f82"\n---\n\n# x`,
+			{ filename: "sample.md" },
+		);
+		expect(deck.frontmatter.accent).toBe("#ff8822");
+		expect(deck.frontmatter.accentDeep).toBe("#db6500");
+	});
+
+	it("omits accent when not set", async () => {
+		const deck = await parse("# 本文");
+		expect(deck.frontmatter.accent).toBeUndefined();
+		expect(deck.frontmatter.accentDeep).toBeUndefined();
+	});
+
+	it("rejects invalid accent values", async () => {
+		for (const accent of [
+			"orange",
+			"rgb(1,2,3)",
+			"hsl(1,2%,3%)",
+			"#ff8822aa",
+			"#gggggg",
+		]) {
+			await expect(
+				parseDeck(
+					`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\naccent: "${accent}"\n---\n\n# x`,
+					{ filename: "sample.md" },
+				),
+			).rejects.toBeInstanceOf(DeckError);
+		}
 	});
 
 	it("rejects MDX import", async () => {

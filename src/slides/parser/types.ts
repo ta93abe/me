@@ -26,6 +26,7 @@ export type ColorTheme = (typeof COLOR_THEMES)[number];
 export const DECK_FRONTMATTER_KEYS = [
 	...REQUIRED_FRONTMATTER_KEYS,
 	"theme",
+	"accent",
 	"event",
 	"talkSlug",
 ] as const;
@@ -36,6 +37,8 @@ export type DeckFrontmatter = {
 	description: string;
 	slug: string;
 	theme: ColorTheme;
+	accent?: string;
+	accentDeep?: string;
 	event?: string;
 	talkSlug?: string;
 };

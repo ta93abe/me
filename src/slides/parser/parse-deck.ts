@@ -1,5 +1,6 @@
 import { basename } from "node:path";
 
+import { parseAccent } from "./accent.ts";
 import { materializeSlideHtml } from "./clicks.ts";
 import { findForbidden } from "./forbidden.ts";
 import { markdownToHtml } from "./markdown.ts";
@@ -115,12 +116,21 @@ function parseFrontmatter(
 		}
 	}
 
+	let accent: string | undefined;
+	let accentDeep: string | undefined;
+	if (data.accent !== undefined) {
+		const parsed = parseAccent(String(data.accent));
+		accent = parsed.accent;
+		accentDeep = parsed.accentDeep;
+	}
+
 	return {
 		title,
 		date,
 		description,
 		slug,
 		theme,
+		...(accent ? { accent, accentDeep } : {}),
 		...(event ? { event } : {}),
 		...(talkSlug ? { talkSlug } : {}),
 	};
