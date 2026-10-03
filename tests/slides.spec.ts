@@ -80,6 +80,14 @@ test.describe("Slides", () => {
 			"href",
 			"/slides/showcase.pdf",
 		);
+		await expect(page.getByRole("link", { name: "Talk" })).toHaveAttribute(
+			"href",
+			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		);
+		await expect(page.getByRole("link", { name: "Recording" })).toHaveAttribute(
+			"href",
+			"https://www.youtube.com/watch?v=KLEApocYmww",
+		);
 
 		await page.goBack();
 		await expect(page).toHaveURL(/\/slides\/?$/);
@@ -117,6 +125,31 @@ test.describe("Slides", () => {
 		expect(jsonLd.some((text) => text.includes("/slides/showcase/"))).toBe(
 			true,
 		);
+	});
+
+	test("showcase player chrome links talk, recording, and index", async ({
+		page,
+	}) => {
+		await page.goto("/slides/showcase/");
+		const chromeLinks = page.getByRole("navigation", {
+			name: "スライド関連リンク",
+		});
+		await expect(chromeLinks).toBeVisible();
+		await expect(
+			chromeLinks.getByRole("link", { name: "一覧" }),
+		).toHaveAttribute("href", "/slides/");
+		await expect(
+			chromeLinks.getByRole("link", { name: "PDF" }),
+		).toHaveAttribute("href", "/slides/showcase.pdf");
+		await expect(
+			chromeLinks.getByRole("link", { name: "Talk" }),
+		).toHaveAttribute(
+			"href",
+			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		);
+		await expect(
+			chromeLinks.getByRole("link", { name: "Recording" }),
+		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
 	});
 
 	test("player exposes deck Open Graph, Twitter, and JSON-LD", async ({

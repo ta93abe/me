@@ -58,11 +58,21 @@
 	text-shadow: 0 0 12px color-mix(in srgb, var(--color-bg) 88%, transparent);
 }
 
-.pdf-link {
+.player-chrome-links {
 	pointer-events: auto;
 	position: fixed;
 	left: max(1rem, env(safe-area-inset-left, 0px));
 	bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 0.65rem;
+	max-width: min(52vw, 16rem);
+	margin: 0;
+	padding: 0;
+}
+
+.player-chrome-link {
 	font-family: var(--font-body);
 	color: var(--color-ink-dim);
 	font-size: 0.72rem;
@@ -72,8 +82,8 @@
 	text-shadow: 0 0 12px color-mix(in srgb, var(--color-bg) 88%, transparent);
 }
 
-.player-ui:not(.is-chrome-idle) .pdf-link:hover,
-.player-ui:not(.is-chrome-idle) .pdf-link:focus-visible {
+.player-ui:not(.is-chrome-idle) .player-chrome-link:hover,
+.player-ui:not(.is-chrome-idle) .player-chrome-link:focus-visible {
 	color: var(--color-accent);
 }
 
@@ -333,14 +343,14 @@ html.is-presenter .stage-wrap {
 }
 
 html.is-presenter .player-ui .counter,
-html.is-presenter .player-ui .pdf-link,
+html.is-presenter .player-ui .player-chrome-links,
 html.is-presenter .player-ui .series-nav {
 	display: none;
 }
 
 html.is-overview .player-ui .progress,
 html.is-overview .player-ui .counter,
-html.is-overview .player-ui .pdf-link,
+html.is-overview .player-ui .player-chrome-links,
 html.is-overview .player-ui .series-nav {
 	display: none;
 }
@@ -369,11 +379,11 @@ html.is-presenter .progress {
 
 @media (max-width: 480px) {
 	.counter,
-	.pdf-link {
+	.player-chrome-link {
 		font-size: 0.68rem;
 	}
 
-	.pdf-link {
+	.player-chrome-link {
 		padding: 0.35rem 0.15rem;
 		min-height: 2.75rem;
 		display: inline-flex;
