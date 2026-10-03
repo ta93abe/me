@@ -1,6 +1,9 @@
 ---
 import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
+import { talkBySlug } from "@/data/talk-slide-crosslinks";
+import { talkYoutubeUrl } from "@/data/talks";
+import { talkAnchorPath } from "@/lib/slides/paths";
 import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
 import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
@@ -46,6 +49,9 @@ const seriesNeighbors = print
 	? {}
 	: getSeriesNeighbors(slug, await loadDecks());
 const hasSeriesNav = Boolean(seriesNeighbors.prev || seriesNeighbors.next);
+const linkedTalk = deck.frontmatter.talkSlug
+	? talkBySlug(deck.frontmatter.talkSlug)
+	: undefined;
 ---
 
 <!doctype html>
@@ -142,9 +148,36 @@ const hasSeriesNav = Boolean(seriesNeighbors.prev || seriesNeighbors.next);
 						>
 						 / {deck.slides.length}
 					</p>
-					<a class="pdf-link" href={pdfHref}>
-						PDF
-					</a>
+					<nav class="player-chrome-links" aria-label="スライド関連リンク">
+						<a class="player-chrome-link" href="/slides/">
+							一覧
+						</a>
+						<a class="player-chrome-link" href={pdfHref}>
+							PDF
+						</a>
+						{
+							linkedTalk ? (
+								<a
+									class="player-chrome-link"
+									href={talkAnchorPath(linkedTalk.slug)}
+								>
+									Talk
+								</a>
+							) : null
+						}
+						{
+							linkedTalk ? (
+								<a
+									class="player-chrome-link"
+									href={talkYoutubeUrl(linkedTalk)}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Recording
+								</a>
+							) : null
+						}
+					</nav>
 					{
 						hasSeriesNav && (
 							<nav
