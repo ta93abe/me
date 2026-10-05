@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
 	canonicalPageUrl,
+	permanentRedirectStatus,
 	trailingSlashRedirectUrl,
 	withTrailingSlash,
+	wwwApexRedirectUrl,
 } from "@/utils/canonical";
 
 describe("withTrailingSlash", () => {
@@ -107,5 +109,56 @@ describe("trailingSlashRedirectUrl", () => {
 				new URL("https://ta93abe.com/api/content/schema"),
 			),
 		).toBeNull();
+	});
+});
+
+describe("wwwApexRedirectUrl", () => {
+	it("sends www root and HTML paths to apex in one hop", () => {
+		expect(wwwApexRedirectUrl(new URL("https://www.ta93abe.com/"))?.href).toBe(
+			"https://ta93abe.com/",
+		);
+		expect(
+			wwwApexRedirectUrl(new URL("https://www.ta93abe.com/about"))?.href,
+		).toBe("https://ta93abe.com/about/");
+		expect(
+			wwwApexRedirectUrl(new URL("https://www.ta93abe.com/about/"))?.href,
+		).toBe("https://ta93abe.com/about/");
+	});
+
+	it("keeps query strings and does not slash well-known or files", () => {
+		expect(
+			wwwApexRedirectUrl(new URL("https://www.ta93abe.com/?utm=1"))?.href,
+		).toBe("https://ta93abe.com/?utm=1");
+		expect(
+			wwwApexRedirectUrl(new URL("https://www.ta93abe.com/about?utm=1"))?.href,
+		).toBe("https://ta93abe.com/about/?utm=1");
+		expect(
+			wwwApexRedirectUrl(
+				new URL("https://www.ta93abe.com/.well-known/api-catalog"),
+			)?.href,
+		).toBe("https://ta93abe.com/.well-known/api-catalog");
+		expect(
+			wwwApexRedirectUrl(new URL("https://www.ta93abe.com/rss.xml"))?.href,
+		).toBe("https://ta93abe.com/rss.xml");
+		expect(
+			wwwApexRedirectUrl(new URL("https://www.ta93abe.com/mcp"))?.href,
+		).toBe("https://ta93abe.com/mcp");
+	});
+
+	it("leaves apex and other hosts alone", () => {
+		expect(wwwApexRedirectUrl(new URL("https://ta93abe.com/"))).toBeNull();
+		expect(wwwApexRedirectUrl(new URL("https://ta93abe.com/about"))).toBeNull();
+		expect(
+			wwwApexRedirectUrl(new URL("http://127.0.0.1:4321/about")),
+		).toBeNull();
+	});
+});
+
+describe("permanentRedirectStatus", () => {
+	it("uses 301 for GET/HEAD and 308 for other methods", () => {
+		expect(permanentRedirectStatus("GET")).toBe(301);
+		expect(permanentRedirectStatus("head")).toBe(301);
+		expect(permanentRedirectStatus("POST")).toBe(308);
+		expect(permanentRedirectStatus("OPTIONS")).toBe(308);
 	});
 });
