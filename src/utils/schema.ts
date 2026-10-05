@@ -1,4 +1,5 @@
 import { FEATURED_WORKS, SITE } from "@/config/site";
+import { type GadgetRating, isGadgetRating } from "@/data/gadgets";
 import linksData from "@/data/links.json";
 import { TALKS, talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
 import {
@@ -670,7 +671,40 @@ export type GadgetSchemaItem = {
 	description: string;
 	image: string;
 	brand: string;
+	rating?: GadgetRating;
+	pros?: readonly string[];
+	cons?: readonly string[];
 };
+
+export type ReviewedGadgetSchemaItem = GadgetSchemaItem & {
+	rating: GadgetRating;
+};
+
+interface NoteListSchema {
+	"@type": "ItemList";
+	itemListElement: Array<{
+		"@type": "ListItem";
+		position: number;
+		name: string;
+	}>;
+}
+
+interface ProductReviewSchema {
+	"@type": "Review";
+	author: {
+		"@type": "Person";
+		name: string;
+		url: string;
+	};
+	reviewRating: {
+		"@type": "Rating";
+		ratingValue: GadgetRating;
+		bestRating: 5;
+		worstRating: 1;
+	};
+	positiveNotes?: NoteListSchema;
+	negativeNotes?: NoteListSchema;
+}
 
 interface ProductSchema {
 	"@context": "https://schema.org";
@@ -682,6 +716,27 @@ interface ProductSchema {
 	brand: {
 		"@type": "Brand";
 		name: string;
+	};
+	review: ProductReviewSchema;
+}
+
+interface GadgetItemPageSchema {
+	"@context": "https://schema.org";
+	"@type": "ItemPage";
+	name: string;
+	description: string;
+	url: string;
+	inLanguage: string;
+	about: {
+		"@type": "Thing";
+		name: string;
+		image: string;
+		url: string;
+	};
+	isPartOf: {
+		"@type": "WebSite";
+		name: string;
+		url: string;
 	};
 }
 
@@ -699,23 +754,103 @@ interface GadgetsItemListSchema {
 	}>;
 }
 
-export const generateGadgetProductSchema = (
+function gadgetPageUrl(origin: string, slug: string): string {
+	return `${origin}/gadgets/${slug}/`;
+}
+
+function gadgetNoteList(
+	items: readonly string[] | undefined,
+): NoteListSchema | undefined {
+	if (!items || items.length === 0) {
+		return undefined;
+	}
+	return {
+		"@type": "ItemList",
+		itemListElement: items.map((name, index) => ({
+			"@type": "ListItem" as const,
+			position: index + 1,
+			name,
+		})),
+	};
+}
+
+export const generateGadgetItemPageSchema = (
 	siteUrl: string,
 	gadget: GadgetSchemaItem,
+): GadgetItemPageSchema => {
+	const origin = originBase(siteUrl);
+	const url = gadgetPageUrl(origin, gadget.slug);
+	return {
+		"@context": "https://schema.org",
+		"@type": "ItemPage",
+		name: gadget.name,
+		description: gadget.description,
+		url,
+		inLanguage: SITE.lang,
+		about: {
+			"@type": "Thing",
+			name: gadget.name,
+			image: gadget.image,
+			url,
+		},
+		isPartOf: websitePart(origin),
+	};
+};
+
+export const generateGadgetProductSchema = (
+	siteUrl: string,
+	gadget: ReviewedGadgetSchemaItem,
 ): ProductSchema => {
 	const origin = originBase(siteUrl);
+	const url = gadgetPageUrl(origin, gadget.slug);
+	const review: ProductReviewSchema = {
+		"@type": "Review",
+		author: {
+			"@type": "Person",
+			name: SITE.author,
+			url: `${origin}${SITE.authorPath}`,
+		},
+		reviewRating: {
+			"@type": "Rating",
+			ratingValue: gadget.rating,
+			bestRating: 5,
+			worstRating: 1,
+		},
+	};
+	const positiveNotes = gadgetNoteList(gadget.pros);
+	const negativeNotes = gadgetNoteList(gadget.cons);
+	if (positiveNotes) {
+		review.positiveNotes = positiveNotes;
+	}
+	if (negativeNotes) {
+		review.negativeNotes = negativeNotes;
+	}
 	return {
 		"@context": "https://schema.org",
 		"@type": "Product",
 		name: gadget.name,
 		description: gadget.description,
 		image: gadget.image,
-		url: `${origin}/gadgets/${gadget.slug}/`,
+		url,
 		brand: {
 			"@type": "Brand",
 			name: gadget.brand,
 		},
+		review,
 	};
+};
+
+export const generateGadgetDetailSchema = (
+	siteUrl: string,
+	gadget: GadgetSchemaItem,
+): ProductSchema | GadgetItemPageSchema => {
+	if (isGadgetRating(gadget.rating)) {
+		return generateGadgetProductSchema(siteUrl, {
+			...gadget,
+			rating: gadget.rating,
+		});
+	}
+	return generateGadgetItemPageSchema(siteUrl, gadget);
 };
 
 export const generateGadgetsItemListSchema = (
