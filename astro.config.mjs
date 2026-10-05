@@ -17,8 +17,9 @@ import {
 	includeInStaticSitemap,
 } from "./src/utils/sitemap-lastmod.ts";
 
+const sitemapRootDir = path.dirname(fileURLToPath(import.meta.url));
 const sitemapSerialize = createStaticSitemapSerializer({
-	rootDir: path.dirname(fileURLToPath(import.meta.url)),
+	rootDir: sitemapRootDir,
 });
 
 /**
@@ -62,7 +63,7 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
-			filter: includeInStaticSitemap,
+			filter: (page) => includeInStaticSitemap(page, { rootDir: sitemapRootDir }),
 			serialize(item) {
 				return sitemapSerialize(item);
 			},

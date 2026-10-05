@@ -99,6 +99,50 @@ describe("PDF page contract", () => {
 });
 
 describe("GET /slides/<slug>.pdf", () => {
+	it("adds X-Robots-Tag noindex when the player HTML is noindex", async () => {
+		const noindexHtml =
+			'<html><head><meta name="robots" content="noindex, follow"></head></html>';
+		const version = await deckVersion(noindexHtml);
+		const content = createMemoryR2();
+		await content.put(pdfObjectKey("showcase"), pdfBytes, {
+			httpMetadata: { contentType: "application/pdf" },
+			customMetadata: { version },
+		});
+		const response = await servePdf(
+			new Request("https://ta93abe.com/slides/showcase.pdf"),
+			{
+				ASSETS: {
+					fetch: async () => html(noindexHtml),
+				} as Fetcher,
+				CONTENT: content,
+				PDF_QUEUE: { send: async () => undefined },
+			} as unknown as Env,
+			"showcase",
+		);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("x-robots-tag")).toBe("noindex");
+	});
+
+	it("does not noindex listed player PDFs", async () => {
+		const version = await deckVersion(deckHtml);
+		const content = createMemoryR2();
+		await content.put(pdfObjectKey("showcase"), pdfBytes, {
+			httpMetadata: { contentType: "application/pdf" },
+			customMetadata: { version },
+		});
+		const response = await servePdf(
+			new Request("https://ta93abe.com/slides/showcase.pdf"),
+			{
+				ASSETS: assets,
+				CONTENT: content,
+				PDF_QUEUE: { send: async () => undefined },
+			} as unknown as Env,
+			"showcase",
+		);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("x-robots-tag")).toBeNull();
+	});
+
 	it("returns the CONTENT object when the stored version matches the deck", async () => {
 		const version = await deckVersion(deckHtml);
 		const content = createMemoryR2();

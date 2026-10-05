@@ -35,13 +35,32 @@ function sitemapPathname(url: string): string {
 	return withTrailingSlash(new URL(url).pathname);
 }
 
+export type StaticSitemapFilterOptions = {
+	rootDir?: string;
+};
+
 /** sitemap-0 用。`/blog/` は sitemap-blog.xml の責務。 */
-export function includeInStaticSitemap(page: string): boolean {
+export function includeInStaticSitemap(
+	page: string,
+	options: StaticSitemapFilterOptions = {},
+): boolean {
 	if (page.includes("/print") || page.includes("/og/")) {
 		return false;
 	}
 
-	return !sitemapPathname(page).startsWith("/blog/");
+	const pathname = sitemapPathname(page);
+	if (pathname.startsWith("/blog/")) {
+		return false;
+	}
+
+	const slideMatch = pathname.match(/^\/slides\/([^/]+)\/$/);
+	if (slideMatch?.[1]) {
+		return !readUnlistedSlideSlugs(options.rootDir ?? process.cwd()).has(
+			slideMatch[1],
+		);
+	}
+
+	return true;
 }
 
 function parseFrontmatterDate(raw: string | undefined): Date | undefined {
@@ -111,9 +130,24 @@ function setLastmod(
 	lastmodByPath.set(pathname, toW3cLastmod(date));
 }
 
+function isUnlistedFrontmatter(text: string): boolean {
+	return /^unlisted:\s*true\s*$/m.test(text);
+}
+
+function readUnlistedSlideSlugs(rootDir: string): Set<string> {
+	const slugs = new Set<string>();
+	for (const slide of readSlideDates(rootDir, { includeUnlisted: true })) {
+		if (slide.unlisted) {
+			slugs.add(slide.slug);
+		}
+	}
+	return slugs;
+}
+
 function readSlideDates(
 	rootDir: string,
-): Array<{ slug: string; lastmod: Date }> {
+	options: { includeUnlisted?: boolean } = {},
+): Array<{ slug: string; lastmod: Date; unlisted: boolean }> {
 	const decksDir = path.join(rootDir, SLIDES_DECKS_DIR);
 	let files: string[] = [];
 	try {
@@ -122,7 +156,7 @@ function readSlideDates(
 		return [];
 	}
 
-	const slides: Array<{ slug: string; lastmod: Date }> = [];
+	const slides: Array<{ slug: string; lastmod: Date; unlisted: boolean }> = [];
 	for (const file of files) {
 		if (!file.endsWith(".md")) {
 			continue;
@@ -136,7 +170,11 @@ function readSlideDates(
 		if (!slug || !lastmod) {
 			continue;
 		}
-		slides.push({ slug, lastmod });
+		const unlisted = isUnlistedFrontmatter(text);
+		if (unlisted && !options.includeUnlisted) {
+			continue;
+		}
+		slides.push({ slug, lastmod, unlisted });
 	}
 	return slides;
 }
