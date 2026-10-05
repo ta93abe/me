@@ -41,8 +41,9 @@ const STATIC_SITEMAP_URLS = [
 	"https://ta93abe.com/links/",
 	"https://ta93abe.com/talks/",
 	"https://ta93abe.com/slides/",
-	"https://ta93abe.com/slides/light/",
-	"https://ta93abe.com/slides/showcase/",
+	"https://ta93abe.com/slides/snowflake-clickops-limits/",
+	"https://ta93abe.com/slides/snowflake-dbt/",
+	"https://ta93abe.com/slides/snowflake-observability/",
 	"https://ta93abe.com/tools/",
 	"https://ta93abe.com/works/",
 ] as const;
@@ -115,6 +116,38 @@ describe("includeInStaticSitemap", () => {
 		expect(
 			includeInStaticSitemap("https://ta93abe.com/og/blog/hello-world.png"),
 		).toBe(false);
+	});
+
+	it("drops unlisted slide player URLs", () => {
+		expect(includeInStaticSitemap("https://ta93abe.com/slides/light/")).toBe(
+			false,
+		);
+		expect(includeInStaticSitemap("https://ta93abe.com/slides/showcase/")).toBe(
+			false,
+		);
+	});
+
+	it("drops unlisted slugs from a fixture tree", () => {
+		const rootDir = fixtureRoot();
+		writeFixture(
+			rootDir,
+			"src/slides/decks/hidden.md",
+			`---
+slug: hidden
+date: 2026-05-01
+unlisted: true
+---
+`,
+		);
+
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/slides/hidden/", {
+				rootDir,
+			}),
+		).toBe(false);
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/slides/demo/", { rootDir }),
+		).toBe(true);
 	});
 
 	it("has no overlap with the blog sitemap", () => {
@@ -235,11 +268,39 @@ describe("createStaticSitemapSerializer", () => {
 			rootDir: process.cwd(),
 		});
 		const item = serialize({
-			url: "https://ta93abe.com/slides/showcase/",
+			url: "https://ta93abe.com/slides/snowflake-observability/",
 			lastmod: BUILD_TIME,
 		});
 
-		expect(item.lastmod).toBe("2026-09-06T00:00:00.000Z");
+		expect(item.lastmod).toBe("2026-10-01T00:00:00.000Z");
+	});
+
+	it("ignores unlisted decks when stamping /slides/ lastmod", () => {
+		const rootDir = fixtureRoot();
+		writeFixture(
+			rootDir,
+			"src/slides/decks/hidden.md",
+			`---
+slug: hidden
+date: 2026-12-01
+unlisted: true
+---
+`,
+		);
+		const serialize = createStaticSitemapSerializer({ rootDir });
+
+		expect(
+			serialize({
+				url: "https://ta93abe.com/slides/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe("2026-04-08T00:00:00.000Z");
+		expect(
+			serialize({
+				url: "https://ta93abe.com/slides/hidden/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe("2026-04-08T00:00:00.000Z");
 	});
 
 	it("uses talk and slide content dates when git history is missing", () => {

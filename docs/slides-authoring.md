@@ -31,8 +31,11 @@ theme: dark
 accent: "#f6821f"
 effect: snow
 event: イベント名
+unlisted: true
 ---
 ```
+
+`unlisted: true` は見本・検証用デッキ向け。URL は 200 のまま残すが、発表面は `noindex, follow`、PDF は `X-Robots-Tag: noindex`。sitemap-0、`/slides/` 一覧、一覧の JSON-LD からは外す。省略時は公開デッキ。
 
 `effect` は `/slides/<slug>/` のプレイヤーだけ。印刷 HTML（`/print/`）と PDF には出さない（静止の雪も禁止）。`prefers-reduced-motion: reduce` では動かない。
 
@@ -165,8 +168,8 @@ pnpm test:run
 pnpm dev
 ```
 
-- `https://ta93abe.com/slides` が一覧
-- `https://ta93abe.com/slides/<slug>/` が発表面
+- `https://ta93abe.com/slides` が一覧（`unlisted` デッキは出さない）
+- `https://ta93abe.com/slides/<slug>/` が発表面（`unlisted` は `noindex, follow`）
 - `https://ta93abe.com/slides/<slug>/print/` が印刷 HTML（`noindex`。canonical は発表面）
 - `https://ta93abe.com/slides/<slug>.pdf` が PDF
 - `https://ta93abe.com/og/slides.png` が一覧の OG 画像

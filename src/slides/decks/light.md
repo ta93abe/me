@@ -4,6 +4,7 @@ date: 2026-09-06
 description: theme: light の見本。紫はそのまま、背景だけ明るい。
 slug: light
 theme: light
+unlisted: true
 ---
 
 <!-- type: cover -->

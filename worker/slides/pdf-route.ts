@@ -1,4 +1,10 @@
-import { deckVersion, PDF_ORIGIN, pdfObjectKey, type PdfJob } from "./pdf.ts";
+import {
+	deckVersion,
+	PDF_ORIGIN,
+	pdfObjectKey,
+	playerHtmlIsNoindex,
+	type PdfJob,
+} from "./pdf.ts";
 
 export async function servePdf(
 	request: Request,
@@ -20,14 +26,16 @@ export async function servePdf(
 	const key = pdfObjectKey(slug);
 	const stored = await env.CONTENT.get(key);
 	if (stored && stored.customMetadata?.version === version) {
-		return new Response(stored.body, {
-			headers: {
-				"content-type": stored.httpMetadata?.contentType ?? "application/pdf",
-				"content-disposition": `inline; filename="${slug}.pdf"`,
-				etag: `"${version}"`,
-				"cache-control": "public, max-age=60",
-			},
-		});
+		const headers: Record<string, string> = {
+			"content-type": stored.httpMetadata?.contentType ?? "application/pdf",
+			"content-disposition": `inline; filename="${slug}.pdf"`,
+			etag: `"${version}"`,
+			"cache-control": "public, max-age=60",
+		};
+		if (playerHtmlIsNoindex(source)) {
+			headers["X-Robots-Tag"] = "noindex";
+		}
+		return new Response(stored.body, { headers });
 	}
 
 	const job: PdfJob = {

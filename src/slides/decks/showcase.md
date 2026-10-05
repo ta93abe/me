@@ -6,6 +6,7 @@ slug: showcase
 theme: dark
 event: デザインシステム検証
 talkSlug: frosty-friday-live-challenge-vol56
+unlisted: true
 ---
 
 <!-- type: cover -->
