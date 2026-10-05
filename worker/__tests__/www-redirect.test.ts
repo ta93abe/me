@@ -37,12 +37,16 @@ async function fetchUrl(
 }
 
 describe("www apex host redirect", () => {
-	it("301s GET www root to apex", async () => {
-		const response = await fetchUrl("https://www.ta93abe.com/");
+	it("301s GET and HEAD www root to apex", async () => {
+		const get = await fetchUrl("https://www.ta93abe.com/");
+		const head = await fetchUrl("https://www.ta93abe.com/", { method: "HEAD" });
 
-		expect(response.status).toBe(301);
-		expect(response.headers.get("Location")).toBe("https://ta93abe.com/");
-		expect(await response.text()).toBe("");
+		expect(get.status).toBe(301);
+		expect(head.status).toBe(301);
+		expect(get.headers.get("Location")).toBe("https://ta93abe.com/");
+		expect(head.headers.get("Location")).toBe("https://ta93abe.com/");
+		expect(await get.text()).toBe("");
+		expect(await head.text()).toBe("");
 	});
 
 	it("folds trailing-slash normalization into the same hop", async () => {
