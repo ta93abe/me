@@ -1,7 +1,6 @@
 ---
 export const prerender = false;
 
-import NewsletterCta from "@/components/NewsletterCta.astro";
 import NotFoundPlayground from "@/components/NotFoundPlayground";
 import PostNavigation from "@/components/PostNavigation.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
@@ -12,7 +11,7 @@ import { getContentBucket } from "@/lib/content/bindings";
 import { blogNeighbors, listBlogPosts, loadBlogPost } from "@/lib/content/blog";
 import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
 import Layout from "@/layouts/Layout.astro";
-import { formatDate, toDatetimeAttr } from "@/utils/date";
+import { formatBlogSurfaceDate, toDatetimeAttr } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
 import {
 	generateArticleItemListSchema,
@@ -122,27 +121,9 @@ if (post) {
     <header class="mb-12 pb-10">
       <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
         <time class="font-medium" datetime={publishedTime}>
-          {formatDate(publish_date)}
+          {formatBlogSurfaceDate(publish_date, revise_date)}
         </time>
-        {
-          revise_date && (
-            <>
-              <span class="text-(--text-muted)">|</span>
-              <span>
-                更新: <time datetime={modifiedTime}>{formatDate(revise_date)}</time>
-              </span>
-            </>
-          )
-        }
-        <span class="text-(--text-muted)">|</span>
-        <a
-          href={SITE.authorPath}
-          rel="author"
-          class="hover:text-(--text-primary)"
-        >
-          {SITE.author}
-        </a>
-        <span class="text-(--text-muted)">|</span>
+        <span class="text-(--text-muted)">·</span>
         <span>{readingTimeText}</span>
       </div>
 
@@ -164,8 +145,6 @@ if (post) {
     <article class="prose prose-lg">
       <Fragment set:html={html} />
     </article>
-
-    <NewsletterCta source="blog-post" />
 
     {neighbors && <PostNavigation prevPost={neighbors.prev} nextPost={neighbors.next} />}
 

@@ -5,9 +5,14 @@
 interface Props {
 	tags: string[];
 	containerId: string;
+	/** 結果件数表示を隠す（ブログ索引など） */
+	hideResultCount?: boolean;
+	/** 「タグ:」ラベルを隠す */
+	hideTagLabel?: boolean;
 }
 
-const { tags, containerId } = Astro.props;
+const { tags, containerId, hideResultCount = false, hideTagLabel = false } =
+	Astro.props;
 
 // 重複を排除してソート
 const uniqueTags = [...new Set(tags)].toSorted();
@@ -15,9 +20,18 @@ const uniqueTags = [...new Set(tags)].toSorted();
 
 {
 	uniqueTags.length > 0 && (
-		<div class="mb-8 space-y-4" data-filter-sort data-container={containerId}>
+		<div
+			class:list={[
+				"mb-8 space-y-4",
+				hideResultCount && hideTagLabel && "mb-6 space-y-3",
+			]}
+			data-filter-sort
+			data-container={containerId}
+		>
 			<div class="flex flex-wrap items-center gap-2">
-				<span class="text-sm font-medium text-(--text-muted)">タグ:</span>
+				{!hideTagLabel && (
+					<span class="text-sm font-medium text-(--text-muted)">タグ:</span>
+				)}
 				<button type="button" class="filter-chip active" data-tag="all">
 					すべて
 				</button>
@@ -39,9 +53,11 @@ const uniqueTags = [...new Set(tags)].toSorted();
 				</button>
 			</div>
 
-			<div class="text-sm text-(--text-muted)">
-				<span class="result-count"></span>
-			</div>
+			{!hideResultCount && (
+				<div class="text-sm text-(--text-muted)">
+					<span class="result-count"></span>
+				</div>
+			)}
 
 			<div class="empty-state hidden py-12 text-center" role="status" aria-live="polite">
 				<p class="mb-4 text-sm text-(--text-muted)">

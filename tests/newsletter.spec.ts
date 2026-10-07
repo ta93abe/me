@@ -14,17 +14,15 @@ test.describe("Newsletter CTA (Substack)", () => {
 		await expect(footerCta).toHaveAttribute("rel", /noopener/);
 	});
 
-	test("blog index has a subscribe block", async ({ page }) => {
+	test("blog index does not embed an inline subscribe block", async ({
+		page,
+	}) => {
 		await page.goto("/blog");
 
-		const block = page.locator("[data-newsletter-cta-block]");
-		await expect(block).toBeVisible();
+		await expect(page.locator("[data-newsletter-cta-block]")).toHaveCount(0);
 		await expect(
-			block.getByRole("heading", { name: "Newsletter" }),
-		).toBeVisible();
-		await expect(
-			block.locator('a[data-newsletter-cta="blog-index"]'),
-		).toHaveAttribute("href", subscribeUrl);
+			page.locator('a[data-newsletter-cta="blog-index"]'),
+		).toHaveCount(0);
 	});
 
 	test("Links keeps the Substack entry", async ({ page }) => {
