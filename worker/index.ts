@@ -3,7 +3,11 @@ import { handle } from "@astrojs/cloudflare/handler";
 import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
-import { trailingSlashRedirectUrl } from "../src/utils/canonical.ts";
+import {
+	permanentRedirectStatus,
+	trailingSlashRedirectUrl,
+	wwwApexRedirectUrl,
+} from "../src/utils/canonical.ts";
 import { A2A_PATH, a2aAgentCard, handleA2a } from "./agent-card.ts";
 import {
 	handleAgentDiscoveryPreflight,
@@ -104,6 +108,14 @@ const AUTH_MD = authMarkdown(SITE_URL, SITE_HOST, AUTH_MD_OIDC_PARAGRAPH);
 
 function isHead(request: Request): boolean {
 	return request.method.toUpperCase() === "HEAD";
+}
+
+function wwwApexRedirect(request: Request): Response | null {
+	const location = wwwApexRedirectUrl(new URL(request.url));
+	if (!location) {
+		return null;
+	}
+	return Response.redirect(location, permanentRedirectStatus(request.method));
 }
 
 function setGeneratedHeaders(headers: Headers): void {
@@ -603,6 +615,14 @@ async function handleSiteRequest(
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
+		const hostRedirect = wwwApexRedirect(request);
+		if (hostRedirect) {
+			return withAgentDiscoveryCors(
+				request,
+				withBaselineSecurityHeaders(hostRedirect),
+			);
+		}
+
 		const preflight = handleAgentDiscoveryPreflight(request);
 		if (preflight) {
 			return preflight;
