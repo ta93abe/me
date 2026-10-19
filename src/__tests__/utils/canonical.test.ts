@@ -47,6 +47,21 @@ describe("canonicalPageUrl", () => {
 		expect(canonicalPageUrl("/rss.xml", site).href).toBe(
 			"https://ta93abe.com/rss.xml",
 		);
+		expect(canonicalPageUrl("/404.html", site).href).toBe(
+			"https://ta93abe.com/404.html",
+		);
+	});
+
+	it("maps HTML filenames onto trailing-slash canonicals", () => {
+		expect(canonicalPageUrl("/about.html", site).href).toBe(
+			"https://ta93abe.com/about/",
+		);
+		expect(canonicalPageUrl("/about/index.html", site).href).toBe(
+			"https://ta93abe.com/about/",
+		);
+		expect(canonicalPageUrl("/index.html", site).href).toBe(
+			"https://ta93abe.com/",
+		);
 	});
 
 	it("drops hash and query from the canonical", () => {
@@ -108,6 +123,64 @@ describe("trailingSlashRedirectUrl", () => {
 			trailingSlashRedirectUrl(
 				new URL("https://ta93abe.com/api/content/schema"),
 			),
+		).toBeNull();
+	});
+
+	it("301s .html and index.html page URLs onto the slashed canonical", () => {
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/contact.html"))
+				?.href,
+		).toBe("https://ta93abe.com/contact/");
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/about.html"))?.href,
+		).toBe("https://ta93abe.com/about/");
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/about/index.html"))
+				?.href,
+		).toBe("https://ta93abe.com/about/");
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/index.html"))?.href,
+		).toBe("https://ta93abe.com/");
+		expect(
+			trailingSlashRedirectUrl(
+				new URL("https://ta93abe.com/gadgets/mac-studio.html"),
+			)?.href,
+		).toBe("https://ta93abe.com/gadgets/mac-studio/");
+		expect(
+			trailingSlashRedirectUrl(
+				new URL("https://ta93abe.com/blog/hello-world.html"),
+			)?.href,
+		).toBe("https://ta93abe.com/blog/hello-world/");
+		expect(
+			trailingSlashRedirectUrl(
+				new URL("https://ta93abe.com/slides/snowflake-dbt.html"),
+			)?.href,
+		).toBe("https://ta93abe.com/slides/snowflake-dbt/");
+	});
+
+	it("keeps query strings when stripping .html", () => {
+		expect(
+			trailingSlashRedirectUrl(
+				new URL("https://ta93abe.com/contact.html?utm=1"),
+			)?.href,
+		).toBe("https://ta93abe.com/contact/?utm=1");
+		expect(
+			trailingSlashRedirectUrl(
+				new URL("https://ta93abe.com/about/index.html?utm=1"),
+			)?.href,
+		).toBe("https://ta93abe.com/about/?utm=1");
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/index.html?utm=1"))
+				?.href,
+		).toBe("https://ta93abe.com/?utm=1");
+	});
+
+	it("leaves 404.html as a real asset path", () => {
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/404.html")),
+		).toBeNull();
+		expect(
+			trailingSlashRedirectUrl(new URL("https://ta93abe.com/blog/404.html")),
 		).toBeNull();
 	});
 });

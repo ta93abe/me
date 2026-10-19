@@ -36,7 +36,7 @@ theme: dark
 
 # 前話とのつながり
 
-シリーズ 1 本目: [Snowflake と ClickOps の限界](/slides/snowflake-clickops-limits)
+シリーズ 1 本目: [Snowflake と ClickOps の限界](/slides/snowflake-clickops-limits/)
 
 - コンソール運用の **限界** を整理した
 - 本日: dbt を載せた **その先** に残るギャップ

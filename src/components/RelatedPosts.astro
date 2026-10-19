@@ -1,6 +1,6 @@
 ---
 import type { BlogListItem } from "@/lib/content/blog";
-import { formatDate } from "@/utils/date";
+import { formatBlogSurfaceDate } from "@/utils/date";
 
 interface Props {
 	posts: BlogListItem[];
@@ -24,14 +24,12 @@ if (posts.length === 0) {
           href={`${basePath}/${post.slug}/`}
           class="group flex flex-col rounded-lg bg-(--bg-secondary) p-4 transition-colors hover:bg-(--bg-elevated)"
         >
-          <span class="mb-2 text-sm text-(--text-muted)">
-            {formatDate(post.publish_date)}
-            {post.revise_date && (
-              <span class="mt-1 block text-xs">
-                更新 {formatDate(post.revise_date)}
-              </span>
-            )}
-          </span>
+          <time
+            class="mb-2 text-sm text-(--text-muted)"
+            datetime={post.publish_date.toISOString()}
+          >
+            {formatBlogSurfaceDate(post.publish_date, post.revise_date)}
+          </time>
           <span class="mb-2 font-medium text-(--text-primary) transition-colors group-hover:text-(--primary-color)">
             {post.title}
           </span>

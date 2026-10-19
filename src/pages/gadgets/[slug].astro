@@ -3,11 +3,16 @@ import GadgetThumb from "@/components/gadgets/GadgetThumb.astro";
 import GadgetsViewTransitions from "@/components/gadgets/GadgetsViewTransitions.astro";
 import { SITE } from "@/config/site";
 import { gadgetImageUrl } from "@/data/gadget-images";
-import { GADGETS, getGadget } from "@/data/gadgets";
+import {
+	GADGETS,
+	gadgetRatingLabel,
+	getGadget,
+	hasGadgetRating,
+} from "@/data/gadgets";
 import Layout from "@/layouts/Layout.astro";
 import {
 	generateBreadcrumbSchema,
-	generateGadgetProductSchema,
+	generateGadgetDetailSchema,
 	stringifySchema,
 } from "@/utils/schema";
 
@@ -29,17 +34,21 @@ if (!gadget) {
 
 const site = Astro.site?.href || SITE.url;
 const image = new URL(gadgetImageUrl(gadget.slug), site).href;
-const productSchema = generateGadgetProductSchema(site, {
+const gadgetSchema = generateGadgetDetailSchema(site, {
 	slug: gadget.slug,
 	name: gadget.name,
 	description: gadget.note,
 	image,
 	brand: gadget.brand,
+	rating: gadget.rating,
+	pros: gadget.pros,
+	cons: gadget.cons,
 });
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Gadgets", path: "/gadgets/" },
 	{ name: gadget.name, path: `/gadgets/${gadget.slug}/` },
 ]);
+const reviewed = hasGadgetRating(gadget) ? gadget : undefined;
 ---
 
 <Layout
@@ -54,7 +63,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	<Fragment slot="head">
 		<script
 			type="application/ld+json"
-			set:html={stringifySchema(productSchema)}
+			set:html={stringifySchema(gadgetSchema)}
 		/>
 		<script
 			type="application/ld+json"
@@ -104,6 +113,31 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 				</header>
 				<div class="prose mx-auto mt-12 max-w-xl">
 					<p>{gadget.note}</p>
+					{reviewed ? <p>{gadgetRatingLabel(reviewed.rating)}</p> : null}
+					{
+						reviewed && reviewed.pros && reviewed.pros.length > 0 ? (
+							<>
+								<h2>長所</h2>
+								<ul>
+									{reviewed.pros.map((item) => (
+										<li>{item}</li>
+									))}
+								</ul>
+							</>
+						) : null
+					}
+					{
+						reviewed && reviewed.cons && reviewed.cons.length > 0 ? (
+							<>
+								<h2>短所</h2>
+								<ul>
+									{reviewed.cons.map((item) => (
+										<li>{item}</li>
+									))}
+								</ul>
+							</>
+						) : null
+					}
 				</div>
 			</article>
 		</div>
