@@ -37,4 +37,30 @@ test.describe("Trailing slash canonicalization", { tag: "@smoke" }, () => {
 		expect(res.status()).toBe(301);
 		expect(res.headers().location).toMatch(/\/about\/\?utm=1$/);
 	});
+
+	test(".html and index.html 301 to the slashed canonical", async ({
+		request,
+	}) => {
+		const cases = [
+			["/contact.html", "/contact/"],
+			["/about.html", "/about/"],
+			["/about/index.html", "/about/"],
+			["/index.html", "/"],
+			["/gadgets/mac-studio.html", "/gadgets/mac-studio/"],
+			["/blog/hello-world.html", "/blog/hello-world/"],
+			["/slides/snowflake-dbt.html", "/slides/snowflake-dbt/"],
+		] as const;
+
+		for (const [path, dest] of cases) {
+			const res = await request.get(path, { maxRedirects: 0 });
+			expect(res.status(), path).toBe(301);
+			expect(res.headers().location, path).toMatch(new RegExp(`${dest}$`));
+		}
+	});
+
+	test("preserves query strings on .html 301 Location", async ({ request }) => {
+		const res = await request.get("/contact.html?utm=1", { maxRedirects: 0 });
+		expect(res.status()).toBe(301);
+		expect(res.headers().location).toMatch(/\/contact\/\?utm=1$/);
+	});
 });

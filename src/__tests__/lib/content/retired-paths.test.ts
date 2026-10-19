@@ -11,6 +11,12 @@ describe("isRetiredSitePath", () => {
 		expect(isRetiredSitePath("/bookshelf/some-book")).toBe(true);
 	});
 
+	it("matches .html filenames of retired collections", () => {
+		expect(isRetiredSitePath("/gallery.html")).toBe(true);
+		expect(isRetiredSitePath("/gallery/index.html")).toBe(true);
+		expect(isRetiredSitePath("/atelier/dbt-jobs.html")).toBe(true);
+	});
+
 	it("leaves live pages alone", () => {
 		expect(isRetiredSitePath("/")).toBe(false);
 		expect(isRetiredSitePath("/blog")).toBe(false);

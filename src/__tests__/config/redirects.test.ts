@@ -14,4 +14,10 @@ describe("pageAliasRedirect", () => {
 		expect(pageAliasRedirect("/gadgets/keyboard/")).toBe("/gadgets/");
 		expect(pageAliasRedirect("/about")).toBeNull();
 	});
+
+	it("matches .html and index.html aliases in one hop", () => {
+		expect(pageAliasRedirect("/careers.html")).toBe("/about/");
+		expect(pageAliasRedirect("/jobs/index.html")).toBe("/about/");
+		expect(pageAliasRedirect("/gadgets/keyboard.html")).toBe("/gadgets/");
+	});
 });

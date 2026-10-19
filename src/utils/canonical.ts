@@ -22,6 +22,8 @@ const PASSTHROUGH_PATHS = new Set([
 	"/api",
 ]);
 const PASSTHROUGH_PREFIXES = ["/.well-known/", "/api/"] as const;
+const HTML_SUFFIX = ".html";
+const INDEX_HTML_SUFFIX = "/index.html";
 
 function isPassthroughPath(pathname: string): boolean {
 	if (PASSTHROUGH_PATHS.has(pathname)) {
@@ -30,17 +32,63 @@ function isPassthroughPath(pathname: string): boolean {
 	return PASSTHROUGH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+/** 404.html は Worker / assets の not_found_handling が使う実ファイル。 */
+export function isHtmlFilenamePassthrough(pathname: string): boolean {
+	return pathname === "/404.html" || pathname.endsWith("/404.html");
+}
+
+/**
+ * `/about.html` → `/about`、`/about/index.html` → `/about/`、`/index.html` → `/`。
+ * 404.html と非 HTML はそのまま。
+ */
+export function stripHtmlFilename(pathname: string): string {
+	if (isHtmlFilenamePassthrough(pathname) || !pathname.endsWith(HTML_SUFFIX)) {
+		return pathname;
+	}
+	if (pathname === "/index.html") {
+		return "/";
+	}
+	if (pathname.endsWith(INDEX_HTML_SUFFIX)) {
+		return pathname.slice(0, -"index.html".length);
+	}
+	return pathname.slice(0, -HTML_SUFFIX.length);
+}
+
+/**
+ * `.html` / `index.html` を末尾スラッシュの正規パスへ。対象外は null。
+ */
+export function htmlFilenameCanonicalPath(pathname: string): string | null {
+	if (isHtmlFilenamePassthrough(pathname) || !pathname.endsWith(HTML_SUFFIX)) {
+		return null;
+	}
+	return withTrailingSlash(stripHtmlFilename(pathname));
+}
+
 /**
  * HTML ページで末尾スラッシュがないとき、301 先の絶対 URL を返す。
- * ルート、ファイル、エージェント/API エンドポイントは対象外。
+ * `/path.html` と `/path/index.html` も同じ正規 URL へまとめる。
+ * ルート、404.html、その他ファイル、エージェント/API エンドポイントは対象外。
+ *
+ * TA-1439 の www→apex は `trailingSlashRedirectUrl` の結果を同じ Location に
+ * 載せる想定なので、`.html` 正規化もここで行い二重リダイレクトにしない。
  */
 export function trailingSlashRedirectUrl(url: URL): URL | null {
 	const { pathname } = url;
+	if (isPassthroughPath(pathname)) {
+		return null;
+	}
+
+	const htmlPath = htmlFilenameCanonicalPath(pathname);
+	if (htmlPath !== null) {
+		const redirected = new URL(url);
+		redirected.pathname = htmlPath;
+		return redirected;
+	}
+
 	if (
 		pathname === "/" ||
 		pathname.endsWith("/") ||
-		hasFileExtension(pathname) ||
-		isPassthroughPath(pathname)
+		hasFileExtension(pathname)
 	) {
 		return null;
 	}
@@ -57,6 +105,11 @@ export function canonicalPageUrl(
 	const url = new URL(pathnameOrUrl, site);
 	url.hash = "";
 	url.search = "";
+	const htmlPath = htmlFilenameCanonicalPath(url.pathname);
+	if (htmlPath !== null) {
+		url.pathname = htmlPath;
+		return url;
+	}
 	if (
 		url.pathname !== "/" &&
 		!url.pathname.endsWith("/") &&

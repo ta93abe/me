@@ -9,6 +9,7 @@ import { createHighlighter, createJavaScriptRegexEngine } from "shiki";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
+import { trailingSlashRedirectUrl } from "../../utils/canonical.ts";
 import { transformerSlideHighlight } from "./highlight.ts";
 import { rehypeShikiToClasses } from "./shiki-classes.ts";
 import type { ColorTheme } from "./types.ts";
@@ -47,6 +48,11 @@ type ImageNode = {
 	url: string;
 };
 
+type LinkNode = {
+	type: "link";
+	url: string;
+};
+
 function rewriteRelativeImages(slug: string) {
 	return () => (tree: unknown) => {
 		visit(tree as never, "image", (node: ImageNode) => {
@@ -57,6 +63,23 @@ function rewriteRelativeImages(slug: string) {
 			node.url = cleaned.startsWith(`${slug}/`)
 				? `/slides/media/${cleaned}`
 				: `/slides/media/${slug}/${cleaned}`;
+		});
+	};
+}
+
+function rewriteInternalPageLinks() {
+	return () => (tree: unknown) => {
+		visit(tree as never, "link", (node: LinkNode) => {
+			if (!node.url || !node.url.startsWith("/") || node.url.startsWith("//")) {
+				return;
+			}
+			const location = trailingSlashRedirectUrl(
+				new URL(node.url, "https://ta93abe.com"),
+			);
+			if (!location) {
+				return;
+			}
+			node.url = `${location.pathname}${location.search}${location.hash}`;
 		});
 	};
 }
@@ -73,6 +96,7 @@ export async function markdownToHtml(
 		.use(remarkGfm)
 		.use(remarkMath)
 		.use(rewriteRelativeImages(slug))
+		.use(rewriteInternalPageLinks)
 		.use(remarkRehype, { allowDangerousHtml: false })
 		.use(rehypeKatex, { strict: "ignore" })
 		.use(() =>
