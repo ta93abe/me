@@ -1,8 +1,10 @@
-import { initHeroWebGL, type HeroWebGLHandle } from "../hero-webgl.ts";
+import {
+	initHeroPaperShader,
+	type HeroPaperShaderHandle,
+} from "../hero-paper-shader.ts";
 
-export function initHomeBloom(): HeroWebGLHandle | null {
-	const canvas =
-		document.querySelector<HTMLCanvasElement>("[data-hero-canvas]");
-	if (!canvas) return null;
-	return initHeroWebGL(canvas);
+export function initHomeBloom(): HeroPaperShaderHandle | null {
+	const mount = document.querySelector<HTMLElement>("[data-hero-shader]");
+	if (!mount) return null;
+	return initHeroPaperShader(mount);
 }

@@ -2,7 +2,7 @@
 
 1 デッキ = Markdown 1 ファイル。見た目は書かない。
 
-契約の決定: [ADR-0010](https://linear.app/ta93abe/document/adr-0010-スライド型は-html-コメントで指定する-e347dd843d49) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)
+契約の決定: [ADR-0010](https://linear.app/ta93abe/document/adr-0010-スライド型は-html-コメントで指定する-e347dd843d49) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)（`accent` は [TA-882](https://linear.app/ta93abe/issue/TA-882) で部分追記）
 
 ブログ本文（`marked` + Prism）とは別経路。スライドは remark + ビルド時 Shiki。
 
@@ -19,7 +19,7 @@ src/slides/decks/<slug>/図.png   # 任意。画像などの実体
 
 ## frontmatter
 
-ファイル先頭のみ。見た目のキーは `theme` だけ。値は `dark` か `light`。省略時は `dark`。色コードは置かない。
+ファイル先頭のみ。見た目のキーは `theme`、任意の `accent`、任意の `effect`。`theme` は `dark` か `light`。省略時は `dark`。`accent` は `#rrggbb` または `#rgb` だけ（parser がビルド時に `--color-accent` / `--color-accent-deep` を確定する）。省略時は紫のまま。`effect` は発表面プレイヤーだけの演出。初回は `snow`（画面全体に雪）。省略時は演出なし。未知の値はビルド失敗。スライド本文や CSS には色コードを書かない。
 
 ```yaml
 ---
@@ -28,8 +28,21 @@ date: 2026-09-06
 description: 一覧に出す一行
 slug: event-name-2026-09-06
 theme: dark
+accent: "#f6821f"
+effect: snow
+event: イベント名
 ---
 ```
+
+`effect` は `/slides/<slug>/` のプレイヤーだけ。印刷 HTML（`/print/`）と PDF には出さない（静止の雪も禁止）。`prefers-reduced-motion: reduce` では動かない。
+
+`accent` を付けたデッキは発表面・印刷 HTML / PDF とも同じアクセントになる。OG 画像は初回は従来どおり（デッキ色には追従しない）。一覧・404 など著者が書かない面は紫のまま。
+
+`event` は任意。先頭の `cover` 枚の上部メタ行に出る。`date` は同じメタ行に日本語日付で出る（著者名と X ハンドルはサイト設定から自動）。
+
+### SNS プレビュー（OG 画像）
+
+`/og/slides/<slug>.png` はビルド時に生成する。カバー枚と同系の暗色背景・左アクセント・大きなタイトル。メタ行は `event`（あれば）と `date`（日本語）＋サイト名。カスタム OG 用の frontmatter キーは不要。`title` / `date` / `event` をそのまま使う。一覧 `/og/slides.png` も同じテンプレで「Slides」タイトル。
 
 ## スライド
 
@@ -44,6 +57,8 @@ theme: dark
 
 サブタイトル
 ```
+
+表紙は `#` がタイトル、直後の段落がサブタイトル。イベント名・日付・著者は frontmatter / サイト設定から自動で上段に並ぶ。`section` は全面アクセント + 大見出し（必要なら見出し下に短い一行）。`end` は中央寄せ + 左アクセントバー。
 
 使える型: `cover` / `section` / `body` / `split` / `quote` / `code` / `figure` / `center` / `end`
 
@@ -160,4 +175,27 @@ pnpm dev
 
 紙面の決め方は [docs/slides-pdf.md](slides-pdf.md)。
 
+## プレイヤー（枚切り替え・モーション）
+
+枚 index の変更時だけ、約 320ms の fade + 短い slide トランジションをかける。`<!-- click -->` の fragment は opacity + ごく小さな translate（過剰な動きは避ける）。`prefers-reduced-motion: reduce` では枚・ fragment とも瞬時切替。概要（`o`）・印刷 HTML（`/print/`）・PDF 生成 DOM では枚トランジションは走らない。
+
+### 手動確認（TA-1358）
+
+| 項目 | 期待 |
+|------|------|
+| → / ← で枚変更 | 短い fade/slide。URL ハッシュが `#n` に追従 |
+| 深いリンク `#2` | 2 枚目が**アニメなし**で開く（hashchange は瞬時） |
+| `<!-- click -->` ありの枚 | → で fragment が先に出てから次枚（`#n.1`） |
+| `o` 概要 → 枚クリック | グリッドから選んだ枚へ**アニメなし**で遷移 |
+| OS「視差効果を減らす」ON | 枚・ fragment とも瞬時 |
+| `/slides/<slug>/print/` | 全枚表示・`player.js` なし（Playwright も参照） |
+
 操作: ← → / Home / End / スペース / スワイプ / `f` フルスクリーン / `o` 概要グリッド / `p` 発表者ノート / `?` 操作一覧
+
+### 手動確認（TA-1362・狭い viewport）
+
+DevTools で幅 320px（例: iPhone SE）にし、`/slides/showcase/` を開く。デッキ stage が横スクロールせず、split 枚（「コンテンツ / 見た目」）が縦 1 列で読めること。左右スワイプで枚が進み、短いタップだけでは枚が変わらないこと。左下 PDF・右下カウンタが画面端やホームインジケータと重ならないこと。
+
+### 発表者ビュー（`p`）
+
+画面下部にドックを出し、投影エリアはその分だけ縮む（二画面 API は使わない）。左に `<!-- notes -->` のノート（無い枚は「ノートなし」）、右に次枚の見出しと本文から取った一行プレビュー。経過時間はドック上部に表示し、投影用のカウンタ・PDF リンクは `html.is-presenter` の間は非表示。`Escape` で閉じる。`?` の操作一覧は従来どおり（一覧表示中は `p` は効かない）。

@@ -1,6 +1,7 @@
 ---
 import type { Talk } from "@/data/talks";
 import { talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
+import { slidePdfPath, slidePlayerPath } from "@/lib/slides/paths";
 import { formatDate, toDatetimeAttr } from "@/utils/date";
 
 interface Props {
@@ -12,9 +13,13 @@ const youtubeUrl = talkYoutubeUrl(talk);
 const thumbnailUrl = talkThumbnailUrl(talk);
 const extraLinks = talk.links ?? [];
 const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
+const slidePlayerHref = talk.slideSlug
+	? slidePlayerPath(talk.slideSlug)
+	: undefined;
+const slidePdfHref = talk.slideSlug ? slidePdfPath(talk.slideSlug) : undefined;
 ---
 
-<article class="talk-card">
+<article class="talk-card" id={`talk-${talk.slug}`}>
 	<header class="talk-card-header">
 		<div class="talk-card-meta">
 			<time datetime={toDatetimeAttr(talk.date)}>{formatDate(talk.date)}</time>
@@ -68,19 +73,42 @@ const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
 			</span>
 		</span>
 	</a>
-	{
-		extraLinks.length > 0 && (
-			<ul class="talk-card-links">
-				{extraLinks.map((link) => (
-					<li>
-						<a href={link.href} target="_blank" rel="noopener noreferrer">
-							{link.label}
-						</a>
-					</li>
-				))}
-			</ul>
-		)
-	}
+	<nav class="talk-card-resources" aria-label={`${talk.title} の資料`}>
+		<a
+			class="talk-card-resource is-recording"
+			href={youtubeUrl}
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			Recording
+		</a>
+		{
+			slidePlayerHref ? (
+				<a class="talk-card-resource is-primary" href={slidePlayerHref}>
+					Slides
+				</a>
+			) : null
+		}
+		{
+			slidePdfHref ? (
+				<a class="talk-card-resource" href={slidePdfHref}>
+					PDF
+				</a>
+			) : null
+		}
+		{
+			extraLinks.map((link) => (
+				<a
+					class="talk-card-resource"
+					href={link.href}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{link.label}
+				</a>
+			))
+		}
+	</nav>
 </article>
 
 <style>
@@ -200,24 +228,49 @@ const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
 		fill: #cc0000;
 	}
 
-	.talk-card-links {
+	.talk-card-resources {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.75rem 1.25rem;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-		font-size: 0.875rem;
+		gap: 0.5rem 0.65rem;
 	}
 
-	.talk-card-links a {
-		color: var(--primary-color);
+	.talk-card-resource {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.35rem 0.85rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		line-height: 1.25;
+		color: var(--text-primary);
 		text-decoration: none;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--bg-elevated);
+		transition:
+			border-color 0.15s ease,
+			color 0.15s ease;
 	}
 
-	.talk-card-links a:hover,
-	.talk-card-links a:focus-visible {
-		text-decoration: underline;
+	.talk-card-resource:hover,
+	.talk-card-resource:focus-visible {
+		border-color: color-mix(in srgb, var(--primary-color) 45%, var(--border-color));
+		color: var(--primary-color);
+	}
+
+	.talk-card-resource.is-primary {
+		color: var(--primary-color);
+		border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-color));
+		background: color-mix(in srgb, var(--primary-color) 8%, var(--bg-elevated));
+	}
+
+	.talk-card-resource.is-recording {
+		color: var(--text-secondary);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.talk-card-resource {
+			transition: none;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {

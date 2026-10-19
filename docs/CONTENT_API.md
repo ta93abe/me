@@ -66,7 +66,7 @@ wrangler secret put CONTENT_HMAC_SECRET
 
 PUT / DELETE は同期で index と `derived/` を冪等に書き直す。ブログ PUT は本文の単独 URL / X ポスト / YouTube も `derived/embeds/` に解決する。R2 の `md/` 通知は Queue `content-events` でも同じ再構築と Cache purge（`/blog` HTML、`/rss.xml`、sitemap、llms、OG）を行う。TTL 内の embed は Queue 側では取り直さない。再公開（PUT）では取り直す。
 
-`/sitemap-blog.xml` の `/blog/` 一覧 URL の `lastmod` は、公開記事の `revise_date`（なければ `publish_date`）の最大値（YYYY-MM-DD、UTC）にする。記事が 0 件のときは一覧エントリ自体を出さない。この sitemap はリクエスト時生成のため、ビルド時刻は使わない。
+`/sitemap-blog.xml` の `/blog/` 一覧 URL の `lastmod` は、公開記事の `revise_date`（なければ `publish_date`）の最大値（YYYY-MM-DD、UTC）にする。記事が 0 件のときは一覧エントリ自体を出さない。この sitemap はリクエスト時生成のため、ビルド時刻は使わない。`/blog/` と投稿 URL は sitemap-blog のみに載せ、sitemap-0（静的ページ）には含めない。
 
 ## curl（wrangler dev）
 

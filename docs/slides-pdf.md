@@ -60,3 +60,37 @@ Hono の `/:slug.pdf` は使わない。パラメータ名が `slug.pdf` にな�
 既存の `content-events` キューは置き換えない。`queue()` は `batch.queue` で PDF とブログ経路を分岐する。
 
 `IMAGES` は公開 R2 `me-images` のまま。Cloudflare Images バインディングを同名で足さない。
+
+## 見た目（プレイヤー parity）
+
+印刷 HTML は `html.is-print` と `@media print` の両方で次を揃える。
+
+- 全 `.fragment` を表示（SSR で `is-visible`、CSS でも可視）
+- `pre.has-click-highlight` の全ステップを `is-highlighted` 相当で表示（概要グリッドと同じ）
+- cover / section / code の背景・Shiki 色は `print-color-adjust: exact`
+- 16:9 ページ内の typography は 1920×1080 プレイヤーに合わせて `--pad` / `--fs-*` を 1280/1920 でスケール
+
+## showcase の再生成と目視チェック
+
+1. ローカルで印刷 DOM を確認する。
+
+```bash
+pnpm build
+pnpm preview
+```
+
+ブラウザで `/slides/showcase/`（発表）と `/slides/showcase/print/`（全枚）を並べ、cover のグラデーション、code の Shiki 色、クリック fragment・行ハイライトが欠けていないことを確認する。DevTools の「メディア: print」でも `/slides/showcase/print/` を再確認できる。
+
+2. 本番 PDF を更新する（Browser Run は local 非対応）。
+
+```bash
+wrangler dev --remote
+```
+
+別ターミナルで `GET https://ta93abe.com/slides/showcase.pdf` を叩き、`202` のあと R2 の `derived/slides/pdf/showcase.pdf` が更新されるまで待つ。生成 PDF をプレイヤーの最終表示（fragment 全部・code クリック全部出した状態、または `o` 概要）と見比べ、1 枚 1 ページ・16:9・背景欠けがないことを確認する。
+
+3. CI の PDF 定数テスト。
+
+```bash
+pnpm test:run worker/__tests__/slides-pdf.test.ts
+```

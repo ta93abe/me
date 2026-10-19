@@ -13,9 +13,11 @@ const AGENT_DISCOVERY_SNIPPETS = [
 	'rel="describedby" href="https://ta93abe.com/llms.txt" type="text/plain"',
 	'rel="describedby" href="https://ta93abe.com/llms-full.txt" type="text/plain"',
 	'rel="api-catalog" href="https://ta93abe.com/.well-known/api-catalog" type="application/linkset+json"',
+	'rel="ai-catalog" href="https://ta93abe.com/.well-known/ai-catalog.json" type="application/json"',
+	'rel="ard" href="https://ta93abe.com/.well-known/ard.json" type="application/json"',
 	'rel="service-desc" href="https://ta93abe.com/.well-known/mcp/server-card.json" type="application/json"',
 	'rel="describedby" href="https://ta93abe.com/.well-known/agent-skills/index.json" type="application/json"',
-	'rel="service-desc" href="https://ta93abe.com/.well-known/agent-card.json" type="application/json"',
+	'rel="describedby" href="https://ta93abe.com/.well-known/agent-card.json" type="application/json"',
 	'rel="describedby" href="https://ta93abe.com/auth.md" type="text/markdown"',
 	'rel="alternate" href="https://ta93abe.com/rss.xml" type="application/rss+xml"',
 ] as const;
@@ -30,14 +32,6 @@ test.describe("Sitewide SEO", () => {
 				expect(html, `${path} missing ${snippet}`).toContain(snippet);
 			}
 		}
-	});
-
-	test("home advertises the ARD capability catalog", async ({ request }) => {
-		const html = await pageHtml(request, "/");
-		expect(html).toContain('rel="ai-catalog"');
-		expect(html).toContain("https://ta93abe.com/.well-known/ai-catalog.json");
-		expect(html).toContain('rel="ard"');
-		expect(html).toContain("https://ta93abe.com/.well-known/ard.json");
 	});
 
 	test("public HTML advertises a markdown alternate of the same URL", async ({
@@ -152,10 +146,33 @@ test.describe("Sitewide SEO", () => {
 		}
 	});
 
-	test("404 is noindex and has no JSON-LD", async ({ request }) => {
-		const html = await pageHtml(request, "/blog/does-not-exist");
+	test("404 responses are noindex without rel=canonical", async ({
+		request,
+	}) => {
+		const paths = [
+			"/pricing/",
+			"/this-page-should-not-exist-xyz/",
+			"/blog/does-not-exist",
+		];
+
+		for (const path of paths) {
+			const response = await request.get(path);
+			expect(response.status(), path).toBe(404);
+			const html = await response.text();
+			expect(html, path).toContain('name="robots" content="noindex, nofollow"');
+			expect(html, path).not.toContain("application/ld+json");
+			expect(html, path).not.toMatch(/rel=["']canonical["']/);
+		}
+	});
+
+	test("static /404/ stays noindex without a self-referential canonical", async ({
+		request,
+	}) => {
+		const response = await request.get("/404/");
+		expect(response.status()).toBe(200);
+		const html = await response.text();
 		expect(html).toContain('name="robots" content="noindex, nofollow"');
-		expect(html).not.toContain("application/ld+json");
+		expect(html).not.toMatch(/rel=["']canonical["']/);
 	});
 
 	test("SNS profile links advertise rel=me", async ({ page }) => {

@@ -15,7 +15,8 @@
 	"ignoreGroups": ["commerce"],
 	"markdownPaths": [
 		{ "path": "/", "expectMarkdown": true },
-		{ "path": "/about/", "expectMarkdown": false },
-		{ "path": "/blog/hello-world/", "expectMarkdown": false }
+		{ "path": "/about/", "expectMarkdown": true },
+		{ "path": "/blog/hello-world/", "expectMarkdown": true },
+		{ "path": "/works/", "expectMarkdown": true }
 	]
 }

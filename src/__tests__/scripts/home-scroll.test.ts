@@ -31,8 +31,10 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(mount).toMatch(/prefersReducedMotion\(\)/);
 		const scroll = readSrc("scripts/home/scroll.ts");
 		expect(scroll).toMatch(/prefersReducedMotion\(\)/);
-		const webgl = readSrc("scripts/hero-webgl.ts");
-		expect(webgl).toMatch(/prefers-reduced-motion: reduce/);
+		const hero = readSrc("components/landing/HomeHero.astro");
+		expect(hero).toMatch(/prefers-reduced-motion: reduce/);
+		const paper = readSrc("scripts/hero-paper-shader.ts");
+		expect(paper).toMatch(/prefersReducedMotion\(\)/);
 	});
 
 	it("animates with transform and opacity only in scroll.ts", () => {
@@ -44,9 +46,15 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(scroll).not.toMatch(/fontSize/);
 	});
 
-	it("exposes a decorative hero canvas with aria-hidden", () => {
+	it("exposes a decorative hero shader mount with aria-hidden", () => {
 		const hero = readSrc("components/landing/HomeHero.astro");
-		expect(hero).toMatch(/data-hero-canvas/);
+		expect(hero).toMatch(/data-hero-shader/);
 		expect(hero).toMatch(/aria-hidden="true"/);
+	});
+
+	it("mounts Paper MeshGradient from deferred bloom module", () => {
+		const bloom = readSrc("scripts/home/bloom.ts");
+		expect(bloom).toMatch(/hero-paper-shader/);
+		expect(bloom).toMatch(/data-hero-shader/);
 	});
 });

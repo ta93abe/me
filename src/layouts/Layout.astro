@@ -17,6 +17,8 @@ interface Props {
 	ogType?: "website" | "article" | "book" | "product";
 	/** 明示的な canonical。未指定時は現在の pathname */
 	canonicalURL?: string | URL;
+	/** true のとき rel=canonical を出さない（404 など） */
+	omitCanonical?: boolean;
 	/** true のとき検索エンジンにインデックスさせない */
 	noindex?: boolean;
 	noHeader?: boolean;
@@ -40,6 +42,7 @@ const {
 	ogSiteName = SITE.name,
 	ogType = "website",
 	canonicalURL: canonicalOverride,
+	omitCanonical = false,
 	noindex = false,
 	noHeader = false,
 	noFooter = false,
@@ -88,7 +91,7 @@ const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 		<meta name="description" content={description} />
 		<meta name="author" content={SITE.author} />
 		<meta name="robots" content={robotsContent} />
-		<link rel="canonical" href={canonicalURL} />
+		{!omitCanonical && <link rel="canonical" href={canonicalURL} />}
 		{
 			!noindex && (
 				<link rel="alternate" type="text/markdown" href={canonicalURL} />

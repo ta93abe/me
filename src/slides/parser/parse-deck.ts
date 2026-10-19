@@ -1,5 +1,6 @@
 import { basename } from "node:path";
 
+import { parseAccent } from "./accent.ts";
 import { materializeSlideHtml } from "./clicks.ts";
 import { findForbidden } from "./forbidden.ts";
 import { markdownToHtml } from "./markdown.ts";
@@ -8,10 +9,12 @@ import {
 	DECK_FRONTMATTER_KEYS,
 	DeckError,
 	isColorTheme,
+	isDeckEffect,
 	isSlideType,
 	REQUIRED_FRONTMATTER_KEYS,
 	type ColorTheme,
 	type Deck,
+	type DeckEffect,
 	type DeckFrontmatter,
 	type Slide,
 	type SlideType,
@@ -96,7 +99,53 @@ function parseFrontmatter(
 		}
 	}
 
-	return { title, date, description, slug, theme };
+	const event =
+		data.event !== undefined ? String(data.event).trim() : undefined;
+	const talkSlug =
+		data.talkSlug !== undefined ? String(data.talkSlug).trim() : undefined;
+
+	if (event !== undefined && event.length === 0) {
+		throw new DeckError("event が空です");
+	}
+	if (talkSlug !== undefined) {
+		if (talkSlug.length === 0) {
+			throw new DeckError("talkSlug が空です");
+		}
+		if (!SLUG_PATTERN.test(talkSlug)) {
+			throw new DeckError(
+				`talkSlug は英小文字・数字・ハイフンだけです: ${talkSlug}`,
+			);
+		}
+	}
+
+	let accent: string | undefined;
+	let accentDeep: string | undefined;
+	if (data.accent !== undefined) {
+		const parsed = parseAccent(String(data.accent));
+		accent = parsed.accent;
+		accentDeep = parsed.accentDeep;
+	}
+
+	let effect: DeckEffect | undefined;
+	if (data.effect !== undefined) {
+		const raw = String(data.effect).trim().toLowerCase();
+		if (!isDeckEffect(raw)) {
+			throw new DeckError(`effect は snow です: ${String(data.effect)}`);
+		}
+		effect = raw;
+	}
+
+	return {
+		title,
+		date,
+		description,
+		slug,
+		theme,
+		...(accent ? { accent, accentDeep } : {}),
+		...(effect ? { effect } : {}),
+		...(event ? { event } : {}),
+		...(talkSlug ? { talkSlug } : {}),
+	};
 }
 
 function extractNotes(source: string): { notes: string; body: string } {

@@ -14,6 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+	evaluateAgentAuthProbe,
 	evaluateMarkdownProbe,
 	evaluateScan,
 	renderGithubAnnotations,
@@ -142,6 +143,23 @@ async function fetchScanAgentMarkdown(apiUrl, siteUrl) {
 	return text;
 }
 
+async function probeAgentAuth(baseUrl) {
+	const url = new URL("/agent/auth", `${baseUrl.replace(/\/+$/, "")}/`).href;
+	const response = await fetchWithRetry(url, {
+		method: "POST",
+		headers: {
+			accept: "application/json",
+			"content-type": "application/json",
+		},
+		body: "{}",
+	});
+	return evaluateAgentAuthProbe({
+		path: "/agent/auth",
+		status: response.status,
+		contentType: response.headers.get("content-type") ?? "",
+	});
+}
+
 async function probeMarkdown(baseUrl, pathname) {
 	const url = new URL(pathname, `${baseUrl.replace(/\/+$/, "")}/`).href;
 	const response = await fetchWithRetry(url, {
@@ -186,10 +204,13 @@ async function main() {
 		markdown.push(evaluateMarkdownProbe(probe, spec.expectMarkdown));
 	}
 
+	const agentAuth = await probeAgentAuth(siteUrl);
+
 	const markdownRegressions = markdown.filter((row) => row.regression);
 	const failJob = shouldFailJob({
 		...scan,
 		markdownRegressions,
+		agentAuth,
 		gateRegressions: args.gateRegressions,
 		gateKnownFails: args.gateKnownFails,
 	});
@@ -197,11 +218,12 @@ async function main() {
 	const summary = renderSummary({
 		scan,
 		markdown,
+		agentAuth,
 		uiUrl: baseline.uiUrl,
 		gateRegressions: args.gateRegressions,
 		gateKnownFails: args.gateKnownFails,
 	});
-	const annotations = renderGithubAnnotations({ scan, markdown });
+	const annotations = renderGithubAnnotations({ scan, markdown, agentAuth });
 
 	await writeFile(
 		path.join(outDir, "scan.json"),
@@ -225,6 +247,7 @@ async function main() {
 				unexpectedFails: scan.unexpectedFails.map((row) => row.id),
 				newlyPassing: scan.newlyPassing.map((row) => row.id),
 				markdown,
+				agentAuth,
 				failJob,
 			},
 			null,

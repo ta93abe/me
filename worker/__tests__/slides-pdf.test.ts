@@ -66,6 +66,18 @@ describe("PDF page contract", () => {
 		expect(parseSlidePdfSlug("/slides/Not_Valid.pdf")).toBeNull();
 	});
 
+	it.each([
+		"snowflake-clickops-limits",
+		"snowflake-dbt",
+		"snowflake-observability",
+	])("keeps snowflake deck %s on the PDF route contract", (slug) => {
+		expect(parseSlidePdfSlug(`/slides/${slug}.pdf`)).toBe(slug);
+		expect(printDeckUrl(PDF_ORIGIN, slug)).toBe(
+			`https://ta93abe.com/slides/${slug}/print/`,
+		);
+		expect(pdfObjectKey(slug)).toBe(`derived/slides/pdf/${slug}.pdf`);
+	});
+
 	it("overrides hidden slides in print CSS so one slide is one page", () => {
 		const css = readFileSync("src/slides/player/player.css", "utf8");
 		const print = css.split("@media print")[1] ?? "";
@@ -74,6 +86,15 @@ describe("PDF page contract", () => {
 		expect(print).toContain("size: 13.333in 7.5in;");
 		expect(print).not.toContain("landscape");
 		expect(css).toContain("html.is-print .slide[hidden]");
+	});
+
+	it("keeps gradients, Shiki, and click highlights in print CSS", () => {
+		const css = readFileSync("src/slides/player/player.css", "utf8");
+		const print = css.split("@media print")[1] ?? "";
+		expect(css).toContain("print-color-adjust: exact");
+		expect(print).toContain(".slide-body pre.shiki");
+		expect(print).toContain(".line[data-click-highlight]");
+		expect(print).toContain(".fragment");
 	});
 });
 

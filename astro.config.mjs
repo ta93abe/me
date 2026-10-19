@@ -12,7 +12,10 @@ import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 import { PAGE_ALIASES } from "./src/config/redirects.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
 import { optionalFontDisplayPlugin } from "./src/utils/optional-font-display.ts";
-import { createStaticSitemapSerializer } from "./src/utils/sitemap-lastmod.ts";
+import {
+	createStaticSitemapSerializer,
+	includeInStaticSitemap,
+} from "./src/utils/sitemap-lastmod.ts";
 
 const sitemapSerialize = createStaticSitemapSerializer({
 	rootDir: path.dirname(fileURLToPath(import.meta.url)),
@@ -59,7 +62,7 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
-			filter: (page) => !page.includes("/print") && !page.includes("/og/"),
+			filter: includeInStaticSitemap,
 			serialize(item) {
 				return sitemapSerialize(item);
 			},

@@ -1,6 +1,11 @@
 ---
 import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
+import { talkBySlug } from "@/data/talk-slide-crosslinks";
+import { talkYoutubeUrl } from "@/data/talks";
+import { talkAnchorPath } from "@/lib/slides/paths";
+import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
+import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
 import { renderSlideSections } from "@/slides/render";
 import { generateSlideDeckSchema, stringifySchema } from "@/utils/schema";
@@ -10,6 +15,7 @@ import "@/slides/design-system/typography.css";
 import "@/slides/design-system/layouts.css";
 import "@/slides/design-system/shiki.css";
 import "@/slides/player/player.css";
+import "@/slides/player/effects/snow.css";
 
 interface Props {
 	deck: Deck;
@@ -17,7 +23,15 @@ interface Props {
 }
 
 const { deck, print = false } = Astro.props;
-const { title, description, slug, theme, date } = deck.frontmatter;
+const { title, description, slug, theme, date, accent, accentDeep, effect } =
+	deck.frontmatter;
+const accentVars =
+	accent && accentDeep
+		? `--color-accent: ${accent}; --color-accent-deep: ${accentDeep};`
+		: "";
+const htmlStyle = accentVars
+	? `color-scheme: ${theme}; ${accentVars}`
+	: `color-scheme: ${theme};`;
 const siteBase = Astro.site?.href || SITE.url;
 const playerURL = new URL(`/slides/${slug}/`, siteBase);
 const ogImageURL = new URL(`/og/slides/${slug}.png`, siteBase);
@@ -31,14 +45,23 @@ const deckSchema = generateSlideDeckSchema(siteBase, {
 	date,
 });
 const sections = renderSlideSections(deck, { print });
+const seriesNeighbors = print
+	? {}
+	: getSeriesNeighbors(slug, await loadDecks());
+const hasSeriesNav = Boolean(seriesNeighbors.prev || seriesNeighbors.next);
+const linkedTalk = deck.frontmatter.talkSlug
+	? talkBySlug(deck.frontmatter.talkSlug)
+	: undefined;
 ---
 
 <!doctype html>
 <html
 	lang="ja"
 	data-theme={theme}
+	data-effect={!print && effect ? effect : undefined}
 	data-print-ready={print ? true : undefined}
 	class:list={[{ "is-print": print }]}
+	style={htmlStyle}
 >
 	<head>
 		<meta charset="UTF-8" />
@@ -90,6 +113,15 @@ const sections = renderSlideSections(deck, { print });
 		<PostHog />
 	</head>
 	<body>
+		{
+			!print && effect === "snow" && (
+				<div
+					class="deck-effect-layer"
+					data-deck-effect-layer="snow"
+					aria-hidden="true"
+				/>
+			)
+		}
 		<div class="stage-wrap">
 			<article
 				class="deck"
@@ -116,25 +148,86 @@ const sections = renderSlideSections(deck, { print });
 						>
 						 / {deck.slides.length}
 					</p>
-					<a class="pdf-link" href={pdfHref}>
-						PDF
-					</a>
+					<nav class="player-chrome-links" aria-label="スライド関連リンク">
+						<a class="player-chrome-link" href="/slides/">
+							一覧
+						</a>
+						<a class="player-chrome-link" href={pdfHref}>
+							PDF
+						</a>
+						{
+							linkedTalk ? (
+								<a
+									class="player-chrome-link"
+									href={talkAnchorPath(linkedTalk.slug)}
+								>
+									Talk
+								</a>
+							) : null
+						}
+						{
+							linkedTalk ? (
+								<a
+									class="player-chrome-link"
+									href={talkYoutubeUrl(linkedTalk)}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Recording
+								</a>
+							) : null
+						}
+					</nav>
+					{
+						hasSeriesNav && (
+							<nav
+								class="series-nav"
+								aria-label="シリーズ内の前後のスライド"
+							>
+								{seriesNeighbors.prev && (
+									<a
+										class="series-nav-link series-nav-link--prev"
+										href={`/slides/${seriesNeighbors.prev.slug}/`}
+									>
+										← {seriesNeighbors.prev.title}
+									</a>
+								)}
+								{seriesNeighbors.next && (
+									<a
+										class="series-nav-link series-nav-link--next"
+										href={`/slides/${seriesNeighbors.next.slug}/`}
+									>
+										{seriesNeighbors.next.title} →
+									</a>
+								)}
+							</nav>
+						)
+					}
 				</div>
 			)
 		}
 		{
 			!print && (
 				<aside class="presenter" hidden data-presenter>
+					<header class="presenter-head">
+						<p class="presenter-head-label">発表者ビュー</p>
+						<p class="presenter-clock" data-presenter-timer aria-live="polite">
+							00:00
+						</p>
+					</header>
 					<div class="presenter-grid">
-						<section>
+						<section class="presenter-notes-block">
 							<h2 class="presenter-label">ノート</h2>
-							<p class="presenter-notes" data-presenter-notes></p>
+							<div class="presenter-notes-scroll">
+								<p class="presenter-notes" data-presenter-notes></p>
+							</div>
 						</section>
-						<section>
+						<section class="presenter-next-block">
 							<h2 class="presenter-label">次</h2>
-							<p class="presenter-next" data-presenter-next></p>
-							<p class="presenter-clock" data-presenter-timer>
-								00:00
+							<p class="presenter-next-title" data-presenter-next-title></p>
+							<p class="presenter-next-hint" data-presenter-next-hint hidden></p>
+							<p class="presenter-next-empty" data-presenter-next-empty hidden>
+								最後のスライド
 							</p>
 						</section>
 					</div>

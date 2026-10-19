@@ -20,6 +20,8 @@ const DISCOVERY_PATHS = [
 	"/.well-known/agent-card.json",
 	"/.well-known/agent-skills/index.json",
 	"/.well-known/agent-skills/site-overview/SKILL.md",
+	"/.well-known/oauth-authorization-server",
+	"/.well-known/oauth-protected-resource",
 	"/auth.md",
 ] as const;
 

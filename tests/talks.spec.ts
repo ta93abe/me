@@ -52,6 +52,16 @@ test.describe("Talks", () => {
 			"https://speakerdeck.com/ta93abe/cloudflare-dehazimeru-data-platform",
 		);
 
+		await expect(
+			page.getByRole("link", { name: "Slides", exact: true }),
+		).toHaveAttribute("href", "/slides/showcase/");
+		await expect(
+			page.getByRole("link", { name: "PDF" }).first(),
+		).toHaveAttribute("href", "/slides/showcase.pdf");
+		await expect(
+			page.getByRole("link", { name: "Recording", exact: true }).first(),
+		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
+
 		const thumbs = page.locator(".talk-card-thumb");
 		await expect(thumbs).toHaveCount(2);
 		await expect(thumbs.nth(0)).toHaveAttribute(

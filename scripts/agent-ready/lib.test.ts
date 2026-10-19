@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import shippedBaseline from "./baseline.json" with { type: "json" };
 import {
+	evaluateAgentAuthProbe,
 	evaluateMarkdownProbe,
 	evaluateScan,
 	flattenChecks,
@@ -72,7 +73,11 @@ describe("baseline.json", () => {
 			"/",
 			"/about/",
 			"/blog/hello-world/",
+			"/works/",
 		]);
+		expect(
+			shippedBaseline.markdownPaths.every((row) => row.expectMarkdown),
+		).toBe(true);
 	});
 });
 
@@ -132,6 +137,28 @@ describe("evaluateScan", () => {
 	});
 });
 
+describe("evaluateAgentAuthProbe", () => {
+	it("passes when POST /agent/auth returns JSON 200", () => {
+		expect(
+			evaluateAgentAuthProbe({
+				path: "/agent/auth",
+				status: 200,
+				contentType: "application/json; charset=utf-8",
+			}),
+		).toMatchObject({ ok: true, regression: false });
+	});
+
+	it("regresses when the endpoint is missing or non-JSON", () => {
+		expect(
+			evaluateAgentAuthProbe({
+				path: "/agent/auth",
+				status: 404,
+				contentType: "text/html",
+			}),
+		).toMatchObject({ ok: false, regression: true });
+	});
+});
+
 describe("evaluateMarkdownProbe", () => {
 	it("accepts content-type that includes markdown", () => {
 		expect(
@@ -155,26 +182,13 @@ describe("evaluateMarkdownProbe", () => {
 		).toMatchObject({ ok: false, regression: true });
 	});
 
-	it("does not treat known subpath html as a regression", () => {
+	it("flags subpath html as a regression when markdown is expected", () => {
 		expect(
 			evaluateMarkdownProbe(
 				{ path: "/about/", status: 200, contentType: "text/html" },
-				false,
+				true,
 			),
-		).toMatchObject({ ok: false, regression: false, unexpectedPass: false });
-	});
-
-	it("notes when a known-failing path starts returning markdown", () => {
-		expect(
-			evaluateMarkdownProbe(
-				{
-					path: "/about/",
-					status: 200,
-					contentType: "text/markdown; charset=utf-8",
-				},
-				false,
-			),
-		).toMatchObject({ ok: true, unexpectedPass: true, regression: false });
+		).toMatchObject({ ok: false, regression: true, unexpectedPass: false });
 	});
 });
 
@@ -197,6 +211,23 @@ describe("shouldFailJob", () => {
 				unexpectedFails: [{ id: "discovery.apiCatalog" }],
 				knownFails: [],
 				markdownRegressions: [],
+				gateRegressions: true,
+				gateKnownFails: false,
+			}),
+		).toBe(true);
+	});
+
+	it("fails when POST /agent/auth stops returning JSON 200", () => {
+		expect(
+			shouldFailJob({
+				unexpectedFails: [],
+				knownFails: [],
+				markdownRegressions: [],
+				agentAuth: evaluateAgentAuthProbe({
+					path: "/agent/auth",
+					status: 404,
+					contentType: "text/html",
+				}),
 				gateRegressions: true,
 				gateKnownFails: false,
 			}),
@@ -230,15 +261,15 @@ describe("renderSummary", () => {
 			),
 			evaluateMarkdownProbe(
 				{ path: "/about/", status: 200, contentType: "text/html" },
-				false,
+				true,
 			),
 			evaluateMarkdownProbe(
 				{
 					path: "/blog/hello-world/",
 					status: 200,
-					contentType: "text/html",
+					contentType: "text/markdown; charset=utf-8",
 				},
-				false,
+				true,
 			),
 		];
 		const summary = renderSummary({

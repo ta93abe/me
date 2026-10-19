@@ -9,11 +9,66 @@ test.describe("Slides", () => {
 			page.getByRole("heading", { name: "Slides", level: 1 }),
 		).toBeVisible();
 
-		const showcase = page.getByRole("link", {
-			name: /デザインシステム ショーケース/,
+		const snowflakeGroup = page.getByRole("region", {
+			name: "Snowflake 運用シリーズ",
 		});
-		await expect(showcase).toHaveAttribute("href", "/slides/showcase/");
-		await showcase.click();
+		await expect(snowflakeGroup).toBeVisible();
+		await expect(
+			snowflakeGroup.getByRole("heading", {
+				name: "SnowflakeとClickOpsの限界",
+				level: 3,
+			}),
+		).toBeVisible();
+		await expect(
+			snowflakeGroup.getByRole("heading", {
+				name: "Snowflake と dbt",
+				level: 3,
+			}),
+		).toBeVisible();
+		await expect(
+			snowflakeGroup.getByRole("heading", {
+				name: "Snowflake で何が起きているのかを把握する",
+				level: 3,
+			}),
+		).toBeVisible();
+		const snowflakeTitles = snowflakeGroup.locator(
+			"h3.slide-deck-card-title a",
+		);
+		await expect(snowflakeTitles).toHaveCount(3);
+		await expect(snowflakeTitles.nth(0)).toHaveAttribute(
+			"href",
+			"/slides/snowflake-clickops-limits/",
+		);
+		await expect(snowflakeTitles.nth(1)).toHaveAttribute(
+			"href",
+			"/slides/snowflake-dbt/",
+		);
+		await expect(snowflakeTitles.nth(2)).toHaveAttribute(
+			"href",
+			"/slides/snowflake-observability/",
+		);
+
+		const showcaseTitle = page.getByRole("link", {
+			name: "デザインシステム ショーケース",
+			exact: true,
+		});
+		await expect(showcaseTitle).toHaveAttribute("href", "/slides/showcase/");
+		await expect(
+			page.getByRole("navigation", {
+				name: "デザインシステム ショーケース へのリンク",
+			}),
+		).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: "Slides", exact: true }).first(),
+		).toHaveAttribute("href", "/slides/showcase/");
+		await expect(
+			page.getByRole("link", { name: "PDF" }).first(),
+		).toHaveAttribute("href", "/slides/showcase.pdf");
+		await expect(page.getByRole("link", { name: "Talk" })).toHaveAttribute(
+			"href",
+			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		);
+		await showcaseTitle.click();
 		await expect(page).toHaveURL(/\/slides\/showcase\/?#/);
 
 		await expect(page.locator(".deck")).toBeVisible();
@@ -24,6 +79,14 @@ test.describe("Slides", () => {
 		await expect(page.getByRole("link", { name: "PDF" })).toHaveAttribute(
 			"href",
 			"/slides/showcase.pdf",
+		);
+		await expect(page.getByRole("link", { name: "Talk" })).toHaveAttribute(
+			"href",
+			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		);
+		await expect(page.getByRole("link", { name: "Recording" })).toHaveAttribute(
+			"href",
+			"https://www.youtube.com/watch?v=KLEApocYmww",
 		);
 
 		await page.goBack();
@@ -62,6 +125,31 @@ test.describe("Slides", () => {
 		expect(jsonLd.some((text) => text.includes("/slides/showcase/"))).toBe(
 			true,
 		);
+	});
+
+	test("showcase player chrome links talk, recording, and index", async ({
+		page,
+	}) => {
+		await page.goto("/slides/showcase/");
+		const chromeLinks = page.getByRole("navigation", {
+			name: "スライド関連リンク",
+		});
+		await expect(chromeLinks).toBeVisible();
+		await expect(
+			chromeLinks.getByRole("link", { name: "一覧" }),
+		).toHaveAttribute("href", "/slides/");
+		await expect(
+			chromeLinks.getByRole("link", { name: "PDF" }),
+		).toHaveAttribute("href", "/slides/showcase.pdf");
+		await expect(
+			chromeLinks.getByRole("link", { name: "Talk" }),
+		).toHaveAttribute(
+			"href",
+			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		);
+		await expect(
+			chromeLinks.getByRole("link", { name: "Recording" }),
+		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
 	});
 
 	test("player exposes deck Open Graph, Twitter, and JSON-LD", async ({
@@ -115,6 +203,20 @@ test.describe("Slides", () => {
 		).toHaveCount(0);
 	});
 
+	test("hides deck chrome after idle and restores on key", async ({ page }) => {
+		test.setTimeout(15_000);
+		await page.goto("/slides/showcase/");
+		const chrome = page.locator(".player-ui");
+		await expect(chrome).toBeVisible();
+		await expect(chrome).not.toHaveClass(/is-chrome-idle/);
+
+		await page.waitForTimeout(3_200);
+		await expect(chrome).toHaveClass(/is-chrome-idle/);
+
+		await page.keyboard.press("ArrowRight");
+		await expect(chrome).not.toHaveClass(/is-chrome-idle/);
+	});
+
 	test("advances click fragments before the next slide", async ({ page }) => {
 		await page.goto("/slides/showcase/");
 		const index = await page
@@ -140,11 +242,141 @@ test.describe("Slides", () => {
 		await expect(presenter.locator("[data-presenter-notes]")).toContainText(
 			"引用は短く止めて",
 		);
+		await expect(
+			presenter.locator("[data-presenter-next-title]"),
+		).toContainText("フェンス");
+		await expect(presenter.locator("[data-presenter-timer]")).toContainText(
+			/^\d{2}:\d{2}$/,
+		);
 		await expect(page.locator("html")).toHaveClass(/is-presenter/);
+		await expect(page.locator(".player-ui .counter")).toBeHidden();
+	});
+
+	test("Snowflake series player links prev and next decks", async ({
+		page,
+	}) => {
+		await page.goto("/slides/snowflake-dbt/");
+		const seriesNav = page.getByRole("navigation", {
+			name: "シリーズ内の前後のスライド",
+		});
+		await expect(seriesNav).toBeVisible();
+		await expect(
+			seriesNav.getByRole("link", { name: /SnowflakeとClickOpsの限界/ }),
+		).toHaveAttribute("href", "/slides/snowflake-clickops-limits/");
+		await expect(
+			seriesNav.getByRole("link", {
+				name: /Snowflake で何が起きているのかを把握する/,
+			}),
+		).toHaveAttribute("href", "/slides/snowflake-observability/");
+	});
+
+	test("ungrouped deck has no series navigation", async ({ page }) => {
+		await page.goto("/slides/showcase/");
+		await expect(
+			page.getByRole("navigation", {
+				name: "シリーズ内の前後のスライド",
+			}),
+		).toHaveCount(0);
 	});
 
 	test("unknown slug is 404", async ({ page }) => {
 		const response = await page.goto("/slides/no-such-deck/");
 		expect(response?.status()).toBe(404);
+	});
+
+	test("narrow viewport keeps deck within bounds and stacks split slides", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 320, height: 568 });
+		await page.goto("/slides/showcase/#4");
+
+		const deck = page.locator(".deck");
+		await expect(deck).toBeVisible();
+		const deckBox = await deck.boundingBox();
+		expect(deckBox).not.toBeNull();
+		if (deckBox) {
+			expect(deckBox.width).toBeLessThanOrEqual(320.5);
+			expect(deckBox.x).toBeGreaterThanOrEqual(-0.5);
+			expect(deckBox.x + deckBox.width).toBeLessThanOrEqual(320.5);
+		}
+
+		const splitBody = page.locator(
+			'.slide.is-active[data-type="split"] .slide-body',
+		);
+		await expect(splitBody).toBeVisible();
+		const columns = await splitBody.evaluate((el) => {
+			return window.getComputedStyle(el).gridTemplateColumns;
+		});
+		expect(columns).toMatch(/^[\d.]+px$/);
+
+		const pdf = page.getByRole("link", { name: "PDF" });
+		const counter = page.locator(".counter");
+		const pdfBox = await pdf.boundingBox();
+		const counterBox = await counter.boundingBox();
+		expect(pdfBox).not.toBeNull();
+		expect(counterBox).not.toBeNull();
+		if (pdfBox && counterBox) {
+			expect(pdfBox.x).toBeGreaterThanOrEqual(0);
+			expect(counterBox.x + counterBox.width).toBeLessThanOrEqual(320.5);
+		}
+	});
+
+	test("short horizontal tap does not change slide on touch", async ({
+		browser,
+	}) => {
+		const context = await browser.newContext({
+			viewport: { width: 390, height: 844 },
+			hasTouch: true,
+		});
+		const page = await context.newPage();
+		await page.goto("/slides/showcase/#4");
+
+		const deck = page.locator(".deck");
+		const box = await deck.boundingBox();
+		expect(box).not.toBeNull();
+		if (!box) {
+			return;
+		}
+
+		const startX = box.x + box.width * 0.5;
+		const startY = box.y + box.height * 0.55;
+
+		const swipeDeck = async (endX: number) => {
+			await page.evaluate(
+				({ endX, startX, startY }) => {
+					const deck = document.querySelector(".deck");
+					if (!(deck instanceof HTMLElement)) {
+						throw new Error("deck missing");
+					}
+					const touch = (x: number, y: number) =>
+						new Touch({
+							identifier: 1,
+							target: deck,
+							clientX: x,
+							clientY: y,
+						});
+					deck.dispatchEvent(
+						new TouchEvent("touchstart", {
+							bubbles: true,
+							changedTouches: [touch(startX, startY)],
+						}),
+					);
+					deck.dispatchEvent(
+						new TouchEvent("touchend", {
+							bubbles: true,
+							changedTouches: [touch(endX, startY)],
+						}),
+					);
+				},
+				{ endX, startX, startY },
+			);
+		};
+
+		await swipeDeck(startX + 4);
+		await expect(page).toHaveURL(/#4$/);
+
+		await swipeDeck(startX - 120);
+		await expect(page).toHaveURL(/#5$/);
+		await context.close();
 	});
 });
