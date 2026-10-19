@@ -117,7 +117,7 @@ test.describe("Slides", () => {
 		expect(jsonLd.some((text) => text.includes("/slides/light/"))).toBe(false);
 	});
 
-	test("showcase player chrome links talk, recording, and index", async ({
+	test("showcase player chrome links index and PDF without a talk", async ({
 		page,
 	}) => {
 		await page.goto("/slides/showcase/");
@@ -131,15 +131,12 @@ test.describe("Slides", () => {
 		await expect(
 			chromeLinks.getByRole("link", { name: "PDF" }),
 		).toHaveAttribute("href", "/slides/showcase.pdf");
-		await expect(
-			chromeLinks.getByRole("link", { name: "Talk" }),
-		).toHaveAttribute(
-			"href",
-			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		await expect(chromeLinks.getByRole("link", { name: "Talk" })).toHaveCount(
+			0,
 		);
 		await expect(
 			chromeLinks.getByRole("link", { name: "Recording" }),
-		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
+		).toHaveCount(0);
 	});
 
 	test("player exposes deck Open Graph, Twitter, and JSON-LD", async ({

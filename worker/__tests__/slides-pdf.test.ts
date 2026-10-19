@@ -113,7 +113,7 @@ describe("GET /slides/<slug>.pdf", () => {
 			{
 				ASSETS: {
 					fetch: async () => html(noindexHtml),
-				} as Fetcher,
+				} as unknown as Fetcher,
 				CONTENT: content,
 				PDF_QUEUE: { send: async () => undefined },
 			} as unknown as Env,

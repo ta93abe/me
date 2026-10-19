@@ -34,9 +34,7 @@ describe("showcase deck", () => {
 		]);
 		expect(deck.frontmatter.theme).toBe("dark");
 		expect(deck.frontmatter.unlisted).toBe(true);
-		expect(deck.frontmatter.talkSlug).toBe(
-			"frosty-friday-live-challenge-vol56",
-		);
+		expect(deck.frontmatter.talkSlug).toBeUndefined();
 		expect(deck.slides[5]?.html).toContain("shiki");
 		expect(deck.slides[5]?.html).toContain("min-dark");
 		expect(deck.slides[5]?.html).not.toMatch(/\sstyle=/i);
