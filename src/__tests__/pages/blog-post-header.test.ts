@@ -14,13 +14,15 @@ describe("blog post header markup", () => {
 		expect(source).toMatch(/<time[^>]*datetime=\{publishedTime\}/);
 	});
 
-	it("puts an ISO datetime on the revised time when present", () => {
-		expect(source).toMatch(/更新:[\s\S]*<time datetime=\{modifiedTime\}>/);
+	it("formats a single user-facing date line via formatBlogSurfaceDate", () => {
+		expect(source).toContain(
+			"formatBlogSurfaceDate(publish_date, revise_date)",
+		);
+		expect(source).not.toMatch(/rel="author"/);
 	});
 
-	it("shows a visible author byline linking to the About canonical", () => {
-		expect(source).toContain('rel="author"');
-		expect(source).toContain("SITE.authorPath");
+	it("keeps article author in head meta for SEO", () => {
+		expect(source).toContain('property="article:author"');
 		expect(source).toContain("SITE.author");
 	});
 });

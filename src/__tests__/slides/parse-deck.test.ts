@@ -205,6 +205,15 @@ describe("parseDeck", () => {
 		expect(deck.slides[0]?.html).toContain("/slides/media/sample/frame.svg");
 	});
 
+	it("adds a trailing slash to internal page links", async () => {
+		const deck = await parse(
+			"[他](/slides/other-deck) と [PDF](/slides/other-deck.pdf)",
+		);
+		expect(deck.slides[0]?.html).toContain('href="/slides/other-deck/"');
+		expect(deck.slides[0]?.html).toContain('href="/slides/other-deck.pdf"');
+		expect(deck.slides[0]?.html).not.toMatch(/href="\/slides\/[^"/.]+"/);
+	});
+
 	it("defaults clicks to 0", async () => {
 		const deck = await parse("# 本文\n\n段落");
 		expect(deck.slides[0]?.clicks).toBe(0);
