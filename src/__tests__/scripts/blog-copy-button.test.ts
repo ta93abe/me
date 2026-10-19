@@ -1,6 +1,9 @@
+/// <reference lib="dom" />
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { enhanceCodeCopyButtons } from "@/scripts/blog-copy-button";
+
+type CopyRoot = Parameters<typeof enhanceCodeCopyButtons>[0];
 
 describe("enhanceCodeCopyButtons", () => {
 	afterEach(() => {
@@ -18,9 +21,8 @@ describe("enhanceCodeCopyButtons", () => {
 
 		const root = document.createElement("div");
 		root.innerHTML = `<pre><code>foo: bar</code></pre>`;
-		document.body.append(root);
-
-		enhanceCodeCopyButtons(root);
+		const copyRoot = root as unknown as CopyRoot;
+		enhanceCodeCopyButtons(copyRoot);
 
 		const button = root.querySelector("button.copy-button");
 		expect(button).toBeTruthy();
@@ -40,6 +42,5 @@ describe("enhanceCodeCopyButtons", () => {
 		await vi.advanceTimersByTimeAsync(2000);
 		expect(button?.getAttribute("aria-label")).toBe("コードをコピー");
 		expect(root.querySelector("#blog-copy-status")?.textContent).toBe("");
-		root.remove();
 	});
 });

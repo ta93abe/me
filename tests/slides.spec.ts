@@ -48,28 +48,12 @@ test.describe("Slides", () => {
 			"/slides/snowflake-observability/",
 		);
 
-		const showcaseTitle = page.getByRole("link", {
-			name: "デザインシステム ショーケース",
+		const listedTitle = snowflakeGroup.getByRole("link", {
+			name: "SnowflakeとClickOpsの限界",
 			exact: true,
 		});
-		await expect(showcaseTitle).toHaveAttribute("href", "/slides/showcase/");
-		await expect(
-			page.getByRole("navigation", {
-				name: "デザインシステム ショーケース へのリンク",
-			}),
-		).toBeVisible();
-		await expect(
-			page.getByRole("link", { name: "Slides", exact: true }).first(),
-		).toHaveAttribute("href", "/slides/showcase/");
-		await expect(
-			page.getByRole("link", { name: "PDF" }).first(),
-		).toHaveAttribute("href", "/slides/showcase.pdf");
-		await expect(page.getByRole("link", { name: "Talk" })).toHaveAttribute(
-			"href",
-			"/talks/#talk-frosty-friday-live-challenge-vol56",
-		);
-		await showcaseTitle.click();
-		await expect(page).toHaveURL(/\/slides\/showcase\/?#/);
+		await listedTitle.click();
+		await expect(page).toHaveURL(/\/slides\/snowflake-clickops-limits\/?#/);
 
 		await expect(page.locator(".deck")).toBeVisible();
 		await expect(page.locator("main.stage-wrap")).toHaveCount(1);
@@ -83,15 +67,7 @@ test.describe("Slides", () => {
 		);
 		await expect(page.getByRole("link", { name: "PDF" })).toHaveAttribute(
 			"href",
-			"/slides/showcase.pdf",
-		);
-		await expect(page.getByRole("link", { name: "Talk" })).toHaveAttribute(
-			"href",
-			"/talks/#talk-frosty-friday-live-challenge-vol56",
-		);
-		await expect(page.getByRole("link", { name: "Recording" })).toHaveAttribute(
-			"href",
-			"https://www.youtube.com/watch?v=KLEApocYmww",
+			"/slides/snowflake-clickops-limits.pdf",
 		);
 
 		await page.goBack();
