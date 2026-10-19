@@ -73,4 +73,47 @@ const b = 2;
 		expect(html).toContain("@ta93abe_");
 		expect(html).toContain('class="slide-cover-main"');
 	});
+
+	it("keeps a single h1 on the cover and demotes later titles", () => {
+		const deck: Deck = {
+			...twoSlides,
+			slides: [
+				{ type: "cover", html: "<h1>表紙</h1>", notes: "", clicks: 0 },
+				{
+					type: "section",
+					html: "<h1>章</h1><p>リード</p>",
+					notes: "",
+					clicks: 0,
+				},
+				{
+					type: "body",
+					html: "<h1>本文</h1><h2>小見出し</h2>",
+					notes: "",
+					clicks: 0,
+				},
+			],
+		};
+		const html = renderSlideSections(deck);
+		expect(html.match(/<h1\b/g)?.length).toBe(1);
+		expect(html).toContain("<h1>表紙</h1>");
+		expect(html).toContain('<h2 class="slide-h1">章</h2>');
+		expect(html).toContain('<h2 class="slide-h1">本文</h2>');
+		expect(html).toContain('<h3 class="slide-h2">小見出し</h3>');
+	});
+
+	it("keeps one h1 on a real observability deck", async () => {
+		const { readFile } = await import("node:fs/promises");
+		const path = await import("node:path");
+		const { fileURLToPath } = await import("node:url");
+		const { parseDeck } = await import("@/slides/parser/parse-deck");
+		const filename = path.resolve(
+			path.dirname(fileURLToPath(import.meta.url)),
+			"../../slides/decks/snowflake-observability.md",
+		);
+		const deck = await parseDeck(await readFile(filename, "utf8"), {
+			filename,
+		});
+		const html = renderSlideSections(deck);
+		expect(html.match(/<h1\b/g)?.length).toBe(1);
+	});
 });

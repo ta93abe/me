@@ -126,23 +126,25 @@ const linkedTalk = deck.frontmatter.talkSlug
 				/>
 			)
 		}
-		<div class="stage-wrap">
+		<main class="stage-wrap">
 			<article
 				class="deck"
 				data-slug={slug}
 				data-length={deck.slides.length}
 				set:html={sections}
 			/>
-		</div>
+		</main>
 		{
 			!print && (
 				<div class="player-ui">
 					<div
 						class="progress"
 						role="progressbar"
+						aria-label="スライドの進捗"
 						aria-valuemin="1"
 						aria-valuemax={deck.slides.length}
 						aria-valuenow="1"
+						aria-valuetext={`1 / ${deck.slides.length}`}
 					>
 						<i></i>
 					</div>

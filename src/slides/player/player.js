@@ -299,6 +299,7 @@ function syncUi() {
 	}
 	if (counter instanceof HTMLElement) {
 		counter.setAttribute("aria-valuenow", String(index + 1));
+		counter.setAttribute("aria-valuetext", `${index + 1} / ${total}`);
 	}
 	const nextHash = click > 0 ? `#${index + 1}.${click}` : `#${index + 1}`;
 	if (window.location.hash !== nextHash) {

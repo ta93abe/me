@@ -7,7 +7,10 @@
 
 .slide-body h1,
 .slide-body h2,
-.slide-body h3 {
+.slide-body h3,
+.slide-body .slide-h1,
+.slide-body .slide-h2,
+.slide-body .slide-h3 {
 	font-family: var(--font-display);
 	font-weight: 700;
 	line-height: var(--lh-heading);
@@ -22,17 +25,20 @@
 	max-width: var(--measure-body);
 }
 
-.slide-body h1 {
+.slide-body h1,
+.slide-body .slide-h1 {
 	font-size: var(--fs-h1);
 }
 
-.slide-body h2 {
+.slide-body h2,
+.slide-body .slide-h2 {
 	font-size: var(--fs-h2);
 	font-weight: 600;
 	color: var(--color-ink);
 }
 
-.slide-body h3 {
+.slide-body h3,
+.slide-body .slide-h3 {
 	font-size: var(--fs-body);
 }
 
