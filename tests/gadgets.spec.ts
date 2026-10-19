@@ -138,7 +138,7 @@ test.describe("Gadgets page", () => {
 		);
 	});
 
-	test("detail pages expose Product JSON-LD, crawlable images, and product OG", async ({
+	test("detail pages expose ItemPage JSON-LD, crawlable images, and product OG", async ({
 		request,
 	}) => {
 		const cases = [
@@ -146,21 +146,18 @@ test.describe("Gadgets page", () => {
 				path: "/gadgets/oura-ring-5/",
 				name: "Oura Ring 5",
 				note: "睡眠と回復を見る。朝いちばんに数字を見る。",
-				brand: "Oura",
 				image: "https://ta93abe.com/media/gadgets/oura-ring-5.webp",
 			},
 			{
 				path: "/gadgets/hhkb-type-s/",
 				name: "HHKB Type-S",
 				note: "いちばん長く触っているもの。静かな打感が仕事のリズムになる。",
-				brand: "HHKB",
 				image: "https://ta93abe.com/media/gadgets/hhkb-type-s.webp",
 			},
 			{
 				path: "/gadgets/mac-studio/",
 				name: "Mac Studio M1 Max",
 				note: "Nix の土台。据え置きのまま。CLI は全部入れ直せる。",
-				brand: "Apple",
 				image: "https://ta93abe.com/media/gadgets/mac-studio.webp",
 			},
 		] as const;
@@ -174,16 +171,21 @@ test.describe("Gadgets page", () => {
 					: [],
 			);
 			expect(types, item.path).toEqual(
-				expect.arrayContaining(["Product", "BreadcrumbList"]),
+				expect.arrayContaining(["ItemPage", "BreadcrumbList"]),
 			);
+			expect(types, item.path).not.toContain("Product");
 
+			expect(html, item.path).toContain('"@type":"ItemPage"');
+			expect(html, item.path).toContain('"@type":"Thing"');
 			expect(html, item.path).toContain(`"name":"${item.name}"`);
 			expect(html, item.path).toContain(`"description":"${item.note}"`);
 			expect(html, item.path).toContain(`"image":"${item.image}"`);
 			expect(html, item.path).toContain(
 				`"url":"https://ta93abe.com${item.path}"`,
 			);
-			expect(html, item.path).toContain(`"name":"${item.brand}"`);
+			expect(html, item.path).not.toContain('"@type":"Product"');
+			expect(html, item.path).not.toContain('"aggregateRating"');
+			expect(html, item.path).not.toContain('"offers"');
 			expect(html, item.path).toContain('"@type":"BreadcrumbList"');
 			expect(html, item.path).toContain("https://ta93abe.com/gadgets/");
 

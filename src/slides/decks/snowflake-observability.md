@@ -76,8 +76,8 @@ ClickOps 限界（1 本目）・dbt の切り分け（2 本目）を踏まえ、
 
 # シリーズとの位置づけ
 
-- 1 本目: [Snowflake と ClickOps の限界](/slides/snowflake-clickops-limits) — 変更履歴が残りにくい
-- 2 本目: [Snowflake と dbt](/slides/snowflake-dbt) — 変換の内側とプラットフォームの外側
+- 1 本目: [Snowflake と ClickOps の限界](/slides/snowflake-clickops-limits/) — 変更履歴が残りにくい
+- 2 本目: [Snowflake と dbt](/slides/snowflake-dbt/) — 変換の内側とプラットフォームの外側
 - 本日: **外側を観測** して、判断とアクションを速くする
 
 ---

@@ -8,9 +8,12 @@ import { gadgetImageBytes, gadgetImageUrl } from "@/data/gadget-images";
 import {
 	GADGETS,
 	gadgetPath,
+	gadgetRatingLabel,
 	gadgetSlugFromPath,
 	gadgetViewTransitionName,
 	getGadget,
+	hasGadgetRating,
+	isGadgetRating,
 	isGadgetsIndexPath,
 } from "@/data/gadgets";
 
@@ -48,6 +51,20 @@ describe("GADGETS catalog", () => {
 			const bytes = gadgetImageBytes(gadget.slug);
 			expect(bytes.byteLength).toBeGreaterThan(0);
 			expect(String.fromCharCode(...bytes.slice(0, 4))).toBe("RIFF");
+		}
+	});
+
+	it("keeps rating and notes optional and does not invent values", () => {
+		expect(isGadgetRating(4)).toBe(true);
+		expect(isGadgetRating(0)).toBe(false);
+		expect(isGadgetRating(6)).toBe(false);
+		expect(gadgetRatingLabel(4)).toBe("評価 4 / 5");
+
+		for (const gadget of GADGETS) {
+			expect(hasGadgetRating(gadget)).toBe(false);
+			expect(gadget.rating).toBeUndefined();
+			expect(gadget.pros).toBeUndefined();
+			expect(gadget.cons).toBeUndefined();
 		}
 	});
 
