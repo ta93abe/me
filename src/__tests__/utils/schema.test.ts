@@ -8,6 +8,8 @@ import {
 	generateBlogPostingSchema,
 	generateBreadcrumbSchema,
 	generateContactPageSchema,
+	generateGadgetDetailSchema,
+	generateGadgetItemPageSchema,
 	generateGadgetProductSchema,
 	generateGadgetsItemListSchema,
 	generateLinksCollectionSchema,
@@ -379,9 +381,9 @@ describe("generateBreadcrumbSchema", () => {
 	});
 });
 
-describe("generateGadgetProductSchema", () => {
-	it("emits Product fields with a crawlable image and trailing-slash URL", () => {
-		const schema = generateGadgetProductSchema("https://example.com/", {
+describe("generateGadgetItemPageSchema", () => {
+	it("describes an unreviewed gadget as ItemPage about a Thing", () => {
+		const schema = generateGadgetItemPageSchema("https://example.com/", {
 			slug: "oura-ring-5",
 			name: "Oura Ring 5",
 			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
@@ -391,13 +393,138 @@ describe("generateGadgetProductSchema", () => {
 
 		expect(schema).toEqual({
 			"@context": "https://schema.org",
-			"@type": "Product",
+			"@type": "ItemPage",
+			name: "Oura Ring 5",
+			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
+			url: "https://example.com/gadgets/oura-ring-5/",
+			inLanguage: "ja",
+			about: {
+				"@type": "Thing",
+				name: "Oura Ring 5",
+				image: "https://example.com/media/gadgets/oura-ring-5.webp",
+				url: "https://example.com/gadgets/oura-ring-5/",
+			},
+			isPartOf: {
+				"@type": "WebSite",
+				name: SITE.name,
+				url: "https://example.com",
+			},
+		});
+		expect(schema).not.toHaveProperty("review");
+		expect(schema).not.toHaveProperty("offers");
+		expect(schema).not.toHaveProperty("aggregateRating");
+	});
+});
+
+describe("generateGadgetProductSchema", () => {
+	it("nests a Person review with rating and pro/con lists", () => {
+		const schema = generateGadgetProductSchema("https://example.com/", {
+			slug: "oura-ring-5",
 			name: "Oura Ring 5",
 			description: "睡眠と回復を見る。朝いちばんに数字を見る。",
 			image: "https://example.com/media/gadgets/oura-ring-5.webp",
-			url: "https://example.com/gadgets/oura-ring-5/",
-			brand: { "@type": "Brand", name: "Oura" },
+			brand: "Oura",
+			rating: 4,
+			pros: ["朝いちばんに数字が見える", "装着感が軽い"],
+			cons: ["充電のタイミングを忘れやすい"],
 		});
+
+		expect(schema["@type"]).toBe("Product");
+		expect(schema.url).toBe("https://example.com/gadgets/oura-ring-5/");
+		expect(schema.brand).toEqual({ "@type": "Brand", name: "Oura" });
+		expect(schema.review).toEqual({
+			"@type": "Review",
+			author: {
+				"@type": "Person",
+				name: "Takumi Abe",
+				url: "https://example.com/about/",
+			},
+			reviewRating: {
+				"@type": "Rating",
+				ratingValue: 4,
+				bestRating: 5,
+				worstRating: 1,
+			},
+			positiveNotes: {
+				"@type": "ItemList",
+				itemListElement: [
+					{
+						"@type": "ListItem",
+						position: 1,
+						name: "朝いちばんに数字が見える",
+					},
+					{
+						"@type": "ListItem",
+						position: 2,
+						name: "装着感が軽い",
+					},
+				],
+			},
+			negativeNotes: {
+				"@type": "ItemList",
+				itemListElement: [
+					{
+						"@type": "ListItem",
+						position: 1,
+						name: "充電のタイミングを忘れやすい",
+					},
+				],
+			},
+		});
+		expect(schema).not.toHaveProperty("offers");
+		expect(schema).not.toHaveProperty("aggregateRating");
+	});
+
+	it("omits empty pro/con ItemLists", () => {
+		const schema = generateGadgetProductSchema("https://example.com/", {
+			slug: "hhkb-type-s",
+			name: "HHKB Type-S",
+			description: "いちばん長く触っているもの。",
+			image: "https://example.com/media/gadgets/hhkb-type-s.webp",
+			brand: "HHKB",
+			rating: 5,
+			pros: [],
+		});
+
+		expect(schema.review.reviewRating.ratingValue).toBe(5);
+		expect(schema.review.positiveNotes).toBeUndefined();
+		expect(schema.review.negativeNotes).toBeUndefined();
+	});
+});
+
+describe("generateGadgetDetailSchema", () => {
+	const base = {
+		slug: "oura-ring-5",
+		name: "Oura Ring 5",
+		description: "睡眠と回復を見る。朝いちばんに数字を見る。",
+		image: "https://example.com/media/gadgets/oura-ring-5.webp",
+		brand: "Oura",
+	};
+
+	it("uses ItemPage when rating is absent", () => {
+		const schema = generateGadgetDetailSchema("https://example.com/", base);
+		expect(schema["@type"]).toBe("ItemPage");
+	});
+
+	it("uses Product with a nested Review when rating is present", () => {
+		const schema = generateGadgetDetailSchema("https://example.com/", {
+			...base,
+			rating: 3,
+			pros: ["数字が見える"],
+			cons: ["充電が要る"],
+		});
+		expect(schema["@type"]).toBe("Product");
+		if (schema["@type"] !== "Product") {
+			throw new Error("expected Product schema");
+		}
+		expect(schema.review.author.name).toBe("Takumi Abe");
+		expect(schema.review.reviewRating.ratingValue).toBe(3);
+		expect(schema.review.positiveNotes?.itemListElement[0]?.name).toBe(
+			"数字が見える",
+		);
+		expect(schema.review.negativeNotes?.itemListElement[0]?.name).toBe(
+			"充電が要る",
+		);
 	});
 });
 

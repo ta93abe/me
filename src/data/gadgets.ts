@@ -1,13 +1,35 @@
+export type GadgetRating = 1 | 2 | 3 | 4 | 5;
+
 export type Gadget = {
 	readonly slug: string;
 	readonly name: string;
 	readonly note: string;
 	readonly brand: string;
+	/** 1–5。未記入なら Product JSON-LD は出さない */
+	readonly rating?: GadgetRating;
+	readonly pros?: readonly string[];
+	readonly cons?: readonly string[];
 	readonly imageSource?: {
 		readonly href: string;
 		readonly label?: string;
 	};
 };
+
+export function isGadgetRating(value: unknown): value is GadgetRating {
+	return (
+		value === 1 || value === 2 || value === 3 || value === 4 || value === 5
+	);
+}
+
+export function hasGadgetRating(
+	gadget: Gadget,
+): gadget is Gadget & { rating: GadgetRating } {
+	return isGadgetRating(gadget.rating);
+}
+
+export function gadgetRatingLabel(rating: GadgetRating): string {
+	return `評価 ${rating} / 5`;
+}
 
 export const GADGETS: readonly Gadget[] = [
 	{
