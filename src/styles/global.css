@@ -54,8 +54,8 @@ body[data-theme="home"] {
 	--bg-tertiary: color-mix(in srgb, var(--home-paper) 78%, var(--home-field));
 	--text-primary: var(--home-ink);
 	--text-secondary: var(--home-ink-soft);
-	/* WCAG 2.2 AA 4.5:1 on --home-paper (#f4eef8) */
-	--text-muted: color-mix(in srgb, var(--home-ink-soft) 80%, var(--home-paper));
+	/* WCAG 2.2 AA 4.5:1 on --home-paper / --bg-secondary / --bg-tertiary */
+	--text-muted: color-mix(in srgb, var(--home-ink-soft) 90%, var(--home-paper));
 	--border-color: color-mix(in srgb, var(--home-dither) 22%, var(--home-paper));
 	--link-color: var(--home-primary);
 	--link-hover-color: var(--home-field);

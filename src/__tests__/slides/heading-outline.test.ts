@@ -29,10 +29,19 @@ describe("heading-outline", () => {
 		);
 	});
 
-	it("does not shift the first cover, demotes section by 2 and others by 1", () => {
+	it("merges only the class attribute and accepts both quote styles", () => {
+		expect(remapHeadingTags(`<h1 class='title'>A</h1>`, 1)).toBe(
+			`<h2 class='slide-h1 title'>A</h2>`,
+		);
+		expect(remapHeadingTags('<h1 data-class="x">A</h1>', 1)).toBe(
+			'<h2 class="slide-h1" data-class="x">A</h2>',
+		);
+	});
+
+	it("does not shift the first cover and demotes later slides by 1", () => {
 		const withCover = deck(["cover", "section", "body"]);
 		expect(headingShiftForSlide(withCover, 0)).toBe(0);
-		expect(headingShiftForSlide(withCover, 1)).toBe(2);
+		expect(headingShiftForSlide(withCover, 1)).toBe(1);
 		expect(headingShiftForSlide(withCover, 2)).toBe(1);
 	});
 

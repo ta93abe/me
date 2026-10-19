@@ -66,14 +66,18 @@ describe("text-muted contrast (TA-1482)", () => {
 		expect(contrast(fg, hexToRgb("#eeeeeb"))).toBeGreaterThanOrEqual(4.5);
 	});
 
-	it("keeps the home muted mix at 4.5:1 on the purple paper", () => {
+	it("keeps the home muted mix at 4.5:1 on paper and card surfaces", () => {
 		expect(css).toMatch(
-			/--text-muted:\s*color-mix\(in srgb, var\(--home-ink-soft\) 80%, var\(--home-paper\)\)/,
+			/--text-muted:\s*color-mix\(in srgb, var\(--home-ink-soft\) 90%, var\(--home-paper\)\)/,
 		);
 		const paper = hexToRgb("#f4eef8");
 		const inkSoft = hexToRgb("#4c3a63");
-		expect(contrast(mix(inkSoft, 0.8, paper), paper)).toBeGreaterThanOrEqual(
-			4.5,
-		);
+		const field = hexToRgb("#6b21a8");
+		const secondary = mix(paper, 0.88, field);
+		const tertiary = mix(paper, 0.78, field);
+		const muted = mix(inkSoft, 0.9, paper);
+		expect(contrast(muted, paper)).toBeGreaterThanOrEqual(4.5);
+		expect(contrast(muted, secondary)).toBeGreaterThanOrEqual(4.5);
+		expect(contrast(muted, tertiary)).toBeGreaterThanOrEqual(4.5);
 	});
 });

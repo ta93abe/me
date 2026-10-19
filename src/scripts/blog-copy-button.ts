@@ -21,6 +21,8 @@ function liveRegion(root: ParentNode): HTMLElement {
 
 export function enhanceCodeCopyButtons(root: ParentNode = document): void {
 	const status = liveRegion(root);
+	const resetTimers = new WeakMap<HTMLButtonElement, number>();
+	let statusGeneration = 0;
 
 	const pres =
 		root instanceof Document
@@ -40,23 +42,39 @@ export function enhanceCodeCopyButtons(root: ParentNode = document): void {
 			if (!code) {
 				return;
 			}
-			await navigator.clipboard.writeText(code.textContent || "");
+			try {
+				await navigator.clipboard.writeText(code.textContent || "");
+			} catch {
+				return;
+			}
 			button.classList.add("copied");
 			button.setAttribute("aria-label", COPIED_LABEL);
 			button.innerHTML = copiedIcon;
 			status.textContent = COPIED_LABEL;
+			statusGeneration += 1;
+			const generation = statusGeneration;
 			window.posthog?.capture("blog_code_copied", {
 				post_title: document.title,
 				post_url: window.location.href,
 			});
-			window.setTimeout(() => {
-				button.classList.remove("copied");
-				button.setAttribute("aria-label", COPY_LABEL);
-				button.innerHTML = copyIcon;
-				if (status.textContent === COPIED_LABEL) {
-					status.textContent = "";
-				}
-			}, 2000);
+			const pending = resetTimers.get(button);
+			if (pending !== undefined) {
+				window.clearTimeout(pending);
+			}
+			resetTimers.set(
+				button,
+				window.setTimeout(() => {
+					button.classList.remove("copied");
+					button.setAttribute("aria-label", COPY_LABEL);
+					button.innerHTML = copyIcon;
+					if (
+						generation === statusGeneration &&
+						status.textContent === COPIED_LABEL
+					) {
+						status.textContent = "";
+					}
+				}, 2000),
+			);
 		});
 		pre.appendChild(button);
 	});

@@ -3,8 +3,13 @@ import type { Deck, Slide } from "./types.ts";
 const HEADING_TAG = /<\/?h([1-6])(\s[^>]*)?>/gi;
 
 function mergeClass(attrs: string, className: string): string {
-	if (/\bclass="/i.test(attrs)) {
-		return attrs.replace(/\bclass="/i, `class="${className} `);
+	const classAttr = /(?<=\s|^)class=(["'])([^"']*)\1/i;
+	if (classAttr.test(attrs)) {
+		return attrs.replace(
+			classAttr,
+			(_full, quote: string, value: string) =>
+				`class=${quote}${className}${value ? ` ${value}` : ""}${quote}`,
+		);
 	}
 	return ` class="${className}"${attrs}`;
 }
@@ -32,7 +37,7 @@ export function headingShiftForSlide(deck: Deck, index: number): number {
 	if (firstCover === -1 && index === 0) {
 		return 0;
 	}
-	return deck.slides[index]?.type === "section" ? 2 : 1;
+	return 1;
 }
 
 export function remapSlideHeadingHtml(

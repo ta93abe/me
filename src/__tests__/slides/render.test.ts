@@ -96,7 +96,7 @@ const b = 2;
 		const html = renderSlideSections(deck);
 		expect(html.match(/<h1\b/g)?.length).toBe(1);
 		expect(html).toContain("<h1>表紙</h1>");
-		expect(html).toContain('<h3 class="slide-h1">章</h3>');
+		expect(html).toContain('<h2 class="slide-h1">章</h2>');
 		expect(html).toContain('<h2 class="slide-h1">本文</h2>');
 		expect(html).toContain('<h3 class="slide-h2">小見出し</h3>');
 	});
