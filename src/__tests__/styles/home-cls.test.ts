@@ -32,10 +32,10 @@ describe("home layout shift guards", () => {
 	});
 
 	it("hides a closed mobile nav dialog so it cannot occupy layout", () => {
-		const nav = readSrc("components/MobileNav.tsx");
-		expect(nav).toMatch(/dialog:not\(\[open\]\)/);
-		expect(nav).toMatch(/display:\s*none/);
-		expect(nav).not.toMatch(/\bh-dvh\b/);
+		const css = readSrc("styles/mobile-nav.css");
+		expect(css).toMatch(/dialog:not\(\[open\]\)/);
+		expect(css).toMatch(/display:\s*none/);
+		expect(css).not.toMatch(/\bh-dvh\b/);
 	});
 
 	it("does not hydrate the mobile nav island on desktop", () => {

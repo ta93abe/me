@@ -110,6 +110,8 @@ export default defineConfig({
 	// strict-dynamic は 'self' を無効化するため使わない（/_astro/*.js がブロックされる）。
 	// is:inline スクリプトはハッシュ対象外なので、クライアント script は bundled にする。
 	// style-src-attr の unsafe-inline は --delay 等の CSS 変数属性用（Prism 自体は不要）。
+	// 実行時注入の <style>（Paper Shaders / React island）はハッシュを足さず、
+	// 静的 CSS と style[data-paper-shader] の先置きで注入自体を止める（TA-1483）。
 	security: {
 		csp: {
 			algorithm: "SHA-256",
@@ -126,6 +128,14 @@ export default defineConfig({
 			],
 			styleDirective: {
 				resources: cspStyleResources,
+				// Paper Shaders が注入する固定 CSS。先置きで注入は止めるが、
+				// ライブラリ更新漏れ時のフォールバック（TA-1483）。
+				hashes: [
+					{
+						hash: "sha256-bcX2M6hOeEgeI9Ttj3KtXWZuoRsKenyQAlXswSnLakA=",
+						kind: "element",
+					},
+				],
 			},
 			scriptDirective: {
 				resources: cspScriptResources,
