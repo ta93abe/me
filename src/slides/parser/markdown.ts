@@ -68,7 +68,7 @@ function rewriteRelativeImages(slug: string) {
 }
 
 function rewriteInternalPageLinks() {
-	return () => (tree: unknown) => {
+	return (tree: unknown) => {
 		visit(tree as never, "link", (node: LinkNode) => {
 			if (!node.url || !node.url.startsWith("/") || node.url.startsWith("//")) {
 				return;
