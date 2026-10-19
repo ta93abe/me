@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -61,12 +62,7 @@ function writeFixture(rootDir: string, relativePath: string, contents: string) {
 	writeFileSync(filePath, contents);
 }
 
-function fixtureRoot(): string {
-	const rootDir = mkdtempSync(path.join(tmpdir(), "sitemap-lastmod-"));
-	writeFixture(
-		rootDir,
-		"src/data/talks.ts",
-		`export const TALKS = [
+const TALKS_FIXTURE = `export const TALKS = [
 	{
 		slug: "newer",
 		date: "2026-08-27",
@@ -76,21 +72,99 @@ function fixtureRoot(): string {
 		date: "2026-05-14",
 	},
 ];
-`,
-	);
-	writeFixture(rootDir, "src/data/gadgets.ts", "export const GADGETS = [];\n");
-	writeFixture(
-		rootDir,
-		"src/slides/decks/demo.md",
-		`---
+`;
+
+const SLIDE_FIXTURE = `---
 slug: demo
 date: 2026-03-02
 updated: 2026-04-08
 ---
-`,
-	);
+`;
+
+const CONTACT_COMMIT_DATE = "2026-09-08T14:08:00Z";
+const GADGETS_COMMIT_DATE = "2026-09-18T12:58:00Z";
+const SLIDES_COMMIT_DATE = "2026-10-03T06:21:53Z";
+
+function fixtureRoot(): string {
+	const rootDir = mkdtempSync(path.join(tmpdir(), "sitemap-lastmod-"));
+	writeFixture(rootDir, "src/data/talks.ts", TALKS_FIXTURE);
+	writeFixture(rootDir, "src/data/gadgets.ts", "export const GADGETS = [];\n");
+	writeFixture(rootDir, "src/slides/decks/demo.md", SLIDE_FIXTURE);
 	writeFixture(rootDir, "src/pages/index.astro", "<h1>home</h1>\n");
 	return rootDir;
+}
+
+function git(cwd: string, args: string[], env: NodeJS.ProcessEnv = {}): string {
+	return execFileSync("git", args, {
+		cwd,
+		encoding: "utf8",
+		env: {
+			...process.env,
+			GIT_AUTHOR_NAME: "Test",
+			GIT_AUTHOR_EMAIL: "test@example.com",
+			GIT_COMMITTER_NAME: "Test",
+			GIT_COMMITTER_EMAIL: "test@example.com",
+			GIT_CONFIG_COUNT: "1",
+			GIT_CONFIG_KEY_0: "commit.gpgsign",
+			GIT_CONFIG_VALUE_0: "false",
+			...env,
+		},
+		stdio: ["ignore", "pipe", "pipe"],
+	}).trim();
+}
+
+function commitFile(
+	rootDir: string,
+	relativePath: string,
+	contents: string,
+	date: string,
+) {
+	writeFixture(rootDir, relativePath, contents);
+	git(rootDir, ["add", relativePath]);
+	git(rootDir, ["commit", "-m", relativePath], {
+		GIT_AUTHOR_DATE: date,
+		GIT_COMMITTER_DATE: date,
+	});
+}
+
+/** 複数コミットの履歴があるリポジトリ。最後はスライドだけを変える。 */
+function gitHistoryFixture(): string {
+	const rootDir = mkdtempSync(path.join(tmpdir(), "sitemap-git-"));
+	git(rootDir, ["init", "-b", "main"]);
+	git(rootDir, ["config", "user.email", "test@example.com"]);
+	git(rootDir, ["config", "user.name", "Test"]);
+	git(rootDir, ["config", "commit.gpgsign", "false"]);
+	commitFile(
+		rootDir,
+		"src/pages/contact.astro",
+		"<h1>contact</h1>\n",
+		CONTACT_COMMIT_DATE,
+	);
+	commitFile(
+		rootDir,
+		"src/data/gadgets.ts",
+		"export const GADGETS = [];\n",
+		GADGETS_COMMIT_DATE,
+	);
+	commitFile(
+		rootDir,
+		"src/data/talks.ts",
+		TALKS_FIXTURE,
+		"2026-09-27T00:06:00Z",
+	);
+	commitFile(
+		rootDir,
+		"src/slides/decks/demo.md",
+		SLIDE_FIXTURE,
+		SLIDES_COMMIT_DATE,
+	);
+	return rootDir;
+}
+
+function shallowClone(source: string): string {
+	const dest = mkdtempSync(path.join(tmpdir(), "sitemap-shallow-"));
+	git(source, ["clone", "--no-local", "--depth=1", source, dest]);
+	return dest;
 }
 
 describe("includeInStaticSitemap", () => {
@@ -277,5 +351,133 @@ describe("createStaticSitemapSerializer", () => {
 				lastmod: BUILD_TIME,
 			}).lastmod,
 		).toBeUndefined();
+	});
+
+	it("uses per-file git dates when the clone has full history", () => {
+		const serialize = createStaticSitemapSerializer({
+			rootDir: gitHistoryFixture(),
+		});
+
+		expect(
+			serialize({
+				url: "https://ta93abe.com/contact/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe(toW3cLastmod(CONTACT_COMMIT_DATE));
+		expect(
+			serialize({
+				url: "https://ta93abe.com/gadgets/mac-studio/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe(toW3cLastmod(GADGETS_COMMIT_DATE));
+		expect(
+			serialize({
+				url: "https://ta93abe.com/slides/demo/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe("2026-04-08T00:00:00.000Z");
+	});
+
+	it("omits git lastmods on a shallow clone instead of stamping HEAD on every URL", () => {
+		const source = gitHistoryFixture();
+		const shallowDir = shallowClone(source);
+		git(shallowDir, ["remote", "remove", "origin"]);
+		expect(git(shallowDir, ["rev-parse", "--is-shallow-repository"])).toBe(
+			"true",
+		);
+
+		const headTime = toW3cLastmod(
+			git(shallowDir, ["log", "-1", "--format=%cI"]),
+		);
+		expect(headTime).toBe(toW3cLastmod(SLIDES_COMMIT_DATE));
+
+		const serialize = createStaticSitemapSerializer({
+			rootDir: shallowDir,
+		});
+		const contact = serialize({
+			url: "https://ta93abe.com/contact/",
+			lastmod: BUILD_TIME,
+		});
+		const gadgets = serialize({
+			url: "https://ta93abe.com/gadgets/mac-studio/",
+			lastmod: BUILD_TIME,
+		});
+		const talks = serialize({
+			url: "https://ta93abe.com/talks/",
+			lastmod: BUILD_TIME,
+		});
+		const slide = serialize({
+			url: "https://ta93abe.com/slides/demo/",
+			lastmod: BUILD_TIME,
+		});
+
+		expect(contact.lastmod).toBeUndefined();
+		expect(gadgets.lastmod).toBeUndefined();
+		expect(talks.lastmod).toBe("2026-08-27T00:00:00.000Z");
+		expect(slide.lastmod).toBe("2026-04-08T00:00:00.000Z");
+
+		const lastmods = [
+			contact.lastmod,
+			gadgets.lastmod,
+			talks.lastmod,
+			slide.lastmod,
+		];
+		expect(lastmods.filter((value) => value === headTime)).toEqual([]);
+		expect(new Set(lastmods.filter((value) => value !== undefined)).size).toBe(
+			2,
+		);
+	});
+
+	it("unshallows a clone that still has origin before reading git lastmods", () => {
+		const shallowDir = shallowClone(gitHistoryFixture());
+		expect(git(shallowDir, ["rev-parse", "--is-shallow-repository"])).toBe(
+			"true",
+		);
+
+		const serialize = createStaticSitemapSerializer({
+			rootDir: shallowDir,
+		});
+
+		expect(git(shallowDir, ["rev-parse", "--is-shallow-repository"])).toBe(
+			"false",
+		);
+		expect(
+			serialize({
+				url: "https://ta93abe.com/contact/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe(toW3cLastmod(CONTACT_COMMIT_DATE));
+		expect(
+			serialize({
+				url: "https://ta93abe.com/gadgets/mac-studio/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe(toW3cLastmod(GADGETS_COMMIT_DATE));
+	});
+
+	it("restores per-file git dates after git fetch --unshallow", () => {
+		const source = gitHistoryFixture();
+		const shallowDir = shallowClone(source);
+		git(shallowDir, ["fetch", "--unshallow"]);
+		expect(git(shallowDir, ["rev-parse", "--is-shallow-repository"])).toBe(
+			"false",
+		);
+
+		const serialize = createStaticSitemapSerializer({
+			rootDir: shallowDir,
+		});
+
+		expect(
+			serialize({
+				url: "https://ta93abe.com/contact/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe(toW3cLastmod(CONTACT_COMMIT_DATE));
+		expect(
+			serialize({
+				url: "https://ta93abe.com/gadgets/mac-studio/",
+				lastmod: BUILD_TIME,
+			}).lastmod,
+		).toBe(toW3cLastmod(GADGETS_COMMIT_DATE));
 	});
 });

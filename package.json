@@ -11,7 +11,7 @@
 		"dev:stop": "astro dev stop",
 		"dev:logs": "astro dev logs",
 		"dev:extra": "astro dev --ignore-lock",
-		"build": "astro build",
+		"build": "node scripts/unshallow-git.mjs && astro build",
 		"preview": "astro preview",
 		"astro": "astro",
 		"lint": "oxlint --fix src worker tests scripts",
