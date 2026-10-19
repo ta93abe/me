@@ -4,6 +4,7 @@ import SlideDeckGroupSection from "@/components/SlideDeckGroupSection.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
 import { partitionDecksForIndex } from "@/lib/slides/partition-decks";
+import { listedDecks } from "@/lib/slides/visibility";
 import { loadDecks } from "@/slides/load-decks";
 import {
 	generateSlidesCollectionSchema,
@@ -11,7 +12,7 @@ import {
 	stringifySchema,
 } from "@/utils/schema";
 
-const decks = await loadDecks();
+const decks = listedDecks(await loadDecks());
 const { groups, ungrouped } = partitionDecksForIndex(decks);
 const collectionSchema = generateSlidesCollectionSchema(
 	Astro.site?.href || SITE.url,

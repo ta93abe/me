@@ -34,6 +34,7 @@ export const DECK_FRONTMATTER_KEYS = [
 	"effect",
 	"event",
 	"talkSlug",
+	"unlisted",
 ] as const;
 
 export type DeckFrontmatter = {
@@ -47,6 +48,7 @@ export type DeckFrontmatter = {
 	effect?: DeckEffect;
 	event?: string;
 	talkSlug?: string;
+	unlisted?: boolean;
 };
 
 export type Slide = {

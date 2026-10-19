@@ -103,6 +103,16 @@ function parseFrontmatter(
 		data.event !== undefined ? String(data.event).trim() : undefined;
 	const talkSlug =
 		data.talkSlug !== undefined ? String(data.talkSlug).trim() : undefined;
+	let unlisted = false;
+	if (data.unlisted !== undefined) {
+		const raw = String(data.unlisted).trim().toLowerCase();
+		if (raw !== "true" && raw !== "false") {
+			throw new DeckError(
+				`unlisted は true か false です: ${String(data.unlisted)}`,
+			);
+		}
+		unlisted = raw === "true";
+	}
 
 	if (event !== undefined && event.length === 0) {
 		throw new DeckError("event が空です");
@@ -145,6 +155,7 @@ function parseFrontmatter(
 		...(effect ? { effect } : {}),
 		...(event ? { event } : {}),
 		...(talkSlug ? { talkSlug } : {}),
+		...(unlisted ? { unlisted: true } : {}),
 	};
 }
 
