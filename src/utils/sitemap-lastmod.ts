@@ -91,32 +91,66 @@ function maxDate(dates: Array<Date | undefined>): Date | undefined {
 	return latest;
 }
 
+function gitStdout(
+	rootDir: string,
+	args: readonly string[],
+): string | undefined {
+	try {
+		const stdout = execFileSync("git", args, {
+			cwd: rootDir,
+			encoding: "utf8",
+			stdio: ["ignore", "pipe", "ignore"],
+		}).trim();
+		return stdout || undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/** depth=1 の clone ではどのファイルも HEAD 時刻になるので lastmod に使わない。 */
+function isShallowGitRepository(rootDir: string): boolean {
+	return (
+		gitStdout(rootDir, ["rev-parse", "--is-shallow-repository"]) === "true"
+	);
+}
+
+function tryUnshallowGitRepository(rootDir: string): void {
+	if (!isShallowGitRepository(rootDir)) {
+		return;
+	}
+	try {
+		execFileSync("git", ["fetch", "--unshallow"], {
+			cwd: rootDir,
+			stdio: "ignore",
+		});
+	} catch {
+		// origin が無い・ネットワーク不可。readGitLastmod が省略する。
+	}
+}
+
 function readGitLastmod(
 	relativePath: string,
 	rootDir: string,
 ): Date | undefined {
-	try {
-		const iso = execFileSync(
-			"git",
-			["log", "-1", "--format=%cI", "--", relativePath],
-			{
-				cwd: rootDir,
-				encoding: "utf8",
-				stdio: ["ignore", "pipe", "ignore"],
-			},
-		).trim();
-		if (!iso) {
-			return undefined;
-		}
-		const date = new Date(iso);
-		if (Number.isNaN(date.getTime())) {
-			return undefined;
-		}
-		return date;
-	} catch {
-		// git missing, not a repo, or the path has no history
+	if (isShallowGitRepository(rootDir)) {
 		return undefined;
 	}
+
+	const iso = gitStdout(rootDir, [
+		"log",
+		"-1",
+		"--format=%cI",
+		"--",
+		relativePath,
+	]);
+	if (!iso) {
+		return undefined;
+	}
+	const date = new Date(iso);
+	if (Number.isNaN(date.getTime())) {
+		return undefined;
+	}
+	return date;
 }
 
 function setLastmod(
@@ -234,6 +268,7 @@ export function createStaticSitemapSerializer(
 	} = {},
 ): (item: SitemapLastmodItem) => SitemapLastmodItem {
 	const rootDir = options.rootDir ?? process.cwd();
+	tryUnshallowGitRepository(rootDir);
 	const lastmodByPath = new Map<string, string>();
 
 	for (const page of STATIC_PAGE_SOURCES) {
