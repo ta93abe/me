@@ -207,45 +207,6 @@ export default function MobileNav({ links, currentPath }: Props) {
 					</motion.ul>
 				</nav>
 			</dialog>
-
-			<style>{`
-				.mobile-nav-dialog {
-					border: none;
-					outline: none;
-					box-shadow: none;
-				}
-
-				.mobile-nav-dialog:not([open]) {
-					display: none;
-				}
-
-				.mobile-nav-dialog[open] {
-					display: flex;
-					flex-direction: column;
-					width: 100%;
-					height: 100svh;
-					max-height: 100svh;
-				}
-
-				.mobile-nav-dialog::backdrop {
-					background: rgb(28 27 25 / 0.28);
-				}
-
-				@media (prefers-reduced-motion: no-preference) {
-					.mobile-nav-dialog[open]::backdrop {
-						animation: mobile-nav-backdrop-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-					}
-				}
-
-				@keyframes mobile-nav-backdrop-in {
-					from {
-						opacity: 0;
-					}
-					to {
-						opacity: 1;
-					}
-				}
-			`}</style>
 		</div>
 	);
 }

@@ -1,8 +1,10 @@
 ---
-import { SITE } from "@/config/site";
 import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
+import { SITE } from "@/config/site";
+import { PAPER_SHADER_STYLE } from "@/styles/paper-shader-style";
 ---
 
+<style is:inline data-paper-shader set:html={PAPER_SHADER_STYLE} />
 <section id="hero" class="home-hero" aria-labelledby="hero-name">
 	<div
 		class="home-hero-shader"

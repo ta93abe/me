@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import NewsletterCta from "@/components/NewsletterCta.astro";
-import NotFoundPlayground from "@/components/NotFoundPlayground";
+import NotFoundPlaygroundIsland from "@/components/NotFoundPlaygroundIsland.astro";
 import PostNavigation from "@/components/PostNavigation.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import BackToTop from "@/components/ui/BackToTop.astro";
@@ -78,7 +78,7 @@ if (post) {
       noFooter
       flushTop
     >
-      <NotFoundPlayground client:load />
+      <NotFoundPlaygroundIsland />
     </Layout>
   ) : (
 <Layout
