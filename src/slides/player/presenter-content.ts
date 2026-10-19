@@ -1,7 +1,7 @@
 const PREVIEW_MAX = 96;
 
 export function slideHeading(slide: Element | null | undefined): string {
-	const heading = slide?.querySelector("h1, h2");
+	const heading = slide?.querySelector("h1, h2, h3");
 	const text = heading?.textContent?.trim();
 	if (text) {
 		return text;
@@ -21,7 +21,8 @@ export function slidePreviewHint(slide: Element | null | undefined): string {
 	if (!slide) {
 		return "";
 	}
-	const headingText = slide.querySelector("h1, h2")?.textContent?.trim() ?? "";
+	const headingText =
+		slide.querySelector("h1, h2, h3")?.textContent?.trim() ?? "";
 	const root = slide.querySelector(".slide-body") ?? slide;
 	const selectors =
 		"p, li, blockquote, h3, .slide-cover-meta__event, .slide-cover-meta__details";

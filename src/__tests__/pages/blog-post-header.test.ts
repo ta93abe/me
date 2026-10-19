@@ -23,4 +23,9 @@ describe("blog post header markup", () => {
 		expect(source).toContain("SITE.authorPath");
 		expect(source).toContain("SITE.author");
 	});
+
+	it("wires the accessible code copy button helper", () => {
+		expect(source).toContain("enhanceCodeCopyButtons");
+		expect(source).toContain("@/scripts/blog-copy-button.ts");
+	});
 });

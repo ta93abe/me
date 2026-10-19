@@ -36,7 +36,12 @@ test.describe("Home", () => {
 			await expect(
 				page.getByRole("heading", { level: 1, name: "Takumi Abe" }),
 			).toBeVisible();
-			await expect(page.locator(".home-hero-tagline")).toHaveText(HOME_TAGLINE);
+			await expect(page.locator(".home-hero-tagline")).toContainText(
+				HOME_TAGLINE,
+			);
+			await expect(page.locator(".home-hero-tagline")).not.toHaveAttribute(
+				"aria-label",
+			);
 
 			const ctas = page
 				.locator("section#hero")

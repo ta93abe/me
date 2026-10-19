@@ -19,6 +19,12 @@ describe("presenter-content", () => {
 		expect(slideHeading(slide)).toBe("章");
 	});
 
+	it("reads a remapped section title as h3", () => {
+		const slide = slideFromHtml('<h3 class="slide-h1">章</h3><p>リード</p>');
+		expect(slideHeading(slide)).toBe("章");
+		expect(slidePreviewHint(slide)).toBe("リード");
+	});
+
 	it("falls back to slide index when heading is missing", () => {
 		const slide = slideFromHtml("<p>only body</p>", "7");
 		expect(slideHeading(slide)).toBe("スライド 7");

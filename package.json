@@ -79,6 +79,7 @@
 		"zod": "^4.6.5"
 	},
 	"devDependencies": {
+		"@axe-core/playwright": "^4.14.0",
 		"@effect/platform-node": "4.0.0-rc.115",
 		"@playwright/test": "^1.63.0",
 		"@types/hast": "^3.0.5",

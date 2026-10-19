@@ -27,7 +27,8 @@
 	--bg-elevated: #ffffff;
 	--text-primary: #1c1b19;
 	--text-secondary: #5c5a55;
-	--text-muted: #8b8983;
+	/* WCAG 2.2 AA 4.5:1 on #fff / #f6f6f4 / #eeeeeb */
+	--text-muted: #6e6c66;
 	--border-color: #e6e4df;
 	--link-color: #6b4c9a;
 	--link-hover-color: #543a7d;
@@ -53,7 +54,8 @@ body[data-theme="home"] {
 	--bg-tertiary: color-mix(in srgb, var(--home-paper) 78%, var(--home-field));
 	--text-primary: var(--home-ink);
 	--text-secondary: var(--home-ink-soft);
-	--text-muted: color-mix(in srgb, var(--home-ink-soft) 72%, var(--home-paper));
+	/* WCAG 2.2 AA 4.5:1 on --home-paper (#f4eef8) */
+	--text-muted: color-mix(in srgb, var(--home-ink-soft) 80%, var(--home-paper));
 	--border-color: color-mix(in srgb, var(--home-dither) 22%, var(--home-paper));
 	--link-color: var(--home-primary);
 	--link-hover-color: var(--home-field);
@@ -361,7 +363,9 @@ body.lock-viewport .footer-docked nav ul {
 		background 0.2s;
 }
 
-.prose pre:hover .copy-button {
+.prose pre:hover .copy-button,
+.prose pre:focus-within .copy-button,
+.prose pre .copy-button:focus-visible {
 	opacity: 1;
 }
 
@@ -372,7 +376,7 @@ body.lock-viewport .footer-docked nav ul {
 .prose pre .copy-button svg {
 	width: 1rem;
 	height: 1rem;
-	color: var(--text-muted);
+	color: #c4c2bb;
 }
 
 .prose pre .copy-button.copied svg {

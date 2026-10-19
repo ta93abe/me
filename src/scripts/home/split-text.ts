@@ -6,8 +6,13 @@ export function splitWords(el: HTMLElement): void {
 	if (!text) return;
 
 	el.dataset.split = "words";
-	el.setAttribute("aria-label", text);
+	el.removeAttribute("aria-label");
 	el.textContent = "";
+
+	const accessible = document.createElement("span");
+	accessible.className = "sr-only";
+	accessible.textContent = text;
+	el.appendChild(accessible);
 
 	const words = text.split(" ");
 	for (let i = 0; i < words.length; i++) {

@@ -17,6 +17,14 @@ test.describe("Navigation", { tag: "@smoke" }, () => {
 			await expect(nav.getByRole("link", { name })).toHaveCount(0);
 		}
 
+		await expect(nav.getByRole("link", { name: "ta93abe" })).toHaveAttribute(
+			"href",
+			"/",
+		);
+		await expect(
+			nav.getByRole("link", { name: "ta93abe" }),
+		).not.toHaveAttribute("aria-label");
+
 		await nav.getByRole("link", { name: "About" }).click();
 		await expect(page).toHaveURL(/\/about\/?$/);
 	});

@@ -1,6 +1,7 @@
 import { SITE } from "@/config/site";
 import { formatDate, toDatetimeAttr } from "@/utils/date";
 
+import { remapSlideHeadingHtml } from "./parser/heading-outline.ts";
 import type { Deck, DeckFrontmatter, Slide } from "./parser/types.ts";
 
 export function escapeHtml(value: string): string {
@@ -38,10 +39,11 @@ function wrapCoverBody(deck: Deck, slide: Slide, index: number): string {
 }
 
 function slideBodyHtml(deck: Deck, slide: Slide, index: number): string {
+	const html = remapSlideHeadingHtml(deck, slide, index);
 	if (slide.type === "cover") {
-		return wrapCoverBody(deck, slide, index);
+		return wrapCoverBody(deck, { ...slide, html }, index);
 	}
-	return slide.html;
+	return html;
 }
 
 /** Print/PDF: reveal every click fragment and code step (player overview parity). */
