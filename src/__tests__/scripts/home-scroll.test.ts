@@ -51,7 +51,7 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(hero).toMatch(/data-hero-shader/);
 		expect(hero).toMatch(/aria-hidden="true"/);
 		expect(hero).toMatch(/data-paper-shader/);
-		expect(hero).toMatch(/PAPER_SHADER_STYLE/);
+		expect(hero).toMatch(/paper-shader\.css/);
 	});
 
 	it("mounts Paper MeshGradient from deferred bloom module", () => {

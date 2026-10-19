@@ -128,6 +128,14 @@ export default defineConfig({
 			],
 			styleDirective: {
 				resources: cspStyleResources,
+				// Paper Shaders が注入する固定 CSS。先置きで注入は止めるが、
+				// ライブラリ更新漏れ時のフォールバック（TA-1483）。
+				hashes: [
+					{
+						hash: "sha256-bcX2M6hOeEgeI9Ttj3KtXWZuoRsKenyQAlXswSnLakA=",
+						kind: "element",
+					},
+				],
 			},
 			scriptDirective: {
 				resources: cspScriptResources,

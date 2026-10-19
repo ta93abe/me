@@ -1,10 +1,11 @@
 ---
 import HomeCtaNav from "@/components/landing/HomeCtaNav.astro";
 import { SITE } from "@/config/site";
-import { PAPER_SHADER_STYLE } from "@/styles/paper-shader-style";
+import "@/styles/paper-shader.css";
 ---
 
-<style is:inline data-paper-shader set:html={PAPER_SHADER_STYLE} />
+{/* is:inline の style は Astro CSP のハッシュ対象外。中身は paper-shader.css（'self'）。空タグで ShaderMount の注入を止める。 */}
+<style is:inline data-paper-shader></style>
 <section id="hero" class="home-hero" aria-labelledby="hero-name">
 	<div
 		class="home-hero-shader"

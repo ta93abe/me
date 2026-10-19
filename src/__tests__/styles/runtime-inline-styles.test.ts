@@ -10,6 +10,9 @@ import { PAPER_SHADER_STYLE } from "@/styles/paper-shader-style";
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const srcDir = join(root, "src");
 
+const PAPER_SHADER_STYLE_HASH =
+	"sha256-bcX2M6hOeEgeI9Ttj3KtXWZuoRsKenyQAlXswSnLakA=";
+
 function readRepo(relativePath: string): string {
 	return readFileSync(join(root, relativePath), "utf8");
 }
@@ -31,16 +34,21 @@ function libraryPaperShaderStyle(): string {
 
 describe("runtime inline styles (TA-1483)", () => {
 	it("keeps the pre-placed Paper Shader CSS identical to the library", () => {
+		const cssFile = readSrc("styles/paper-shader.css");
 		expect(PAPER_SHADER_STYLE).toBe(libraryPaperShaderStyle());
+		expect(cssFile).toMatch(/@layer paper-shaders/);
+		expect(cssFile).toMatch(/:where\(\[data-paper-shader\]\)/);
+		expect(cssFile).toMatch(/&\s*canvas/);
 		expect(
-			createHash("sha256").update(PAPER_SHADER_STYLE, "utf8").digest("base64"),
-		).toBe("bcX2M6hOeEgeI9Ttj3KtXWZuoRsKenyQAlXswSnLakA=");
+			`sha256-${createHash("sha256").update(PAPER_SHADER_STYLE, "utf8").digest("base64")}`,
+		).toBe(PAPER_SHADER_STYLE_HASH);
+		expect(readRepo("astro.config.mjs")).toContain(PAPER_SHADER_STYLE_HASH);
 	});
 
 	it("pre-places style[data-paper-shader] so ShaderMount skips injection", () => {
 		const hero = readSrc("components/landing/HomeHero.astro");
-		expect(hero).toMatch(/<style is:inline data-paper-shader/);
-		expect(hero).toMatch(/set:html=\{PAPER_SHADER_STYLE\}/);
+		expect(hero).toMatch(/<style is:inline data-paper-shader><\/style>/);
+		expect(hero).toMatch(/styles\/paper-shader\.css/);
 	});
 
 	it("does not let React islands inject <style> at hydration", () => {
