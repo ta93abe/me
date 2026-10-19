@@ -94,7 +94,11 @@ function fixtureRoot(): string {
 	return rootDir;
 }
 
-function git(cwd: string, args: string[], env: NodeJS.ProcessEnv = {}): string {
+function git(
+	cwd: string,
+	args: string[],
+	env: Record<string, string> = {},
+): string {
 	return execFileSync("git", args, {
 		cwd,
 		encoding: "utf8",
