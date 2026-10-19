@@ -48,6 +48,16 @@ test.describe("Slides", () => {
 			"/slides/snowflake-observability/",
 		);
 
+		await expect(
+			page.getByRole("link", {
+				name: "デザインシステム ショーケース",
+				exact: true,
+			}),
+		).toHaveCount(0);
+		await expect(
+			page.getByRole("link", { name: "明るい紙面", exact: true }),
+		).toHaveCount(0);
+
 		const listedTitle = snowflakeGroup.getByRole("link", {
 			name: "SnowflakeとClickOpsの限界",
 			exact: true,
@@ -103,12 +113,16 @@ test.describe("Slides", () => {
 			.locator('script[type="application/ld+json"]')
 			.allTextContents();
 		expect(jsonLd.some((text) => text.includes("CollectionPage"))).toBe(true);
+		expect(
+			jsonLd.some((text) => text.includes("/slides/snowflake-observability/")),
+		).toBe(true);
 		expect(jsonLd.some((text) => text.includes("/slides/showcase/"))).toBe(
-			true,
+			false,
 		);
+		expect(jsonLd.some((text) => text.includes("/slides/light/"))).toBe(false);
 	});
 
-	test("showcase player chrome links talk, recording, and index", async ({
+	test("showcase player chrome links index and PDF without a talk", async ({
 		page,
 	}) => {
 		await page.goto("/slides/showcase/");
@@ -122,15 +136,12 @@ test.describe("Slides", () => {
 		await expect(
 			chromeLinks.getByRole("link", { name: "PDF" }),
 		).toHaveAttribute("href", "/slides/showcase.pdf");
-		await expect(
-			chromeLinks.getByRole("link", { name: "Talk" }),
-		).toHaveAttribute(
-			"href",
-			"/talks/#talk-frosty-friday-live-challenge-vol56",
+		await expect(chromeLinks.getByRole("link", { name: "Talk" })).toHaveCount(
+			0,
 		);
 		await expect(
 			chromeLinks.getByRole("link", { name: "Recording" }),
-		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
+		).toHaveCount(0);
 	});
 
 	test("player exposes deck Open Graph, Twitter, and JSON-LD", async ({
@@ -139,6 +150,10 @@ test.describe("Slides", () => {
 		await page.goto("/slides/showcase/");
 		await expect(page).toHaveTitle(
 			"デザインシステム ショーケース | Slides | Takumi Abe",
+		);
+		await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+			"content",
+			"noindex, follow",
 		);
 		await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
 			"href",

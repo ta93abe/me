@@ -33,6 +33,8 @@ describe("showcase deck", () => {
 			"end",
 		]);
 		expect(deck.frontmatter.theme).toBe("dark");
+		expect(deck.frontmatter.unlisted).toBe(true);
+		expect(deck.frontmatter.talkSlug).toBeUndefined();
 		expect(deck.slides[5]?.html).toContain("shiki");
 		expect(deck.slides[5]?.html).toContain("min-dark");
 		expect(deck.slides[5]?.html).not.toMatch(/\sstyle=/i);
@@ -52,6 +54,7 @@ describe("light deck", () => {
 		const markdown = await readFile(filename, "utf8");
 		const deck = await parseDeck(markdown, { filename });
 		expect(deck.frontmatter.theme).toBe("light");
+		expect(deck.frontmatter.unlisted).toBe(true);
 		expect(deck.slides.map((slide) => slide.type)).toEqual([
 			"cover",
 			"body",

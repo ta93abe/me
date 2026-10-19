@@ -134,6 +134,34 @@ describe("parseDeck", () => {
 		).rejects.toBeInstanceOf(DeckError);
 	});
 
+	it("accepts unlisted true", async () => {
+		const deck = await parseDeck(
+			`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\nunlisted: true\n---\n\n# x`,
+			{ filename: "sample.md" },
+		);
+		expect(deck.frontmatter.unlisted).toBe(true);
+	});
+
+	it("omits unlisted when false or absent", async () => {
+		const omitted = await parse("# 本文");
+		expect(omitted.frontmatter.unlisted).toBeUndefined();
+
+		const explicitFalse = await parseDeck(
+			`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\nunlisted: false\n---\n\n# x`,
+			{ filename: "sample.md" },
+		);
+		expect(explicitFalse.frontmatter.unlisted).toBeUndefined();
+	});
+
+	it("rejects unknown unlisted values", async () => {
+		await expect(
+			parseDeck(
+				`---\ntitle: t\ndate: 2026-09-06\ndescription: d\nslug: sample\nunlisted: maybe\n---\n\n# x`,
+				{ filename: "sample.md" },
+			),
+		).rejects.toBeInstanceOf(DeckError);
+	});
+
 	it("rejects invalid accent values", async () => {
 		for (const accent of [
 			"orange",

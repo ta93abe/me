@@ -2,6 +2,7 @@ import {
 	SLIDE_DECK_GROUPS,
 	type SlideDeckGroup,
 } from "@/data/slide-deck-groups";
+import { listedDecks } from "@/lib/slides/visibility";
 import type { Deck } from "@/slides/parser/types";
 
 export type SlideDeckGroupSection = {
@@ -17,7 +18,8 @@ export type PartitionedSlideDecks = {
 export function partitionDecksForIndex(
 	decks: readonly Deck[],
 ): PartitionedSlideDecks {
-	const bySlug = new Map(decks.map((deck) => [deck.frontmatter.slug, deck]));
+	const listed = listedDecks(decks);
+	const bySlug = new Map(listed.map((deck) => [deck.frontmatter.slug, deck]));
 	const assigned = new Set<string>();
 
 	const groups: SlideDeckGroupSection[] = [];
@@ -35,7 +37,7 @@ export function partitionDecksForIndex(
 		}
 	}
 
-	const ungrouped = decks.filter(
+	const ungrouped = listed.filter(
 		(deck) => !assigned.has(deck.frontmatter.slug),
 	);
 
