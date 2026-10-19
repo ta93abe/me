@@ -1,3 +1,5 @@
+import { stripHtmlFilename } from "../utils/canonical";
+
 /**
  * 旧パスから現行 canonical への 301。
  * キーは末尾スラッシュなし。照合時に正規化する。
@@ -17,6 +19,6 @@ export const PAGE_ALIASES: Readonly<Record<string, string>> = {
 };
 
 export function pageAliasRedirect(pathname: string): string | null {
-	const normalized = pathname.replace(/\/+$/, "") || "/";
+	const normalized = stripHtmlFilename(pathname).replace(/\/+$/, "") || "/";
 	return PAGE_ALIASES[normalized] ?? null;
 }
