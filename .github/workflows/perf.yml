@@ -122,7 +122,8 @@ jobs:
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::CF_ACCOUNT_ID / CF_API_TOKEN 未設定のため Browser Run CWV をスキップします。Dashboard で Browser Rendering - Edit 権限の API Token を secrets に登録してください。"
+            echo "::error::CF_ACCOUNT_ID / CF_API_TOKEN 未設定のため Browser Run CWV を計測できません。Dashboard で Browser Rendering - Edit 権限の API Token を secrets に登録してください。"
+            exit 1
           fi
 
       - name: Run Browser Run Core Web Vitals
