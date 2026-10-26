@@ -48,6 +48,13 @@ describe("layout webfonts (TA-1539)", () => {
 		}
 	});
 
+	it("uses optional display so late CJK files cannot shift layout or delay LCP", () => {
+		for (const face of faces) {
+			expect(face).toMatch(/font-display:\s*optional/);
+			expect(face).not.toMatch(/font-display:\s*swap/);
+		}
+	});
+
 	it("uses subset woff2 files instead of unicode-range shards", () => {
 		expect(fonts).toMatch(/noto-serif-jp-japanese-400-normal\.woff2/);
 		expect(fonts).toMatch(/shippori-mincho-japanese-700-normal\.woff2/);
