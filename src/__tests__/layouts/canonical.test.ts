@@ -30,3 +30,19 @@ describe("404 canonical omission", () => {
 		);
 	});
 });
+
+describe("gadget detail robots", () => {
+	it("lets Layout emit noindex, follow when robotsFollow is set", () => {
+		const layout = readSrc("layouts/Layout.astro");
+		expect(layout).toContain("robotsFollow");
+		expect(layout).toContain("noindex, follow");
+	});
+
+	it("noindexes thin gadget details without dropping the canonical", () => {
+		const page = readSrc("pages/gadgets/[slug].astro");
+		expect(page).toContain("isIndexableGadget");
+		expect(page).toContain("noindex={!indexable}");
+		expect(page).toContain("robotsFollow={!indexable}");
+		expect(page).not.toContain("omitCanonical");
+	});
+});

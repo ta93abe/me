@@ -21,6 +21,8 @@ interface Props {
 	omitCanonical?: boolean;
 	/** true のとき検索エンジンにインデックスさせない */
 	noindex?: boolean;
+	/** noindex 時の robots。未指定は nofollow（404 と同じ） */
+	robotsFollow?: boolean;
 	noHeader?: boolean;
 	noFooter?: boolean;
 	/** true のときメイン先頭のヘッダー分パディングを付けない（フルブリード用） */
@@ -44,6 +46,7 @@ const {
 	canonicalURL: canonicalOverride,
 	omitCanonical = false,
 	noindex = false,
+	robotsFollow = false,
 	noHeader = false,
 	noFooter = false,
 	flushTop = false,
@@ -69,7 +72,11 @@ const canonicalURL = canonicalOverride
 	: canonicalPageUrl(Astro.url.pathname, Astro.site ?? SITE.url);
 const ogImageURL = new URL(ogImage, Astro.site);
 const resolvedOgImageType = ogImageType ?? ogImageMimeType(ogImageURL.pathname);
-const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
+const robotsContent = noindex
+	? robotsFollow
+		? "noindex, follow"
+		: "noindex, nofollow"
+	: "index, follow";
 const includeSiteSchema = !noindex && canonicalURL.pathname === "/";
 const discoveryLinks = htmlDiscoveryLinks(Astro.site?.href || SITE.url);
 ---

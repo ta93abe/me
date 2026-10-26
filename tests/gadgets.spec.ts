@@ -138,6 +138,23 @@ test.describe("Gadgets page", () => {
 		);
 	});
 
+	test("index stays indexable while thin details are noindex, follow", async ({
+		request,
+	}) => {
+		const listing = await (await request.get("/gadgets/")).text();
+		expect(listing).toContain('name="robots" content="index, follow"');
+		expect(listing).toContain(
+			'rel="alternate" type="text/markdown" href="https://ta93abe.com/gadgets/"',
+		);
+
+		const detail = await (await request.get("/gadgets/mac-studio/")).text();
+		expect(detail).toContain('name="robots" content="noindex, follow"');
+		expect(detail).toContain(
+			'rel="canonical" href="https://ta93abe.com/gadgets/mac-studio/"',
+		);
+		expect(detail).not.toContain('rel="alternate" type="text/markdown"');
+	});
+
 	test("detail pages expose ItemPage JSON-LD, crawlable images, and product OG", async ({
 		request,
 	}) => {
