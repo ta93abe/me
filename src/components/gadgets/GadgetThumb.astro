@@ -1,29 +1,69 @@
 ---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import {
+	GADGET_THUMB_SIZES,
+	GADGET_THUMB_WIDTHS,
+	gadgetImageUrl,
+} from "@/data/gadget-images";
 import type { Gadget } from "@/data/gadgets";
-import { gadgetImageUrl } from "@/data/gadget-images";
 
 interface Props {
 	gadget: Gadget;
 	size: "grid" | "detail";
 }
 
+const gadgetPhotos = import.meta.glob<{ default: ImageMetadata }>(
+	"../../assets/gadgets/*.webp",
+	{ eager: true },
+);
+
+function gadgetPhoto(slug: string): ImageMetadata {
+	const match = Object.entries(gadgetPhotos).find(([key]) =>
+		key.endsWith(`/${slug}.webp`),
+	);
+	const image = match?.[1]?.default;
+	if (!image) {
+		throw new Error(`Missing gadget image: ${slug}`);
+	}
+	return image;
+}
+
 const { gadget, size } = Astro.props;
 const image = gadgetImageUrl(gadget.slug);
+const thumbClass = [
+	"pointer-events-none select-none object-contain",
+	size === "grid" && "h-full max-h-28 w-full max-w-full lg:max-h-32",
+	size === "detail" && "h-full w-full object-contain",
+];
 ---
 
-<img
-	src={image}
-	alt={gadget.name}
-	width="640"
-	height="640"
-	draggable="false"
-	decoding="async"
-	loading={size === "grid" ? "lazy" : "eager"}
-	data-gadget-thumb={gadget.slug}
-	class:list={[
-		"pointer-events-none select-none object-contain",
-		size === "grid" &&
-			"h-full max-h-28 w-full max-w-full lg:max-h-32",
-		size === "detail" && "h-full w-full object-contain",
-	]}
-/>
+{
+	size === "grid" ? (
+		<Image
+			src={gadgetPhoto(gadget.slug)}
+			alt=""
+			widths={[...GADGET_THUMB_WIDTHS]}
+			sizes={GADGET_THUMB_SIZES}
+			width={640}
+			height={640}
+			draggable="false"
+			decoding="async"
+			loading="lazy"
+			data-gadget-thumb={gadget.slug}
+			class:list={thumbClass}
+		/>
+	) : (
+		<img
+			src={image}
+			alt={gadget.name}
+			width="640"
+			height="640"
+			draggable="false"
+			decoding="async"
+			loading="eager"
+			data-gadget-thumb={gadget.slug}
+			class:list={thumbClass}
+		/>
+	)
+}

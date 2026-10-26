@@ -4,7 +4,12 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { gadgetImageBytes, gadgetImageUrl } from "@/data/gadget-images";
+import {
+	GADGET_THUMB_SIZES,
+	GADGET_THUMB_WIDTHS,
+	gadgetImageBytes,
+	gadgetImageUrl,
+} from "@/data/gadget-images";
 import {
 	GADGETS,
 	gadgetPath,
@@ -52,6 +57,9 @@ describe("GADGETS catalog", () => {
 			expect(bytes.byteLength).toBeGreaterThan(0);
 			expect(String.fromCharCode(...bytes.slice(0, 4))).toBe("RIFF");
 		}
+
+		expect(GADGET_THUMB_WIDTHS).toEqual([320, 480, 640]);
+		expect(GADGET_THUMB_SIZES).toBe("(min-width: 1024px) 8rem, 7rem");
 	});
 
 	it("keeps rating and notes optional and does not invent values", () => {

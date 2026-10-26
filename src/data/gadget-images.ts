@@ -4,6 +4,10 @@ const gadgetPhotos = import.meta.glob<string>("../assets/gadgets/*.webp", {
 	import: "default",
 });
 
+/** Listing thumbs: CSS box is 7rem / lg 8rem (object-contain). */
+export const GADGET_THUMB_WIDTHS = [320, 480, 640] as const;
+export const GADGET_THUMB_SIZES = "(min-width: 1024px) 8rem, 7rem";
+
 export function gadgetImageUrl(slug: string): string {
 	return `/media/gadgets/${slug}.webp`;
 }

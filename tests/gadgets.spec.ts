@@ -16,6 +16,33 @@ function isCrawlableGadgetSrc(src: string | null, slug: string): boolean {
 	);
 }
 
+function isListingThumbSrc(src: string | null, slug: string): boolean {
+	if (!src || src.startsWith("data:")) {
+		return false;
+	}
+	if (src.startsWith("/gadgets/") || src.startsWith("/things/")) {
+		return false;
+	}
+	const decoded = decodeURIComponent(src);
+	return (
+		decoded.includes(slug) &&
+		(src.includes("/_astro/") ||
+			src.includes("/_image") ||
+			src.includes("/media/gadgets/"))
+	);
+}
+
+function hasResponsiveThumbSrcset(srcset: string | null): boolean {
+	if (!srcset) {
+		return false;
+	}
+	return (
+		srcset.includes("320w") &&
+		srcset.includes("480w") &&
+		srcset.includes("640w")
+	);
+}
+
 function jsonLdBlocks(html: string): unknown[] {
 	return [
 		...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g),
@@ -41,8 +68,14 @@ test.describe("Gadgets page", () => {
 		await expect(thumb).toBeVisible();
 
 		const src = await thumb.getAttribute("src");
-		expect(isCrawlableGadgetSrc(src, "mac-studio")).toBe(true);
-		expect(await thumb.getAttribute("alt")).toBe("Mac Studio M1 Max");
+		expect(isListingThumbSrc(src, "mac-studio")).toBe(true);
+		expect(hasResponsiveThumbSrcset(await thumb.getAttribute("srcset"))).toBe(
+			true,
+		);
+		expect(await thumb.getAttribute("sizes")).toBe(
+			"(min-width: 1024px) 8rem, 7rem",
+		);
+		expect(await thumb.getAttribute("alt")).toBe("");
 
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		const naturalWidth = await thumb.evaluate(
@@ -105,6 +138,30 @@ test.describe("Gadgets page", () => {
 		await page.locator("main").getByRole("link", { name: "Gadgets" }).click();
 		await expect(page).toHaveURL(/\/gadgets\/?$/);
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
+	});
+
+	test("listing thumbs are decorative with srcset; intro link is underlined", async ({
+		request,
+		page,
+	}) => {
+		const html = await (await request.get("/gadgets/")).text();
+		const listingThumb = [...html.matchAll(/<img\b[^>]*>/g)]
+			.map((match) => match[0])
+			.find((tag) => tag.includes('data-gadget-thumb="mac-studio"'));
+		expect(listingThumb).toBeDefined();
+		expect(listingThumb).toMatch(/\balt=""/);
+		expect(listingThumb).not.toContain('alt="Mac Studio M1 Max"');
+		expect(
+			hasResponsiveThumbSrcset(
+				listingThumb?.match(/srcset="([^"]*)"/)?.[1] ?? null,
+			),
+		).toBe(true);
+		expect(listingThumb).toContain('sizes="(min-width: 1024px) 8rem, 7rem"');
+		expect(html).toContain('class="inline-text-link"');
+
+		await page.goto("/gadgets/");
+		const tools = page.locator("main header a[href='/tools/']");
+		await expect(tools).toHaveCSS("text-decoration-line", "underline");
 	});
 
 	test("listing ItemList URLs match trailing-slash canonicals", async ({
