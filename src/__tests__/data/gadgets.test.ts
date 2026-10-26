@@ -9,7 +9,10 @@ import {
 	GADGET_THUMB_WIDTHS,
 	gadgetImageBytes,
 	gadgetImageUrl,
+	gadgetThumbSrcset,
+	gadgetThumbUrl,
 } from "@/data/gadget-images";
+import { resizeGadgetThumb } from "@/data/gadget-thumbs";
 import {
 	GADGETS,
 	gadgetPath,
@@ -60,6 +63,23 @@ describe("GADGETS catalog", () => {
 
 		expect(GADGET_THUMB_WIDTHS).toEqual([320, 480, 640]);
 		expect(GADGET_THUMB_SIZES).toBe("(min-width: 1024px) 8rem, 7rem");
+		expect(gadgetThumbUrl("oura-ring-5", 320)).toBe(
+			"/media/gadgets/oura-ring-5/320.webp",
+		);
+		expect(gadgetThumbUrl("oura-ring-5", 640)).toBe(
+			"/media/gadgets/oura-ring-5.webp",
+		);
+		expect(gadgetThumbSrcset("oura-ring-5")).toBe(
+			"/media/gadgets/oura-ring-5/320.webp 320w, /media/gadgets/oura-ring-5/480.webp 480w, /media/gadgets/oura-ring-5.webp 640w",
+		);
+	});
+
+	it("resizes listing thumbs smaller than the 640 source", async () => {
+		const original = gadgetImageBytes("oura-ring-5");
+		const thumb = await resizeGadgetThumb("oura-ring-5", 320);
+		expect(thumb.byteLength).toBeGreaterThan(0);
+		expect(thumb.byteLength).toBeLessThan(original.byteLength);
+		expect(String.fromCharCode(...thumb.slice(0, 4))).toBe("RIFF");
 	});
 
 	it("keeps rating and notes optional and does not invent values", () => {

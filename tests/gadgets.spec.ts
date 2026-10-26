@@ -16,30 +16,17 @@ function isCrawlableGadgetSrc(src: string | null, slug: string): boolean {
 	);
 }
 
-function isListingThumbSrc(src: string | null, slug: string): boolean {
-	if (!src || src.startsWith("data:")) {
-		return false;
-	}
-	if (src.startsWith("/gadgets/") || src.startsWith("/things/")) {
-		return false;
-	}
-	const decoded = decodeURIComponent(src);
-	return (
-		decoded.includes(slug) &&
-		(src.includes("/_astro/") ||
-			src.includes("/_image") ||
-			src.includes("/media/gadgets/"))
-	);
-}
-
-function hasResponsiveThumbSrcset(srcset: string | null): boolean {
+function hasResponsiveThumbSrcset(
+	srcset: string | null,
+	slug: string,
+): boolean {
 	if (!srcset) {
 		return false;
 	}
 	return (
-		srcset.includes("320w") &&
-		srcset.includes("480w") &&
-		srcset.includes("640w")
+		srcset.includes(`/media/gadgets/${slug}/320.webp 320w`) &&
+		srcset.includes(`/media/gadgets/${slug}/480.webp 480w`) &&
+		srcset.includes(`/media/gadgets/${slug}.webp 640w`)
 	);
 }
 
@@ -68,10 +55,13 @@ test.describe("Gadgets page", () => {
 		await expect(thumb).toBeVisible();
 
 		const src = await thumb.getAttribute("src");
-		expect(isListingThumbSrc(src, "mac-studio")).toBe(true);
-		expect(hasResponsiveThumbSrcset(await thumb.getAttribute("srcset"))).toBe(
-			true,
-		);
+		expect(isCrawlableGadgetSrc(src, "mac-studio")).toBe(true);
+		expect(
+			hasResponsiveThumbSrcset(
+				await thumb.getAttribute("srcset"),
+				"mac-studio",
+			),
+		).toBe(true);
 		expect(await thumb.getAttribute("sizes")).toBe(
 			"(min-width: 1024px) 8rem, 7rem",
 		);
@@ -154,10 +144,19 @@ test.describe("Gadgets page", () => {
 		expect(
 			hasResponsiveThumbSrcset(
 				listingThumb?.match(/srcset="([^"]*)"/)?.[1] ?? null,
+				"mac-studio",
 			),
 		).toBe(true);
 		expect(listingThumb).toContain('sizes="(min-width: 1024px) 8rem, 7rem"');
 		expect(html).toContain('class="inline-text-link"');
+
+		const w320 = await request.get("/media/gadgets/oura-ring-5/320.webp");
+		const w640 = await request.get("/media/gadgets/oura-ring-5.webp");
+		expect(w320.ok()).toBe(true);
+		expect(w640.ok()).toBe(true);
+		expect((await w320.body()).byteLength).toBeLessThan(
+			(await w640.body()).byteLength,
+		);
 
 		await page.goto("/gadgets/");
 		const tools = page.locator("main header a[href='/tools/']");
