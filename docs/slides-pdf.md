@@ -15,6 +15,17 @@ Web と同じ DOM を Browser Run の `quickAction("pdf")` に渡し、Workflow 
 
 プレイヤー左下の「PDF」が `/slides/<slug>.pdf` を開く。
 
+200 の PDF レスポンスは正規 HTML へ寄せる。
+
+| ヘッダ | 値 |
+| -- | -- |
+| `Link` | `<https://ta93abe.com/slides/<slug>/>; rel="canonical"` |
+| `Cache-Control` | `public, max-age=86400, must-revalidate` |
+| `ETag` | デッキ HTML の SHA-256 先頭 16 字 |
+| `X-Robots-Tag` | プレイヤー HTML が noindex のときだけ `noindex`（unlisted / print と揃える） |
+
+`max-age=60` は短すぎる。PDF バイトは version が同じなら不変で、再生成後は Cache API を purge する。ブラウザには 1 日キャッシュし、期限後は ETag で再検証する。
+
 印刷 HTML は全 `.slide` を出し、`html` に `data-print-ready` と `is-print` を付ける。`player.js` は読まない。
 
 印刷 CSS は `.slide[hidden]` を `display: flex !important` で上書きする。プレイヤーは非表示スライドを `hidden` にしており、specificity を上げないと 1 枚目だけになる。
