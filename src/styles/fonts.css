@@ -1,0 +1,143 @@
+/*
+ * Compact webfonts for Layout (TA-1539).
+ *
+ * `@fontsource/<family>/400.css` は日本語を ~120 個の unicode-range に
+ * 分割した CSS を出す。それを全ウェイト分バンドルすると Layout CSS が
+ * 680KB（@font-face 635 個）になり render-blocking になる。
+ *
+ * latin + japanese の subset ファイルならウェイトあたり 2 宣言で足りる。
+ * latin に unicode-range を付け、japanese はそれ以外を受け持つ。
+ * ブラウザはページ上の文字に必要な subset だけを取る。
+ * japanese subset は約 1.4MB あるので `font-display: optional` にする。
+ * swap だと低速回線でテキスト LCP がフォント待ちになる。
+ *
+ * Shippori Mincho 500 は Layout では未使用（500 は Inter / inline code）。
+ * スライドは tokens.css 側で 500 を個別に読む。
+ */
+
+@font-face {
+	font-family: "Noto Serif JP";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 400;
+	src: url("@fontsource/noto-serif-jp/files/noto-serif-jp-latin-400-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Noto Serif JP";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 400;
+	src: url("@fontsource/noto-serif-jp/files/noto-serif-jp-japanese-400-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Noto Serif JP";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 700;
+	src: url("@fontsource/noto-serif-jp/files/noto-serif-jp-latin-700-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Noto Serif JP";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 700;
+	src: url("@fontsource/noto-serif-jp/files/noto-serif-jp-japanese-700-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Shippori Mincho";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 400;
+	src: url("@fontsource/shippori-mincho/files/shippori-mincho-latin-400-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Shippori Mincho";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 400;
+	src: url("@fontsource/shippori-mincho/files/shippori-mincho-japanese-400-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Shippori Mincho";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 700;
+	src: url("@fontsource/shippori-mincho/files/shippori-mincho-latin-700-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Shippori Mincho";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 700;
+	src: url("@fontsource/shippori-mincho/files/shippori-mincho-japanese-700-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 400;
+	src: url("@fontsource/inter/files/inter-latin-400-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 500;
+	src: url("@fontsource/inter/files/inter-latin-500-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-display: optional;
+	font-weight: 700;
+	src: url("@fontsource/inter/files/inter-latin-700-normal.woff2")
+		format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+		U+2215, U+FEFF, U+FFFD;
+}
