@@ -9,7 +9,11 @@ import { slideDeckRobotsContent } from "@/lib/slides/visibility";
 import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
 import { renderSlideSections } from "@/slides/render";
-import { generateSlideDeckSchema, stringifySchema } from "@/utils/schema";
+import {
+	generateBreadcrumbSchema,
+	generateSlideDeckSchema,
+	stringifySchema,
+} from "@/utils/schema";
 import "katex/dist/katex.min.css";
 import "@/slides/design-system/tokens.css";
 import "@/slides/design-system/typography.css";
@@ -48,6 +52,10 @@ const deckSchema = generateSlideDeckSchema(siteBase, {
 	description,
 	date,
 });
+const breadcrumbSchema = generateBreadcrumbSchema(siteBase, [
+	{ name: "Slides", path: "/slides/" },
+	{ name: title, path: `/slides/${slug}/` },
+]);
 const sections = renderSlideSections(deck, { print });
 const seriesNeighbors = print
 	? {}
@@ -108,10 +116,16 @@ const linkedTalk = deck.frontmatter.talkSlug
 		}
 		{
 			!print && (
-				<script
-					type="application/ld+json"
-					set:html={stringifySchema(deckSchema)}
-				/>
+				<>
+					<script
+						type="application/ld+json"
+						set:html={stringifySchema(deckSchema)}
+					/>
+					<script
+						type="application/ld+json"
+						set:html={stringifySchema(breadcrumbSchema)}
+					/>
+				</>
 			)
 		}
 		<PostHog />

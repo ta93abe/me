@@ -58,12 +58,22 @@ export function pdfWorkflowId(slug: string, version: string): string {
 	return id.length <= 64 ? id : `pdf-${version}-${slug}`.slice(0, 64);
 }
 
+export const PDF_CACHE_CONTROL = "public, max-age=86400, must-revalidate";
+
 export function printDeckUrl(origin: string, slug: string): string {
 	return `${origin.replace(/\/$/, "")}/slides/${slug}/print/`;
 }
 
+export function playerDeckUrl(origin: string, slug: string): string {
+	return `${origin.replace(/\/$/, "")}/slides/${slug}/`;
+}
+
 export function pdfPublicUrl(origin: string, slug: string): string {
 	return `${origin.replace(/\/$/, "")}/slides/${slug}.pdf`;
+}
+
+export function pdfCanonicalLinkHeader(origin: string, slug: string): string {
+	return `<${playerDeckUrl(origin, slug)}>; rel="canonical"`;
 }
 
 export function playerHtmlIsNoindex(html: string): boolean {
