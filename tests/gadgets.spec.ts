@@ -16,6 +16,20 @@ function isCrawlableGadgetSrc(src: string | null, slug: string): boolean {
 	);
 }
 
+function hasResponsiveThumbSrcset(
+	srcset: string | null,
+	slug: string,
+): boolean {
+	if (!srcset) {
+		return false;
+	}
+	return (
+		srcset.includes(`/media/gadgets/${slug}/320.webp 320w`) &&
+		srcset.includes(`/media/gadgets/${slug}/480.webp 480w`) &&
+		srcset.includes(`/media/gadgets/${slug}.webp 640w`)
+	);
+}
+
 function jsonLdBlocks(html: string): unknown[] {
 	return [
 		...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g),
@@ -42,7 +56,16 @@ test.describe("Gadgets page", () => {
 
 		const src = await thumb.getAttribute("src");
 		expect(isCrawlableGadgetSrc(src, "mac-studio")).toBe(true);
-		expect(await thumb.getAttribute("alt")).toBe("Mac Studio M1 Max");
+		expect(
+			hasResponsiveThumbSrcset(
+				await thumb.getAttribute("srcset"),
+				"mac-studio",
+			),
+		).toBe(true);
+		expect(await thumb.getAttribute("sizes")).toBe(
+			"(min-width: 1024px) 8rem, 7rem",
+		);
+		expect(await thumb.getAttribute("alt")).toBe("");
 
 		await thumb.evaluate((el) => (el as HTMLImageElement).decode());
 		const naturalWidth = await thumb.evaluate(
@@ -105,6 +128,39 @@ test.describe("Gadgets page", () => {
 		await page.locator("main").getByRole("link", { name: "Gadgets" }).click();
 		await expect(page).toHaveURL(/\/gadgets\/?$/);
 		await expect(page.locator("h1").first()).toContainText("Gadgets");
+	});
+
+	test("listing thumbs are decorative with srcset; intro link is underlined", async ({
+		request,
+		page,
+	}) => {
+		const html = await (await request.get("/gadgets/")).text();
+		const listingThumb = [...html.matchAll(/<img\b[^>]*>/g)]
+			.map((match) => match[0])
+			.find((tag) => tag.includes('data-gadget-thumb="mac-studio"'));
+		expect(listingThumb).toBeDefined();
+		expect(listingThumb).toMatch(/\balt=""/);
+		expect(listingThumb).not.toContain('alt="Mac Studio M1 Max"');
+		expect(
+			hasResponsiveThumbSrcset(
+				listingThumb?.match(/srcset="([^"]*)"/)?.[1] ?? null,
+				"mac-studio",
+			),
+		).toBe(true);
+		expect(listingThumb).toContain('sizes="(min-width: 1024px) 8rem, 7rem"');
+		expect(html).toContain('class="inline-text-link"');
+
+		const w320 = await request.get("/media/gadgets/oura-ring-5/320.webp");
+		const w640 = await request.get("/media/gadgets/oura-ring-5.webp");
+		expect(w320.ok()).toBe(true);
+		expect(w640.ok()).toBe(true);
+		expect((await w320.body()).byteLength).toBeLessThan(
+			(await w640.body()).byteLength,
+		);
+
+		await page.goto("/gadgets/");
+		const tools = page.locator("main header a[href='/tools/']");
+		await expect(tools).toHaveCSS("text-decoration-line", "underline");
 	});
 
 	test("listing ItemList URLs match trailing-slash canonicals", async ({

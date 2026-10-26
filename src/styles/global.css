@@ -204,6 +204,20 @@ body.lock-viewport .footer-docked nav ul {
 	color: var(--primary-color);
 }
 
+/* Inline text links outside .prose — WCAG 1.4.1 Use of Color */
+.inline-text-link {
+	color: var(--link-color);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	text-decoration-thickness: 1px;
+	transition: color 0.2s;
+}
+
+.inline-text-link:hover {
+	color: var(--link-hover-color);
+	text-decoration-thickness: 2px;
+}
+
 /* Glow effects */
 .glow,
 .glow-strong {
