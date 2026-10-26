@@ -189,6 +189,24 @@ describe("addPublicHtmlDiscoveryHeaders", () => {
 		expect(alreadyMarkdown.headers.get("Link")).toBe(expectedLink("/about/"));
 	});
 
+	it("does not advertise markdown alternate on thin gadget details", () => {
+		const detail = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/gadgets/mac-studio/"),
+			htmlResponse(),
+		);
+		expect(detail.headers.get("Link")).not.toMatch(
+			/rel="alternate";\s*type="text\/markdown"/,
+		);
+		expect(detail.headers.get("Link")).toContain("/llms.txt");
+		expect(detail.headers.get("Content-Signal")).toBe(CONTENT_SIGNAL);
+
+		const listing = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/gadgets/"),
+			htmlResponse(),
+		);
+		expect(listing.headers.get("Link")).toBe(expectedLink("/gadgets/"));
+	});
+
 	it("does not attach discovery headers to 404 HTML", () => {
 		const missing = addPublicHtmlDiscoveryHeaders(
 			htmlRequest("/blog/does-not-exist/"),
