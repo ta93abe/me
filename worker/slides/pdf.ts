@@ -1,3 +1,5 @@
+export { htmlHasNoindex as playerHtmlIsNoindex } from "../html-robots.ts";
+
 export type PdfJob = {
 	slug: string;
 	origin: string;
@@ -64,17 +66,6 @@ export function printDeckUrl(origin: string, slug: string): string {
 
 export function pdfPublicUrl(origin: string, slug: string): string {
 	return `${origin.replace(/\/$/, "")}/slides/${slug}.pdf`;
-}
-
-export function playerHtmlIsNoindex(html: string): boolean {
-	return (
-		/<meta\b[^>]*\bname=["']robots["'][^>]*\bcontent=["'][^"']*\bnoindex\b/i.test(
-			html,
-		) ||
-		/<meta\b[^>]*\bcontent=["'][^"']*\bnoindex\b[^"']*["'][^>]*\bname=["']robots["']/i.test(
-			html,
-		)
-	);
 }
 
 export function parseSlidePdfSlug(pathname: string): string | null {
