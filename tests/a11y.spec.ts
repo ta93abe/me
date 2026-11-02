@@ -49,3 +49,22 @@ test.describe("Accessibility (TA-1482)", () => {
 		await expectAxeClean(page);
 	});
 });
+
+test.describe("Accessibility (TA-1542)", () => {
+	test("gadgets listing has no redundant alt or color-only text links", async ({
+		page,
+	}) => {
+		await page.goto("/gadgets/");
+		const results = await new AxeBuilder({ page })
+			.withRules([
+				"image-redundant-alt",
+				"link-in-text-block",
+				"color-contrast",
+			])
+			.analyze();
+		expect(
+			results.violations,
+			JSON.stringify(results.violations, null, 2),
+		).toEqual([]);
+	});
+});
