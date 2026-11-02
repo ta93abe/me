@@ -1,12 +1,4 @@
 @import "tailwindcss";
-@import "@fontsource/shippori-mincho/400.css";
-@import "@fontsource/shippori-mincho/500.css";
-@import "@fontsource/shippori-mincho/700.css";
-@import "@fontsource/noto-serif-jp/400.css";
-@import "@fontsource/noto-serif-jp/700.css";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/700.css";
 @plugin "@tailwindcss/typography";
 
 /* Editorial white color system
