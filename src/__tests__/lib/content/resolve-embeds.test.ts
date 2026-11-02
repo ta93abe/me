@@ -69,7 +69,7 @@ describe("resolveEmbedsForMarkdown", () => {
 		};
 		const link = (await (await bucket.get(linkKey))!.json()) as {
 			kind: string;
-			link: { title: string };
+			link: { title: string; favicon: string };
 			expiresAt: string;
 		};
 		const youtube = (await (await bucket.get(youtubeKey))!.json()) as {
@@ -81,6 +81,8 @@ describe("resolveEmbedsForMarkdown", () => {
 		expect(tweet.tweet.text).toBe("just setting up my twttr");
 		expect(link.kind).toBe("link");
 		expect(link.link.title).toBe("CooSenpAI");
+		expect(link.link.favicon).toBe("/icons/embed/default.svg");
+		expect(link.link.favicon).not.toContain("google.com");
 		expect(link.expiresAt).toBe("2026-09-25T00:00:00.000Z");
 		expect(youtube.kind).toBe("youtube");
 		expect(youtube.youtube.title).toBe("Never Gonna Give You Up");
@@ -118,6 +120,6 @@ describe("resolveEmbedsForMarkdown", () => {
 			now,
 			force: true,
 		});
-		expect(fetchImpl).toHaveBeenCalledOnce();
+		expect(fetchImpl).toHaveBeenCalled();
 	});
 });

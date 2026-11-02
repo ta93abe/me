@@ -1,12 +1,4 @@
 @import "tailwindcss";
-@import "@fontsource/shippori-mincho/400.css";
-@import "@fontsource/shippori-mincho/500.css";
-@import "@fontsource/shippori-mincho/700.css";
-@import "@fontsource/noto-serif-jp/400.css";
-@import "@fontsource/noto-serif-jp/700.css";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/700.css";
 @plugin "@tailwindcss/typography";
 
 /* Editorial white color system
@@ -202,6 +194,20 @@ body.lock-viewport .footer-docked nav ul {
 /* Accent text utility */
 .gradient-text {
 	color: var(--primary-color);
+}
+
+/* Inline text links outside .prose — WCAG 1.4.1 Use of Color */
+.inline-text-link {
+	color: var(--link-color);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	text-decoration-thickness: 1px;
+	transition: color 0.2s;
+}
+
+.inline-text-link:hover {
+	color: var(--link-hover-color);
+	text-decoration-thickness: 2px;
 }
 
 /* Glow effects */

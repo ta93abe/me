@@ -1,6 +1,8 @@
 import {
 	deckVersion,
+	PDF_CACHE_CONTROL,
 	PDF_ORIGIN,
+	pdfCanonicalLinkHeader,
 	pdfObjectKey,
 	playerHtmlIsNoindex,
 	type PdfJob,
@@ -30,7 +32,8 @@ export async function servePdf(
 			"content-type": stored.httpMetadata?.contentType ?? "application/pdf",
 			"content-disposition": `inline; filename="${slug}.pdf"`,
 			etag: `"${version}"`,
-			"cache-control": "public, max-age=60",
+			"cache-control": PDF_CACHE_CONTROL,
+			Link: pdfCanonicalLinkHeader(PDF_ORIGIN, slug),
 		};
 		if (playerHtmlIsNoindex(source)) {
 			headers["X-Robots-Tag"] = "noindex";

@@ -59,4 +59,10 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(bloom).toMatch(/hero-paper-shader/);
 		expect(bloom).toMatch(/data-hero-shader/);
 	});
+
+	it("keeps the hero shader static so Speed Index converges", () => {
+		const paper = readSrc("scripts/hero-paper-shader.ts");
+		expect(paper).toMatch(/const HERO_SHADER_SPEED = 0;/);
+		expect(paper).toMatch(/new ShaderMount\([\s\S]*?HERO_SHADER_SPEED,/);
+	});
 });

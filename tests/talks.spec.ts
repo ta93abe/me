@@ -52,15 +52,28 @@ test.describe("Talks", () => {
 			"https://speakerdeck.com/ta93abe/cloudflare-dehazimeru-data-platform",
 		);
 
+		const html = await page.content();
+		expect(html).not.toContain("/slides/showcase");
+		expect(html).not.toContain("/slides/light");
+
+		const frosty = page.locator("#talk-frosty-friday-live-challenge-vol56");
 		await expect(
-			page.getByRole("link", { name: "Slides", exact: true }),
-		).toHaveAttribute("href", "/slides/showcase/");
-		await expect(
-			page.getByRole("link", { name: "PDF" }).first(),
-		).toHaveAttribute("href", "/slides/showcase.pdf");
-		await expect(
-			page.getByRole("link", { name: "Recording", exact: true }).first(),
+			frosty.getByRole("link", { name: "Recording", exact: true }),
 		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
+		await expect(
+			frosty.getByRole("link", { name: "再生リスト" }),
+		).toBeVisible();
+		await expect(
+			frosty.getByRole("link", { name: "Slides", exact: true }),
+		).toHaveCount(0);
+		await expect(frosty.getByRole("link", { name: "PDF" })).toHaveCount(0);
+
+		const lcpPreload = page.locator('link[rel="preload"][as="image"]');
+		await expect(lcpPreload).toHaveAttribute(
+			"href",
+			"https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg",
+		);
+		await expect(lcpPreload).toHaveAttribute("fetchpriority", "high");
 
 		const thumbs = page.locator(".talk-card-thumb");
 		await expect(thumbs).toHaveCount(2);
@@ -68,10 +81,30 @@ test.describe("Talks", () => {
 			"src",
 			"https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg",
 		);
+		await expect(thumbs.nth(0)).toHaveAttribute(
+			"srcset",
+			"https://i.ytimg.com/vi/KLEApocYmww/mqdefault.jpg 320w, https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg 480w",
+		);
+		await expect(thumbs.nth(0)).toHaveAttribute(
+			"sizes",
+			"(min-width: 48rem) 720px, calc(100vw - 3rem)",
+		);
+		await expect(thumbs.nth(0)).toHaveAttribute("loading", "eager");
+		await expect(thumbs.nth(0)).toHaveAttribute("fetchpriority", "high");
+		await expect(thumbs.nth(0)).toHaveAttribute("width", "480");
+		await expect(thumbs.nth(0)).toHaveAttribute("height", "360");
 		await expect(thumbs.nth(1)).toHaveAttribute(
 			"src",
-			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/hqdefault.jpg",
 		);
+		await expect(thumbs.nth(1)).toHaveAttribute(
+			"srcset",
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/mqdefault.jpg 320w, https://i.ytimg.com/vi/7yvAfZ8vCDU/hqdefault.jpg 480w",
+		);
+		await expect(thumbs.nth(1)).toHaveAttribute("loading", "lazy");
+		await expect(thumbs.nth(1)).not.toHaveAttribute("fetchpriority", "high");
+		await expect(thumbs.nth(1)).toHaveAttribute("width", "480");
+		await expect(thumbs.nth(1)).toHaveAttribute("height", "360");
 	});
 
 	test("stays reachable from the footer", async ({ page }) => {

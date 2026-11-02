@@ -34,6 +34,9 @@ describe("slide design-system typography tokens", () => {
 		expect(typography).toContain("font-family: var(--font-display)");
 		expect(tokens).toContain("--color-code-gutter:");
 		expect(tokens).toContain("--code-show-gutter:");
+		expect(tokens).toContain("@fontsource/shippori-mincho/japanese-500.css");
+		expect(tokens).toContain("@fontsource/inter/latin-400.css");
+		expect(tokens).not.toMatch(/@fontsource\/[^"' ]+\/\d{3}\.css/);
 		expect(typography).toContain("pre.shiki .line::before");
 		expect(typography).toContain(".no-line-gutter");
 	});

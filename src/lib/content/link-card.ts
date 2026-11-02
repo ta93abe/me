@@ -1,5 +1,11 @@
 import { parse, type HTMLElement } from "node-html-parser";
 
+import {
+	firstPartyFaviconSrc,
+	resolveFavicon,
+	staticFaviconForDomain,
+	type FaviconCache,
+} from "./favicon.ts";
 import { parseLinkUrl } from "./link-url.ts";
 
 const FETCH_TIMEOUT_MS = 2500;
@@ -20,6 +26,7 @@ export type LinkCardFetcher = (url: string) => Promise<LinkCardData>;
 
 export type LinkCardFetchOptions = {
 	fetch?: typeof fetch;
+	favicons?: FaviconCache;
 };
 
 function escapeHtml(value: string): string {
@@ -38,10 +45,6 @@ function collapseText(value: string): string {
 		.trim();
 }
 
-function googleFavicon(domain: string): string {
-	return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`;
-}
-
 function displayDomain(href: string): string {
 	try {
 		return new URL(href).hostname.replace(/^www\./, "");
@@ -57,7 +60,7 @@ export function fallbackLinkCard(href: string): LinkCardData {
 		title: domain,
 		description: "",
 		domain,
-		favicon: domain ? googleFavicon(domain) : "",
+		favicon: staticFaviconForDomain(domain),
 	};
 }
 
@@ -120,7 +123,7 @@ function fromHtml(href: string, html: string, base: string): LinkCardData {
 		description: description.slice(0, 300),
 		image,
 		domain: fallback.domain,
-		favicon: iconHref(root, base) ?? fallback.favicon,
+		favicon: iconHref(root, base) ?? "",
 	};
 }
 
@@ -129,8 +132,9 @@ export function linkCardHtml(card: LinkCardData): string {
 	const description = card.description
 		? `<span class="embed-card-description">${escapeHtml(card.description)}</span>`
 		: "";
-	const favicon = card.favicon
-		? `<img class="embed-card-favicon" src="${escapeHtml(card.favicon)}" alt="" width="16" height="16" loading="lazy" decoding="async" referrerpolicy="no-referrer" />`
+	const faviconSrc = firstPartyFaviconSrc(card.favicon, card.domain);
+	const favicon = faviconSrc
+		? `<img class="embed-card-favicon" src="${escapeHtml(faviconSrc)}" alt="" width="16" height="16" loading="lazy" decoding="async" referrerpolicy="no-referrer" />`
 		: "";
 	const thumb = card.image
 		? `<span class="embed-card-thumb"><img src="${escapeHtml(card.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>`
@@ -171,7 +175,16 @@ export async function fetchLinkCard(
 		}
 		const html = (await response.text()).slice(0, MAX_HTML_BYTES);
 		const base = response.url || href;
-		return fromHtml(href, html, base);
+		const card = fromHtml(href, html, base);
+		return {
+			...card,
+			favicon: await resolveFavicon(card.domain, {
+				fetch: fetchImpl,
+				candidates: card.favicon ? [card.favicon] : [],
+				pageUrl: base,
+				cache: options.favicons,
+			}),
+		};
 	} catch {
 		return fallback;
 	}

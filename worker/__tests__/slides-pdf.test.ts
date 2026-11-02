@@ -8,13 +8,16 @@ import { servePdf } from "../slides/pdf-route.ts";
 import { PdfWorkflow } from "../slides/pdf-workflow.ts";
 import {
 	deckVersion,
+	PDF_CACHE_CONTROL,
 	PDF_ORIGIN,
 	PDF_PAGE,
 	PDF_QUEUE_NAME,
 	PDF_QUICK_ACTION,
 	parseSlidePdfSlug,
+	pdfCanonicalLinkHeader,
 	pdfObjectKey,
 	pdfWorkflowId,
+	playerDeckUrl,
 	printDeckUrl,
 } from "../slides/pdf.ts";
 import { createMemoryR2 } from "./memory-r2.ts";
@@ -60,6 +63,16 @@ describe("PDF page contract", () => {
 		);
 	});
 
+	it("points the PDF Link header at the player HTML", () => {
+		expect(playerDeckUrl(PDF_ORIGIN, "showcase")).toBe(
+			"https://ta93abe.com/slides/showcase/",
+		);
+		expect(pdfCanonicalLinkHeader(PDF_ORIGIN, "showcase")).toBe(
+			'<https://ta93abe.com/slides/showcase/>; rel="canonical"',
+		);
+		expect(PDF_CACHE_CONTROL).toBe("public, max-age=86400, must-revalidate");
+	});
+
 	it("matches /slides/<slug>.pdf without treating the extension as a param name", () => {
 		expect(parseSlidePdfSlug("/slides/showcase.pdf")).toBe("showcase");
 		expect(parseSlidePdfSlug("/slides/showcase")).toBeNull();
@@ -74,6 +87,9 @@ describe("PDF page contract", () => {
 		expect(parseSlidePdfSlug(`/slides/${slug}.pdf`)).toBe(slug);
 		expect(printDeckUrl(PDF_ORIGIN, slug)).toBe(
 			`https://ta93abe.com/slides/${slug}/print/`,
+		);
+		expect(pdfCanonicalLinkHeader(PDF_ORIGIN, slug)).toBe(
+			`<https://ta93abe.com/slides/${slug}/>; rel="canonical"`,
 		);
 		expect(pdfObjectKey(slug)).toBe(`derived/slides/pdf/${slug}.pdf`);
 	});
@@ -98,29 +114,40 @@ describe("PDF page contract", () => {
 	});
 });
 
+const serveStoredPdf = async (
+	slug: string,
+	htmlBody: string,
+	requestUrl = `https://ta93abe.com/slides/${slug}.pdf`,
+) => {
+	const version = await deckVersion(htmlBody);
+	const content = createMemoryR2();
+	await content.put(pdfObjectKey(slug), pdfBytes, {
+		httpMetadata: { contentType: "application/pdf" },
+		customMetadata: { version },
+	});
+	return servePdf(
+		new Request(requestUrl),
+		{
+			ASSETS: {
+				fetch: async () => html(htmlBody),
+			} as unknown as Fetcher,
+			CONTENT: content,
+			PDF_QUEUE: { send: async () => undefined },
+		} as unknown as Env,
+		slug,
+	);
+};
+
 describe("GET /slides/<slug>.pdf", () => {
 	it("adds X-Robots-Tag noindex when the player HTML is noindex", async () => {
 		const noindexHtml =
 			'<html><head><meta name="robots" content="noindex, follow"></head></html>';
-		const version = await deckVersion(noindexHtml);
-		const content = createMemoryR2();
-		await content.put(pdfObjectKey("showcase"), pdfBytes, {
-			httpMetadata: { contentType: "application/pdf" },
-			customMetadata: { version },
-		});
-		const response = await servePdf(
-			new Request("https://ta93abe.com/slides/showcase.pdf"),
-			{
-				ASSETS: {
-					fetch: async () => html(noindexHtml),
-				} as unknown as Fetcher,
-				CONTENT: content,
-				PDF_QUEUE: { send: async () => undefined },
-			} as unknown as Env,
-			"showcase",
-		);
+		const response = await serveStoredPdf("showcase", noindexHtml);
 		expect(response.status).toBe(200);
 		expect(response.headers.get("x-robots-tag")).toBe("noindex");
+		expect(response.headers.get("link")).toBe(
+			'<https://ta93abe.com/slides/showcase/>; rel="canonical"',
+		);
 	});
 
 	it("does not noindex listed player PDFs", async () => {
@@ -141,6 +168,9 @@ describe("GET /slides/<slug>.pdf", () => {
 		);
 		expect(response.status).toBe(200);
 		expect(response.headers.get("x-robots-tag")).toBeNull();
+		expect(response.headers.get("link")).toBe(
+			'<https://ta93abe.com/slides/showcase/>; rel="canonical"',
+		);
 	});
 
 	it("returns the CONTENT object when the stored version matches the deck", async () => {
@@ -164,7 +194,53 @@ describe("GET /slides/<slug>.pdf", () => {
 		expect(response.headers.get("content-disposition")).toContain(
 			"showcase.pdf",
 		);
+		expect(response.headers.get("etag")).toBe(`"${version}"`);
+		expect(response.headers.get("cache-control")).toBe(PDF_CACHE_CONTROL);
+		expect(response.headers.get("link")).toBe(
+			'<https://ta93abe.com/slides/showcase/>; rel="canonical"',
+		);
 		expect(await response.text()).toContain("%PDF");
+	});
+
+	it.each([
+		"snowflake-clickops-limits",
+		"snowflake-dbt",
+		"snowflake-observability",
+	])("canonicalizes listed deck PDF %s to the player HTML", async (slug) => {
+		const response = await serveStoredPdf(slug, deckHtml);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain("application/pdf");
+		expect(response.headers.get("link")).toBe(
+			`<https://ta93abe.com/slides/${slug}/>; rel="canonical"`,
+		);
+		expect(response.headers.get("x-robots-tag")).toBeNull();
+		expect(response.headers.get("cache-control")).toBe(PDF_CACHE_CONTROL);
+	});
+
+	it("does not advertise a canonical on generating or missing PDFs", async () => {
+		const generating = await servePdf(
+			new Request("https://ta93abe.com/slides/showcase.pdf"),
+			{
+				ASSETS: assets,
+				CONTENT: createMemoryR2(),
+				PDF_QUEUE: { send: async () => undefined },
+			} as unknown as Env,
+			"showcase",
+		);
+		expect(generating.status).toBe(202);
+		expect(generating.headers.get("link")).toBeNull();
+
+		const missing = await servePdf(
+			new Request("https://ta93abe.com/slides/no-such-deck.pdf"),
+			{
+				ASSETS: assets,
+				CONTENT: createMemoryR2(),
+				PDF_QUEUE: { send: async () => undefined },
+			} as unknown as Env,
+			"no-such-deck",
+		);
+		expect(missing.status).toBe(404);
+		expect(missing.headers.get("link")).toBeNull();
 	});
 
 	it("enqueues generation against production origin and returns 202 when missing", async () => {

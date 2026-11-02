@@ -4,8 +4,26 @@ const gadgetPhotos = import.meta.glob<string>("../assets/gadgets/*.webp", {
 	import: "default",
 });
 
+/** Listing thumbs: CSS box is 7rem / lg 8rem (object-contain). */
+export const GADGET_THUMB_WIDTHS = [320, 480, 640] as const;
+export const GADGET_THUMB_SIZES = "(min-width: 1024px) 8rem, 7rem";
+export const GADGET_SOURCE_WIDTH = 640;
+
 export function gadgetImageUrl(slug: string): string {
 	return `/media/gadgets/${slug}.webp`;
+}
+
+export function gadgetThumbUrl(slug: string, width: number): string {
+	if (width >= GADGET_SOURCE_WIDTH) {
+		return gadgetImageUrl(slug);
+	}
+	return `/media/gadgets/${slug}/${width}.webp`;
+}
+
+export function gadgetThumbSrcset(slug: string): string {
+	return GADGET_THUMB_WIDTHS.map(
+		(width) => `${gadgetThumbUrl(slug, width)} ${width}w`,
+	).join(", ");
 }
 
 function gadgetDataUri(slug: string): string {
