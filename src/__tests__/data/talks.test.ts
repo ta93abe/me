@@ -47,9 +47,11 @@ describe("TALKS catalog", () => {
 			(talk) => talk.slug === "frosty-friday-live-challenge-vol56",
 		);
 		expect(frosty?.slideSlug).toBeUndefined();
-		expect(
-			TALKS.flatMap((talk) => (talk.slideSlug ? [talk.slideSlug] : [])),
-		).not.toEqual(expect.arrayContaining(["showcase", "light"]));
+		const slideSlugs = TALKS.flatMap((talk) =>
+			talk.slideSlug ? [talk.slideSlug] : [],
+		);
+		expect(slideSlugs).not.toContain("showcase");
+		expect(slideSlugs).not.toContain("light");
 	});
 
 	it("points the two requested recordings at the live and playlist videos", () => {
