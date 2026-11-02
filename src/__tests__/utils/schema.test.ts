@@ -194,7 +194,7 @@ describe("generateTalksCollectionSchema", () => {
 			"https://www.youtube.com/watch?v=7yvAfZ8vCDU",
 		);
 		expect(schema.hasPart[1]?.recordedIn.thumbnailUrl).toBe(
-			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/hqdefault.jpg",
 		);
 	});
 });

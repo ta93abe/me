@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { TALKS, talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
+import {
+	TALKS,
+	TALK_THUMBNAIL_SIZES,
+	talkThumbnailSrcset,
+	talkThumbnailUrl,
+	talkYoutubeUrl,
+} from "@/data/talks";
 import { isYoutubeId } from "@/lib/content/youtube-url";
 
 describe("TALKS catalog", () => {
@@ -33,8 +39,16 @@ describe("TALKS catalog", () => {
 				`https://www.youtube.com/watch?v=${talk.youtubeId}`,
 			);
 			expect(talkThumbnailUrl(talk)).toBe(
-				`https://i.ytimg.com/vi/${talk.youtubeId}/${talk.youtubeThumbnail ?? "hqdefault"}.jpg`,
+				`https://i.ytimg.com/vi/${talk.youtubeId}/hqdefault.jpg`,
 			);
+			expect(talkThumbnailSrcset(talk)).toBe(
+				[
+					`https://i.ytimg.com/vi/${talk.youtubeId}/mqdefault.jpg 320w`,
+					`https://i.ytimg.com/vi/${talk.youtubeId}/hqdefault.jpg 480w`,
+				].join(", "),
+			);
+			expect(talkThumbnailUrl(talk)).not.toContain("maxresdefault");
+			expect(talkThumbnailSrcset(talk)).not.toContain("maxresdefault");
 			for (const link of talk.links ?? []) {
 				expect(link.href.startsWith("https://")).toBe(true);
 				expect(link.label.length).toBeGreaterThan(0);
@@ -51,8 +65,10 @@ describe("TALKS catalog", () => {
 			"https://i.ytimg.com/vi/KLEApocYmww/hqdefault.jpg",
 		);
 		expect(talkThumbnailUrl(TALKS[1]!)).toBe(
-			"https://i.ytimg.com/vi/7yvAfZ8vCDU/maxresdefault.jpg",
+			"https://i.ytimg.com/vi/7yvAfZ8vCDU/hqdefault.jpg",
 		);
+		expect(talkThumbnailSrcset(TALKS[1]!)).toContain("mqdefault.jpg 320w");
+		expect(TALK_THUMBNAIL_SIZES).toContain("720px");
 		expect(TALKS[1]?.youtubeThumbnailFit).toBe("square");
 		expect(
 			TALKS.flatMap((talk) => (talk.links ?? []).map((link) => link.href)),

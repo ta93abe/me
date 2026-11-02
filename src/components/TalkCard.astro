@@ -1,18 +1,27 @@
 ---
 import type { Talk } from "@/data/talks";
-import { talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
+import {
+	TALK_THUMBNAIL_HEIGHT,
+	TALK_THUMBNAIL_SIZES,
+	TALK_THUMBNAIL_WIDTH,
+	talkThumbnailSrcset,
+	talkThumbnailUrl,
+	talkYoutubeUrl,
+} from "@/data/talks";
 import { slidePdfPath, slidePlayerPath } from "@/lib/slides/paths";
 import { formatDate, toDatetimeAttr } from "@/utils/date";
 
 interface Props {
 	talk: Talk;
+	/** ページ先頭の LCP 画像だけ eager + high。他は lazy のまま。 */
+	priority?: boolean;
 }
 
-const { talk } = Astro.props;
+const { talk, priority = false } = Astro.props;
 const youtubeUrl = talkYoutubeUrl(talk);
 const thumbnailUrl = talkThumbnailUrl(talk);
+const thumbnailSrcset = talkThumbnailSrcset(talk);
 const extraLinks = talk.links ?? [];
-const thumbIsMaxRes = talk.youtubeThumbnail === "maxresdefault";
 const slidePlayerHref = talk.slideSlug
 	? slidePlayerPath(talk.slideSlug)
 	: undefined;
@@ -50,10 +59,13 @@ const slidePdfHref = talk.slideSlug ? slidePdfPath(talk.slideSlug) : undefined;
 			<img
 				class="talk-card-thumb"
 				src={thumbnailUrl}
+				srcset={thumbnailSrcset}
+				sizes={TALK_THUMBNAIL_SIZES}
 				alt=""
-				width={thumbIsMaxRes ? 1280 : 480}
-				height={thumbIsMaxRes ? 720 : 360}
-				loading="lazy"
+				width={TALK_THUMBNAIL_WIDTH}
+				height={TALK_THUMBNAIL_HEIGHT}
+				loading={priority ? "eager" : "lazy"}
+				fetchpriority={priority ? "high" : undefined}
 				decoding="async"
 				referrerpolicy="no-referrer"
 			/>
