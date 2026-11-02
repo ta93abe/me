@@ -52,15 +52,21 @@ test.describe("Talks", () => {
 			"https://speakerdeck.com/ta93abe/cloudflare-dehazimeru-data-platform",
 		);
 
+		const html = await page.content();
+		expect(html).not.toContain("/slides/showcase");
+		expect(html).not.toContain("/slides/light");
+
+		const frosty = page.locator("#talk-frosty-friday-live-challenge-vol56");
 		await expect(
-			page.getByRole("link", { name: "Slides", exact: true }),
-		).toHaveAttribute("href", "/slides/showcase/");
-		await expect(
-			page.getByRole("link", { name: "PDF" }).first(),
-		).toHaveAttribute("href", "/slides/showcase.pdf");
-		await expect(
-			page.getByRole("link", { name: "Recording", exact: true }).first(),
+			frosty.getByRole("link", { name: "Recording", exact: true }),
 		).toHaveAttribute("href", "https://www.youtube.com/watch?v=KLEApocYmww");
+		await expect(
+			frosty.getByRole("link", { name: "再生リスト" }),
+		).toBeVisible();
+		await expect(
+			frosty.getByRole("link", { name: "Slides", exact: true }),
+		).toHaveCount(0);
+		await expect(frosty.getByRole("link", { name: "PDF" })).toHaveCount(0);
 
 		const thumbs = page.locator(".talk-card-thumb");
 		await expect(thumbs).toHaveCount(2);

@@ -42,6 +42,18 @@ describe("TALKS catalog", () => {
 		}
 	});
 
+	it("does not attach Frosty Friday to a demo deck", () => {
+		const frosty = TALKS.find(
+			(talk) => talk.slug === "frosty-friday-live-challenge-vol56",
+		);
+		expect(frosty?.slideSlug).toBeUndefined();
+		const slideSlugs = TALKS.flatMap((talk) =>
+			talk.slideSlug ? [talk.slideSlug] : [],
+		);
+		expect(slideSlugs).not.toContain("showcase");
+		expect(slideSlugs).not.toContain("light");
+	});
+
 	it("points the two requested recordings at the live and playlist videos", () => {
 		expect(TALKS.map((talk) => talk.youtubeId)).toEqual([
 			"KLEApocYmww",
