@@ -10,6 +10,7 @@ import {
 	parseEmbedRecord,
 	type EmbedCacheRecord,
 } from "./embed-cache.ts";
+import type { FaviconCache } from "./favicon.ts";
 import { fetchLinkCard } from "./link-card.ts";
 import { collectBlogEmbeds } from "./markdown.ts";
 import { fetchTweetEmbed } from "./tweet.ts";
@@ -43,6 +44,7 @@ export async function resolveEmbedsForMarkdown(
 	const fetchedAt = now.toISOString();
 	const expiresAt = new Date(now.getTime() + EMBED_TTL_MS).toISOString();
 	const embeds = collectBlogEmbeds(markdown).slice(0, MAX_EMBED_RESOLVES);
+	const favicons: FaviconCache = new Map();
 
 	await Promise.all(
 		embeds.map(async (embed) => {
@@ -105,7 +107,10 @@ export async function resolveEmbedsForMarkdown(
 				return;
 			}
 
-			const link = await fetchLinkCard(embed.href, { fetch: fetchImpl });
+			const link = await fetchLinkCard(embed.href, {
+				fetch: fetchImpl,
+				favicons,
+			});
 			await putRecord(bucket, key, {
 				url: embed.href,
 				kind: "link",
