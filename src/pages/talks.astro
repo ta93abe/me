@@ -1,7 +1,12 @@
 ---
 import TalkCard from "@/components/TalkCard.astro";
 import { SITE } from "@/config/site";
-import { TALKS } from "@/data/talks";
+import {
+	TALKS,
+	TALK_THUMBNAIL_SIZES,
+	talkThumbnailSrcset,
+	talkThumbnailUrl,
+} from "@/data/talks";
 import Layout from "@/layouts/Layout.astro";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
@@ -16,6 +21,7 @@ const collectionSchema = generateTalksCollectionSchema(site);
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Talks", path: "/talks/" },
 ]);
+const lcpTalk = TALKS[0];
 ---
 
 <Layout
@@ -25,6 +31,19 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	ogImageAlt="Talks"
 >
 	<Fragment slot="head">
+		{
+			lcpTalk ? (
+				<link
+					rel="preload"
+					as="image"
+					href={talkThumbnailUrl(lcpTalk)}
+					imagesrcset={talkThumbnailSrcset(lcpTalk)}
+					imagesizes={TALK_THUMBNAIL_SIZES}
+					fetchpriority="high"
+					referrerpolicy="no-referrer"
+				/>
+			) : null
+		}
 		<script
 			type="application/ld+json"
 			set:html={stringifySchema(collectionSchema)}
@@ -45,7 +64,9 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 		</header>
 
 		<div class="talks-cards">
-			{TALKS.map((talk) => <TalkCard talk={talk} />)}
+			{TALKS.map((talk, index) => (
+				<TalkCard talk={talk} priority={index === 0} />
+			))}
 		</div>
 	</main>
 </Layout>
