@@ -182,12 +182,17 @@ https://youtu.be/dQw4w9WgXcQ
 		expect(withCache?.html).toContain('class="tweet-embed"');
 		expect(withCache?.html).toContain("Never Gonna Give You Up");
 		expect(withCache?.html).toContain('class="youtube-embed"');
+		expect(withCache?.html).toContain('src="/icons/embed/default.svg"');
+		expect(withCache?.html).not.toContain("google.com/s2/favicons");
+		expect(withCache?.html).not.toContain("gstatic.com");
 
 		const empty = createMemoryR2();
 		await empty.put("md/blog/cards.md", markdown);
 		const withoutCache = await loadBlogPost(empty, "cards");
 		expect(withoutCache?.html).toContain("embed-card");
 		expect(withoutCache?.html).toContain("coosenp.ai");
+		expect(withoutCache?.html).not.toContain("google.com/s2/favicons");
+		expect(withoutCache?.html).not.toContain("gstatic.com");
 		expect(withoutCache?.html).not.toContain("CooSenpAI");
 		expect(withoutCache?.html).toContain("tweet-embed-fallback");
 		expect(withoutCache?.html).toContain("youtube-embed-lazy");

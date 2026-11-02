@@ -72,6 +72,8 @@ describe("renderBlogMarkdown", () => {
 		expect(fetchSpy).not.toHaveBeenCalled();
 		expect(html).toContain("embed-card");
 		expect(html).toContain("example.com");
+		expect(html).not.toContain("google.com/s2/favicons");
+		expect(html).not.toContain("gstatic.com");
 		expect(html).toContain("tweet-embed-fallback");
 		expect(html).toContain("youtube-embed-lazy");
 		fetchSpy.mockRestore();
@@ -216,6 +218,8 @@ describe("renderBlogMarkdown", () => {
 		expect(html).toContain('class="embed-card"');
 		expect(html).not.toContain("embed-card-no-image");
 		expect(html).toContain("CooSenpAI — アレコレソレが通じるAI");
+		expect(html).not.toContain("google.com/s2/favicons");
+		expect(html).toContain('src="/icons/embed/default.svg"');
 		expect(html).toContain("coosenp.ai");
 		expect(html).toContain("<p>Intro.</p>");
 		expect(html).toContain("<p>Outro.</p>");
