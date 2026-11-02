@@ -14,7 +14,7 @@ export type Talk = {
 	readonly date: string;
 	readonly excerpt: string;
 	readonly youtubeId: string;
-	/** 自前デッキ `/slides/<slug>/` への slug。あるときだけ TalkCard に Slides を出す。 */
+	/** 公開デッキ `/slides/<slug>/` への slug。unlisted デッキは不可。あるときだけ TalkCard に Slides を出す。 */
 	readonly slideSlug?: string;
 	readonly youtubeThumbnail?: YoutubeThumbnail;
 	readonly youtubeThumbnailFit?: "wide" | "square";
@@ -32,7 +32,6 @@ export const TALKS: readonly Talk[] = [
 		date: "2026-08-27",
 		excerpt: "SnowVillage の Frosty Friday Live Challenge にゲスト出演。",
 		youtubeId: "KLEApocYmww",
-		slideSlug: "showcase",
 		links: [
 			{
 				label: "再生リスト",
