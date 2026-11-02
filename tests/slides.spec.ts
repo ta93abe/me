@@ -173,9 +173,44 @@ test.describe("Slides", () => {
 		);
 		const jsonLd = await page
 			.locator('script[type="application/ld+json"]')
-			.textContent();
-		expect(jsonLd).toContain("PresentationDigitalDocument");
-		expect(jsonLd).toContain("/slides/showcase.pdf");
+			.allTextContents();
+		expect(
+			jsonLd.some((text) => text.includes("PresentationDigitalDocument")),
+		).toBe(true);
+		expect(jsonLd.some((text) => text.includes("/slides/showcase.pdf"))).toBe(
+			true,
+		);
+		expect(jsonLd.some((text) => text.includes("BreadcrumbList"))).toBe(true);
+		expect(
+			jsonLd.some(
+				(text) =>
+					text.includes('"name":"Home"') &&
+					text.includes('"name":"Slides"') &&
+					text.includes('"name":"デザインシステム ショーケース"'),
+			),
+		).toBe(true);
+		expect(jsonLd.some((text) => text.includes("/slides/showcase/"))).toBe(
+			true,
+		);
+	});
+
+	test("listed player JSON-LD includes Home › Slides › title breadcrumbs", async ({
+		page,
+	}) => {
+		await page.goto("/slides/snowflake-dbt/");
+		const jsonLd = await page
+			.locator('script[type="application/ld+json"]')
+			.allTextContents();
+		expect(jsonLd.some((text) => text.includes("BreadcrumbList"))).toBe(true);
+		expect(
+			jsonLd.some((text) => text.includes("https://ta93abe.com/slides/")),
+		).toBe(true);
+		expect(
+			jsonLd.some((text) =>
+				text.includes("https://ta93abe.com/slides/snowflake-dbt/"),
+			),
+		).toBe(true);
+		expect(jsonLd.some((text) => text.includes("Snowflake と dbt"))).toBe(true);
 	});
 
 	test("print page shows every slide and skips the player", async ({

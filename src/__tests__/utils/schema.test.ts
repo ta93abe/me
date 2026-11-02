@@ -379,6 +379,34 @@ describe("generateBreadcrumbSchema", () => {
 			"https://example.com/blog/hello-world/",
 		]);
 	});
+
+	it("builds Home › Slides › title for a deck page", () => {
+		const schema = generateBreadcrumbSchema("https://example.com/", [
+			{ name: "Slides", path: "/slides/" },
+			{ name: "Snowflake と dbt", path: "/slides/snowflake-dbt/" },
+		]);
+		expect(schema["@type"]).toBe("BreadcrumbList");
+		expect(schema.itemListElement).toEqual([
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "Home",
+				item: "https://example.com/",
+			},
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: "Slides",
+				item: "https://example.com/slides/",
+			},
+			{
+				"@type": "ListItem",
+				position: 3,
+				name: "Snowflake と dbt",
+				item: "https://example.com/slides/snowflake-dbt/",
+			},
+		]);
+	});
 });
 
 describe("generateGadgetItemPageSchema", () => {

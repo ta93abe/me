@@ -20,3 +20,14 @@ describe("SlideDeck accessibility landmarks (TA-1482)", () => {
 		expect(source).toContain("aria-valuetext");
 	});
 });
+
+describe("SlideDeck JSON-LD (TA-1540)", () => {
+	it("emits Home › Slides › title breadcrumbs on the player only", () => {
+		expect(source).toContain("generateBreadcrumbSchema");
+		expect(source).toContain('{ name: "Slides", path: "/slides/" }');
+		expect(source).toContain("stringifySchema(breadcrumbSchema)");
+		expect(source).toMatch(
+			/!print && \([\s\S]*stringifySchema\(breadcrumbSchema\)/,
+		);
+	});
+});
