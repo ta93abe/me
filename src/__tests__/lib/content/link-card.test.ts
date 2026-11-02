@@ -252,7 +252,7 @@ describe("fetchLinkCard", () => {
 	});
 
 	it("uses a repo SVG for GitHub and never stores a Google favicon URL", async () => {
-		const fetchImpl = vi.fn(async () => {
+		const fetchImpl = vi.fn(async (_input: RequestInfo | URL) => {
 			return new Response(
 				`<!doctype html><html><head>
 <meta property="og:title" content="me">
