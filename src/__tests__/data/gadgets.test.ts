@@ -23,6 +23,8 @@ import {
 	hasGadgetRating,
 	isGadgetRating,
 	isGadgetsIndexPath,
+	isIndexableGadget,
+	isIndexableGadgetPath,
 } from "@/data/gadgets";
 
 const assetsDir = path.resolve(
@@ -93,7 +95,22 @@ describe("GADGETS catalog", () => {
 			expect(gadget.rating).toBeUndefined();
 			expect(gadget.pros).toBeUndefined();
 			expect(gadget.cons).toBeUndefined();
+			expect(isIndexableGadget(gadget)).toBe(false);
+			expect(gadget.indexable).toBeUndefined();
+			expect(isIndexableGadgetPath(`/gadgets/${gadget.slug}/`)).toBe(false);
 		}
+
+		expect(isIndexableGadgetPath("/gadgets/")).toBe(false);
+		expect(isIndexableGadgetPath("/gadgets/missing/")).toBe(false);
+		expect(
+			isIndexableGadget({
+				slug: "demo",
+				name: "Demo",
+				note: "長い本文がある想定",
+				brand: "Demo",
+				indexable: true,
+			}),
+		).toBe(true);
 	});
 
 	it("distinguishes the index from item paths", () => {

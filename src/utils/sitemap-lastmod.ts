@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
+import { gadgetSlugFromPath, isIndexableGadgetPath } from "../data/gadgets.ts";
 import { withTrailingSlash } from "./canonical.ts";
 
 export type SitemapLastmodItem = {
@@ -51,6 +52,10 @@ export function includeInStaticSitemap(
 	const pathname = sitemapPathname(page);
 	if (pathname.startsWith("/blog/")) {
 		return false;
+	}
+
+	if (gadgetSlugFromPath(pathname)) {
+		return isIndexableGadgetPath(pathname);
 	}
 
 	const slideMatch = pathname.match(/^\/slides\/([^/]+)\/$/);

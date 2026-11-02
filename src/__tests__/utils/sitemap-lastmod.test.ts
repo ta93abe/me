@@ -5,6 +5,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { GADGETS } from "@/data/gadgets";
 import {
 	applyStaticSitemapLastmod,
 	createStaticSitemapSerializer,
@@ -23,22 +24,6 @@ const STATIC_SITEMAP_URLS = [
 	"https://ta93abe.com/about/",
 	"https://ta93abe.com/contact/",
 	"https://ta93abe.com/gadgets/",
-	"https://ta93abe.com/gadgets/eufy-omni-e25/",
-	"https://ta93abe.com/gadgets/evering/",
-	"https://ta93abe.com/gadgets/hhkb-type-s/",
-	"https://ta93abe.com/gadgets/holo-orb-l-x-pac/",
-	"https://ta93abe.com/gadgets/mac-studio/",
-	"https://ta93abe.com/gadgets/milestone-ms-i1/",
-	"https://ta93abe.com/gadgets/nature-remo-lapis/",
-	"https://ta93abe.com/gadgets/nike-acg-zegama/",
-	"https://ta93abe.com/gadgets/novation-launchkey-49/",
-	"https://ta93abe.com/gadgets/novation-launchpad-pro/",
-	"https://ta93abe.com/gadgets/oura-ring-5/",
-	"https://ta93abe.com/gadgets/pebble-index-01/",
-	"https://ta93abe.com/gadgets/philips-hue/",
-	"https://ta93abe.com/gadgets/shure-sm7b/",
-	"https://ta93abe.com/gadgets/sony-mdr-7506/",
-	"https://ta93abe.com/gadgets/volt-276/",
 	"https://ta93abe.com/links/",
 	"https://ta93abe.com/talks/",
 	"https://ta93abe.com/slides/",
@@ -176,6 +161,17 @@ describe("includeInStaticSitemap", () => {
 	it("keeps the current static sitemap URLs", () => {
 		for (const url of STATIC_SITEMAP_URLS) {
 			expect(includeInStaticSitemap(url), url).toBe(true);
+		}
+	});
+
+	it("drops thin gadget detail pages until they opt back in", () => {
+		expect(includeInStaticSitemap("https://ta93abe.com/gadgets/")).toBe(true);
+		expect(GADGETS.length).toBeGreaterThan(0);
+		for (const gadget of GADGETS) {
+			expect(
+				includeInStaticSitemap(`https://ta93abe.com/gadgets/${gadget.slug}/`),
+				gadget.slug,
+			).toBe(false);
 		}
 	});
 

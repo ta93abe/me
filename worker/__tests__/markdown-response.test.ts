@@ -166,6 +166,31 @@ describe("markdown content negotiation", () => {
 		expect(await response.text()).toBe("");
 	});
 
+	it("adds X-Robots-Tag when the source HTML is noindex", async () => {
+		const html = new Response(
+			`<!doctype html><html><head>
+				<meta name="robots" content="noindex, follow">
+				<title>Mac Studio M1 Max | Gadgets | Takumi Abe</title>
+			</head><body><div id="main-content"><h1>Mac Studio M1 Max</h1><p>Nix の土台。</p></div></body></html>`,
+			{ headers: { "Content-Type": "text/html; charset=utf-8" } },
+		);
+		const response = await negotiateHtmlMarkdown(
+			markdownRequest("/gadgets/mac-studio/"),
+			html,
+		);
+		expect(response.headers.get("Content-Type")).toBe(MARKDOWN_CONTENT_TYPE);
+		expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+		expect(await response.text()).toContain("# Mac Studio M1 Max");
+	});
+
+	it("does not add X-Robots-Tag when HTML is indexable", async () => {
+		const response = await negotiateHtmlMarkdown(
+			markdownRequest("/about/"),
+			htmlResponse("/about/"),
+		);
+		expect(response.headers.get("X-Robots-Tag")).toBeNull();
+	});
+
 	it("does not convert error HTML", async () => {
 		const missing = new Response("<h1>Not Found</h1>", {
 			status: 404,

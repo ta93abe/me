@@ -13,6 +13,8 @@ export type Gadget = {
 		readonly href: string;
 		readonly label?: string;
 	};
+	/** 本文が十分なページだけ true。未記入は詳細を noindex し sitemap から外す */
+	readonly indexable?: boolean;
 };
 
 export function isGadgetRating(value: unknown): value is GadgetRating {
@@ -215,4 +217,17 @@ export function gadgetSlugFromPath(pathname: string): string | null {
 
 export function isGadgetsIndexPath(pathname: string): boolean {
 	return pathname.replace(/\/+$/, "") === "/gadgets";
+}
+
+export function isIndexableGadget(gadget: Gadget): boolean {
+	return gadget.indexable === true;
+}
+
+export function isIndexableGadgetPath(pathname: string): boolean {
+	const slug = gadgetSlugFromPath(pathname);
+	if (!slug) {
+		return false;
+	}
+	const gadget = getGadget(slug);
+	return gadget !== undefined && isIndexableGadget(gadget);
 }

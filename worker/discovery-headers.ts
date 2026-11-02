@@ -1,5 +1,9 @@
 import { AGENT_DISCOVERY_HTTP_LINK_HEADER } from "../src/config/agent-discovery.ts";
 import { SITE } from "../src/config/site.ts";
+import {
+	gadgetSlugFromPath,
+	isIndexableGadgetPath,
+} from "../src/data/gadgets.ts";
 import { canonicalPageUrl } from "../src/utils/canonical.ts";
 import {
 	composeLinkHeader,
@@ -60,6 +64,16 @@ export function shouldAttachHtmlDiscoveryHeaders(
 	return !isNoindexHtmlPath(new URL(request.url).pathname);
 }
 
+function shouldAdvertiseMarkdownAlternate(pathname: string): boolean {
+	if (isNoindexHtmlPath(pathname)) {
+		return false;
+	}
+	if (gadgetSlugFromPath(pathname)) {
+		return isIndexableGadgetPath(pathname);
+	}
+	return true;
+}
+
 function markdownAlternateFor(request: Request): string {
 	const href = canonicalPageUrl(new URL(request.url).pathname, SITE.url).href;
 	return markdownAlternateLinkHeader(href);
@@ -69,9 +83,13 @@ function withDiscoveryLinkHeader(
 	existing: string | null,
 	request: Request,
 ): string {
-	const base = hasMarkdownAlternateLink(existing)
-		? existing
-		: composeLinkHeader(markdownAlternateFor(request), existing);
+	const advertiseMarkdown = shouldAdvertiseMarkdownAlternate(
+		new URL(request.url).pathname,
+	);
+	const base =
+		!advertiseMarkdown || hasMarkdownAlternateLink(existing)
+			? existing
+			: composeLinkHeader(markdownAlternateFor(request), existing);
 	if (!base) {
 		return DISCOVERY_LINKS;
 	}

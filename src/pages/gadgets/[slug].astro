@@ -8,6 +8,7 @@ import {
 	gadgetRatingLabel,
 	getGadget,
 	hasGadgetRating,
+	isIndexableGadget,
 } from "@/data/gadgets";
 import Layout from "@/layouts/Layout.astro";
 import {
@@ -49,11 +50,14 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: gadget.name, path: `/gadgets/${gadget.slug}/` },
 ]);
 const reviewed = hasGadgetRating(gadget) ? gadget : undefined;
+const indexable = isIndexableGadget(gadget);
 ---
 
 <Layout
 	title={`${gadget.name} | Gadgets | ${SITE.name}`}
 	description={gadget.note}
+	noindex={!indexable}
+	robotsFollow={!indexable}
 	ogType="product"
 	ogImage={image}
 	ogImageAlt={gadget.name}

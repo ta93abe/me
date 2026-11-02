@@ -1,3 +1,4 @@
+import { htmlHasNoindex } from "./html-robots.ts";
 import { htmlToAgentMarkdown } from "./html-to-markdown.ts";
 
 export const MARKDOWN_CONTENT_TYPE = "text/markdown; charset=utf-8";
@@ -92,6 +93,9 @@ export async function markdownResponseFromHtml(
 	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
 	headers.set("X-Markdown-Tokens", String(converted.markdownTokens));
 	headers.set("X-Original-Tokens", String(converted.originalTokens));
+	if (htmlHasNoindex(html) && !headers.has("X-Robots-Tag")) {
+		headers.set("X-Robots-Tag", "noindex");
+	}
 	if (options.contentSignal && !headers.has("Content-Signal")) {
 		headers.set("Content-Signal", options.contentSignal);
 	}
