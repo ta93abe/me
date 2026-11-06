@@ -89,7 +89,7 @@
 		"@types/react-dom": "^19.3.0",
 		"@vitest/ui": "^5.0.1",
 		"alchemy": "2.0.0-beta.79",
-		"chrome-launcher": "^1.2.1",
+		"chrome-launcher": "^1.2.2",
 		"effect": "4.0.5",
 		"happy-dom": "^20.14.5",
 		"lighthouse": "^13.4.1",
