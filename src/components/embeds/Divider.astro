@@ -1,0 +1,58 @@
+---
+/**
+ * 手書き風の区切り線。右寄りに小さな輪を一つ描く（https://assets.sizu.me/hr.svg を参考にした独自のパス）。
+ * ブログでは Markdown の `---`（hr）もこれで描く。スライドでは `---` が枚の区切りなので `<Divider />` と書く。
+ * 線の色は --divider-color（ブログは muted、スライドはアクセント）。インライン style は出さない。
+ */
+---
+
+<div class="divider" role="separator" aria-orientation="horizontal">
+	<svg
+		class="divider-svg"
+		viewBox="0 0 800 40"
+		aria-hidden="true"
+		focusable="false"
+	>
+		<path
+			class="divider-path"
+			d="M4,31C208,29.2 412,31.4 612,29.4C640,29.1 664,24.4 677,16.2C688,9.2 683,2.8 673.6,4.8C663,7.1 661.8,19.6 673.2,25C695,34.6 735,31.6 766,30.6C778,30.2 788,30.2 796,30"
+		></path>
+	</svg>
+</div>
+
+<style>
+	.divider {
+		margin-block: 2.5rem;
+		color: var(--divider-color, currentColor);
+	}
+
+	.divider-svg {
+		display: block;
+		width: 100%;
+		max-width: 40rem;
+		height: auto;
+		margin-inline: auto;
+		overflow: visible;
+	}
+
+	.divider-path {
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.2px;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		vector-effect: non-scaling-stroke;
+	}
+
+	:global(.prose) {
+		--divider-color: var(--text-muted);
+	}
+
+	:global(.slide-body) {
+		--divider-color: var(--color-accent);
+	}
+
+	:global(.slide-body) .divider {
+		margin-block: var(--space-4, 1rem);
+	}
+</style>

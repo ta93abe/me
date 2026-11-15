@@ -28,6 +28,7 @@ export const STRUCTURE_COMPONENTS = [
  */
 export const EMBED_COMPONENT_ATTRIBUTES = {
 	Tweet: ["id", "url", "scale", "cards"],
+	Divider: [],
 } as const satisfies Record<string, readonly string[]>;
 
 /** デッキで書けるコンポーネントはこれだけ。ほかのタグ（小文字の HTML を含む）はビルド失敗。 */

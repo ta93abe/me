@@ -161,6 +161,14 @@ Slidev の `<Tweet>` と同じく `id` か `url`（両方なら `id` が優先�
 
 ビルド時に本文・著者・画像・引用・日時を取得し、静的なカードにする（widgets.js・iframe・クライアント JS なし）。取得できなければポストへのリンクカードになる。スライドの文字サイズはほぼ一定なので、長いポストや画像つきは `scale` で枠に収める。ブログで使える `live`（X の widgets.js で公式埋め込みにする）はスライドでは書けない（PDF と CSP を変えないため。ビルド失敗）。実装は `src/components/embeds/Tweet.astro`、見た目は `src/styles/tweet-embed.css`（ブログと共有）。
 
+### 区切り線
+
+```mdx
+<Divider />
+```
+
+手書き風の線（右寄りに小さな輪）。色はアクセント。スライドでは `---` が枚の区切りなので、区切り線は `<Divider />` と書く。属性は取らない。ブログでは Markdown の `---` がそのままこの線になる。
+
 ### 画像
 
 ```markdown
@@ -178,7 +186,7 @@ Slidev の `<Tweet>` と同じく `id` か `url`（両方なら `id` が優先�
 - 型マーカーをスライド先頭以外に置くこと、`<Split />` 以外での `<Column />`
 - 未知の frontmatter キー、色コード
 
-使えるコンポーネントは型マーカーと `<Column />` / `<Notes>` / `<Click />` / `<Clicks>`、埋め込みの `<Tweet />` だけ（`src/slides/mdx/allowlist.ts`）。どれもビルド時に HTML になり、クライアント JS は持たない。
+使えるコンポーネントは型マーカーと `<Column />` / `<Notes>` / `<Click />` / `<Clicks>`、埋め込みの `<Tweet />` / `<Divider />` だけ（`src/slides/mdx/allowlist.ts`）。どれもビルド時に HTML になり、クライアント JS は持たない。
 
 MDX なので地の文の `<` と `{` は構文になる。文字として書くときは `` `<T>` `` のようにコードにするか、`\<` `\{` でエスケープする。旧記法の HTML コメント（`<!-- ... -->`）は MDX では書けない。
 

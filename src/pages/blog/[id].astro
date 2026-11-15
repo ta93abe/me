@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 
 import BlogEmbed from "@/components/blog/BlogEmbed.astro";
+import Divider from "@/components/embeds/Divider.astro";
 import Tweet from "@/components/embeds/Tweet.astro";
 import PostNavigation from "@/components/PostNavigation.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
@@ -44,7 +45,13 @@ const { entry, allPosts } = Astro.props;
 const post = blogEntryToListItem(entry);
 const slug = post.slug;
 const { Content } = await render(entry);
-const components = { [BLOG_EMBED_COMPONENT]: BlogEmbed, Tweet };
+// hr（Markdown の ---）も手書き風の区切り線にする
+const components = {
+	[BLOG_EMBED_COMPONENT]: BlogEmbed,
+	Tweet,
+	Divider,
+	hr: Divider,
+};
 // <Tweet live /> がある記事だけ、X の widgets.js を CSP に足す（サイト全体の CSP は広げない）
 const liveTweets = hasLiveTweet(entry.body ?? "");
 if (liveTweets) {
