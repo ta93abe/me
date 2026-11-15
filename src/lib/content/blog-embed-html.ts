@@ -1,4 +1,4 @@
-import type { BlogEmbed } from "./embed-cache.ts";
+import type { BlogEmbed } from "./embed-types.ts";
 import type { FaviconCache } from "./favicon.ts";
 import { fetchLinkCard, linkCardHtml } from "./link-card.ts";
 import { spotifyEmbedHtml } from "./spotify.ts";

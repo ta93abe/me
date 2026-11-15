@@ -82,7 +82,7 @@
 - `Layout.astro` - メインレイアウト（HTML head/body）
 
 ### 公開本文
-Git の `src/content` は置かない。公開本文は pubme → Worker Content API → 非公開 R2 `me-content`。
+公開本文は Git の MDX（ブログ `src/content/blog/*.mdx`、スライド `src/slides/decks/*.mdx`）。
 
 ### `/src/utils/` - ユーティリティ
 汎用的な関数。
@@ -161,7 +161,7 @@ Playwrightによるエンドツーエンドテスト。
 
 1. **ページ追加**: `src/pages/` に `.astro` ファイルを作成
 2. **コンポーネント作成**: `src/components/` に再利用可能なコンポーネントを作成
-3. **コンテンツ追加**: pubme から Content API へ Publish する（Git に原稿を置かない）
+3. **コンテンツ追加**: `src/content/blog/<slug>.mdx` を追加して PR を出す
 4. **ユーティリティ関数**: `src/utils/` に共通関数を作成
 5. **スタイリング**: Tailwind CSSクラスを使用、必要に応じて `<style>` タグ
 6. **テスト**: `src/__tests__/` または `tests/` にテストを追加

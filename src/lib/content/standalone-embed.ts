@@ -1,4 +1,4 @@
-import type { BlogEmbed } from "./embed-cache.ts";
+import type { BlogEmbed } from "./embed-types.ts";
 import { matchStandaloneLinkBlock } from "./link-url.ts";
 import { matchStandaloneSpotifyBlock } from "./spotify-url.ts";
 import { matchStandaloneTweetBlock } from "./tweet-url.ts";

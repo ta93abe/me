@@ -1,14 +1,8 @@
 import { FEATURED_WORKS, SITE } from "../../src/config/site.ts";
 import linksData from "../../src/data/links.json";
-import { publishDateValue, reviseDateValue, toDate } from "./dates.ts";
-import { renderFeedHtml, sanitizeFeedHtml } from "./feed-html.ts";
-import { looksLikeMdx, parseMarkdownDocument } from "./frontmatter.ts";
-import { readCollectionIndex, type ContentIndexEntry } from "./index-store.ts";
-import { markdownKey } from "./keys.ts";
+import { toDate } from "./dates.ts";
+import { sanitizeFeedHtml } from "./feed-html.ts";
 
-export const BLOG_RSS_KEY = "derived/rss-blog.xml";
-export const SITEMAP_URLS_KEY = "derived/sitemap-urls.json";
-export const LLMS_BLOG_KEY = "derived/llms-blog.txt";
 export const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 
 const DEFAULT_ORIGIN = "https://ta93abe.com";
@@ -31,17 +25,6 @@ export type SitemapUrlEntry = {
 	loc: string;
 	lastmod?: string;
 };
-
-const STATIC_SECTION_PATHS = [
-	"/about/",
-	"/works/",
-	"/contact/",
-	"/links/",
-	"/slides/",
-	"/talks/",
-	"/tools/",
-	"/gadgets/",
-] as const;
 
 function originBase(origin: string): string {
 	return origin.replace(/\/+$/, "");
@@ -77,13 +60,6 @@ function escapeXml(value: string): string {
 		.replaceAll("'", "&apos;");
 }
 
-function tagsFrom(value: unknown): string[] {
-	if (!Array.isArray(value)) {
-		return [];
-	}
-	return value.filter((tag): tag is string => typeof tag === "string");
-}
-
 function cdata(value: string): string {
 	const safe = stripIllegalXmlChars(value).replaceAll("]]>", "]]]]><![CDATA[>");
 	return `<![CDATA[${safe}]]>`;
@@ -95,62 +71,6 @@ export function sortFeedPosts<T extends FeedPost>(posts: T[]): T[] {
 			right.publish_date.getTime() - left.publish_date.getTime() ||
 			left.slug.localeCompare(right.slug),
 	);
-}
-
-export function feedPostsFromEntries(entries: ContentIndexEntry[]): FeedPost[] {
-	const posts: FeedPost[] = [];
-	for (const entry of entries) {
-		const publish_date = toDate(publishDateValue(entry.frontmatter));
-		if (!publish_date) {
-			continue;
-		}
-		posts.push({
-			slug: entry.slug,
-			title: entry.title,
-			excerpt: entry.excerpt,
-			publish_date,
-			revise_date: toDate(reviseDateValue(entry.frontmatter)),
-			tags: tagsFrom(entry.frontmatter.tags),
-		});
-	}
-	return sortFeedPosts(posts);
-}
-
-async function readPostBodyHtml(
-	bucket: R2Bucket,
-	slug: string,
-): Promise<string | undefined> {
-	const object = await bucket.get(markdownKey("blog", slug));
-	if (!object) {
-		return undefined;
-	}
-
-	const markdown = await object.text();
-	if (looksLikeMdx(markdown)) {
-		return undefined;
-	}
-
-	try {
-		const parsed = parseMarkdownDocument(markdown);
-		return renderFeedHtml(parsed.body);
-	} catch {
-		return undefined;
-	}
-}
-
-export async function withFeedContent(
-	bucket: R2Bucket,
-	posts: FeedPost[],
-): Promise<FeedPost[]> {
-	const result: FeedPost[] = [];
-	for (const post of posts) {
-		result.push({
-			...post,
-			contentHtml:
-				post.contentHtml ?? (await readPostBodyHtml(bucket, post.slug)),
-		});
-	}
-	return result;
 }
 
 export function buildBlogRssXml(
@@ -220,28 +140,6 @@ function latestSitemapLastmod(posts: FeedPost[]): string | undefined {
 		}
 	}
 	return latest;
-}
-
-export function sitemapUrlEntries(
-	posts: FeedPost[],
-	origin: string = DEFAULT_ORIGIN,
-): SitemapUrlEntry[] {
-	const base = originBase(origin);
-	const blogUrls = sortFeedPosts(posts).map((post) => ({
-		loc: `${base}/blog/${post.slug}/`,
-		lastmod: sitemapLastmod(post),
-	}));
-	const blogIndexLastmod = latestSitemapLastmod(posts);
-
-	return [
-		{ loc: `${base}/` },
-		{
-			loc: `${base}/blog/`,
-			...(blogIndexLastmod ? { lastmod: blogIndexLastmod } : {}),
-		},
-		...blogUrls,
-		...STATIC_SECTION_PATHS.map((path) => ({ loc: `${base}${path}` })),
-	];
 }
 
 export function buildBlogSitemapXml(
@@ -326,16 +224,6 @@ export function lastmodFromFeedPosts(posts: FeedPost[]): string | undefined {
 	);
 }
 
-export function lastmodFromGeneratedAt(
-	generatedAt: string | undefined,
-): string | undefined {
-	const date = toDate(generatedAt);
-	if (!date || date.getTime() <= 0) {
-		return undefined;
-	}
-	return formatSitemapLastmod(date);
-}
-
 export function childSitemapLastmod(
 	xml: string | undefined,
 	httpLastModified: string | null | undefined,
@@ -367,30 +255,6 @@ ${sitemapIndexEntry(`${base}/sitemap-0.xml`, lastmods.staticSitemap)}
 ${sitemapIndexEntry(`${base}/sitemap-blog.xml`, lastmods.blogSitemap)}
 </sitemapindex>
 `;
-}
-
-export async function loadSitemapIndexXml(
-	bucket: R2Bucket,
-	origin: string = DEFAULT_ORIGIN,
-	staticSitemap: {
-		xml?: string;
-		lastModified?: string | null;
-	} = {},
-	now: Date = new Date(),
-): Promise<string> {
-	const index = await readCollectionIndex(bucket, "blog");
-	const posts = feedPostsFromEntries(index.entries);
-	return buildSitemapIndexXml(origin, {
-		staticSitemap: childSitemapLastmod(
-			staticSitemap.xml,
-			staticSitemap.lastModified,
-			now,
-		),
-		blogSitemap:
-			lastmodFromGeneratedAt(index.generatedAt) ??
-			lastmodFromFeedPosts(posts) ??
-			formatSitemapLastmod(now),
-	});
 }
 
 export function buildLlmsBlogSection(
@@ -481,107 +345,4 @@ export function buildLlmsFullDocument(
 		"",
 		pages.join("\n---\n\n"),
 	].join("\n");
-}
-
-async function loadPublishedBlogBodies(
-	bucket: R2Bucket,
-): Promise<LlmsFullPost[]> {
-	const index = await readCollectionIndex(bucket, "blog");
-	const posts = feedPostsFromEntries(index.entries);
-	const result: LlmsFullPost[] = [];
-
-	for (const post of posts) {
-		const object = await bucket.get(markdownKey("blog", post.slug));
-		if (!object) {
-			continue;
-		}
-
-		const markdown = await object.text();
-		if (looksLikeMdx(markdown)) {
-			continue;
-		}
-
-		try {
-			const parsed = parseMarkdownDocument(markdown);
-			result.push({ ...post, body: parsed.body });
-		} catch {
-			continue;
-		}
-	}
-
-	return result;
-}
-
-export async function buildLlmsFullText(
-	bucket: R2Bucket,
-	origin: string = DEFAULT_ORIGIN,
-): Promise<string> {
-	return buildLlmsFullDocument(await loadPublishedBlogBodies(bucket), origin);
-}
-
-export function discoveryCacheUrls(
-	origin: string,
-	slugs: string[] = [],
-): string[] {
-	const base = originBase(origin);
-	const urls = [
-		`${base}/rss.xml`,
-		`${base}/sitemap.xml`,
-		`${base}/sitemap-index.xml`,
-		`${base}/sitemap-blog.xml`,
-		`${base}/llms.txt`,
-		`${base}/llms-full.txt`,
-	];
-	for (const slug of slugs) {
-		urls.push(`${base}/og/blog/${slug}.png`);
-	}
-	return urls;
-}
-
-export async function readLlmsBlogSection(
-	bucket: R2Bucket,
-	origin: string = DEFAULT_ORIGIN,
-): Promise<string> {
-	const stored = await bucket.get(LLMS_BLOG_KEY);
-	if (stored) {
-		return stored.text();
-	}
-	const index = await readCollectionIndex(bucket, "blog");
-	return buildLlmsBlogSection(feedPostsFromEntries(index.entries), origin);
-}
-
-export async function writeDerivedDiscovery(
-	bucket: R2Bucket,
-	origin: string = DEFAULT_ORIGIN,
-): Promise<void> {
-	const index = await readCollectionIndex(bucket, "blog");
-	const posts = await withFeedContent(
-		bucket,
-		feedPostsFromEntries(index.entries),
-	);
-
-	await bucket.put(
-		BLOG_RSS_KEY,
-		buildBlogRssXml(posts, origin, new Date(index.generatedAt)),
-		{
-			httpMetadata: { contentType: "application/rss+xml; charset=utf-8" },
-		},
-	);
-	await bucket.put(
-		SITEMAP_URLS_KEY,
-		JSON.stringify(
-			{
-				generatedAt: index.generatedAt,
-				urls: sitemapUrlEntries(posts, origin),
-			},
-			null,
-			2,
-		),
-		{
-			httpMetadata: { contentType: "application/json; charset=utf-8" },
-		},
-	);
-	await bucket.put(LLMS_BLOG_KEY, buildLlmsBlogSection(posts, origin), {
-		httpMetadata: { contentType: "text/plain; charset=utf-8" },
-	});
 }
