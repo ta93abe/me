@@ -13,7 +13,7 @@
 | パッケージマネージャー  | pnpm                                             | 高速・効率的な依存管理                                                 |
 | リンター/フォーマッター | Oxlint / Oxfmt                                   | コード品質管理                                                         |
 | テスティング            | Vitest + Playwright                              | ユニット・E2E テスト                                                   |
-| CMS                     | Obsidian プラグイン（pubme）→ 非公開 R2 → Worker | 本文は Vault から HMAC Worker 経由で `me-content` へ。Git はコードだけ |
+| CMS                     | git 上の MDX（`src/content/blog/`）              | ADR-0003。Astro の content collection と `@astrojs/mdx` でビルド時に描画 |
 | デプロイ先              | Cloudflare Workers                               | エッジ配信 + Worker ロジック                                           |
 
 ## ディレクトリ構造
@@ -72,18 +72,16 @@ src/pages/
 
 ### コンテンツ
 
-段階 6（R2 だけが正）:
+ブログ（ADR-0003）:
 
-1. 公開本文は非公開 R2 `me-content`（`md/{collection}/{slug}.md`）
-2. `PUT` / `DELETE /api/content/:collection/:slug` は HMAC-SHA256（本文 + パス + 時刻、時計ずれ 5 分）
-3. 失敗は 400 で R2 に書かない。成功時と Queue `content-events`（`md/` の create/delete）で index と `derived/` を冪等再構築。ブログ本文の単独 URL / X / YouTube は `derived/embeds/{sha256(url)}.json` に公開時解決する（表示では取らない）
-4. 添付は公開 R2 `me-images` の `content/{collection}/{slug}/...`
-5. `GET /api/content/schema` がプラグイン検証用 JSON Schema
-6. `/blog` と `/blog/:slug` は `@astrojs/cloudflare` の on-demand で R2 を読む。Markdown は Prism。`Cache-Control` + Queue の HTML キャッシュ purge
-7. RSS / sitemap-blog / llms / OG は blog index と `derived/` に接続する。全文再ビルドはコード変更のときだけ
-8. Git の `src/content`、Sveltia `/admin`、MDX 記事は外した。既存 Git 記事は移行せず捨てた
+1. 公開本文の正は `src/content/blog/<slug>.mdx`。スキーマは `src/content.config.ts`（`title` / `excerpt` / `tags` / `date` / `updatedDate`、未知キーはビルド失敗）
+2. `/blog/` と `/blog/:slug/` はビルド時に描画する（SSG）。コードは Prism（クラスベース）
+3. URL だけの段落は `remark-blog-embeds` が `<BlogEmbed />` に置き換え、ビルド時に X / YouTube / Spotify / リンクカードを取得して静的 HTML にする
+4. `/og/blog/:slug.png` と `/sitemap-blog.xml` はビルド時に生成する。`/rss.xml` は on-demand（Worker のサーバービルドを必ず出すため）
+5. Worker の llms.txt / llms-full.txt / MCP / sitemap index は、ビルド時に出す `/blog.json` を ASSETS から読む
+6. 画像は公開 R2 `me-images`
 
-gallery / atelier / books のサイトページはいったん外している。Worker Content API のコレクション契約は残す。契約は `docs/CONTENT_API.md`。
+旧経路（pubme → Content API → 非公開 R2 `me-content` → Queue `content-events`）はブログでは使わない。コードと gallery / atelier / books の Content API は片付けの PR で外す。
 
 ## 主要な設計パターン
 
@@ -138,13 +136,11 @@ pnpm install
 
 ## 拡張ポイント
 
-1. Content API 段階 1（curl で PUT/GET と index）の本番投入
-2. pubme から本番 Worker へ Publish / Unpublish
-3. blog 一覧・詳細の R2 読み（Astro hybrid）
-4. gallery / atelier / books を同じ経路に
-5. RSS / sitemap / llms / OG を index に接続（実装済み）
-6. `src/content` と Sveltia を外す（実装済み。既存 Git 記事は捨てた）
-7. Agent Readiness 残タスク（DNS-AID など）
+1. スライドを MDX にする（TA-820 / ADR-0002）
+2. Content API / Queue / R2 のブログ経路を外す（TA-1899）
+3. ブラウザから記事を編集する `/admin`（TA-1898）
+4. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
+5. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料
 

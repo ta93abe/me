@@ -1,0 +1,18 @@
+---
+import { cachedBlogEmbedHtml } from "@/lib/content/blog-embed-html";
+import type { BlogEmbed } from "@/lib/content/embed-cache";
+
+// remark-blog-embeds が URL だけの段落から差し込む。ビルド時に取得して静的 HTML にする。
+type Props = {
+	kind: BlogEmbed["kind"];
+	href: string;
+	id?: string;
+};
+
+const { kind, href, id = "" } = Astro.props;
+const embed: BlogEmbed =
+	kind === "tweet" || kind === "youtube" ? { kind, href, id } : { kind, href };
+const html = await cachedBlogEmbedHtml(embed);
+---
+
+<Fragment set:html={html} />

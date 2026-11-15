@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Blog OG images", { tag: "@smoke" }, () => {
+test.describe("Blog OG images (prerendered)", { tag: "@smoke" }, () => {
 	test("known slug returns 200 image/png", async ({ request }) => {
-		test.skip(!process.env.CI, "Worker OG is exercised on astro preview in CI");
-
 		const response = await request.get("/og/blog/hello-world.png");
 		expect(response.status()).toBe(200);
 		expect(response.headers()["content-type"]).toMatch(/image\/png/);

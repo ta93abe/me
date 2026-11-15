@@ -26,10 +26,8 @@ import {
 	buildLlmsFullText,
 	loadSitemapIndexXml,
 	readLlmsBlogSection,
-} from "./content/derived.ts";
+} from "./content/blog-manifest.ts";
 import { buildLlmsOverviewMarkdown } from "./content/llms.ts";
-import { renderBlogOgPng } from "./content/og-png.ts";
-import { loadOgTitle, parseOgBlogPath } from "./content/og.ts";
 import { discoveryResponse } from "./discovery-cache.ts";
 import {
 	CONTENT_SIGNAL,
@@ -93,12 +91,12 @@ const AGENT_AUTH_ALLOW = "GET, HEAD, POST, OPTIONS";
 export { PdfWorkflow } from "./slides/pdf-workflow.ts";
 
 async function siteOverviewMarkdown(env: Env): Promise<string> {
-	const blogSection = await readLlmsBlogSection(env.CONTENT, SITE_URL);
+	const blogSection = await readLlmsBlogSection(env.ASSETS, SITE_URL);
 	return buildLlmsOverviewMarkdown(SITE_URL, blogSection);
 }
 
 async function llmsFullText(env: Env): Promise<string> {
-	return buildLlmsFullText(env.CONTENT, SITE_URL);
+	return buildLlmsFullText(env.ASSETS, SITE_URL);
 }
 
 const AUTH_MD = authMarkdown(SITE_URL, SITE_HOST, AUTH_MD_OIDC_PARAGRAPH);
@@ -133,26 +131,6 @@ function textResponse(
 	setGeneratedHeaders(headers);
 
 	return new Response(isHead(request) ? null : body, {
-		...init,
-		headers,
-	});
-}
-
-function binaryResponse(
-	request: Request,
-	body: Uint8Array,
-	contentType: string,
-	init: ResponseInit = {},
-): Response {
-	const headers = new Headers(init.headers);
-	headers.set("Content-Type", contentType);
-	headers.set("Content-Length", String(body.byteLength));
-	setGeneratedHeaders(headers);
-
-	const payload = new ArrayBuffer(body.byteLength);
-	new Uint8Array(payload).set(body);
-
-	return new Response(isHead(request) ? null : payload, {
 		...init,
 		headers,
 	});
@@ -202,37 +180,6 @@ function notFoundResponse(request: Request): Response {
 	return textResponse(request, "Not Found", "text/plain; charset=utf-8", {
 		status: 404,
 	});
-}
-
-async function serveFallbackBlogOg(
-	request: Request,
-	env: Env,
-): Promise<Response | null> {
-	if (!env.ASSETS) {
-		return null;
-	}
-
-	try {
-		const fallback = await env.ASSETS.fetch(
-			new Request(new URL("/og/blog.png", request.url)),
-		);
-		if (!fallback.ok) {
-			return null;
-		}
-
-		const headers = new Headers(fallback.headers);
-		headers.set("Content-Type", "image/png");
-		headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
-		setGeneratedHeaders(headers);
-
-		return new Response(isHead(request) ? null : fallback.body, {
-			status: 200,
-			headers,
-		});
-	} catch (error) {
-		console.error("blog OG fallback failed", error);
-		return null;
-	}
 }
 
 function agentAuthClaimResponse() {
@@ -397,7 +344,7 @@ async function handleSiteRequest(
 		}
 		return textResponse(
 			request,
-			await loadSitemapIndexXml(env.CONTENT, SITE_URL, {
+			await loadSitemapIndexXml(env.ASSETS, SITE_URL, {
 				xml,
 				lastModified,
 			}),
@@ -406,36 +353,6 @@ async function handleSiteRequest(
 				headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
 			},
 		);
-	}
-
-	const ogSlug = parseOgBlogPath(pathname);
-	if (ogSlug && (request.method === "GET" || request.method === "HEAD")) {
-		try {
-			const title = await loadOgTitle(env.CONTENT, ogSlug);
-			if (title) {
-				if (shouldCacheBlogHtml(request)) {
-					const cached = await defaultCache().match(request);
-					if (cached) {
-						return cached;
-					}
-				}
-				const png = await renderBlogOgPng(title);
-				const response = binaryResponse(request, png, "image/png", {
-					headers: { "Cache-Control": BLOG_HTML_CACHE_CONTROL },
-				});
-				if (shouldCacheBlogHtml(request) && request.method === "GET") {
-					ctx.waitUntil(defaultCache().put(request, response.clone()));
-				}
-				return response;
-			}
-		} catch (error) {
-			console.error("blog OG render failed", error);
-		}
-
-		const fallback = await serveFallbackBlogOg(request, env);
-		if (fallback) {
-			return fallback;
-		}
 	}
 
 	if (pathname === "/auth.md") {

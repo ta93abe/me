@@ -1,28 +1,42 @@
-import type { APIContext } from "astro";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
-import { GET } from "../../pages/rss.xml.ts";
+import { buildBlogRssXml } from "../../../worker/content/derived.ts";
+import { renderFeedHtml } from "../../../worker/content/feed-html.ts";
 
-describe("GET /rss.xml", () => {
-	it("sends Content-Signal and keeps the RSS content type", async () => {
-		const response = await GET({
-			site: new URL("https://ta93abe.com"),
-		} as APIContext);
+describe("/rss.xml", () => {
+	it("builds RSS from blog posts with feed content", () => {
+		const xml = buildBlogRssXml(
+			[
+				{
+					slug: "hello-world",
+					title: "Hello World",
+					excerpt: "最初の投稿",
+					publish_date: new Date("2026-08-30"),
+					tags: [],
+					contentHtml: renderFeedHtml("ブログを始めようじゃないか。"),
+				},
+			],
+			"https://ta93abe.com",
+		);
 
-		expect(response.status).toBe(200);
-		expect(response.headers.get("Content-Type")).toBe(
-			"application/rss+xml; charset=utf-8",
-		);
-		expect(response.headers.get("Content-Signal")).toBe(
-			"ai-train=no, search=yes, ai-input=yes",
-		);
-		expect(response.headers.get("Link")).toContain(
-			'</llms.txt>; rel="describedby"',
-		);
+		expect(xml).toContain('<rss version="2.0"');
+		expect(xml).toContain("<language>ja</language>");
+		expect(xml).toMatch(/<lastBuildDate>.+GMT<\/lastBuildDate>/);
+		expect(xml).toContain("https://ta93abe.com/blog/hello-world/");
+		expect(xml).toContain("ブログを始めようじゃないか。");
+	});
 
-		const body = await response.text();
-		expect(body).toContain('<rss version="2.0"');
-		expect(body).toContain("<language>ja</language>");
-		expect(body).toMatch(/<lastBuildDate>.+GMT<\/lastBuildDate>/);
+	it("stays on-demand and sends discovery headers", () => {
+		const route = readFileSync(
+			join(process.cwd(), "src/pages/rss.xml.ts"),
+			"utf8",
+		);
+		expect(route).toContain("export const prerender = false;");
+		expect(route).toContain('"application/rss+xml; charset=utf-8"');
+		expect(route).toContain('"ai-train=no, search=yes, ai-input=yes"');
+		expect(route).toContain('</llms.txt>; rel="describedby"');
 	});
 });

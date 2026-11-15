@@ -1,15 +1,19 @@
 ---
-export const prerender = false;
+import { render } from "astro:content";
 
-import NotFoundPlaygroundIsland from "@/components/NotFoundPlaygroundIsland.astro";
+import BlogEmbed from "@/components/blog/BlogEmbed.astro";
 import PostNavigation from "@/components/PostNavigation.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import BackToTop from "@/components/ui/BackToTop.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
-import { getContentBucket } from "@/lib/content/bindings";
-import { blogNeighbors, listBlogPosts, loadBlogPost } from "@/lib/content/blog";
-import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
+import { blogNeighbors } from "@/lib/content/blog";
+import {
+	blogEntryToListItem,
+	getBlogEntries,
+	type BlogEntry,
+} from "@/lib/content/blog-collection";
+import { BLOG_EMBED_COMPONENT } from "@/lib/content/remark-blog-embeds";
 import Layout from "@/layouts/Layout.astro";
 import { formatBlogSurfaceDate, toDatetimeAttr } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
@@ -20,24 +24,29 @@ import {
 	stringifySchema,
 } from "@/utils/schema";
 
-const slug = Astro.params.id ?? "";
-const bucket = await getContentBucket();
-const post = bucket ? await loadBlogPost(bucket, slug) : null;
-const allPosts = bucket ? await listBlogPosts(bucket) : [];
-
-if (!post) {
-	// on-demand から prerender の /404 へ rewrite は Astro 7 server では禁止
-	Astro.response.status = 404;
+export async function getStaticPaths() {
+	const entries = await getBlogEntries();
+	const allPosts = entries.map(blogEntryToListItem);
+	return entries.map((entry) => ({
+		params: { id: entry.id },
+		props: { entry, allPosts },
+	}));
 }
 
-const neighbors = post ? blogNeighbors(allPosts, slug) : undefined;
-const title = post?.title ?? "";
-const excerpt = post?.excerpt ?? "";
-const publish_date = post?.publish_date ?? new Date(0);
-const revise_date = post?.revise_date;
-const tags = post?.tags ?? [];
-const body = post?.body ?? "";
-const html = post?.html ?? "";
+type Props = {
+	entry: BlogEntry;
+	allPosts: ReturnType<typeof blogEntryToListItem>[];
+};
+
+const { entry, allPosts } = Astro.props;
+const post = blogEntryToListItem(entry);
+const slug = post.slug;
+const { Content } = await render(entry);
+const components = { [BLOG_EMBED_COMPONENT]: BlogEmbed };
+
+const neighbors = blogNeighbors(allPosts, slug);
+const { title, excerpt, publish_date, revise_date, tags } = post;
+const body = entry.body ?? "";
 
 const readingTime = getReadingTime(body);
 const readingTimeText = formatReadingTime(readingTime);
@@ -60,26 +69,8 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: title || "Blog", path: `/blog/${slug}/` },
 ]);
 const itemListSchema = generateArticleItemListSchema(body);
-
-if (post) {
-	Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
-}
 ---
 
-{
-  !post ? (
-    <Layout
-      title={`404 - ページが見つかりません | ${SITE.name}`}
-      description="お探しのページは見つかりませんでした。"
-      noindex
-      omitCanonical
-      noHeader
-      noFooter
-      flushTop
-    >
-      <NotFoundPlaygroundIsland />
-    </Layout>
-  ) : (
 <Layout
   title={`${title} | Blog | ${SITE.name}`}
   description={excerpt}
@@ -143,7 +134,7 @@ if (post) {
     </header>
 
     <article class="prose prose-lg">
-      <Fragment set:html={html} />
+      <Content components={components} />
     </article>
 
     {neighbors && <PostNavigation prevPost={neighbors.prev} nextPost={neighbors.next} />}
@@ -152,8 +143,6 @@ if (post) {
   </main>
   <BackToTop />
 </Layout>
-  )
-}
 
 <script>
   document.querySelectorAll(".youtube-embed-lazy").forEach((button) => {

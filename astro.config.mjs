@@ -4,12 +4,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import cloudflare from "@astrojs/cloudflare";
+import { unified } from "@astrojs/markdown-remark";
+import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 
 import { PAGE_ALIASES } from "./src/config/redirects.ts";
+import { remarkBlogEmbeds } from "./src/lib/content/remark-blog-embeds.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
 import { optionalFontDisplayPlugin } from "./src/utils/optional-font-display.ts";
 import {
@@ -69,6 +72,8 @@ export default defineConfig({
 			},
 		}),
 		react(),
+		// ブログ記事（src/content/blog/*.mdx）。プラグインは markdown.processor から継承する。
+		mdx(),
 		{
 			name: "slide-deck-media",
 			hooks: {
@@ -99,11 +104,17 @@ export default defineConfig({
 		prefetchAll: false,
 		defaultStrategy: "hover",
 	},
-	// 記事本文は Worker 側の marked + Prism。ここはデフォルト OG など残りの Markdown 用。
+	// ブログ MDX と残りの Markdown 用。
 	// CSP と併用するためシンタックスハイライトは Prism（クラスベース）を使う。
 	// Shiki はインライン style 属性前提で Astro CSP と非互換。
 	markdown: {
 		syntaxHighlight: "prism",
+		// remark/rehype を使うため unified。URL だけの段落はビルド時に埋め込みへ（ADR-0003）。
+		processor: unified({
+			remarkPlugins: [remarkBlogEmbeds],
+			// 原稿の引用符をそのまま出す（R2 時代の marked と同じ）
+			smartypants: false,
+		}),
 	},
 	// エージェント向けは `astro dev --json` / `pnpm dev:json` を使う
 	logger: logHandlers.console(),

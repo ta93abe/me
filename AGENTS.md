@@ -314,10 +314,10 @@ Conventional Commits に従う:
 - Astro 7 + Tailwind CSS 4 + Cloudflare Workers
 - ページ: About / Works / Blog / Contact / Links / Tools / Talks / Slides
 - SEO（OG / JSON-LD / sitemap / robots）、PostHog、perf CI まで実装済み
-- 公開本文は pubme → 非公開 R2 `me-content`。Git に原稿は置かない
+- ブログ本文は `src/content/blog/<slug>.mdx`（ADR-0003）。content collection でビルド時に描画
 - `/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクト
 
 ## 次のステップ
 
-1. 本番 R2 の Hello 以外の記事を pubme から足す
+1. スライドを MDX にする（TA-820）、Content API / R2 のブログ経路を外す（TA-1899）
 2. Agent Readiness の残タスク（DNS-AID など）

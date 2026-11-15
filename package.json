@@ -36,6 +36,8 @@
 	"dependencies": {
 		"@astrojs/check": "^0.9.12",
 		"@astrojs/cloudflare": "^14.4.8",
+		"@astrojs/markdown-remark": "^7.3.9",
+		"@astrojs/mdx": "^8.1.6",
 		"@astrojs/react": "^7.1.9",
 		"@astrojs/rss": "^4.0.19",
 		"@astrojs/sitemap": "^3.7.5",
@@ -83,6 +85,7 @@
 		"@effect/platform-node": "4.0.0-rc.115",
 		"@playwright/test": "^1.65.1",
 		"@types/hast": "^3.0.5",
+		"@types/mdast": "^4.0.4",
 		"@types/node": "^26.6.6",
 		"@types/prismjs": "^1.26.6",
 		"@types/react": "^19.3.0",
