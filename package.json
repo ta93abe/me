@@ -34,7 +34,7 @@
 		"agent-ready:scan": "node scripts/agent-ready/scan.mjs"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.10",
+		"@astrojs/check": "^0.9.12",
 		"@astrojs/cloudflare": "^14.4.3",
 		"@astrojs/react": "^7.1.2",
 		"@astrojs/rss": "^4.0.19",
