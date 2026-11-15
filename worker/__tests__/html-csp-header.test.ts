@@ -60,6 +60,14 @@ describe("promoteHtmlCspHeader", () => {
 		expect(await promoteHtmlCspHeader(json)).toBe(json);
 	});
 
+	it("returns bodiless HTML responses such as 304 unchanged", async () => {
+		const notModified = new Response(null, {
+			status: 304,
+			headers: { "Content-Type": "text/html; charset=utf-8" },
+		});
+		expect(await promoteHtmlCspHeader(notModified)).toBe(notModified);
+	});
+
 	it("promotes the meta CSP on the HTML 404 page and keeps the status", async () => {
 		const promoted = await promoteHtmlCspHeader(
 			htmlResponse(HOME_HTML, { status: 404 }),
