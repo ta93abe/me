@@ -314,10 +314,10 @@ Conventional Commits に従う:
 - Astro 7 + Tailwind CSS 4 + Cloudflare Workers
 - ページ: About / Works / Blog / Contact / Links / Tools / Talks / Slides
 - SEO（OG / JSON-LD / sitemap / robots）、PostHog、perf CI まで実装済み
-- ブログ本文は `src/content/blog/<slug>.mdx`（ADR-0003）。content collection でビルド時に描画
+- ブログ本文は `src/content/blog/<slug>.mdx`（ADR-0003）、スライドは `src/slides/decks/<slug>.mdx`（ADR-0002）。content collection でビルド時に描画
 - `/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクト
 
 ## 次のステップ
 
-1. スライドを MDX にする（TA-820）、Content API / R2 のブログ経路を外す（TA-1899）
+1. Content API / R2 のブログ経路を外す（TA-1899）
 2. Agent Readiness の残タスク（DNS-AID など）

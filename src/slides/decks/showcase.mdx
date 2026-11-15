@@ -8,7 +8,7 @@ event: デザインシステム検証
 unlisted: true
 ---
 
-<!-- type: cover -->
+<Cover />
 
 # スライドの見た目
 
@@ -16,7 +16,7 @@ unlisted: true
 
 ---
 
-<!-- type: section -->
+<Section />
 
 # 本文
 
@@ -26,26 +26,26 @@ unlisted: true
 
 # 書くことに集中する
 
-色も余白も型も、デッキ側では指定しない。Markdown に本文だけ書く。
+色も余白も型も、デッキ側では指定しない。MDX に本文だけ書く。
 
 - 1 デッキは 1 ファイル
 - 区切りは `---`
-- 型は HTML コメント
+- 型は先頭のマーカー
 
 | 項目       | 内容             |
 | ---------- | ---------------- |
-| 正のソース | Markdown         |
+| 正のソース | MDX              |
 | 見た目     | デザインシステム |
 
 ---
 
-<!-- type: split -->
+<Split />
 
 ## コンテンツ
 
 著者が決めるのは、何をどの順番で言うかだけ。
 
-<!-- column -->
+<Column />
 
 ## 見た目
 
@@ -53,11 +53,13 @@ unlisted: true
 
 ---
 
-<!-- type: quote -->
+<Quote />
 
-<!-- notes
+<Notes>
+
 引用は短く止めて、次のコードへ進む。
--->
+
+</Notes>
 
 > 見た目をデッキに持ち込むと、次の発表でまた崩す。
 
@@ -65,7 +67,7 @@ unlisted: true
 
 ---
 
-<!-- type: code -->
+<Code />
 
 # フェンスはそのまま
 
@@ -84,7 +86,7 @@ type SlideType =
 
 ---
 
-<!-- type: figure -->
+<Figure />
 
 ![16:9 のキャンバス](./frame.svg)
 
@@ -92,7 +94,7 @@ type SlideType =
 
 ---
 
-<!-- type: center -->
+<Center />
 
 # 短い一文を中央に
 
@@ -104,7 +106,7 @@ type SlideType =
 
 最初に見えること。
 
-<!-- click -->
+<Click />
 
 矢印のあとに出ること。
 
@@ -112,19 +114,23 @@ type SlideType =
 
 # リストも順に
 
-<!-- notes
+<Notes>
+
 1 項目ずつ進めて、契約を復唱する。
--->
 
-<!-- clicks -->
+</Notes>
 
-- Markdown の本文だけ書く
+<Clicks>
+
+- MDX の本文だけ書く
 - 見た目はデザインシステム
-- クリックは HTML コメント
+- クリックは `<Click />`
+
+</Clicks>
 
 ---
 
-<!-- type: code -->
+<Code />
 
 # 行を順に指す
 
@@ -147,7 +153,7 @@ $$
 
 ---
 
-<!-- type: end -->
+<End />
 
 # ありがとうございました
 

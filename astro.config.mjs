@@ -10,9 +10,14 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 import { PAGE_ALIASES } from "./src/config/redirects.ts";
 import { remarkBlogEmbeds } from "./src/lib/content/remark-blog-embeds.ts";
+import { remarkSlideGuard } from "./src/slides/mdx/remark-slide-guard.ts";
+import { remarkSlides } from "./src/slides/mdx/remark-slides.ts";
+import { rehypeCodeHighlight } from "./src/utils/rehype-code-highlight.ts";
 import { copySlideMedia } from "./src/slides/copy-media.ts";
 import { optionalFontDisplayPlugin } from "./src/utils/optional-font-display.ts";
 import {
@@ -72,7 +77,7 @@ export default defineConfig({
 			},
 		}),
 		react(),
-		// ブログ記事（src/content/blog/*.mdx）。プラグインは markdown.processor から継承する。
+		// ブログ記事とスライドのデッキ（MDX）。プラグインは markdown.processor から継承する。
 		mdx(),
 		{
 			name: "slide-deck-media",
@@ -104,15 +109,15 @@ export default defineConfig({
 		prefetchAll: false,
 		defaultStrategy: "hover",
 	},
-	// ブログ MDX と残りの Markdown 用。
-	// CSP と併用するためシンタックスハイライトは Prism（クラスベース）を使う。
-	// Shiki はインライン style 属性前提で Astro CSP と非互換。
+	// ブログ（src/content/blog）とスライド（src/slides/decks）の MDX。
+	// ハイライトは rehypeCodeHighlight で振り分ける（ブログは Prism、スライドは Shiki をクラス化）。
+	// どちらもクラスベースで、インライン style を出さない（ハッシュベース CSP と両立）。
 	markdown: {
-		syntaxHighlight: "prism",
-		// remark/rehype を使うため unified。URL だけの段落はビルド時に埋め込みへ（ADR-0003）。
+		syntaxHighlight: false,
 		processor: unified({
-			remarkPlugins: [remarkBlogEmbeds],
-			// 原稿の引用符をそのまま出す（R2 時代の marked と同じ）
+			remarkPlugins: [remarkMath, remarkSlideGuard, remarkSlides, remarkBlogEmbeds],
+			rehypePlugins: [[rehypeKatex, { strict: "ignore" }], rehypeCodeHighlight],
+			// 原稿の引用符をそのまま出す
 			smartypants: false,
 		}),
 	},

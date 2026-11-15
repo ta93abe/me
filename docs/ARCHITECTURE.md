@@ -30,7 +30,7 @@
 │   ├── config/              # site.ts / navigation.ts
 │   ├── layouts/Layout.astro, SlideDeck.astro
 │   ├── pages/               # ファイルベースルーティング
-│   ├── slides/              # デッキ Markdown / parser / プレイヤー
+│   ├── slides/              # デッキ MDX / MDX プラグイン / プレイヤー
 │   ├── styles/global.css
 │   └── utils/               # schema / OG 生成など
 ├── worker/                  # Cloudflare Worker エントリ
@@ -106,7 +106,7 @@ src/pages/
 
 `/mcp` は MCP Streamable HTTP（2025-06-18）。server-card の `transport.type` は `streamable-http`。POST の JSON-RPC は `Accept: text/event-stream` なら SSE（`event: message`）、それ以外は `application/json`。通知とクライアント応答は 202。初期化応答に `Mcp-Session-Id` を付けるが Worker はステートレスで検証しない。GET はスタンドアロン SSE を提供せず 405 + `Allow: POST`（`text/plain`）。OPTIONS は 204 と CORS（`Access-Control-Allow-Origin: *`）。GET/POST 応答にも同じ CORS を付ける。
 
-デッキ Markdown は Git `src/slides/decks/`。書き方は `docs/slides-authoring.md`、PDF は `docs/slides-pdf.md`。
+デッキ MDX は Git `src/slides/decks/`（ADR-0002）。書き方は `docs/slides-authoring.md`、PDF は `docs/slides-pdf.md`。
 
 ## 依存関係の流れ
 
@@ -136,11 +136,10 @@ pnpm install
 
 ## 拡張ポイント
 
-1. スライドを MDX にする（TA-820 / ADR-0002）
-2. Content API / Queue / R2 のブログ経路を外す（TA-1899）
-3. ブラウザから記事を編集する `/admin`（TA-1898）
-4. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
-5. Agent Readiness 残タスク（DNS-AID など）
+1. Content API / Queue / R2 のブログ経路を外す（TA-1899）
+2. ブラウザから記事を編集する `/admin`（TA-1898）
+3. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
+4. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料
 

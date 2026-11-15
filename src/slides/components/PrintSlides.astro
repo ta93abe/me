@@ -1,0 +1,8 @@
+---
+import { revealPrintSlidesHtml } from "@/slides/print";
+
+// print / PDF: デッキの <Content /> を受け取り、全スライドと fragment を開いて出す。
+const html = await Astro.slots.render("default");
+---
+
+<Fragment set:html={revealPrintSlidesHtml(html)} />

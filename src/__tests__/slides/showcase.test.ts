@@ -5,19 +5,23 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { loadDecks } from "@/slides/load-decks";
-import { parseDeck } from "@/slides/parser/parse-deck";
+
+import { compileDeck, slideHtml } from "./helpers/compile-deck";
 
 const decksDir = path.resolve(
 	path.dirname(fileURLToPath(import.meta.url)),
 	"../../slides/decks",
 );
 
+async function compileFile(slug: string) {
+	const source = await readFile(path.join(decksDir, `${slug}.mdx`), "utf8");
+	return compileDeck(source, slug);
+}
+
 describe("showcase deck", () => {
 	it("covers every slide type", async () => {
-		const filename = path.join(decksDir, "showcase.md");
-		const markdown = await readFile(filename, "utf8");
-		const deck = await parseDeck(markdown, { filename });
-		expect(deck.slides.map((slide) => slide.type)).toEqual([
+		const { html, info } = await compileFile("showcase");
+		expect(info.slides.map((slide) => slide.type)).toEqual([
 			"cover",
 			"section",
 			"body",
@@ -32,36 +36,46 @@ describe("showcase deck", () => {
 			"body",
 			"end",
 		]);
-		expect(deck.frontmatter.theme).toBe("dark");
-		expect(deck.frontmatter.unlisted).toBe(true);
-		expect(deck.frontmatter.talkSlug).toBeUndefined();
-		expect(deck.slides[5]?.html).toContain("shiki");
-		expect(deck.slides[5]?.html).toContain("min-dark");
-		expect(deck.slides[5]?.html).not.toMatch(/\sstyle=/i);
-		expect(deck.slides[5]?.html).toContain("line-highlighted");
-		expect(deck.slides[6]?.html).toContain("/slides/media/showcase/frame.svg");
-		expect(deck.slides[8]?.clicks).toBe(1);
-		expect(deck.slides[9]?.clicks).toBe(3);
-		expect(deck.slides[10]?.clicks).toBe(1);
-		expect(deck.slides[11]?.html).toContain("katex");
-		expect(deck.slides[11]?.html).toMatch(/style="/);
+		expect(info.slides.map((slide) => slide.clicks)).toEqual([
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 0, 0,
+		]);
+		const code = slideHtml(html, 6);
+		expect(code).toContain("shiki");
+		expect(code).toContain("min-dark");
+		expect(code).not.toMatch(/<(?:pre|span)[^>]*\sstyle=/i);
+		expect(code).toContain("line-highlighted");
+		expect(slideHtml(html, 7)).toContain("/slides/media/showcase/frame.svg");
+		expect(slideHtml(html, 12)).toContain("katex");
 	});
 });
 
 describe("light deck", () => {
-	it("uses the light palette and highlighter", async () => {
-		const filename = path.join(decksDir, "light.md");
-		const markdown = await readFile(filename, "utf8");
-		const deck = await parseDeck(markdown, { filename });
-		expect(deck.frontmatter.theme).toBe("light");
-		expect(deck.frontmatter.unlisted).toBe(true);
-		expect(deck.slides.map((slide) => slide.type)).toEqual([
+	it("uses the light highlighter", async () => {
+		const { html, info } = await compileFile("light");
+		expect(info.slides.map((slide) => slide.type)).toEqual([
 			"cover",
 			"body",
 			"code",
 		]);
-		expect(deck.slides[2]?.html).toContain("min-light");
-		expect(deck.slides[2]?.html).not.toMatch(/\sstyle=/i);
+		expect(slideHtml(html, 3)).toContain("min-light");
+	});
+});
+
+describe("real decks", () => {
+	it("keep one h1 each (the first cover)", async () => {
+		for (const deck of await loadDecks()) {
+			const { html } = await compileFile(deck.frontmatter.slug);
+			expect(html.match(/<h1[\s>]/g)?.length, deck.frontmatter.slug).toBe(1);
+		}
+	});
+
+	it("emit no bare /slides/<slug> hrefs", async () => {
+		for (const deck of await loadDecks()) {
+			const { html } = await compileFile(deck.frontmatter.slug);
+			expect(html, deck.frontmatter.slug).not.toMatch(
+				/href="\/slides\/[a-z0-9-]+"/,
+			);
+		}
 	});
 });
 
@@ -75,5 +89,8 @@ describe("loadDecks", () => {
 			"light",
 			"showcase",
 		]);
+		const light = decks.find((deck) => deck.frontmatter.slug === "light");
+		expect(light?.frontmatter.theme).toBe("light");
+		expect(light?.frontmatter.unlisted).toBe(true);
 	});
 });

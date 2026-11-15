@@ -197,7 +197,7 @@ function readSlideDates(
 
 	const slides: Array<{ slug: string; lastmod: Date; unlisted: boolean }> = [];
 	for (const file of files) {
-		if (!file.endsWith(".md")) {
+		if (!file.endsWith(".mdx")) {
 			continue;
 		}
 		const text = readFileSync(path.join(decksDir, file), "utf8");

@@ -75,7 +75,7 @@ function fixtureRoot(): string {
 	const rootDir = mkdtempSync(path.join(tmpdir(), "sitemap-lastmod-"));
 	writeFixture(rootDir, "src/data/talks.ts", TALKS_FIXTURE);
 	writeFixture(rootDir, "src/data/gadgets.ts", "export const GADGETS = [];\n");
-	writeFixture(rootDir, "src/slides/decks/demo.md", SLIDE_FIXTURE);
+	writeFixture(rootDir, "src/slides/decks/demo.mdx", SLIDE_FIXTURE);
 	writeFixture(rootDir, "src/pages/index.astro", "<h1>home</h1>\n");
 	return rootDir;
 }
@@ -144,7 +144,7 @@ function gitHistoryFixture(): string {
 	);
 	commitFile(
 		rootDir,
-		"src/slides/decks/demo.md",
+		"src/slides/decks/demo.mdx",
 		SLIDE_FIXTURE,
 		SLIDES_COMMIT_DATE,
 	);
@@ -205,7 +205,7 @@ describe("includeInStaticSitemap", () => {
 		const rootDir = fixtureRoot();
 		writeFixture(
 			rootDir,
-			"src/slides/decks/hidden.md",
+			"src/slides/decks/hidden.mdx",
 			`---
 slug: hidden
 date: 2026-05-01
@@ -353,7 +353,7 @@ describe("createStaticSitemapSerializer", () => {
 		const rootDir = fixtureRoot();
 		writeFixture(
 			rootDir,
-			"src/slides/decks/hidden.md",
+			"src/slides/decks/hidden.mdx",
 			`---
 slug: hidden
 date: 2026-12-01
