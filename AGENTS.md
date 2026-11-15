@@ -4,7 +4,7 @@
 
 ## ドキュメントの読者
 
-- `README.md` は GitHub の外部読者向け。サイトの紹介とローカル起動を書く。Linear、Content API、デプロイ変数、エージェント向け手順は書かない。
+- `README.md` は GitHub の外部読者向け。サイトの紹介とローカル起動を書く。Linear、デプロイ変数、エージェント向け手順は書かない。
 - このファイルは、このリポジトリで作業するエージェント向け。
 - 内部設計は `docs/`。決定（ADR）は Linear の me プロジェクト文書に書く。git に ADR 本文は置かない。一覧: https://linear.app/ta93abe/document/adr-一覧-07b836fe1a33
 
@@ -31,7 +31,7 @@
 ```
 /
 ├── .github/workflows/         # CI (perf / playwright / infra)
-├── docs/                      # アーキテクチャ・Content API ノート
+├── docs/                      # アーキテクチャ・スライドなどの設計ノート
 ├── infra/                     # Alchemy による Cloudflare インフラ
 ├── perf/                      # Lighthouse / CWV budgets
 ├── public/                    # favicon, media
@@ -319,5 +319,5 @@ Conventional Commits に従う:
 
 ## 次のステップ
 
-1. Content API / R2 のブログ経路を外す（TA-1899）
+1. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
 2. Agent Readiness の残タスク（DNS-AID など）

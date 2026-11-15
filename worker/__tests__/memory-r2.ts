@@ -123,18 +123,7 @@ export function createMemoryR2(): R2Bucket {
 }
 
 export function createContentEnv(
-	overrides: Partial<{
-		CONTENT: R2Bucket;
-		IMAGES: R2Bucket;
-		CONTENT_HMAC_SECRET: string;
-		IMAGES_PUBLIC_ORIGIN: string;
-	}> = {},
+	overrides: Partial<{ CONTENT: R2Bucket }> = {},
 ) {
-	return {
-		CONTENT: overrides.CONTENT ?? createMemoryR2(),
-		IMAGES: overrides.IMAGES ?? createMemoryR2(),
-		CONTENT_HMAC_SECRET: overrides.CONTENT_HMAC_SECRET ?? "test-hmac-secret",
-		IMAGES_PUBLIC_ORIGIN:
-			overrides.IMAGES_PUBLIC_ORIGIN ?? "https://images.ta93abe.com",
-	};
+	return { CONTENT: overrides.CONTENT ?? createMemoryR2() };
 }

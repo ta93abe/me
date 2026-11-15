@@ -409,39 +409,16 @@ describe("PDF queue", () => {
 });
 
 describe("worker queue dispatch", () => {
-	it("keeps content-events on the blog rebuild path", async () => {
-		const bucket = createMemoryR2();
-		await bucket.put(
-			"md/blog/hello.md",
-			`---
-title: Hello
-excerpt: note
-date: 2026-08-30
----
-body
-`,
-		);
-		await dispatchWorkerQueue(
-			{
-				queue: "content-events",
-				messages: [
-					{
-						id: "1",
-						timestamp: new Date(),
-						attempts: 1,
-						body: {
-							action: "PutObject",
-							object: { key: "md/blog/hello.md" },
-						},
-						ack() {},
-						retry() {},
-					},
-				],
-			} as unknown as MessageBatch<unknown>,
-			{ CONTENT: bucket } as unknown as Env,
-		);
-		const index = await bucket.get("index/blog.json");
-		expect(index).not.toBeNull();
+	it("rejects queues other than me-slides-pdf", async () => {
+		await expect(
+			dispatchWorkerQueue(
+				{
+					queue: "content-events",
+					messages: [],
+				} as unknown as MessageBatch<unknown>,
+				{} as Env,
+			),
+		).rejects.toThrow("unknown queue: content-events");
 	});
 
 	it("routes me-slides-pdf to the PDF workflow", async () => {

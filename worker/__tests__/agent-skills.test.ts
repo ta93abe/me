@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 
+import { parseFrontmatter } from "@astrojs/markdown-remark";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -8,7 +9,6 @@ import {
 	AGENT_SKILL_PATH,
 	agentSkillsIndex,
 } from "../agent-skills.ts";
-import { parseMarkdownDocument } from "../content/frontmatter.ts";
 
 const SITE_URL = "https://ta93abe.com";
 const SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -27,9 +27,14 @@ function markdownLink(label: string, href: string): string {
 	return `[${label}](${href})`;
 }
 
+function parseSkill(markdown: string) {
+	const { frontmatter, content } = parseFrontmatter(markdown);
+	return { frontmatter, body: content.replace(/^\n+/, "") };
+}
+
 describe("site-overview SKILL.md", () => {
 	it("starts with required Agent Skills YAML frontmatter", () => {
-		const parsed = parseMarkdownDocument(AGENT_SKILL_MARKDOWN);
+		const parsed = parseSkill(AGENT_SKILL_MARKDOWN);
 
 		expect(AGENT_SKILL_MARKDOWN.startsWith("---\n")).toBe(true);
 		expect(parsed.frontmatter.name).toBe("site-overview");
@@ -80,7 +85,7 @@ describe("site-overview SKILL.md", () => {
 	});
 
 	it("gives procedures that include RSS, sitemap-index, and Content-Signal meaning", () => {
-		const parsed = parseMarkdownDocument(AGENT_SKILL_MARKDOWN);
+		const parsed = parseSkill(AGENT_SKILL_MARKDOWN);
 		const howTo = parsed.body.slice(parsed.body.indexOf("## How to answer"));
 
 		expect(howTo).toContain("### What is this site?");
@@ -99,7 +104,7 @@ describe("site-overview SKILL.md", () => {
 	it("keeps the discovery index pointed at this SKILL.md with a matching digest", async () => {
 		const index = await agentSkillsIndex(SITE_URL, AGENT_SKILL_MARKDOWN);
 		const skill = index.skills[0];
-		const parsed = parseMarkdownDocument(AGENT_SKILL_MARKDOWN);
+		const parsed = parseSkill(AGENT_SKILL_MARKDOWN);
 
 		expect(skill).toMatchObject({
 			name: parsed.frontmatter.name,

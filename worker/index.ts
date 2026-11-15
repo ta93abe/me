@@ -1,6 +1,7 @@
 import { handle } from "@astrojs/cloudflare/handler";
 
 import { pageAliasRedirect } from "../src/config/redirects.ts";
+import { BLOG_HTML_CACHE_CONTROL } from "../src/lib/content/cache.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
 import {
@@ -20,8 +21,6 @@ import {
 } from "./agent-skills.ts";
 import { API_CATALOG_MEDIA_TYPE, buildApiCatalog } from "./api-catalog.ts";
 import { agentAuthRegisterResponse, authMarkdown } from "./auth-md.ts";
-import { handleContentApi } from "./content/api.ts";
-import { BLOG_HTML_CACHE_CONTROL } from "./content/blog-cache.ts";
 import {
 	buildLlmsFullText,
 	loadSitemapIndexXml,
@@ -259,11 +258,6 @@ async function handleSiteRequest(
 ): Promise<Response> {
 	const url = new URL(request.url);
 	const pathname = url.pathname.replace(/\/+$/, "") || "/";
-
-	const contentResponse = await handleContentApi(request, env);
-	if (contentResponse) {
-		return contentResponse;
-	}
 
 	const pdfSlug = parseSlidePdfSlug(pathname);
 	if (pdfSlug && (request.method === "GET" || request.method === "HEAD")) {
@@ -555,12 +549,7 @@ export default {
 	},
 
 	async queue(batch, env): Promise<void> {
-		await dispatchWorkerQueue(batch, env, {
-			origin: SITE_URL,
-			purge: async (urls) => {
-				await Promise.all(urls.map((target) => defaultCache().delete(target)));
-			},
-		});
+		await dispatchWorkerQueue(batch, env);
 	},
 
 	async scheduled(_event, env): Promise<void> {

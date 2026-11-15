@@ -59,7 +59,7 @@ src/pages/
 └── 404.astro
 ```
 
-`/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。`/sitemap.xml`・`/sitemap-index.xml`・`/sitemap_index.xml` はいずれも 200 で同じ sitemap index を返す（Search Console が `/sitemap.xml` の 301 を読めないため。`src/middleware.ts` と Worker）。`/works` は代表作ページ。Content API のコレクション契約はそのまま。
+`/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクトする（`src/middleware.ts` と `astro.config.mjs`）。`/sitemap.xml`・`/sitemap-index.xml`・`/sitemap_index.xml` はいずれも 200 で同じ sitemap index を返す（Search Console が `/sitemap.xml` の 301 を読めないため。`src/middleware.ts` と Worker）。`/works` は代表作ページ。
 
 ## データフロー
 
@@ -79,9 +79,9 @@ src/pages/
 3. URL だけの段落は `remark-blog-embeds` が `<BlogEmbed />` に置き換え、ビルド時に X / YouTube / Spotify / リンクカードを取得して静的 HTML にする。X のポストは `<Tweet id|url />` でも書ける（スライドと共通。`docs/slides-authoring.md`）。ブログだけ `<Tweet id="..." live />` で、閲覧時に X の widgets.js を読み公式の埋め込みに差し替える（opt-in。`dnt: true`。CSP の script-src はその記事にだけ `https://platform.twitter.com` を足し、frame-src は全体で許可）
 4. `/og/blog/:slug.png` と `/sitemap-blog.xml` はビルド時に生成する。`/rss.xml` は on-demand（Worker のサーバービルドを必ず出すため）
 5. Worker の llms.txt / llms-full.txt / MCP / sitemap index は、ビルド時に出す `/blog.json` を ASSETS から読む
-6. 画像は公開 R2 `me-images`
+6. 画像は公開 R2 `me-images`（`images.ta93abe.com`）
 
-旧経路（pubme → Content API → 非公開 R2 `me-content` → Queue `content-events`）はブログでは使わない。コードと gallery / atelier / books の Content API は片付けの PR で外す。
+旧経路（pubme → Content API → 非公開 R2 → Queue `content-events`）は外した（TA-1899）。非公開 R2 `me-content` はスライド PDF の置き場としてだけ使う。
 
 ## 主要な設計パターン
 
@@ -102,7 +102,7 @@ src/pages/
 
 ### 4. Worker 拡張
 
-`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）と Content API（`/api/content/*`）とスライド PDF（`/slides/<slug>.pdf`）を担当する。`run_worker_first: true`。
+`worker/index.ts` が静的アセット配信に加え、Agent discovery（`/.well-known/*`、`/agent/auth` など）とスライド PDF（`/slides/<slug>.pdf`）を担当する。`run_worker_first: true`。
 
 `/mcp` は MCP Streamable HTTP（2025-06-18）。server-card の `transport.type` は `streamable-http`。POST の JSON-RPC は `Accept: text/event-stream` なら SSE（`event: message`）、それ以外は `application/json`。通知とクライアント応答は 202。初期化応答に `Mcp-Session-Id` を付けるが Worker はステートレスで検証しない。GET はスタンドアロン SSE を提供せず 405 + `Allow: POST`（`text/plain`）。OPTIONS は 204 と CORS（`Access-Control-Allow-Origin: *`）。GET/POST 応答にも同じ CORS を付ける。
 
@@ -136,10 +136,9 @@ pnpm install
 
 ## 拡張ポイント
 
-1. Content API / Queue / R2 のブログ経路を外す（TA-1899）
-2. ブラウザから記事を編集する `/admin`（TA-1898）
-3. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
-4. Agent Readiness 残タスク（DNS-AID など）
+1. ブラウザから記事を編集する `/admin`（TA-1898）
+2. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
+3. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料
 

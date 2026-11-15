@@ -16,23 +16,14 @@
   "observability": {
     "enabled": true,
   },
-  "vars": {
-    "IMAGES_PUBLIC_ORIGIN": "https://images.ta93abe.com",
-  },
   "r2_buckets": [
     { "binding": "CONTENT", "bucket_name": "me-content" },
-    { "binding": "IMAGES", "bucket_name": "me-images" },
   ],
   "browser": {
     "binding": "BROWSER",
   },
   "queues": {
     "consumers": [
-      {
-        "queue": "content-events",
-        "max_batch_size": 16,
-        "max_batch_timeout": 5,
-      },
       {
         "queue": "me-slides-pdf",
         "max_batch_size": 1,
@@ -42,7 +33,6 @@
       },
     ],
     "producers": [
-      { "binding": "CONTENT_EVENTS", "queue": "content-events" },
       { "binding": "PDF_QUEUE", "queue": "me-slides-pdf" },
     ],
   },
