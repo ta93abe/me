@@ -32,7 +32,7 @@ flowchart LR
 ### 変わらないもの
 
 - Content Collections のスキーマ（`src/content.config.ts`）はそのまま
-- ローカルで Markdown を書いて `gt create` / push するフローはそのまま
+- ローカルで Markdown を書いて ブランチを切って push し PR を出すフローはそのまま
 - works / books の `coverImage: image()`（Astro ビルド時最適化）はそのまま
 
 ### 新しく増えるもの
@@ -186,7 +186,7 @@ Alchemy に寄せられる（Astro は Vite 経由でビルドされ、静的 / 
 - **MDX**: `extension: md` のため、`.mdx` 記事はこの管理画面には表示されない。
   MDX はコンポーネントを含むためローカル編集で扱う（サイトのビルドでは従来通り公開される）
 - **コミット先**: GUI での保存は `main` に直接コミットされる（PR を経由しない）。
-  Graphite のスタックフローとは独立した「コンテンツ専用の直コミット」と割り切る
+  PR ベースのフローとは独立した「コンテンツ専用の直コミット」と割り切る
 - **拡張**: 運用が回り始めたら works / books / talks を順次コレクション追加する。
   works / books は `coverImage: image()`（ローカル画像必須）なので、
   R2 参照に変える場合はスキーマを `z.string().url()` に変更する判断が必要

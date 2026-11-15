@@ -7,7 +7,7 @@ GitHub はデータベース（コードリポジトリ）としてのみ使用�
 | 用途 | ツール | 詳細 |
 |------|--------|------|
 | Issue管理 | **Linear** | ta93abe team / me project |
-| PR管理 | **Graphite (gt)** | スタック型PRワークフロー |
+| PR管理 | **GitHub** | `git` + `gh` CLI |
 | コード管理 | GitHub | データベースとして使用 |
 
 ## Linear (Issue管理)
@@ -17,26 +17,24 @@ GitHub はデータベース（コードリポジトリ）としてのみ使用�
 - GitHub Issues は使用しない
 - Claude Code から Linear MCP 経由で操作可能
 
-## Graphite (PR管理)
+## PR管理（git + gh）
 
-`git commit` / `git push` の代わりに `gt` コマンドを使用：
+Graphite（`gt`）は使わない。
 
 ```bash
-# ブランチ作成+コミット
-gt create -m "feat: 説明"
+# main から ブランチを切る
+git switch main && git pull
+git switch -c feature/xxx
+
+# コミットして push
+git commit -m "feat: 説明"
+git push -u origin feature/xxx
 
 # PR提出
-gt submit --no-interactive
-
-# 状態確認
-gt state
-
-# 同期
-gt sync
+gh pr create --base main
 ```
 
 ## 禁止事項
 
-- `git commit` → 代わりに `gt create`
-- `git push` → 代わりに `gt submit`
+- `gt` コマンドの使用
 - GitHub Issues の作成 → 代わりに Linear で作成

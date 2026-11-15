@@ -4,7 +4,7 @@
 
 ## ドキュメントの読者
 
-- `README.md` は GitHub の外部読者向け。サイトの紹介とローカル起動を書く。Linear、Graphite、Content API、デプロイ変数、エージェント向け手順は書かない。
+- `README.md` は GitHub の外部読者向け。サイトの紹介とローカル起動を書く。Linear、Content API、デプロイ変数、エージェント向け手順は書かない。
 - このファイルは、このリポジトリで作業するエージェント向け。
 - 内部設計は `docs/`。決定（ADR）は Linear の me プロジェクト文書に書く。git に ADR 本文は置かない。一覧: https://linear.app/ta93abe/document/adr-一覧-07b836fe1a33
 
@@ -24,7 +24,7 @@
 | デプロイ | Cloudflare Workers | Wrangler |
 | 言語 | TypeScript | (Astro strict設定) |
 | Issue管理 | Linear | ta93abe team / me project |
-| PR管理 | Graphite | gt CLI |
+| PR管理 | GitHub | git + gh CLI |
 
 ## プロジェクト構造
 
@@ -215,7 +215,7 @@ pnpm format
 | 用途 | ツール | 備考 |
 |------|--------|------|
 | Issue管理 | **Linear** | ta93abe team / me project |
-| PR管理 | **Graphite (gt)** | スタック型PRワークフロー |
+| PR管理 | **GitHub** | `git` + `gh` CLI |
 | コード管理 | GitHub | データベースとして使用 |
 
 ### Linear (Issue管理)
@@ -230,55 +230,34 @@ pnpm format
 # Claude Code から直接 Linear を操作可能
 ```
 
-### Graphite (PR管理)
+### PR管理（git + gh）
 
-`git` の代わりに `gt` コマンドを使用してPRを管理します。
+Graphite（`gt`）は使わない。ブランチとコミットは `git`、PR は `gh` で作る。
 
 ```bash
-# ブランチ作成とコミット
-gt create -m "feat: 新機能の追加"
+# main を最新にしてブランチを切る
+git switch main && git pull
+git switch -c feature/xxx
 
-# PRの提出（スタック全体）
-gt submit --no-interactive
+# コミットして push
+git add <files>
+git commit -m "feat: 新機能の追加"
+git push -u origin feature/xxx
 
-# スタックの状態確認
-gt state
-
-# 上下のブランチに移動
-gt up / gt down
-
-# リベース・同期
-gt sync
-gt restack
+# PR を作成
+gh pr create --base main --title "feat: 新機能の追加" --body "..."
 ```
-
-**重要**: `git commit` や `git push` ではなく、`gt create` と `gt submit` を使用すること。
 
 ## ブランチ戦略
 
-### 重要: Graphite (gt) を使用してブランチを管理
-
-**`gt create` コマンドでブランチ作成とコミットを同時に行います。**
-
-```bash
-# 新機能開発の場合
-gt create -m "feat: 機能の説明"
-
-# バグ修正の場合
-gt create -m "fix: 修正の説明"
-
-# ドキュメント更新の場合
-gt create -m "docs: 更新の説明"
-```
-
 ### ワークフロー
 
-1. **開発**: main ブランチ上でコードを書く
-2. **ブランチ作成+コミット**: `gt create -m "feat: 説明"` でブランチ作成とコミットを同時に行う
-3. **PR提出**: `gt submit --no-interactive` でPRを作成・更新
-4. **レビュー**: Graphite または GitHub でコードレビュー
-5. **マージ**: Graphite でマージ（スタック全体を一括マージ可能）
-6. **同期**: `gt sync` で最新の main を取得し、古いブランチを削除
+1. **ブランチ作成**: main から `git switch -c <prefix>/<name>` でブランチを切る
+2. **コミット**: `git commit`（Conventional Commits）
+3. **push**: `git push -u origin <branch>`
+4. **PR提出**: `gh pr create --base main` でPRを作成
+5. **レビュー・マージ**: GitHub でレビューしてマージ
+6. **同期**: `git switch main && git pull` で最新の main を取得し、マージ済みブランチを削除
 
 ### ブランチ命名規則
 
@@ -318,9 +297,9 @@ Conventional Commits に従う:
 ### ブランチ戦略
 
 - メインブランチ: `main`
-- `gt create` でフィーチャーブランチを作成
-- `gt submit` でPRを作成・更新
-- Graphite でマージ後、Cloudflare Workersへのデプロイを実行
+- `git switch -c` でフィーチャーブランチを作成
+- `gh pr create` でPRを作成
+- main へのマージで Cloudflare Workers Builds がデプロイする
 
 ## 参考リンク
 
