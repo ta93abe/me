@@ -1,0 +1,2 @@
+Dividerコンポーネントはこれを参考に実装して
+https://assets.sizu.me/hr.svg
