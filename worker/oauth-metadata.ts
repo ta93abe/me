@@ -15,6 +15,7 @@ function agentAuthMetadata(siteUrl: string) {
 export function oauthAuthorizationServer(siteUrl: string) {
 	return oauthAuthorizationServerMetadata({
 		issuer: siteUrl,
+		protectedResources: [siteUrl],
 		documentationUrl: `${siteUrl}/auth.md`,
 		agentAuth: agentAuthMetadata(siteUrl),
 	});

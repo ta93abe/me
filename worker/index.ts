@@ -38,6 +38,7 @@ import {
 	aiCatalog,
 	didWebDocument,
 } from "./discovery/ai-catalog.ts";
+import { POPPY_PATH, poppyManifest } from "./discovery/poppy.ts";
 import { promoteHtmlCspHeader } from "./html-csp-header.ts";
 import {
 	appendHeaderToken,
@@ -416,6 +417,10 @@ async function handleSiteRequest(
 		pathname === "/.well-known/ard.json"
 	) {
 		return discoveryJsonResponse(request, aiCatalog());
+	}
+
+	if (pathname === POPPY_PATH) {
+		return discoveryJsonResponse(request, poppyManifest());
 	}
 
 	if (

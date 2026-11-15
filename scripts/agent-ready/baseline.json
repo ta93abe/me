@@ -2,15 +2,9 @@
 	"scanUrl": "https://ta93abe.com",
 	"apiUrl": "https://isitagentready.com/api/scan",
 	"uiUrl": "https://isitagentready.com/ta93abe.com",
-	"knownFailChecks": [
-		"discoverability.dnsAid",
-		"discovery.authMd",
-		"discovery.ard"
-	],
+	"knownFailChecks": ["discoverability.dnsAid"],
 	"knownFailIssues": {
-		"discoverability.dnsAid": "TA-897",
-		"discovery.authMd": "TA-891",
-		"discovery.ard": "TA-895"
+		"discoverability.dnsAid": "TA-897"
 	},
 	"ignoreGroups": ["commerce"],
 	"markdownPaths": [

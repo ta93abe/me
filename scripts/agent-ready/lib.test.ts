@@ -67,8 +67,8 @@ const sampleScan = {
 };
 
 describe("baseline.json", () => {
-	it("tracks the three open isitagentready fails from TA-967", () => {
-		expect(shippedBaseline.knownFailChecks).toEqual(baseline.knownFailChecks);
+	it("tracks only the still-open isitagentready fail (DNS-AID)", () => {
+		expect(shippedBaseline.knownFailChecks).toEqual(["discoverability.dnsAid"]);
 		expect(shippedBaseline.markdownPaths.map((row) => row.path)).toEqual([
 			"/",
 			"/about/",
