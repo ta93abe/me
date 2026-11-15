@@ -53,14 +53,19 @@ describe("promoteHtmlCspHeader", () => {
 		expect(await promoted.text()).toBe(html);
 	});
 
-	it("skips non-HTML and error responses", async () => {
+	it("skips non-HTML responses", async () => {
 		const json = new Response("{}", {
 			headers: { "Content-Type": "application/json" },
 		});
 		expect(await promoteHtmlCspHeader(json)).toBe(json);
+	});
 
-		const missing = htmlResponse(HOME_HTML, { status: 404 });
-		expect(await promoteHtmlCspHeader(missing)).toBe(missing);
+	it("promotes the meta CSP on the HTML 404 page and keeps the status", async () => {
+		const promoted = await promoteHtmlCspHeader(
+			htmlResponse(HOME_HTML, { status: 404 }),
+		);
+		expect(promoted.status).toBe(404);
+		expect(promoted.headers.get("Content-Security-Policy")).toBe(HOME_CSP);
 	});
 
 	it("rebuilds HTML without adding a header when meta is absent", async () => {

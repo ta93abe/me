@@ -59,9 +59,8 @@ export function extractCspFromHtml(html: string): string | null {
 export async function promoteHtmlCspHeader(
 	response: Response,
 ): Promise<Response> {
-	if (!response.ok) {
-		return response;
-	}
+	// 404 ページ（assets の not_found_handling）も HTML なので昇格する。
+	// しないと後段で Worker 用の default-src 'none' が付き、CSS まで止まる。
 	if (response.headers.has("Content-Security-Policy")) {
 		return response;
 	}
