@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M7FJS31SS7SKBG17657KRZZN",
+  "strategy": "manual-commit",
+  "branch": "feature/tweet-live",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "astro.config.mjs",
+    "docs/ARCHITECTURE.md",
+    "docs/slides-authoring.md",
+    "src/__tests__/scripts/tweet-live.test.ts",
+    "src/__tests__/slides/mdx-contract.test.ts",
+    "src/components/embeds/Tweet.astro",
+    "src/lib/content/tweet-live.ts",
+    "src/pages/blog/[id].astro",
+    "src/scripts/tweet-live.ts",
+    "src/styles/tweet-embed.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 22425,
+    "cache_read_tokens": 10556810,
+    "output_tokens": 18827,
+    "api_call_count": 19
+  },
+  "redaction": {
+    "replacements": 13,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 5,
+      "credentialed_uri": 0,
+      "entropy": 16,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
