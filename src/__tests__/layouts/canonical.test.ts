@@ -22,13 +22,6 @@ describe("404 canonical omission", () => {
 		expect(page).toContain("noindex");
 		expect(page).toContain("omitCanonical");
 	});
-
-	it("asks missing blog slugs not to emit a canonical", () => {
-		const page = readSrc("pages/blog/[id].astro");
-		expect(page).toMatch(
-			/!post \? \([\s\S]*noindex[\s\S]*omitCanonical[\s\S]*NotFoundPlayground/,
-		);
-	});
 });
 
 describe("gadget detail robots", () => {

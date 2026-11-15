@@ -1,11 +1,7 @@
 ---
-export const prerender = false;
-
 import FilterSort from "@/components/FilterSort.astro";
 import { SITE } from "@/config/site";
-import { getContentBucket } from "@/lib/content/bindings";
-import { listBlogPosts } from "@/lib/content/blog";
-import { BLOG_HTML_CACHE_CONTROL } from "@/lib/content/cache";
+import { getBlogList } from "@/lib/content/blog-collection";
 import Layout from "@/layouts/Layout.astro";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
@@ -15,8 +11,7 @@ import {
 	stringifySchema,
 } from "@/utils/schema";
 
-const bucket = await getContentBucket();
-const sortedPosts = bucket ? await listBlogPosts(bucket) : [];
+const sortedPosts = await getBlogList();
 const allTags = sortedPosts.flatMap((post) => post.tags);
 const site = Astro.site?.href || SITE.url;
 const collectionSchema = generateBlogCollectionSchema(
@@ -31,8 +26,6 @@ const collectionSchema = generateBlogCollectionSchema(
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Blog", path: "/blog/" },
 ]);
-
-Astro.response.headers.set("Cache-Control", BLOG_HTML_CACHE_CONTROL);
 ---
 
 <Layout

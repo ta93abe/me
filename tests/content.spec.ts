@@ -21,9 +21,7 @@ test.describe("Published content", () => {
 		}
 	});
 
-	test("preview blog is R2-only and has no leftover Git posts", async ({
-		page,
-	}) => {
+	test("blog lists the MDX posts from src/content/blog", async ({ page }) => {
 		await page.goto("/blog");
 
 		await expect(page.locator("h1").first()).toContainText("Blog");
@@ -34,9 +32,9 @@ test.describe("Published content", () => {
 		await expect(page.locator("#rss-feed-link")).toBeVisible();
 		await expect(page.locator("body")).not.toContainText(sampleCopy);
 		await expect(page.getByRole("link", { name: /dbt-jobs/ })).toHaveCount(0);
-		await expect(page.getByRole("status")).toContainText(
-			"まだ記事を置いていません。",
-		);
+		await expect(
+			page.locator("#blog-list").getByRole("link", { name: "Hello World" }),
+		).toHaveAttribute("href", "/blog/hello-world/");
 	});
 
 	test("blog index lists titles without dates or excerpts", async ({
