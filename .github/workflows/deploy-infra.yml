@@ -1,7 +1,10 @@
 # Cloudflare インフラ（infra/alchemy.run.ts）の Plan / デプロイ
 #
-# - PR で infra/** に変更がある場合: alchemy plan（dry-run）を実行しログで差分を確認できる
+# - PR で infra/** か依存（package.json / lockfile / pnpm-workspace.yaml）に変更がある場合:
+#   alchemy の CLI が起動するかを確かめ、alchemy plan（dry-run）を実行しログで差分を確認できる
+#   （Secrets を持たない Dependabot の PR では CLI の起動確認だけ）
 # - main への push で infra/** に変更がある場合: alchemy deploy を実行
+# - 依存だけを変えたときの反映は workflow_dispatch（main）で行う
 #
 # 必要な Secrets:
 # - CLOUDFLARE_API_TOKEN: Workers Scripts Write / Workers R2 Storage Write /
@@ -18,6 +21,9 @@ on:
   pull_request:
     paths:
       - "infra/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
   workflow_dispatch:
 
 concurrency:
@@ -28,6 +34,8 @@ jobs:
   plan:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    env:
+      HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
     permissions:
       contents: read
     steps:
@@ -39,7 +47,11 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      # effect などの更新で alchemy の CLI が壊れたことがある（effect/unstable/cli）。認証なしで起動だけ確かめる
+      - name: Alchemy CLI loads
+        run: pnpm exec alchemy --help > /dev/null
       - name: Plan infra changes
+        if: env.HAS_CLOUDFLARE_TOKEN == 'true'
         run: pnpm infra:plan
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

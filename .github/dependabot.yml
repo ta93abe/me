@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # alchemy（beta）と effect は組み合わせで動く。個別に上げると CLI が起動しなくなる
+    # （effect 4.0.5 で effect/unstable/cli が消えた）。alchemy と一緒に手で上げる
+    ignore:
+      - dependency-name: "alchemy"
+      - dependency-name: "effect"
+      - dependency-name: "@effect/*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
