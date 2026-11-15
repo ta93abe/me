@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M7FJAQ9MV6044QDA2VZ2K8W8",
+  "strategy": "manual-commit",
+  "branch": "chore/remove-sveltia",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    ".github/workflows/deploy-infra.yml",
+    "docs/CONTENT_API.md",
+    "docs/sveltia-migration.md",
+    "infra/alchemy.run.ts",
+    "infra/sveltia-cms-auth/index.js",
+    "src/__tests__/content/published-entries.test.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 15957,
+    "cache_read_tokens": 4240013,
+    "output_tokens": 7240,
+    "api_call_count": 8
+  },
+  "redaction": {
+    "replacements": 13,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 5,
+      "credentialed_uri": 0,
+      "entropy": 16,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
