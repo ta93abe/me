@@ -136,6 +136,11 @@ export default defineConfig({
 						hash: "sha256-bcX2M6hOeEgeI9Ttj3KtXWZuoRsKenyQAlXswSnLakA=",
 						kind: "element",
 					},
+					// 先置きの空 <style data-paper-shader>。Astro 7.4.12 以降は空タグのハッシュを自動で出さない。
+					{
+						hash: "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+						kind: "element",
+					},
 				],
 			},
 			scriptDirective: {
