@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -56,7 +56,7 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: pnpm/setup@v3
+      - uses: pnpm/setup@v3.2.0
         if: github.event_name != 'pull_request' || steps.filter.outputs.run == 'true'
         with:
           runtime: node@lts
@@ -79,7 +79,7 @@ jobs:
         if: github.event_name == 'pull_request' && steps.filter.outputs.run != 'true'
         run: echo "No Playwright-relevant paths; smoke is a no-op success."
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7.0.2
         if: ${{ !cancelled() && (github.event_name != 'pull_request' || steps.filter.outputs.run == 'true') }}
         with:
           name: playwright-report-smoke
@@ -94,9 +94,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
-      - uses: pnpm/setup@v3
+      - uses: pnpm/setup@v3.2.0
         with:
           runtime: node@lts
           cache: true
@@ -111,7 +111,7 @@ jobs:
       - name: Run Chromium tests
         run: pnpm exec playwright test --project=chromium
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-chromium
@@ -126,9 +126,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
-      - uses: pnpm/setup@v3
+      - uses: pnpm/setup@v3.2.0
         with:
           runtime: node@lts
           cache: true
@@ -143,7 +143,7 @@ jobs:
       - name: Run Firefox and WebKit tests
         run: pnpm exec playwright test --project=firefox --project=webkit
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-browsers
