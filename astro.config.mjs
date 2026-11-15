@@ -138,7 +138,8 @@ export default defineConfig({
 				"font-src 'self' data:",
 				"media-src 'self' blob:",
 				"connect-src 'self' https://*.i.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://cloudflareinsights.com",
-				"frame-src 'self' https://www.youtube-nocookie.com https://open.spotify.com",
+				// platform.twitter.com は <Tweet live />（ブログ）の iframe。widgets.js 自体はそのページだけ script-src に足す
+				"frame-src 'self' https://www.youtube-nocookie.com https://open.spotify.com https://platform.twitter.com",
 				"base-uri 'self'",
 				"form-action 'self'",
 				"worker-src 'self' blob:",

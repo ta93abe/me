@@ -159,7 +159,7 @@ KaTeX。インラインは `$...$`、別行は `$$...$$`。
 
 Slidev の `<Tweet>` と同じく `id` か `url`（両方なら `id` が優先）。`scale` は 0.25〜3 の倍率、`cards="hidden"` で画像・動画・引用ポストを出さない。属性は `"..."` の文字列で書く（`{0.7}` は不可）。
 
-ビルド時に本文・著者・画像・引用・日時を取得し、静的なカードにする（widgets.js・iframe・クライアント JS なし）。取得できなければポストへのリンクカードになる。スライドの文字サイズはほぼ一定なので、長いポストや画像つきは `scale` で枠に収める。実装は `src/components/embeds/Tweet.astro`、見た目は `src/styles/tweet-embed.css`（ブログと共有）。
+ビルド時に本文・著者・画像・引用・日時を取得し、静的なカードにする（widgets.js・iframe・クライアント JS なし）。取得できなければポストへのリンクカードになる。スライドの文字サイズはほぼ一定なので、長いポストや画像つきは `scale` で枠に収める。ブログで使える `live`（X の widgets.js で公式埋め込みにする）はスライドでは書けない（PDF と CSP を変えないため。ビルド失敗）。実装は `src/components/embeds/Tweet.astro`、見た目は `src/styles/tweet-embed.css`（ブログと共有）。
 
 ### 画像
 

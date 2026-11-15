@@ -15,6 +15,7 @@ import {
 	type BlogEntry,
 } from "@/lib/content/blog-collection";
 import { BLOG_EMBED_COMPONENT } from "@/lib/content/remark-blog-embeds";
+import { hasLiveTweet, TWEET_WIDGETS_ORIGIN } from "@/lib/content/tweet-live";
 import Layout from "@/layouts/Layout.astro";
 import { formatBlogSurfaceDate, toDatetimeAttr } from "@/utils/date";
 import { formatReadingTime, getReadingTime } from "@/utils/reading-time";
@@ -44,6 +45,11 @@ const post = blogEntryToListItem(entry);
 const slug = post.slug;
 const { Content } = await render(entry);
 const components = { [BLOG_EMBED_COMPONENT]: BlogEmbed, Tweet };
+// <Tweet live /> がある記事だけ、X の widgets.js を CSP に足す（サイト全体の CSP は広げない）
+const liveTweets = hasLiveTweet(entry.body ?? "");
+if (liveTweets) {
+	Astro.csp?.insertScriptResource({ resource: TWEET_WIDGETS_ORIGIN, kind: "element" });
+}
 
 const neighbors = blogNeighbors(allPosts, slug);
 const { title, excerpt, publish_date, revise_date, tags } = post;
@@ -179,6 +185,12 @@ const itemListSchema = generateArticleItemListSchema(body);
       figure.replaceChildren(iframe);
     });
   });
+</script>
+
+<script>
+  import { mountLiveTweets } from "@/scripts/tweet-live";
+
+  mountLiveTweets();
 </script>
 
 <script>
