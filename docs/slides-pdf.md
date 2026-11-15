@@ -68,9 +68,9 @@ Browser Run の origin は常に本番 `https://ta93abe.com`。プレビュー�
 
 Hono の `/:slug.pdf` は使わない。パラメータ名が `slug.pdf` になる。Worker は pathname を `^/slides/([^/]+)\.pdf$` で見る。
 
-既存の `content-events` キューは置き換えない。`queue()` は `batch.queue` で PDF とブログ経路を分岐する。
+Worker が消費する Queue は `me-slides-pdf` だけ。`queue()` はそれ以外の Queue を例外にする。
 
-`IMAGES` は公開 R2 `me-images` のまま。Cloudflare Images バインディングを同名で足さない。
+Cloudflare Images バインディングを `IMAGES` の名前で足さない（公開 R2 `me-images` と紛らわしい）。
 
 ## 見た目（プレイヤー parity）
 

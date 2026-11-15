@@ -2,12 +2,8 @@
  * CMS インフラ（Alchemy v2）
  *
  * - me-images: 公開メディア（images.ta93abe.com）
- * - me-content: 非公開本文（Worker binding のみ。カスタムドメインなし）
- * - content-events: R2 md/ の create/delete で index を再構築する Queue
+ * - me-content: 非公開。スライド PDF の置き場（Worker binding のみ。カスタムドメインなし）
  * - me-slides-pdf: スライド PDF を Browser Run で焼く Queue（max_concurrency は wrangler）
- *
- * HMAC シークレットは wrangler secret:
- *   wrangler secret put CONTENT_HMAC_SECRET
  *
  * デプロイ:
  *   pnpm infra:deploy
@@ -27,30 +23,8 @@ export default Alchemy.Stack(
 			name: "me-content",
 		});
 
-		const contentEvents = yield* Cloudflare.Queues.Queue("ContentEvents", {
-			name: "content-events",
-		});
-
 		const slidesPdf = yield* Cloudflare.Queues.Queue("SlidesPdf", {
 			name: "me-slides-pdf",
-		});
-
-		yield* Cloudflare.R2.BucketEventNotification("ContentMarkdownEvents", {
-			bucketName: content.bucketName,
-			queueId: contentEvents.queueId,
-			rules: [
-				{
-					actions: [
-						"PutObject",
-						"CopyObject",
-						"CompleteMultipartUpload",
-						"DeleteObject",
-					],
-					prefix: "md/",
-					suffix: ".md",
-					description: "rebuild indexes when published markdown changes",
-				},
-			],
 		});
 
 		// 公開メディア。CORS はブラウザからの直アップロード（記事の添付）のプリフライト用。
@@ -72,7 +46,6 @@ export default Alchemy.Stack(
 			imagesBucket: images.bucketName,
 			imagesPublicUrl: `https://${IMAGES_DOMAIN}`,
 			contentBucket: content.bucketName,
-			contentEventsQueue: contentEvents.queueName,
 			slidesPdfQueue: slidesPdf.queueName,
 		};
 	}),
