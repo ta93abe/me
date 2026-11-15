@@ -26,6 +26,7 @@ export const AUTH_MD_OIDC_PARAGRAPH =
 
 export type OauthAuthorizationServerMetadata<AgentAuth = unknown> = {
 	issuer: string;
+	protected_resources: string[];
 	response_types_supported: string[];
 	grant_types_supported: string[];
 	token_endpoint_auth_methods_supported: string[];
@@ -36,11 +37,15 @@ export type OauthAuthorizationServerMetadata<AgentAuth = unknown> = {
 
 export function oauthAuthorizationServerMetadata<AgentAuth>(input: {
 	issuer: string;
+	protectedResources: string[];
 	documentationUrl: string;
 	agentAuth: AgentAuth;
 }): OauthAuthorizationServerMetadata<AgentAuth> {
 	return {
 		issuer: input.issuer,
+		// RFC 9728 §4: この AS が扱う resource。Poppy の issuer 検証が
+		// organization.domain の origin がここにあるかを見る。
+		protected_resources: input.protectedResources,
 		// Empty arrays override RFC defaults. "none" is a real OAuth/OIDC value
 		// (empty authorization response / unauthenticated token client), not
 		// "unsupported". An omitted grant list defaults to authorization_code

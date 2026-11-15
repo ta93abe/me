@@ -238,7 +238,7 @@ export function renderSummary({
 | --- | --- | --- |
 ${checkRows || "| （fail なし） | | |"}
 
-${gateKnownFails ? "既知の fail（`dnsAid` / `authMd` / `ard`）もゲートします。" : "既知の fail（`dnsAid` / `authMd` / `ard`）はゲートしません。"}以前 pass だったチェックが fail に戻ったら job を落とします。
+${gateKnownFails ? "baseline の既知の fail もゲートします。" : "baseline の既知の fail はゲートしません。"}以前 pass だったチェックが fail に戻ったら job を落とします。
 ${newlyPassing ? `\n### 新たに pass\n\n${newlyPassing}\n` : ""}
 ### Markdown content negotiation
 

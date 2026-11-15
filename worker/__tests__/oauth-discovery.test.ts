@@ -19,12 +19,14 @@ const agentAuth = {
 describe("RFC 8414 authorization server metadata", () => {
 	const metadata = oauthAuthorizationServerMetadata({
 		issuer,
+		protectedResources: [issuer],
 		documentationUrl,
 		agentAuth,
 	});
 
 	it("keeps issuer for AS discovery without claiming OAuth token grants", () => {
 		expect(metadata.issuer).toBe(issuer);
+		expect(metadata.protected_resources).toEqual([issuer]);
 		expect(metadata.response_types_supported).toEqual([]);
 		expect(metadata.grant_types_supported).toEqual([]);
 		expect(metadata.token_endpoint_auth_methods_supported).toEqual([]);

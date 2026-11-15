@@ -1,7 +1,7 @@
 # isitagentready 再スキャン + Markdown content negotiation smoke
 #
 # - 本番 URL を POST https://isitagentready.com/api/scan で計測し JSON を保存
-# - 当面 dnsAid / authMd / ard の fail は情報収集（warning）
+# - baseline.json の既知の fail（当面 dnsAid）は情報収集（warning）
 # - 以前 pass だったチェックが fail に戻ったら job を落とす
 # - `/` `/about/` `/blog/hello-world/` の Accept: text/markdown を併せて記録
 #   （`/` の回帰だけゲート。下位パスの html は TA-892）
@@ -21,7 +21,7 @@ on:
         required: false
         default: "https://ta93abe.com"
       gate_known_fails:
-        description: "Fail the job if dnsAid / authMd / ard still fail"
+        description: "Fail the job if baseline known fails (dnsAid) still fail"
         type: boolean
         default: false
 
