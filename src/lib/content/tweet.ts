@@ -159,10 +159,36 @@ function escapeWithBreaks(value: string): string {
 	return escapeHtml(value).replaceAll("\n", "<br>");
 }
 
+const TWEET_TEXT_ENTITIES: Record<string, string> = {
+	amp: "&",
+	lt: "<",
+	gt: ">",
+	quot: '"',
+	apos: "'",
+	"#39": "'",
+};
+
+/** X の API は本文を HTML エスケープして返す（`&amp;` など）。表示前に戻してから改めてエスケープする。 */
+function decodeTweetText(value: string): string {
+	return value.replace(
+		/&(amp|lt|gt|quot|apos|#39);/g,
+		(_match, name: string) => TWEET_TEXT_ENTITIES[name] ?? _match,
+	);
+}
+
+/**
+ * entity と display_text_range の位置は UTF-16 ではなくコードポイント単位。
+ * 絵文字（サロゲートペア）のあとでずれないよう、コードポイントの配列で切る。
+ */
 function renderTweetText(tweet: TweetEmbedData): string {
+	const chars = Array.from(tweet.text);
 	const start = tweet.displayTextRange?.[0] ?? 0;
-	const end = tweet.displayTextRange?.[1] ?? tweet.text.length;
-	const slice = tweet.text.slice(start, end);
+	const end = Math.min(
+		tweet.displayTextRange?.[1] ?? chars.length,
+		chars.length,
+	);
+	const text = (from: number, to: number) =>
+		escapeWithBreaks(decodeTweetText(chars.slice(from, to).join("")));
 	const entities = tweet.entities
 		.filter(
 			(entity) =>
@@ -170,26 +196,19 @@ function renderTweetText(tweet: TweetEmbedData): string {
 				entity.indices[1] <= end &&
 				entity.indices[1] > entity.indices[0],
 		)
-		.map((entity) => ({
-			...entity,
-			indices: [entity.indices[0] - start, entity.indices[1] - start] as [
-				number,
-				number,
-			],
-		}))
 		.toSorted((left, right) => left.indices[0] - right.indices[0]);
 
 	let html = "";
-	let cursor = 0;
+	let cursor = start;
 	for (const entity of entities) {
 		if (entity.indices[0] < cursor) {
 			continue;
 		}
-		html += escapeWithBreaks(slice.slice(cursor, entity.indices[0]));
+		html += text(cursor, entity.indices[0]);
 		html += `<a href="${escapeHtml(entity.href)}" rel="noopener noreferrer" target="_blank">${escapeHtml(entity.label)}</a>`;
 		cursor = entity.indices[1];
 	}
-	html += escapeWithBreaks(slice.slice(cursor));
+	html += text(cursor, end);
 	return html;
 }
 
@@ -234,20 +253,27 @@ export function tweetFallbackHtml(href: string): string {
 	return `<blockquote class="tweet-embed tweet-embed-fallback"><a class="tweet-embed-fallback-link" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${xLogoSvg()}<span class="tweet-embed-fallback-copy"><span class="tweet-embed-fallback-title">Xでポストを見る</span><span class="tweet-embed-fallback-url">${escapeHtml(display)}</span></span></a></blockquote>\n`;
 }
 
+export type TweetEmbedOptions = {
+	/** false で画像・動画・引用ポストを出さない（Slidev の `cards="hidden"` 相当） */
+	media?: boolean;
+};
+
 export function tweetEmbedHtml(
 	href: string,
 	tweet: TweetEmbedData | null,
+	options: TweetEmbedOptions = {},
 ): string {
 	if (!tweet) {
 		return tweetFallbackHtml(href);
 	}
+	const media = options.media !== false;
 
 	const timeLabel = formatTweetTime(tweet.createdAt);
 	const time = timeLabel
 		? `<a class="tweet-embed-time" href="${escapeHtml(tweet.url)}" rel="noopener noreferrer" target="_blank"><time datetime="${escapeHtml(tweet.createdAt)}">${escapeHtml(timeLabel)}</time></a>`
 		: "";
 
-	return `<blockquote class="tweet-embed"><div class="tweet-embed-header">${renderAuthor(tweet.author)}<a class="tweet-embed-brand" href="${escapeHtml(tweet.url)}" rel="noopener noreferrer" target="_blank" aria-label="Xでポストを見る">${xLogoSvg()}</a></div><p class="tweet-embed-text">${renderTweetText(tweet)}</p>${renderPhotos(tweet.photos, tweet.url)}${renderVideoPoster(tweet.videoPoster, tweet.url)}${tweet.quoted ? renderQuoted(tweet.quoted) : ""}${time}</blockquote>\n`;
+	return `<blockquote class="tweet-embed"><div class="tweet-embed-header">${renderAuthor(tweet.author)}<a class="tweet-embed-brand" href="${escapeHtml(tweet.url)}" rel="noopener noreferrer" target="_blank" aria-label="Xでポストを見る">${xLogoSvg()}</a></div><p class="tweet-embed-text">${renderTweetText(tweet)}</p>${media ? renderPhotos(tweet.photos, tweet.url) : ""}${media ? renderVideoPoster(tweet.videoPoster, tweet.url) : ""}${media && tweet.quoted ? renderQuoted(tweet.quoted) : ""}${time}</blockquote>\n`;
 }
 
 function syndicationToken(id: string): string {

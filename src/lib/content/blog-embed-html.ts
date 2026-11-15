@@ -2,7 +2,11 @@ import type { BlogEmbed } from "./embed-cache.ts";
 import type { FaviconCache } from "./favicon.ts";
 import { fetchLinkCard, linkCardHtml } from "./link-card.ts";
 import { spotifyEmbedHtml } from "./spotify.ts";
-import { fetchTweetEmbed, tweetEmbedHtml } from "./tweet.ts";
+import {
+	fetchTweetEmbed,
+	tweetEmbedHtml,
+	type TweetEmbedData,
+} from "./tweet.ts";
 import { fetchYoutubeEmbed, youtubeEmbedHtml } from "./youtube.ts";
 
 export type BlogEmbedFetchOptions = {
@@ -21,7 +25,9 @@ export async function blogEmbedHtml(
 		case "tweet":
 			return tweetEmbedHtml(
 				embed.href,
-				await fetchTweetEmbed(embed.id, { fetch: options.fetch }),
+				options.fetch
+					? await fetchTweetEmbed(embed.id, { fetch: options.fetch })
+					: await cachedTweetData(embed.id),
 			);
 		case "youtube":
 			return youtubeEmbedHtml(
@@ -50,6 +56,18 @@ export function cachedBlogEmbedHtml(embed: BlogEmbed): Promise<string> {
 	if (!pending) {
 		pending = blogEmbedHtml(embed, { favicons });
 		cache.set(key, pending);
+	}
+	return pending;
+}
+
+const tweets = new Map<string, Promise<TweetEmbedData | null>>();
+
+/** ポストの取得もビルド中は id ごとに 1 回（`<Tweet />` と URL だけの段落で共有）。 */
+export function cachedTweetData(id: string): Promise<TweetEmbedData | null> {
+	let pending = tweets.get(id);
+	if (!pending) {
+		pending = fetchTweetEmbed(id);
+		tweets.set(id, pending);
 	}
 	return pending;
 }

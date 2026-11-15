@@ -1,4 +1,5 @@
 import { parseFrontmatter } from "@astrojs/markdown-remark";
+import type { Root as HastRoot } from "hast";
 import rehypeKatex from "rehype-katex";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
@@ -7,6 +8,7 @@ import remarkMdx from "remark-mdx";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
+import { visit } from "unist-util-visit";
 import { VFile } from "vfile";
 
 import { remarkSlideGuard } from "@/slides/mdx/remark-slide-guard";
@@ -23,6 +25,28 @@ const MDX_NODE_TYPES = [
 	"mdxTextExpression",
 	"mdxjsEsm",
 ];
+
+/** 描画時の埋め込みコンポーネント（<Tweet /> など）を <x-tweet id=...> の目印にする。 */
+function rehypeEmbedPlaceholders() {
+	return (tree: HastRoot) => {
+		visit(
+			tree as never,
+			"mdxJsxFlowElement",
+			(node: Record<string, unknown>) => {
+				const attributes = node.attributes as Array<{
+					name: string;
+					value: string;
+				}>;
+				node.type = "element";
+				node.tagName = `x-${String(node.name).toLowerCase()}`;
+				node.properties = Object.fromEntries(
+					attributes.map((attribute) => [attribute.name, attribute.value]),
+				);
+				node.children = [];
+			},
+		);
+	};
+}
 
 export type CompiledDeck = {
 	html: string;
@@ -53,6 +77,7 @@ export async function compileDeck(
 		.use(remarkRehype, { passThrough: MDX_NODE_TYPES } as never)
 		.use(rehypeKatex, { strict: "ignore" })
 		.use(rehypeCodeHighlight)
+		.use(rehypeEmbedPlaceholders)
 		.use(rehypeStringify)
 		.process(file);
 	const data = result.data as {

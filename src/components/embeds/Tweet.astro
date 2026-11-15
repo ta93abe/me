@@ -1,0 +1,50 @@
+---
+import { cachedTweetData } from "@/lib/content/blog-embed-html";
+import { tweetEmbedHtml } from "@/lib/content/tweet";
+import { parseTweetScale, resolveTweetRef } from "@/lib/content/tweet-ref";
+
+/**
+ * X のポストを埋め込む（Slidev の <Tweet> 相当）。ブログとスライドの MDX で使う。
+ * ビルド時に本文・著者・画像・引用・日時を取得して静的 HTML にする（widgets.js / iframe / クライアント JS なし）。
+ * 取得に失敗したらポストへのリンクカードを出す。
+ *
+ * <Tweet id="2098270535855870306" />
+ * <Tweet url="https://x.com/civitaspo/status/2098270535855870306" scale="0.8" cards="hidden" />
+ */
+type Props = {
+	/** ポストの id。url より優先する */
+	id?: string | number;
+	/** x.com / twitter.com のポスト URL */
+	url?: string;
+	/** 表示倍率（0.25〜3） */
+	scale?: string | number;
+	/** "hidden" で画像・動画・引用ポストを出さない */
+	cards?: "visible" | "hidden";
+};
+
+const { id, url, scale, cards = "visible" } = Astro.props;
+const ref = resolveTweetRef({ id, url });
+if (!ref) {
+	throw new Error(
+		`<Tweet> には id か x.com のポスト URL が必要です（id=${String(id)} url=${String(url)}）`,
+	);
+}
+if (cards !== "visible" && cards !== "hidden") {
+	throw new Error(`<Tweet cards> は visible か hidden です: ${String(cards)}`);
+}
+const zoom = parseTweetScale(scale);
+if (Number.isNaN(zoom)) {
+	throw new Error(`<Tweet scale> は 0.25〜3 の数です: ${String(scale)}`);
+}
+
+const html = tweetEmbedHtml(ref.href, await cachedTweetData(ref.id), {
+	media: cards !== "hidden",
+});
+---
+
+<div
+	class="tweet-embed-frame"
+	data-tweet-id={ref.id}
+	style={zoom === undefined ? undefined : `--tweet-scale: ${zoom}`}
+	set:html={html}
+/>

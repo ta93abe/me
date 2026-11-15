@@ -102,6 +102,17 @@ describe("deck MDX contract (ADR-0002)", () => {
 		expect(html).toContain("katex");
 	});
 
+	it("keeps <Tweet /> for the page to render", async () => {
+		const { html } = await compileDeck(
+			deck(
+				'# 埋め込み\n\n<Click />\n\n<Tweet url="https://x.com/a/status/123" cards="hidden" />',
+			),
+		);
+		expect(html).toContain(
+			'<div class="fragment" data-click="1"><x-tweet url="https://x.com/a/status/123" cards="hidden"></x-tweet></div>',
+		);
+	});
+
 	it("allows MDX comments", async () => {
 		const { info } = await compileDeck(deck("{/* メモ */}\n\n# 本文"));
 		expect(info.slideCount).toBe(1);
@@ -113,11 +124,26 @@ describe("deck MDX contract violations fail the build", () => {
 		["import", 'import X from "x";\n\n# a', /import \/ export/],
 		["export", "export const a = 1;\n\n# a", /import \/ export/],
 		["expression", "値は {1 + 1}", /式/],
-		["unknown component", "<Tweet />", /<Tweet> は使えません/],
+		["unknown component", "<Youtube />", /<Youtube> は使えません/],
 		["raw html", '<div class="x">a</div>', /<div> は使えません/],
 		["style element", "<style>{`a{}`}</style>", /<style> は使えません|式/],
 		["script element", "<script>alert(1)</script>", /<script> は使えません/],
 		["attribute", '<Cover style="color: red" />\n\n# a', /属性/],
+		[
+			"unknown Tweet attribute",
+			'<Tweet id="1" theme="dark" />',
+			/id \/ url \/ scale \/ cards だけ/,
+		],
+		[
+			"Tweet expression attribute",
+			"<Tweet id={1} />",
+			/文字列で書いてください/,
+		],
+		[
+			"Tweet children",
+			'<Tweet id="1">\n\n本文\n\n</Tweet>',
+			/中身を持てません/,
+		],
 		["inline marker", "文中に <Click /> を置く", /行頭に単独/],
 		["second type marker", "<Cover />\n\n# a\n\n<End />", /先頭に 1 つだけ/],
 		[
