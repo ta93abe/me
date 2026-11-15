@@ -10,6 +10,7 @@ import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
 import { slideDeckRobotsContent } from "@/lib/slides/visibility";
 import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
+import Divider from "@/components/embeds/Divider.astro";
 import Tweet from "@/components/embeds/Tweet.astro";
 import PrintSlides from "@/slides/components/PrintSlides.astro";
 import type { SlideDeckRenderInfo } from "@/slides/mdx/remark-slides";
@@ -68,7 +69,7 @@ if (!entry) {
 const { Content, remarkPluginFrontmatter } = await render(entry);
 const { slideCount } = remarkPluginFrontmatter as SlideDeckRenderInfo;
 // デッキで使える埋め込み（src/slides/mdx/allowlist.ts の EMBED_COMPONENT_ATTRIBUTES と対応）
-const components = { Tweet };
+const components = { Tweet, Divider };
 const seriesNeighbors = print
 	? {}
 	: getSeriesNeighbors(slug, await loadDecks());

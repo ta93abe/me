@@ -113,6 +113,14 @@ describe("deck MDX contract (ADR-0002)", () => {
 		);
 	});
 
+	it("keeps <Divider /> for the page to render", async () => {
+		const { html, info } = await compileDeck(
+			deck("# 前半\n\n<Divider />\n\n後半"),
+		);
+		expect(info.slideCount).toBe(1);
+		expect(html).toContain("<x-divider></x-divider>");
+	});
+
 	it("allows MDX comments", async () => {
 		const { info } = await compileDeck(deck("{/* メモ */}\n\n# 本文"));
 		expect(info.slideCount).toBe(1);
@@ -139,6 +147,8 @@ describe("deck MDX contract violations fail the build", () => {
 			'<Tweet id="1" live />',
 			/id \/ url \/ scale \/ cards だけ/,
 		],
+		["Divider attribute", '<Divider color="red" />', /属性は書けません/],
+		["Divider children", "<Divider>\n\n本文\n\n</Divider>", /中身を持てません/],
 		[
 			"Tweet expression attribute",
 			"<Tweet id={1} />",
