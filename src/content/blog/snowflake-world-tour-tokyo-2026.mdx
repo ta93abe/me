@@ -30,6 +30,7 @@ https://x.com/__allllllllez__/status/2098194383334256680
 6 月に GA したばかりなので使っていないぞという人もいるでしょうか。サイズどれがいいかなということはせず、ワークロードに最適なものを自動で選択してくれるようになります。管理がなくなるのは嬉しいですね。
 手軽に導入できるので、まずは検証してみるというのもできますし、このスライドでどういったワークロードには向いているぞ向いていないぞが書かれているので参考になります。
 
+
 ## dbt CoreとSnowflakeで実現する多層的なデータガバナンス
 
 https://x.com/civitaspo/status/2098270535855870306
@@ -43,12 +44,12 @@ source は staging からしか参照されないなどの style guide を強制
 
 ```yaml
 sources:
-  your_project_name:
-    +meta:
-      authorize:
-        - resource_type: model
-          database: analytics
-          schema: staging
+    your_project_name:
+      +meta:
+        authorize:
+          - resource_type: model
+            database: analytics
+            schema: staging
 ```
 
 ## Snowflakeのコスト最適化を支えるアーキテクチャ設計
@@ -66,14 +67,12 @@ Snowflake ML ミリしらなので @remote() デコレーターをつけるだ�
 また dbt プロジェクトと ML Job のレポジトリが分かれていても開発ライフサイクルが違っても import すれば連携できるのでキレイなパイプラインになります。便利。
 
 ## 散らばる"顧客の声"をひとつに ― Snowflake完結の全社VoC分析基盤
-
 https://x.com/yuto16s/status/2098244945928925565
 
 RENOSY が持っている多様なデータソースから顧客の声を聞けということで Snowflake の中で扱えるようにしていました。AI SQL 便利ですよね。
 途中で抜けちゃったので最後まで聞けばよかった｡｡｡
 
 酒井さんはこの前 Frosty Friday チャレンジでご一緒して地理空間関数の問題をすごく詳しく説明してくれていたのでそれも見て欲しいです。
-
 ## 実は奥が深いSharingの世界。Resharing と Agent Sharing 活用術
 
 こみぃさんのセッションです。

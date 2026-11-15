@@ -12,5 +12,5 @@
 	"bracketSameLine": false,
 	"bracketSpacing": true,
 	"sortImports": true,
-	"ignorePatterns": []
+	"ignorePatterns": ["src/content/**", "src/slides/decks/**"]
 }
