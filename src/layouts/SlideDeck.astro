@@ -1,4 +1,6 @@
 ---
+import { getEntry, render } from "astro:content";
+
 import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
 import { talkBySlug } from "@/data/talk-slide-crosslinks";
@@ -8,7 +10,8 @@ import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
 import { slideDeckRobotsContent } from "@/lib/slides/visibility";
 import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
-import { renderSlideSections } from "@/slides/render";
+import PrintSlides from "@/slides/components/PrintSlides.astro";
+import type { SlideDeckRenderInfo } from "@/slides/mdx/remark-slides";
 import {
 	generateBreadcrumbSchema,
 	generateSlideDeckSchema,
@@ -56,7 +59,12 @@ const breadcrumbSchema = generateBreadcrumbSchema(siteBase, [
 	{ name: "Slides", path: "/slides/" },
 	{ name: title, path: `/slides/${slug}/` },
 ]);
-const sections = renderSlideSections(deck, { print });
+const entry = await getEntry("slides", slug);
+if (!entry) {
+	throw new Error(`デッキ ${slug} が content collection にありません`);
+}
+const { Content, remarkPluginFrontmatter } = await render(entry);
+const { slideCount } = remarkPluginFrontmatter as SlideDeckRenderInfo;
 const seriesNeighbors = print
 	? {}
 	: getSeriesNeighbors(slug, await loadDecks());
@@ -144,9 +152,18 @@ const linkedTalk = deck.frontmatter.talkSlug
 			<article
 				class="deck"
 				data-slug={slug}
-				data-length={deck.slides.length}
-				set:html={sections}
-			/>
+				data-length={slideCount}
+			>
+				{
+					print ? (
+						<PrintSlides>
+							<Content />
+						</PrintSlides>
+					) : (
+						<Content />
+					)
+				}
+			</article>
 		</main>
 		{
 			!print && (
@@ -156,9 +173,9 @@ const linkedTalk = deck.frontmatter.talkSlug
 						role="progressbar"
 						aria-label="スライドの進捗"
 						aria-valuemin="1"
-						aria-valuemax={deck.slides.length}
+						aria-valuemax={slideCount}
 						aria-valuenow="1"
-						aria-valuetext={`1 / ${deck.slides.length}`}
+						aria-valuetext={`1 / ${slideCount}`}
 					>
 						<i></i>
 					</div>
@@ -166,7 +183,7 @@ const linkedTalk = deck.frontmatter.talkSlug
 						<span data-current>1</span><span data-click-label hidden
 							>.<span data-click-current>0</span></span
 						>
-						 / {deck.slides.length}
+						 / {slideCount}
 					</p>
 					<nav class="player-chrome-links" aria-label="スライド関連リンク">
 						<a class="player-chrome-link" href="/slides/">

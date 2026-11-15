@@ -1,15 +1,15 @@
 # デッキの書き方
 
-1 デッキ = Markdown 1 ファイル。見た目は書かない。
+1 デッキ = MDX 1 ファイル。見た目は書かない。
 
-契約の決定: [ADR-0010](https://linear.app/ta93abe/document/adr-0010-スライド型は-html-コメントで指定する-e347dd843d49) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)（`accent` は [TA-882](https://linear.app/ta93abe/issue/TA-882) で部分追記）
+契約の決定: [ADR-0002 (me)](https://linear.app/ta93abe/document/adr-0002-スライドは-astro-mdx-で書き型と演出は許可リストのコンポーネントで指定する-d5c0caa45852) / [ADR-0012](https://linear.app/ta93abe/document/adr-0012-アクセントは紫theme-は-light-dark-だけ-0b32786e9ca9)（`accent` は [TA-882](https://linear.app/ta93abe/issue/TA-882) で部分追記）
 
-ブログ本文（`marked` + Prism）とは別経路。スライドは remark + ビルド時 Shiki。
+ブログと同じ `@astrojs/mdx` で処理する（content collection `slides`）。コードはブログが Prism、スライドがビルド時 Shiki（クラス化）。プラグインは `src/slides/mdx/`。
 
 ## 置き場
 
 ```
-src/slides/decks/<slug>.md
+src/slides/decks/<slug>.mdx
 src/slides/decks/<slug>/図.png   # 任意。画像などの実体
 ```
 
@@ -19,7 +19,7 @@ src/slides/decks/<slug>/図.png   # 任意。画像などの実体
 
 ## frontmatter
 
-ファイル先頭のみ。見た目のキーは `theme`、任意の `accent`、任意の `effect`。`theme` は `dark` か `light`。省略時は `dark`。`accent` は `#rrggbb` または `#rgb` だけ（parser がビルド時に `--color-accent` / `--color-accent-deep` を確定する）。省略時は紫のまま。`effect` は発表面プレイヤーだけの演出。初回は `snow`（画面全体に雪）。省略時は演出なし。未知の値はビルド失敗。スライド本文や CSS には色コードを書かない。
+YAML。値に `: ` を含むときは `"..."` で囲む。見た目のキーは `theme`、任意の `accent`、任意の `effect`。`theme` は `dark` か `light`。省略時は `dark`。`accent` は `#rrggbb` または `#rgb` だけ（ビルド時に `--color-accent` / `--color-accent-deep` を確定する）。省略時は紫のまま。`effect` は発表面プレイヤーだけの演出。初回は `snow`（画面全体に雪）。省略時は演出なし。未知の値はビルド失敗。スライド本文や CSS には色コードを書かない。
 
 ```yaml
 ---
@@ -51,10 +51,10 @@ unlisted: true
 
 区切りは行頭の `---`。フェンスコードの中では区切らない。
 
-型は各スライドの先頭コメント。無ければ `body`。
+型は各スライドの先頭に置くマーカーコンポーネント。無ければ `body`。
 
-```markdown
-<!-- type: cover -->
+```mdx
+<Cover />
 
 # タイトル
 
@@ -63,20 +63,20 @@ unlisted: true
 
 表紙は `#` がタイトル、直後の段落がサブタイトル。イベント名・日付・著者は frontmatter / サイト設定から自動で上段に並ぶ。`section` は全面アクセント + 大見出し（必要なら見出し下に短い一行）。`end` は中央寄せ + 左アクセントバー。
 
-使える型: `cover` / `section` / `body` / `split` / `quote` / `code` / `figure` / `center` / `end`
+マーカー: `<Cover />` / `<Section />` / `<Split />` / `<Quote />` / `<Code />` / `<Figure />` / `<Center />` / `<End />`（無ければ `body`）。`code` も明示する（言語付きフェンスを含む `body` の枚があるため、自動では決めない）。
 
 ### split
 
-左右は `<!-- column -->` を 1 つ。
+左右は `<Column />` を 1 つ。
 
-```markdown
-<!-- type: split -->
+```mdx
+<Split />
 
 ## 左
 
 本文
 
-<!-- column -->
+<Column />
 
 ## 右
 
@@ -85,28 +85,30 @@ unlisted: true
 
 ### クリック
 
-`<!-- click -->` で、それ以降のブロックを次のキー操作まで隠す。スペース / → はクリックを先に消化し、終わったら次の枚へ進む。
+`<Click />` で、それ以降のブロックを次のキー操作まで隠す。スペース / → はクリックを先に消化し、終わったら次の枚へ進む。
 
-```markdown
+```mdx
 # 話の順番
 
 最初に見える
 
-<!-- click -->
+<Click />
 
 次に出る
 ```
 
-リストを 1 項目ずつ出すときは `<!-- clicks -->`。
+リストを 1 項目ずつ出すときは `<Clicks>` で囲む（前後に空行）。
 
-```markdown
+```mdx
 # 要点
 
-<!-- clicks -->
+<Clicks>
 
 - 一つ
 - 二つ
 - 三つ
+
+</Clicks>
 ```
 
 共有 URL は `#3` が 3 枚目、`#3.2` が 3 枚目の 2 クリック目。印刷 HTML と PDF ではすべて出した状態になる。
@@ -136,11 +138,15 @@ KaTeX。インラインは `$...$`、別行は `$$...$$`。
 
 ### ノート
 
-```markdown
-<!-- notes
+```mdx
+<Notes>
+
 ここで話すこと。
--->
+
+</Notes>
 ```
+
+ノートは書いたままのテキストで出す（Markdown として描画しない）。
 
 発表中に `p` でノート・次枚・経過時間を出す。
 
@@ -154,12 +160,16 @@ KaTeX。インラインは `$...$`、別行は `$$...$$`。
 
 ## 禁止（ビルドが失敗する）
 
-- デッキ内の CSS、`style` 属性、`script`
-- JSX コンポーネント、MDX の `import` / `export`
-- 未知の型、未知の frontmatter キー
-- 型コメントをスライド先頭以外に置くこと
+- MDX の `import` / `export`
+- `{...}` の式（`{/* コメント */}` だけ可）
+- 許可リスト外のコンポーネントと HTML タグ（`<div>`・`<style>`・`<script>` など）
+- コンポーネントの属性（`style` を含む）、文中に置いたマーカー
+- 型マーカーをスライド先頭以外に置くこと、`<Split />` 以外での `<Column />`
+- 未知の frontmatter キー、色コード
 
-許可する HTML コメント指令は `type` / `column` / `notes` / `click` / `clicks`。
+使えるコンポーネントは型マーカーと `<Column />` / `<Notes>` / `<Click />` / `<Clicks>` だけ（`src/slides/mdx/allowlist.ts`）。どれもビルド時に構造へ変換し、クライアント JS は持たない。
+
+MDX なので地の文の `<` と `{` は構文になる。文字として書くときは `` `<T>` `` のようにコードにするか、`\<` `\{` でエスケープする。旧記法の HTML コメント（`<!-- ... -->`）は MDX では書けない。
 
 ## 見る
 
@@ -180,7 +190,7 @@ pnpm dev
 
 ## プレイヤー（枚切り替え・モーション）
 
-枚 index の変更時だけ、約 320ms の fade + 短い slide トランジションをかける。`<!-- click -->` の fragment は opacity + ごく小さな translate（過剰な動きは避ける）。`prefers-reduced-motion: reduce` では枚・ fragment とも瞬時切替。概要（`o`）・印刷 HTML（`/print/`）・PDF 生成 DOM では枚トランジションは走らない。
+枚 index の変更時だけ、約 320ms の fade + 短い slide トランジションをかける。`<Click />` の fragment は opacity + ごく小さな translate（過剰な動きは避ける）。`prefers-reduced-motion: reduce` では枚・ fragment とも瞬時切替。概要（`o`）・印刷 HTML（`/print/`）・PDF 生成 DOM では枚トランジションは走らない。
 
 ### 手動確認（TA-1358）
 
@@ -188,7 +198,7 @@ pnpm dev
 |------|------|
 | → / ← で枚変更 | 短い fade/slide。URL ハッシュが `#n` に追従 |
 | 深いリンク `#2` | 2 枚目が**アニメなし**で開く（hashchange は瞬時） |
-| `<!-- click -->` ありの枚 | → で fragment が先に出てから次枚（`#n.1`） |
+| `<Click />` ありの枚 | → で fragment が先に出てから次枚（`#n.1`） |
 | `o` 概要 → 枚クリック | グリッドから選んだ枚へ**アニメなし**で遷移 |
 | OS「視差効果を減らす」ON | 枚・ fragment とも瞬時 |
 | `/slides/<slug>/print/` | 全枚表示・`player.js` なし（Playwright も参照） |
@@ -201,4 +211,4 @@ DevTools で幅 320px（例: iPhone SE）にし、`/slides/showcase/` を開く�
 
 ### 発表者ビュー（`p`）
 
-画面下部にドックを出し、投影エリアはその分だけ縮む（二画面 API は使わない）。左に `<!-- notes -->` のノート（無い枚は「ノートなし」）、右に次枚の見出しと本文から取った一行プレビュー。経過時間はドック上部に表示し、投影用のカウンタ・PDF リンクは `html.is-presenter` の間は非表示。`Escape` で閉じる。`?` の操作一覧は従来どおり（一覧表示中は `p` は効かない）。
+画面下部にドックを出し、投影エリアはその分だけ縮む（二画面 API は使わない）。左に `<Notes>` のノート（無い枚は「ノートなし」）、右に次枚の見出しと本文から取った一行プレビュー。経過時間はドック上部に表示し、投影用のカウンタ・PDF リンクは `html.is-presenter` の間は非表示。`Escape` で閉じる。`?` の操作一覧は従来どおり（一覧表示中は `p` は効かない）。

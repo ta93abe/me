@@ -12,13 +12,6 @@ export const SLIDE_TYPES = [
 
 export type SlideType = (typeof SLIDE_TYPES)[number];
 
-export const REQUIRED_FRONTMATTER_KEYS = [
-	"title",
-	"date",
-	"description",
-	"slug",
-] as const;
-
 export const COLOR_THEMES = ["dark", "light"] as const;
 
 export type ColorTheme = (typeof COLOR_THEMES)[number];
@@ -26,16 +19,6 @@ export type ColorTheme = (typeof COLOR_THEMES)[number];
 export const DECK_EFFECTS = ["snow"] as const;
 
 export type DeckEffect = (typeof DECK_EFFECTS)[number];
-
-export const DECK_FRONTMATTER_KEYS = [
-	...REQUIRED_FRONTMATTER_KEYS,
-	"theme",
-	"accent",
-	"effect",
-	"event",
-	"talkSlug",
-	"unlisted",
-] as const;
 
 export type DeckFrontmatter = {
 	title: string;
@@ -51,17 +34,9 @@ export type DeckFrontmatter = {
 	unlisted?: boolean;
 };
 
-export type Slide = {
-	type: SlideType;
-	html: string;
-	notes: string;
-	clicks: number;
-	columns?: [string, string];
-};
-
+/** デッキ一覧で使う単位。本文は content collection の `render()` で描画する。 */
 export type Deck = {
 	frontmatter: DeckFrontmatter;
-	slides: Slide[];
 };
 
 export class DeckError extends Error {

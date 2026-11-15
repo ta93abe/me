@@ -17,7 +17,6 @@ function makeDeck(slug: string, unlisted?: boolean): Deck {
 			theme: "dark",
 			...(unlisted ? { unlisted: true } : {}),
 		},
-		slides: [],
 	};
 }
 
