@@ -34,10 +34,11 @@ describe("showcase deck", () => {
 			"body",
 			"code",
 			"body",
+			"body",
 			"end",
 		]);
 		expect(info.slides.map((slide) => slide.clicks)).toEqual([
-			0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 0, 0, 0,
 		]);
 		const code = slideHtml(html, 6);
 		expect(code).toContain("shiki");
@@ -46,6 +47,9 @@ describe("showcase deck", () => {
 		expect(code).toContain("line-highlighted");
 		expect(slideHtml(html, 7)).toContain("/slides/media/showcase/frame.svg");
 		expect(slideHtml(html, 12)).toContain("katex");
+		expect(slideHtml(html, 13)).toContain(
+			'<x-tweet id="2098270535855870306" scale="0.7"></x-tweet>',
+		);
 	});
 });
 

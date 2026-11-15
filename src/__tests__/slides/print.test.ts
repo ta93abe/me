@@ -19,5 +19,10 @@ describe("revealPrintSlidesHtml", () => {
 		expect(print).toContain(
 			'class="line is-highlighted" data-click-highlight=',
 		);
+		expect(
+			revealPrintSlidesHtml(
+				'<img src="/a.png" alt="" loading="lazy" decoding="async">',
+			),
+		).toBe('<img src="/a.png" alt="" decoding="async">');
 	});
 });

@@ -26,6 +26,50 @@ function sampleTweet(overrides: Partial<TweetEmbedData> = {}): TweetEmbedData {
 }
 
 describe("tweetEmbedHtml", () => {
+	it("cuts entities by code point and decodes the API's HTML escapes once", () => {
+		// 🙇 はサロゲートペア。X の indices はコードポイント単位で、本文は &amp; でエスケープされている
+		const text = "解説&amp;実践🙇 #SnowflakeDB";
+		const start = Array.from(text).indexOf("#");
+		const html = tweetEmbedHtml(
+			"https://x.com/jack/status/20",
+			sampleTweet({
+				text,
+				displayTextRange: [0, Array.from(text).length],
+				entities: [
+					{
+						indices: [start, start + 12],
+						href: "https://x.com/hashtag/SnowflakeDB",
+						label: "#SnowflakeDB",
+					},
+				],
+			}),
+		);
+		expect(html).toContain(
+			'解説&amp;実践🙇 <a href="https://x.com/hashtag/SnowflakeDB" rel="noopener noreferrer" target="_blank">#SnowflakeDB</a></p>',
+		);
+		expect(html).not.toContain("&amp;amp;");
+	});
+
+	it('hides photos, video, and the quoted post with media: false (cards="hidden")', () => {
+		const tweet = sampleTweet({
+			photos: [
+				{ url: "https://pbs.twimg.com/media/a.jpg", width: 10, height: 10 },
+			],
+			videoPoster: "https://pbs.twimg.com/media/v.jpg",
+			quoted: sampleTweet({ id: "21", text: "quoted" }),
+		});
+		const visible = tweetEmbedHtml(tweet.url, tweet);
+		expect(visible).toContain("tweet-embed-photos");
+		expect(visible).toContain("tweet-embed-video");
+		expect(visible).toContain("tweet-embed-quoted");
+
+		const hidden = tweetEmbedHtml(tweet.url, tweet, { media: false });
+		expect(hidden).toContain("just setting up my twttr");
+		expect(hidden).not.toContain("tweet-embed-photos");
+		expect(hidden).not.toContain("tweet-embed-video");
+		expect(hidden).not.toContain("tweet-embed-quoted");
+	});
+
 	it("renders a Zenn-like card with author, text, and permalink", () => {
 		const html = tweetEmbedHtml("https://x.com/jack/status/20", sampleTweet());
 

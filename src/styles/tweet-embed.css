@@ -1,0 +1,376 @@
+/*
+ * X のポストの静的カード（widgets.js / iframe なし）。ブログ（.prose）とスライド（.slide-body）で共有する。
+ * 色は --tweet-* で受け取り、面ごとに自分のトークンを割り当てる。
+ */
+.prose {
+	--tweet-bg: var(--bg-elevated);
+	--tweet-bg-quoted: var(--bg-primary);
+	--tweet-bg-media: var(--bg-secondary);
+	--tweet-bg-avatar: var(--bg-tertiary);
+	--tweet-border: var(--border-color);
+	--tweet-link: var(--link-color);
+	--tweet-link-hover: var(--link-hover-color);
+	--tweet-ink: var(--text-primary);
+	--tweet-ink-secondary: var(--text-secondary);
+	--tweet-ink-muted: var(--text-muted);
+}
+
+.slide-body {
+	--tweet-bg: var(--color-surface);
+	--tweet-bg-quoted: var(--color-bg);
+	--tweet-bg-media: var(--color-bg-deep);
+	--tweet-bg-avatar: var(--color-line);
+	--tweet-border: var(--color-line);
+	--tweet-link: var(--color-accent);
+	--tweet-link-hover: var(--color-ink);
+	--tweet-ink: var(--color-ink);
+	--tweet-ink-secondary: var(--color-ink-dim);
+	--tweet-ink-muted: var(--color-ink-dim);
+}
+
+/* <Tweet scale="0.8" /> の拡大縮小（Slidev の scale 相当）。 */
+.tweet-embed-frame {
+	zoom: var(--tweet-scale, 1);
+}
+
+/*
+ * スライドではカード（blockquote）が引用の文字組み（明朝・太字・大きい字）を受けないようにする。
+ * Follow は投影・PDF では押せないので出さない。
+ */
+.slide-body .tweet-embed-frame {
+	width: 100%;
+}
+
+.slide-body .tweet-embed-frame .tweet-embed {
+	font-size: 1rem;
+	font-weight: 400;
+}
+
+.slide-body .tweet-embed a.tweet-embed-follow {
+	display: none;
+}
+
+:is(.prose, .slide-body) .tweet-embed {
+	font-family: "Inter", system-ui, sans-serif;
+	font-style: normal;
+	letter-spacing: 0;
+	line-height: 1.5;
+	max-width: 32.5rem;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0.9rem 1rem 0.8rem;
+	border: 1px solid var(--tweet-border);
+	border-radius: 1rem;
+	background: var(--tweet-bg);
+	color: var(--tweet-ink);
+	box-shadow: 0 1px 0 color-mix(in srgb, var(--tweet-border) 70%, transparent);
+}
+
+:is(.prose, .slide-body) .tweet-embed:hover {
+	border-color: color-mix(
+		in srgb,
+		var(--tweet-border) 40%,
+		var(--tweet-ink-muted)
+	);
+}
+
+:is(.prose, .slide-body) .tweet-embed a {
+	color: inherit;
+	text-decoration: none;
+	text-underline-offset: 2px;
+}
+
+:is(.prose, .slide-body) .tweet-embed a:hover {
+	color: inherit;
+	text-decoration: none;
+}
+
+:is(.prose, .slide-body) .tweet-embed p {
+	margin: 0;
+	color: var(--tweet-ink);
+}
+
+:is(.prose, .slide-body) .tweet-embed-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-author {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed-avatar,
+:is(.prose, .slide-body) .tweet-embed-avatar-fallback {
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 999px;
+	object-fit: cover;
+	box-shadow: none;
+	flex-shrink: 0;
+	background: var(--tweet-bg-avatar);
+}
+
+:is(.prose, .slide-body) .tweet-embed-names {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed-name {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.9375rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: var(--tweet-ink);
+}
+
+:is(.prose, .slide-body) .tweet-embed-handle {
+	font-size: 0.8125rem;
+	color: var(--tweet-ink-muted);
+	line-height: 1.3;
+}
+
+:is(.prose, .slide-body) .tweet-embed-handle-line {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.2rem 0.45rem;
+	min-width: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed a.tweet-embed-follow {
+	font-size: 0.8125rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: #1d9bf0;
+}
+
+:is(.prose, .slide-body) .tweet-embed a.tweet-embed-follow:hover {
+	color: #1d9bf0;
+	text-decoration: underline;
+}
+
+:is(.prose, .slide-body) .tweet-embed-brand {
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+	color: var(--tweet-ink);
+	opacity: 0.88;
+}
+
+:is(.prose, .slide-body) .tweet-embed-x {
+	display: block;
+}
+
+:is(.prose, .slide-body) .tweet-embed-verified {
+	display: block;
+	flex-shrink: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed-text {
+	margin-top: 0.7rem;
+	font-size: 0.95rem;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+:is(.prose, .slide-body) .tweet-embed-text a {
+	color: var(--tweet-link);
+	text-decoration: underline;
+}
+
+:is(.prose, .slide-body) .tweet-embed-text a:hover {
+	color: var(--tweet-link-hover);
+	text-decoration-thickness: 2px;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos {
+	display: grid;
+	gap: 2px;
+	margin-top: 0.75rem;
+	overflow: hidden;
+	border: 1px solid var(--tweet-border);
+	border-radius: 0.75rem;
+	background: var(--tweet-bg-media);
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos-1 {
+	grid-template-columns: 1fr;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos-2,
+:is(.prose, .slide-body) .tweet-embed-photos-4 {
+	grid-template-columns: 1fr 1fr;
+	min-height: 11rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos-3 {
+	grid-template-columns: 1.15fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	min-height: 14rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos-3 > a:first-child {
+	grid-row: 1 / span 2;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photo {
+	display: block;
+	overflow: hidden;
+	min-height: 0;
+}
+
+:is(.prose, .slide-body)
+	.tweet-embed-photos:not(.tweet-embed-photos-1)
+	.tweet-embed-photo {
+	aspect-ratio: 1 / 1;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed-photos-1 img {
+	max-height: 22rem;
+	height: auto;
+	object-fit: contain;
+}
+
+:is(.prose, .slide-body) .tweet-embed-video {
+	position: relative;
+	display: block;
+	margin-top: 0.75rem;
+	overflow: hidden;
+	border: 1px solid var(--tweet-border);
+	border-radius: 0.75rem;
+	background: var(--tweet-bg-media);
+}
+
+:is(.prose, .slide-body) .tweet-embed-video img {
+	display: block;
+	width: 100%;
+	max-height: 22rem;
+	object-fit: cover;
+	border-radius: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed-play-icon {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+:is(.prose, .slide-body) .tweet-embed-watch {
+	position: absolute;
+	top: 0.65rem;
+	right: 0.65rem;
+	padding: 0.22rem 0.55rem;
+	border-radius: 999px;
+	background: rgb(15 15 15 / 0.72);
+	color: #fff;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	line-height: 1.2;
+}
+
+:is(.prose, .slide-body) .tweet-embed-quoted {
+	margin: 0.75rem 0 0;
+	padding: 0.75rem 0.85rem 0.8rem;
+	border: 1px solid var(--tweet-border);
+	border-radius: 0.85rem;
+	background: var(--tweet-bg-quoted);
+	box-shadow: none;
+}
+
+:is(.prose, .slide-body) .tweet-embed-quoted:hover {
+	border-color: var(--tweet-border);
+}
+
+:is(.prose, .slide-body) .tweet-embed-quoted-author {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.35rem 0.5rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-quoted-name {
+	font-size: 0.875rem;
+	font-weight: 700;
+}
+
+:is(.prose, .slide-body) .tweet-embed-quoted-handle {
+	font-size: 0.8125rem;
+	color: var(--tweet-ink-muted);
+}
+
+:is(.prose, .slide-body) .tweet-embed-quoted .tweet-embed-text {
+	margin-top: 0.45rem;
+	font-size: 0.875rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-time {
+	display: inline-block;
+	margin-top: 0.75rem;
+	font-size: 0.8125rem;
+	color: var(--tweet-ink-muted);
+}
+
+:is(.prose, .slide-body) .tweet-embed-time:hover {
+	color: var(--tweet-ink-secondary);
+	text-decoration: underline;
+}
+
+:is(.prose, .slide-body) .tweet-embed-fallback {
+	padding: 0;
+}
+
+:is(.prose, .slide-body) .tweet-embed-fallback-link {
+	display: flex;
+	align-items: center;
+	gap: 0.85rem;
+	padding: 0.9rem 1rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-fallback-copy {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	gap: 0.15rem;
+}
+
+:is(.prose, .slide-body) .tweet-embed-fallback-title {
+	font-size: 0.9375rem;
+	font-weight: 700;
+}
+
+:is(.prose, .slide-body) .tweet-embed-fallback-url {
+	font-size: 0.8125rem;
+	color: var(--tweet-ink-muted);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* カードは blockquote / img を使うので、prose（Tailwind typography）の引用符と画像の余白を受けない */
+:is(.prose, .slide-body) .tweet-embed :is(p, blockquote)::before,
+:is(.prose, .slide-body) .tweet-embed :is(p, blockquote)::after {
+	content: none;
+}
+
+:is(.prose, .slide-body) .tweet-embed img {
+	margin: 0;
+}

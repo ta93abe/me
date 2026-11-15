@@ -9,9 +9,24 @@ const css = readFileSync(
 	"utf8",
 );
 
-function declarations(selector: string): string {
+const tweetCss = readFileSync(
+	join(dirname(fileURLToPath(import.meta.url)), "../../styles/tweet-embed.css"),
+	"utf8",
+);
+
+function declarationsIn(source: string, selector: string): string {
 	const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-	return css.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+	return (
+		source.match(new RegExp(`(?:^|\\n)${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? ""
+	);
+}
+
+function declarations(selector: string): string {
+	return declarationsIn(css, selector);
+}
+
+function tweetDeclarations(selector: string): string {
+	return declarationsIn(tweetCss, selector);
 }
 
 describe("blog article prose", () => {
@@ -25,15 +40,21 @@ describe("blog article prose", () => {
 		);
 	});
 
-	it("styles X post embeds as bordered sans-serif cards", () => {
-		expect(declarations(".prose .tweet-embed")).toContain(
+	it("styles X post embeds as bordered sans-serif cards (shared with slides)", () => {
+		const card = ":is(.prose, .slide-body) .tweet-embed";
+		expect(css).toContain('@import "./tweet-embed.css";');
+		expect(tweetDeclarations(card)).toContain(
 			'font-family: "Inter", system-ui, sans-serif',
 		);
-		expect(declarations(".prose .tweet-embed")).toContain(
-			"border: 1px solid var(--border-color)",
+		expect(tweetDeclarations(card)).toContain(
+			"border: 1px solid var(--tweet-border)",
 		);
-		expect(declarations(".prose .tweet-embed a")).toContain(
-			"text-decoration: none",
+		expect(tweetDeclarations(`${card} a`)).toContain("text-decoration: none");
+		expect(tweetDeclarations(".prose")).toContain(
+			"--tweet-border: var(--border-color)",
+		);
+		expect(tweetDeclarations(".slide-body")).toContain(
+			"--tweet-border: var(--color-line)",
 		);
 	});
 

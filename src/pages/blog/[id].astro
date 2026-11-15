@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 
 import BlogEmbed from "@/components/blog/BlogEmbed.astro";
+import Tweet from "@/components/embeds/Tweet.astro";
 import PostNavigation from "@/components/PostNavigation.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import BackToTop from "@/components/ui/BackToTop.astro";
@@ -42,7 +43,7 @@ const { entry, allPosts } = Astro.props;
 const post = blogEntryToListItem(entry);
 const slug = post.slug;
 const { Content } = await render(entry);
-const components = { [BLOG_EMBED_COMPONENT]: BlogEmbed };
+const components = { [BLOG_EMBED_COMPONENT]: BlogEmbed, Tweet };
 
 const neighbors = blogNeighbors(allPosts, slug);
 const { title, excerpt, publish_date, revise_date, tags } = post;

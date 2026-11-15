@@ -218,8 +218,11 @@ test.describe("Slides", () => {
 	}) => {
 		await page.goto("/slides/showcase/print/");
 		await expect(page.locator("html")).toHaveAttribute("data-print-ready");
-		await expect(page.locator(".slide")).toHaveCount(13);
+		await expect(page.locator(".slide")).toHaveCount(14);
 		await expect(page.locator("html")).toHaveClass(/is-print/);
+		const tweet = page.locator(".tweet-embed-frame .tweet-embed");
+		await expect(tweet).toHaveCount(1);
+		await expect(tweet.locator('img[loading="lazy"]')).toHaveCount(0);
 		await expect(page.locator("main.stage-wrap")).toHaveCount(1);
 		await expect(page.locator("h1")).toHaveCount(1);
 		await expect(page.locator(".player-ui")).toHaveCount(0);
