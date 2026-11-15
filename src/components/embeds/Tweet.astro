@@ -8,8 +8,13 @@ import { parseTweetScale, resolveTweetRef } from "@/lib/content/tweet-ref";
  * ビルド時に本文・著者・画像・引用・日時を取得して静的 HTML にする（widgets.js / iframe / クライアント JS なし）。
  * 取得に失敗したらポストへのリンクカードを出す。
  *
+ * ブログだけ `live` を付けると、閲覧時に X の widgets.js を読み、公式の埋め込みに差し替える（opt-in）。
+ * 読み込みに失敗したら静的カードのまま。CSP とスクリプトは blog/[id].astro がそのページだけに足す。
+ * スライドでは使えない（PDF と CSP を変えないため。remark-slide-guard が live を落とす）。
+ *
  * <Tweet id="2098270535855870306" />
  * <Tweet url="https://x.com/civitaspo/status/2098270535855870306" scale="0.8" cards="hidden" />
+ * <Tweet id="2098270535855870306" live />
  */
 type Props = {
 	/** ポストの id。url より優先する */
@@ -20,9 +25,11 @@ type Props = {
 	scale?: string | number;
 	/** "hidden" で画像・動画・引用ポストを出さない */
 	cards?: "visible" | "hidden";
+	/** ブログだけ。閲覧時に X の widgets.js で公式の埋め込みにする */
+	live?: boolean;
 };
 
-const { id, url, scale, cards = "visible" } = Astro.props;
+const { id, url, scale, cards = "visible", live = false } = Astro.props;
 const ref = resolveTweetRef({ id, url });
 if (!ref) {
 	throw new Error(
@@ -45,6 +52,10 @@ const html = tweetEmbedHtml(ref.href, await cachedTweetData(ref.id), {
 <div
 	class="tweet-embed-frame"
 	data-tweet-id={ref.id}
+	data-tweet-live={live ? "" : undefined}
+	data-tweet-cards={live ? cards : undefined}
 	style={zoom === undefined ? undefined : `--tweet-scale: ${zoom}`}
-	set:html={html}
-/>
+>
+	<Fragment set:html={html} />
+	{live && <div class="tweet-embed-live" />}
+</div>

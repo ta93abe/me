@@ -135,6 +135,11 @@ describe("deck MDX contract violations fail the build", () => {
 			/id \/ url \/ scale \/ cards だけ/,
 		],
 		[
+			"Tweet live (blog only)",
+			'<Tweet id="1" live />',
+			/id \/ url \/ scale \/ cards だけ/,
+		],
+		[
 			"Tweet expression attribute",
 			"<Tweet id={1} />",
 			/文字列で書いてください/,

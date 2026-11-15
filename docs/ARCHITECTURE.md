@@ -76,7 +76,7 @@ src/pages/
 
 1. 公開本文の正は `src/content/blog/<slug>.mdx`。スキーマは `src/content.config.ts`（`title` / `excerpt` / `tags` / `date` / `updatedDate`、未知キーはビルド失敗）
 2. `/blog/` と `/blog/:slug/` はビルド時に描画する（SSG）。コードは Prism（クラスベース）
-3. URL だけの段落は `remark-blog-embeds` が `<BlogEmbed />` に置き換え、ビルド時に X / YouTube / Spotify / リンクカードを取得して静的 HTML にする。X のポストは `<Tweet id|url />` でも書ける（スライドと共通。`docs/slides-authoring.md`）
+3. URL だけの段落は `remark-blog-embeds` が `<BlogEmbed />` に置き換え、ビルド時に X / YouTube / Spotify / リンクカードを取得して静的 HTML にする。X のポストは `<Tweet id|url />` でも書ける（スライドと共通。`docs/slides-authoring.md`）。ブログだけ `<Tweet id="..." live />` で、閲覧時に X の widgets.js を読み公式の埋め込みに差し替える（opt-in。`dnt: true`。CSP の script-src はその記事にだけ `https://platform.twitter.com` を足し、frame-src は全体で許可）
 4. `/og/blog/:slug.png` と `/sitemap-blog.xml` はビルド時に生成する。`/rss.xml` は on-demand（Worker のサーバービルドを必ず出すため）
 5. Worker の llms.txt / llms-full.txt / MCP / sitemap index は、ビルド時に出す `/blog.json` を ASSETS から読む
 6. 画像は公開 R2 `me-images`

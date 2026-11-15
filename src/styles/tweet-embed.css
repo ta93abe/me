@@ -374,3 +374,20 @@
 :is(.prose, .slide-body) .tweet-embed img {
 	margin: 0;
 }
+
+/*
+ * <Tweet live />（ブログだけ）。widgets.js の埋め込みが出来上がるまでは静的カードを見せ、
+ * 出来上がったら差し替える。失敗したら静的カードのまま。
+ */
+.tweet-embed-frame[data-tweet-live]:not(.is-live) .tweet-embed-live {
+	height: 0;
+	overflow: hidden;
+}
+
+.tweet-embed-frame.is-live > .tweet-embed {
+	display: none;
+}
+
+.tweet-embed-frame.is-live .tweet-embed-live .twitter-tweet {
+	margin-inline: auto !important;
+}
