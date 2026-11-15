@@ -9,6 +9,13 @@ allowBuilds:
   workerd: true
 
 overrides:
+  # alchemy 2.0.0-beta.79 の CLI は effect/unstable/cli を使う。これがあるのは effect 4.0.0-rc.117 まで。
+  # @effect/* も同じ rc にそろえる（範囲指定のままだと 4.1 系に上がり、alchemy が起動しない）。
+  # alchemy を上げるときに一緒に外す。
+  "@effect/platform-node-shared": 4.0.0-rc.117
+  "@effect/sql-d1": 4.0.0-rc.117
+  "@effect/sql-sqlite-do": 4.0.0-rc.117
+  "@effect/vitest": 4.0.0-rc.117
   vite: 8.3.8
   browserslist: ">=4.28.7"
   dompurify: ">=3.4.17"
