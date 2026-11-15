@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M7FJCMR9AM3054ERCW9D74WA",
+  "session_id": "84d7216d-792e-41a9-ac4c-a6b80c2a9fe5",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-15T12:19:56.056463Z",
+  "branch": "chore/remove-sveltia",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    ".github/workflows/deploy-infra.yml",
+    "docs/CONTENT_API.md",
+    "docs/sveltia-migration.md",
+    "infra/alchemy.run.ts",
+    "infra/sveltia-cms-auth/index.js",
+    "src/__tests__/content/published-entries.test.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "b0a75472c9a7",
+  "checkpoint_transcript_start": 2885,
+  "transcript_lines_at_start": 2885,
+  "compact_transcript_start": 308,
+  "token_usage": {
+    "input_tokens": 6,
+    "cache_creation_tokens": 1928,
+    "cache_read_tokens": 1623807,
+    "output_tokens": 1185,
+    "api_call_count": 3
+  },
+  "session_token_usage": {
+    "input_tokens": 610,
+    "cache_creation_tokens": 617780,
+    "cache_read_tokens": 89620779,
+    "output_tokens": 215118,
+    "api_call_count": 294
+  },
+  "redaction": {
+    "replacements": 13,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 5,
+      "credentialed_uri": 0,
+      "entropy": 16,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "session_metrics": {
+    "turn_count": 8
+  }
+}
