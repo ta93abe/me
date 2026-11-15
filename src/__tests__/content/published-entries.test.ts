@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -12,9 +12,5 @@ describe("published content", () => {
 		for (const file of posts) {
 			expect(file).toMatch(/^[a-z0-9][a-z0-9-]*\.mdx$/);
 		}
-	});
-
-	it("does not keep the Sveltia admin UI", () => {
-		expect(existsSync(join(process.cwd(), "public/admin"))).toBe(false);
 	});
 });

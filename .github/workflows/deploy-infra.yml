@@ -1,4 +1,4 @@
-# Sveltia CMS 用インフラ（infra/alchemy.run.ts）の Plan / デプロイ
+# Cloudflare インフラ（infra/alchemy.run.ts）の Plan / デプロイ
 #
 # - PR で infra/** に変更がある場合: alchemy plan（dry-run）を実行しログで差分を確認できる
 # - main への push で infra/** に変更がある場合: alchemy deploy を実行
@@ -8,9 +8,6 @@
 #   Secrets Store Write（Alchemy のステートストア読み書きに必須）/
 #   Zone > Workers Routes・DNS Write（カスタムドメイン接続用）を持つトークン
 # - CLOUDFLARE_ACCOUNT_ID: b0047256d1afc1be1df08289ee3be552
-# - SVELTIA_GITHUB_CLIENT_ID / SVELTIA_GITHUB_CLIENT_SECRET:
-#   GitHub OAuth App の認証情報（Secrets 名は GITHUB_ プレフィックスが
-#   予約済みのため SVELTIA_ を付けている）
 name: Deploy Infra
 
 on:
@@ -47,8 +44,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          GITHUB_CLIENT_ID: ${{ secrets.SVELTIA_GITHUB_CLIENT_ID }}
-          GITHUB_CLIENT_SECRET: ${{ secrets.SVELTIA_GITHUB_CLIENT_SECRET }}
 
   deploy:
     if: github.event_name != 'pull_request'
@@ -69,5 +64,3 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          GITHUB_CLIENT_ID: ${{ secrets.SVELTIA_GITHUB_CLIENT_ID }}
-          GITHUB_CLIENT_SECRET: ${{ secrets.SVELTIA_GITHUB_CLIENT_SECRET }}

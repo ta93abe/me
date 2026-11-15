@@ -5,29 +5,24 @@
  * - me-content: 非公開本文（Worker binding のみ。カスタムドメインなし）
  * - content-events: R2 md/ の create/delete で index を再構築する Queue
  * - me-slides-pdf: スライド PDF を Browser Run で焼く Queue（max_concurrency は wrangler）
- * - sveltia-cms-auth: 既存 GitHub OAuth プロキシ（サイトの /admin は外した。本番破壊を避けるため Worker は残す）
  *
  * HMAC シークレットは wrangler secret:
  *   wrangler secret put CONTENT_HMAC_SECRET
  *
  * デプロイ:
- *   GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET を環境変数（または --env-file）で渡して
  *   pnpm infra:deploy
  */
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
-import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 
 const SITE_ORIGIN = "https://ta93abe.com";
-const AUTH_DOMAIN = "sveltia-auth.ta93abe.com";
 const IMAGES_DOMAIN = "images.ta93abe.com";
 
 export default Alchemy.Stack(
 	"me-cms",
 	{ providers: Cloudflare.providers(), state: Cloudflare.state() },
 	Effect.gen(function* () {
-		// 公開メディア。CORS はブラウザ直アップロード（旧 Sveltia / 今後の添付）のプリフライト用。
 		const content = yield* Cloudflare.R2.Bucket("Content", {
 			name: "me-content",
 		});
@@ -58,6 +53,7 @@ export default Alchemy.Stack(
 			],
 		});
 
+		// 公開メディア。CORS はブラウザからの直アップロード（記事の添付）のプリフライト用。
 		const images = yield* Cloudflare.R2.Bucket("Images", {
 			name: "me-images",
 			domains: [{ name: IMAGES_DOMAIN }],
@@ -72,23 +68,7 @@ export default Alchemy.Stack(
 			],
 		});
 
-		// GitHub OAuth プロキシ（vendored sveltia-cms-auth）。
-		// クライアントシークレットをブラウザに晒さないためのサーバーサイド実装。
-		const auth = yield* Cloudflare.Worker("SveltiaAuth", {
-			name: "sveltia-cms-auth",
-			main: new URL("./sveltia-cms-auth/index.js", import.meta.url).pathname,
-			domain: AUTH_DOMAIN,
-			env: {
-				GITHUB_CLIENT_ID: Config.String("GITHUB_CLIENT_ID"),
-				GITHUB_CLIENT_SECRET: Config.Redacted("GITHUB_CLIENT_SECRET"),
-				// このドメイン以外からの認証要求を拒否する
-				ALLOWED_DOMAINS: "ta93abe.com",
-			},
-		});
-
 		return {
-			authUrl: `https://${AUTH_DOMAIN}`,
-			authWorkersDevUrl: auth.url,
 			imagesBucket: images.bucketName,
 			imagesPublicUrl: `https://${IMAGES_DOMAIN}`,
 			contentBucket: content.bucketName,
