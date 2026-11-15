@@ -56,12 +56,17 @@ export function extractCspFromHtml(html: string): string | null {
  * HTTP ヘッダの方が強く、`/` など静的 HTML を SSR 面と揃える。
  * 既にヘッダがある応答（blog など）はそのまま返す。
  */
+const NULL_BODY_STATUSES = new Set([101, 204, 205, 304]);
+
 export async function promoteHtmlCspHeader(
 	response: Response,
 ): Promise<Response> {
-	if (!response.ok) {
+	// 本文のない応答（304 など）は作り直せない（new Response が例外になる）ので、そのまま返す。
+	if (response.body === null || NULL_BODY_STATUSES.has(response.status)) {
 		return response;
 	}
+	// 404 ページ（assets の not_found_handling）も HTML なので昇格する。
+	// しないと後段で Worker 用の default-src 'none' が付き、CSS まで止まる。
 	if (response.headers.has("Content-Security-Policy")) {
 		return response;
 	}

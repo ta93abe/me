@@ -5,7 +5,7 @@ export const statusLabels = {
 };
 
 export const statusStyles = {
-	read: "text-emerald-700",
-	reading: "text-blue-700",
-	stacked: "text-amber-800",
+	read: "text-(--text-muted)",
+	reading: "text-(--primary-color)",
+	stacked: "text-(--text-secondary)",
 };

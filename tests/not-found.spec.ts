@@ -1,6 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("404 recovery", { tag: "@smoke" }, () => {
+	test("styles the 404 page with the page's own CSP", async ({ page }) => {
+		const response = await page.goto("/this-page-does-not-exist");
+		expect(response?.status()).toBe(404);
+		const csp = response?.headers()["content-security-policy"] ?? "";
+		expect(csp).toContain("style-src-elem 'self'");
+		expect(csp).not.toMatch(/^default-src 'none'/);
+		// スタイルシートが効いていれば .nf-shell は position: relative になる（既定は static）
+		await expect(page.locator(".nf-shell")).toHaveCSS("position", "relative");
+	});
+
 	test("unknown URL offers About, Contact, and Blog", async ({ page }) => {
 		const response = await page.goto("/this-page-does-not-exist");
 		expect(response?.status()).toBe(404);

@@ -2,54 +2,50 @@
 @plugin "@tailwindcss/typography";
 @import "./tweet-embed.css";
 
-/* Editorial white color system
+/* Monochrome color system
  *
- * 白を基調にしたライトテーマ。
- * - ページ地はほぼ白。区切りは薄いニュートラルグレーの面で作る
- * - 本文はインク寄りダークグレー（純黒は避ける）
- * - アクセントは紫を主軸に、黄土を控えめに
+ * 白黒（無彩色のグレー）だけで組み、色はアクセントの紫ひとつにする。
+ * - ページ地は白。区切りは薄いグレーの面で作る
+ * - 本文はほぼ黒（純黒は避ける）
+ * - 紫はリンク・強調・トップのシェーダーだけ。ほかの色相は使わない
+ *   （例外: コードのシンタックスハイライトと、YouTube などの他社ロゴ）
  */
 :root {
 	--header-height: 4rem;
-	--primary-color: #6b4c9a; /* 紫 */
+	--primary-color: #6b4c9a; /* 紫（唯一のアクセント） */
 	--primary-hover: #543a7d;
-	--accent-color: #8a6d3b; /* 黄土 */
 	--bg-primary: #ffffff;
-	--bg-secondary: #f6f6f4;
-	--bg-tertiary: #eeeeeb;
+	--bg-secondary: #f5f5f5;
+	--bg-tertiary: #ebebeb;
 	--bg-elevated: #ffffff;
-	--text-primary: #1c1b19;
-	--text-secondary: #5c5a55;
-	/* WCAG 2.2 AA 4.5:1 on #fff / #f6f6f4 / #eeeeeb */
-	--text-muted: #6e6c66;
-	--border-color: #e6e4df;
+	--text-primary: #1a1a1a;
+	--text-secondary: #555555;
+	/* WCAG 2.2 AA 4.5:1 on #fff / #f5f5f5 / #ebebeb */
+	--text-muted: #666666;
+	--border-color: #e5e5e5;
 	--link-color: #6b4c9a;
 	--link-hover-color: #543a7d;
 	--blockquote-bg: rgba(107, 76, 154, 0.06);
 	--blockquote-border: #6b4c9a;
-	--code-bg: #1f1e1c;
-	--code-text: #f2f0ea;
+	--code-bg: #1e1e1e;
+	--code-text: #f0f0f0;
 }
 
-/* Top `/` only — ADR-0001 purple scroll story (stage 1+) */
+/* Top `/` only — 白地に紫のシェーダー（ADR-0001 の紫のスクロールストーリー） */
 body[data-theme="home"] {
-	--home-paper: #f4eef8;
-	--home-ink: #1c1228;
-	--home-ink-soft: #4c3a63;
+	--home-paper: #ffffff;
+	--home-ink: #1a1a1a;
+	--home-ink-soft: #555555;
+	/* シェーダーと Manifesto の帯の紫（濃淡はすべて同じ色相） */
 	--home-bloom: #7c3aed;
 	--home-bloom-hot: #a855f7;
 	--home-field: #6b21a8;
-	--home-dither: #86198f;
+	--home-dither: #5b21b6;
 	--home-primary: #6b4c9a;
 
 	--bg-primary: var(--home-paper);
-	--bg-secondary: color-mix(in srgb, var(--home-paper) 88%, var(--home-field));
-	--bg-tertiary: color-mix(in srgb, var(--home-paper) 78%, var(--home-field));
 	--text-primary: var(--home-ink);
 	--text-secondary: var(--home-ink-soft);
-	/* WCAG 2.2 AA 4.5:1 on --home-paper / --bg-secondary / --bg-tertiary */
-	--text-muted: color-mix(in srgb, var(--home-ink-soft) 90%, var(--home-paper));
-	--border-color: color-mix(in srgb, var(--home-dither) 22%, var(--home-paper));
 	--link-color: var(--home-primary);
 	--link-hover-color: var(--home-field);
 	--primary-color: var(--home-primary);
@@ -383,11 +379,12 @@ body.lock-viewport .footer-docked nav ul {
 .prose pre .copy-button svg {
 	width: 1rem;
 	height: 1rem;
-	color: #c4c2bb;
+	color: #c4c4c4;
 }
 
+/* コピー完了も緑ではなくアクセントの紫（暗いコード地で読める明るさ） */
 .prose pre .copy-button.copied svg {
-	color: #34d399;
+	color: #c4b5fd;
 }
 
 /* Inline code */

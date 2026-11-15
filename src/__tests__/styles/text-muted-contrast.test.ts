@@ -42,42 +42,57 @@ function contrast(
 	return (lighter + 0.05) / (darker + 0.05);
 }
 
-function mix(
-	a: [number, number, number],
-	amount: number,
-	b: [number, number, number],
-): [number, number, number] {
-	return [
-		Math.round(a[0] * amount + b[0] * (1 - amount)),
-		Math.round(a[1] * amount + b[1] * (1 - amount)),
-		Math.round(a[2] * amount + b[2] * (1 - amount)),
-	];
+function rootToken(name: string): string {
+	const value = css.match(
+		new RegExp(`:root\\s*\\{[\\s\\S]*?--${name}:\\s*(#[0-9a-f]{6})`, "i"),
+	)?.[1];
+	expect(value, name).toBeTruthy();
+	return value ?? "#000000";
+}
+
+function block(selector: string): string {
+	const start = css.indexOf(`${selector} {`);
+	return css.slice(start, css.indexOf("\n}", start));
 }
 
 describe("text-muted contrast (TA-1482)", () => {
-	it("keeps --text-muted at 4.5:1 on light page backgrounds", () => {
-		const muted = css.match(
-			/:root\s*\{[\s\S]*?--text-muted:\s*(#[0-9a-f]{6})/i,
-		);
-		expect(muted?.[1]).toBeTruthy();
-		const fg = hexToRgb(muted?.[1] ?? "#000000");
-		expect(contrast(fg, hexToRgb("#ffffff"))).toBeGreaterThanOrEqual(4.5);
-		expect(contrast(fg, hexToRgb("#f6f6f4"))).toBeGreaterThanOrEqual(4.5);
-		expect(contrast(fg, hexToRgb("#eeeeeb"))).toBeGreaterThanOrEqual(4.5);
+	it("keeps --text-muted at 4.5:1 on every light page surface", () => {
+		const fg = hexToRgb(rootToken("text-muted"));
+		for (const surface of ["bg-primary", "bg-secondary", "bg-tertiary"]) {
+			expect(
+				contrast(fg, hexToRgb(rootToken(surface))),
+				surface,
+			).toBeGreaterThanOrEqual(4.5);
+		}
 	});
 
-	it("keeps the home muted mix at 4.5:1 on paper and card surfaces", () => {
-		expect(css).toMatch(
-			/--text-muted:\s*color-mix\(in srgb, var\(--home-ink-soft\) 90%, var\(--home-paper\)\)/,
+	it("lets the home page reuse the shared neutral surfaces and muted text", () => {
+		const home = block('body[data-theme="home"]');
+		expect(home).not.toMatch(
+			/--(bg-secondary|bg-tertiary|text-muted|border-color):/,
 		);
-		const paper = hexToRgb("#f4eef8");
-		const inkSoft = hexToRgb("#4c3a63");
-		const field = hexToRgb("#6b21a8");
-		const secondary = mix(paper, 0.88, field);
-		const tertiary = mix(paper, 0.78, field);
-		const muted = mix(inkSoft, 0.9, paper);
-		expect(contrast(muted, paper)).toBeGreaterThanOrEqual(4.5);
-		expect(contrast(muted, secondary)).toBeGreaterThanOrEqual(4.5);
-		expect(contrast(muted, tertiary)).toBeGreaterThanOrEqual(4.5);
+		expect(home).toMatch(/--home-paper:\s*#ffffff/);
+	});
+});
+
+describe("monochrome palette", () => {
+	// 無彩色（R=G=B）か、紫（青と赤が緑より強い）だけを許す
+	function isNeutralOrPurple(hex: string): boolean {
+		const [r, g, b] = hexToRgb(hex);
+		if (r === g && g === b) {
+			return true;
+		}
+		return b > g && r > g;
+	}
+
+	it("uses only grays and purple in the site and home tokens", () => {
+		const tokens = [block(":root"), block('body[data-theme="home"]')].join(
+			"\n",
+		);
+		const hexes = tokens.match(/#[0-9a-f]{6}\b/gi) ?? [];
+		expect(hexes.length).toBeGreaterThan(10);
+		for (const hex of hexes) {
+			expect(isNeutralOrPurple(hex), hex).toBe(true);
+		}
 	});
 });

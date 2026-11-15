@@ -17,7 +17,7 @@
 }
 
 .mobile-nav-dialog::backdrop {
-	background: rgb(28 27 25 / 0.28);
+	background: rgb(26 26 26 / 0.28);
 }
 
 @media (prefers-reduced-motion: no-preference) {
