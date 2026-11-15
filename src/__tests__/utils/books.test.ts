@@ -25,21 +25,12 @@ describe("statusLabels", () => {
 });
 
 describe("statusStyles", () => {
-	it("should have correct style for read status", () => {
-		expect(statusStyles.read).toContain("emerald");
-	});
-
-	it("should have correct style for reading status", () => {
-		expect(statusStyles.reading).toContain("blue");
-	});
-
-	it("should have correct style for stacked status", () => {
-		expect(statusStyles.stacked).toContain("amber");
-	});
-
-	it("should have matching keys with statusLabels", () => {
-		const labelKeys = Object.keys(statusLabels);
-		const styleKeys = Object.keys(statusStyles);
-		expect(styleKeys).toEqual(labelKeys);
+	it("uses only neutral text and the purple accent", () => {
+		expect(statusStyles.read).toBe("text-(--text-muted)");
+		expect(statusStyles.reading).toBe("text-(--primary-color)");
+		expect(statusStyles.stacked).toBe("text-(--text-secondary)");
+		for (const style of Object.values(statusStyles)) {
+			expect(style).not.toMatch(/emerald|blue|amber/);
+		}
 	});
 });

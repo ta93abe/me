@@ -31,11 +31,11 @@ function readHomeMeshColors(): string[] {
 		themeStyle.getPropertyValue(token).trim() || fallback;
 
 	return [
-		pick("--home-paper", "#f4eef8"),
+		pick("--home-paper", "#ffffff"),
 		pick("--home-bloom-hot", "#a855f7"),
 		pick("--home-bloom", "#7c3aed"),
 		pick("--home-field", "#6b21a8"),
-		pick("--home-dither", "#86198f"),
+		pick("--home-dither", "#5b21b6"),
 	];
 }
 

@@ -7,27 +7,18 @@ export const OG_TITLE_MAX_LINES = 3;
 
 export type OgImageType = "blog" | "works" | "slides" | "default";
 
+// 白黒（無彩色）と紫のアクセントだけ。サイトのトークン（global.css）と同じ値
+const MONOCHROME = {
+	background: "linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)",
+	accent: "#6b4c9a",
+	text: "#1a1a1a",
+} as const;
+
 export const OG_COLOR_SCHEMES = {
-	blog: {
-		background: "linear-gradient(135deg, #ffffff 0%, #f6f6f4 100%)",
-		accent: "#6b4c9a",
-		text: "#1c1b19",
-	},
-	works: {
-		background: "linear-gradient(135deg, #ffffff 0%, #eeeeeb 100%)",
-		accent: "#8a6d3b",
-		text: "#1c1b19",
-	},
-	slides: {
-		background: "linear-gradient(135deg, #ffffff 0%, #f0eef6 100%)",
-		accent: "#6b4c9a",
-		text: "#1c1b19",
-	},
-	default: {
-		background: "linear-gradient(135deg, #ffffff 0%, #f6f6f4 100%)",
-		accent: "#6b4c9a",
-		text: "#1c1b19",
-	},
+	blog: MONOCHROME,
+	works: MONOCHROME,
+	slides: MONOCHROME,
+	default: MONOCHROME,
 } as const satisfies Record<
 	OgImageType,
 	{ background: string; accent: string; text: string }
@@ -209,7 +200,7 @@ export function buildOgCardElement(options: OgCardOptions): OgCardNode {
 										justifyContent: "center",
 										fontSize: "24px",
 										fontWeight: "700",
-										color: "#0a0a0a",
+										color: "#ffffff",
 									},
 									children: "T",
 								},
