@@ -7,27 +7,37 @@ import { partitionDecksForIndex } from "@/lib/slides/partition-decks";
 import { listedDecks } from "@/lib/slides/visibility";
 import { loadDecks } from "@/slides/load-decks";
 import {
+	generateBreadcrumbSchema,
 	generateSlidesCollectionSchema,
-	SLIDES_COLLECTION_DESCRIPTION,
+	SLIDES_COLLECTION_LEAD,
+	slidesCollectionDescription,
 	stringifySchema,
 } from "@/utils/schema";
 
 const decks = listedDecks(await loadDecks());
 const { groups, ungrouped } = partitionDecksForIndex(decks);
+const site = Astro.site?.href || SITE.url;
+const description = slidesCollectionDescription(
+	decks.map((deck) => deck.frontmatter.title),
+);
 const collectionSchema = generateSlidesCollectionSchema(
-	Astro.site?.href || SITE.url,
+	site,
 	decks.map((deck) => ({
 		slug: deck.frontmatter.slug,
 		title: deck.frontmatter.title,
 		description: deck.frontmatter.description,
 		date: deck.frontmatter.date,
 	})),
+	description,
 );
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Slides", path: "/slides/" },
+]);
 ---
 
 <Layout
 	title={`Slides | ${SITE.name}`}
-	description={SLIDES_COLLECTION_DESCRIPTION}
+	description={description}
 	ogImage="/og/slides.png"
 	ogImageAlt="Slides"
 >
@@ -36,13 +46,17 @@ const collectionSchema = generateSlidesCollectionSchema(
 			type="application/ld+json"
 			set:html={stringifySchema(collectionSchema)}
 		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
+		/>
 	</Fragment>
 	<main class="mx-auto max-w-3xl px-6 py-16">
 		<header class="mb-12">
 			<h1 class="mb-3 font-display text-3xl font-bold text-(--text-primary)">
 				Slides
 			</h1>
-			<p class="text-(--text-secondary)">{SLIDES_COLLECTION_DESCRIPTION}</p>
+			<p class="text-(--text-secondary)">{SLIDES_COLLECTION_LEAD}</p>
 		</header>
 
 		{

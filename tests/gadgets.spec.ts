@@ -180,6 +180,14 @@ test.describe("Gadgets page", () => {
 			| undefined;
 
 		expect(itemList).toBeDefined();
+		const types = jsonLdBlocks(html).flatMap((block) =>
+			typeof block === "object" && block !== null && "@type" in block
+				? [String(block["@type"])]
+				: [],
+		);
+		expect(types).toEqual(
+			expect.arrayContaining(["ItemList", "BreadcrumbList"]),
+		);
 		const urls = itemList?.itemListElement.map((item) => item.url) ?? [];
 		expect(urls).toEqual(
 			expect.arrayContaining([

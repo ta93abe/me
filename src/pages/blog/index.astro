@@ -5,7 +5,7 @@ import { getBlogList } from "@/lib/content/blog-collection";
 import Layout from "@/layouts/Layout.astro";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
-	BLOG_COLLECTION_DESCRIPTION,
+	blogCollectionDescription,
 	generateBlogCollectionSchema,
 	generateBreadcrumbSchema,
 	stringifySchema,
@@ -14,6 +14,9 @@ import {
 const sortedPosts = await getBlogList();
 const allTags = sortedPosts.flatMap((post) => post.tags);
 const site = Astro.site?.href || SITE.url;
+const description = blogCollectionDescription(
+	sortedPosts.map((post) => post.title),
+);
 const collectionSchema = generateBlogCollectionSchema(
 	site,
 	sortedPosts.map((post) => ({
@@ -22,6 +25,7 @@ const collectionSchema = generateBlogCollectionSchema(
 		excerpt: post.excerpt,
 		date: post.publish_date,
 	})),
+	description,
 );
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Blog", path: "/blog/" },
@@ -30,7 +34,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 
 <Layout
 	title={`Blog | ${SITE.name}`}
-	description={BLOG_COLLECTION_DESCRIPTION}
+	description={description}
 	ogImage={ogSectionPath("blog")}
 	ogImageAlt="Blog"
 >

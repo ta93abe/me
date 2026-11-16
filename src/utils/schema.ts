@@ -9,8 +9,33 @@ import {
 	markdownToPlainText,
 } from "@/utils/article-text";
 import { withTrailingSlash } from "@/utils/canonical";
+import {
+	blogCollectionDescription,
+	CONTACT_DESCRIPTION,
+	slidesCollectionDescription,
+	TALKS_COLLECTION_DESCRIPTION,
+	WORKS_COLLECTION_DESCRIPTION,
+} from "@/utils/collection-description";
 import { toDatetimeAttr } from "@/utils/date";
 import { ogSectionPath } from "@/utils/og/sections";
+
+export {
+	BLOG_COLLECTION_DESCRIPTION,
+	BLOG_COLLECTION_LEAD,
+	CONTACT_DESCRIPTION,
+	CONTACT_LEAD,
+	SLIDES_COLLECTION_DESCRIPTION,
+	SLIDES_COLLECTION_LEAD,
+	TALKS_COLLECTION_DESCRIPTION,
+	TALKS_COLLECTION_LEAD,
+	WORKS_COLLECTION_DESCRIPTION,
+	WORKS_COLLECTION_LEAD,
+	blogCollectionDescription,
+	contactPageDescription,
+	slidesCollectionDescription,
+	talksCollectionDescription,
+	worksCollectionDescription,
+} from "@/utils/collection-description";
 
 interface PersonFields {
 	"@type": "Person";
@@ -165,13 +190,12 @@ interface SlideDeckSchema {
 	};
 }
 
-export const SLIDES_COLLECTION_DESCRIPTION =
-	"登壇やLTで使用したスライドの一覧です。";
-
 export const generateSlidesCollectionSchema = (
 	siteUrl: string,
 	decks: readonly SlideDeckListItem[],
-	description: string = SLIDES_COLLECTION_DESCRIPTION,
+	description: string = slidesCollectionDescription(
+		decks.map((deck) => deck.title),
+	),
 ): CollectionPageSchema => {
 	const origin = originBase(siteUrl);
 	return {
@@ -410,18 +434,12 @@ function toIsoDate(value: Date | string): string {
 }
 
 export const ABOUT_DESCRIPTION = SITE.tagline;
-export const WORKS_COLLECTION_DESCRIPTION =
-	"代表作。dbt-jobs、dbt-intro、enbu。";
-export const BLOG_COLLECTION_DESCRIPTION =
-	"技術ブログ。日々の学びや開発の記録を共有しています。";
-export const CONTACT_DESCRIPTION = "SNS から連絡できます。";
 export const LINKS_COLLECTION_DESCRIPTION =
 	"いま更新している場所。GitHub、Zenn、X、LinkedIn、Speaker Deck、connpass、Substack。";
 export const TOOLS_COLLECTION_DESCRIPTION =
 	"Nix + Home Manager で管理している開発環境。毎日使っているツールと、そうしている理由。";
 export const GADGETS_COLLECTION_DESCRIPTION =
 	"毎日触っている物。ソフトウェアは Tools に置き、ここでは物だけを置く。";
-export const TALKS_COLLECTION_DESCRIPTION = "登壇と配信に出た回です。";
 
 export const generateProfilePageSchema = (
 	siteUrl: string,
@@ -644,7 +662,9 @@ export const generateToolsCollectionSchema = (
 export const generateBlogCollectionSchema = (
 	siteUrl: string,
 	posts: readonly BlogCollectionItem[],
-	description: string = BLOG_COLLECTION_DESCRIPTION,
+	description: string = blogCollectionDescription(
+		posts.map((post) => post.title),
+	),
 ): BlogCollectionSchema => {
 	const origin = originBase(siteUrl);
 	return {

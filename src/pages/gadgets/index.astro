@@ -6,16 +6,21 @@ import { GADGETS, gadgetPath } from "@/data/gadgets";
 import Layout from "@/layouts/Layout.astro";
 import {
 	GADGETS_COLLECTION_DESCRIPTION,
+	generateBreadcrumbSchema,
 	generateGadgetsItemListSchema,
 	stringifySchema,
 } from "@/utils/schema";
 
 const description = GADGETS_COLLECTION_DESCRIPTION;
+const site = Astro.site?.href || SITE.url;
 const itemListSchema = generateGadgetsItemListSchema(
-	Astro.site?.href || SITE.url,
+	site,
 	GADGETS,
 	description,
 );
+const breadcrumbSchema = generateBreadcrumbSchema(site, [
+	{ name: "Gadgets", path: "/gadgets/" },
+]);
 ---
 
 <Layout title={`Gadgets | ${SITE.name}`} description={description}>
@@ -23,6 +28,10 @@ const itemListSchema = generateGadgetsItemListSchema(
 		<script
 			type="application/ld+json"
 			set:html={stringifySchema(itemListSchema)}
+		/>
+		<script
+			type="application/ld+json"
+			set:html={stringifySchema(breadcrumbSchema)}
 		/>
 	</Fragment>
 	<GadgetsViewTransitions />

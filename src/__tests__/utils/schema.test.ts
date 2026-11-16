@@ -110,6 +110,7 @@ describe("generateSlidesCollectionSchema", () => {
 				datePublished: "2026-09-06",
 			},
 		]);
+		expect(schema.description).toContain("デザインシステム ショーケース");
 	});
 });
 
@@ -151,6 +152,8 @@ describe("generateContactPageSchema", () => {
 		expect(schema["@type"]).toBe("ContactPage");
 		expect(schema.url).toBe("https://example.com/contact/");
 		expect(schema.mainEntity.name).toBe("Takumi Abe");
+		expect(schema.description.length).toBeGreaterThanOrEqual(50);
+		expect(schema.description).toContain("@ta93abe_");
 	});
 });
 
@@ -165,6 +168,9 @@ describe("generateWorksCollectionSchema", () => {
 			"enbu",
 		]);
 		expect(schema.hasPart[0]?.codeRepository).toContain("github.com");
+		expect(schema.description.length).toBeGreaterThanOrEqual(50);
+		expect(schema.description).toContain("dbt-jobs");
+		expect(schema.description).toContain("DuckDB");
 	});
 });
 
@@ -196,6 +202,9 @@ describe("generateTalksCollectionSchema", () => {
 		expect(schema.hasPart[1]?.recordedIn.thumbnailUrl).toBe(
 			"https://i.ytimg.com/vi/7yvAfZ8vCDU/hqdefault.jpg",
 		);
+		expect(schema.description.length).toBeGreaterThanOrEqual(50);
+		expect(schema.description).toContain("Frosty Friday");
+		expect(schema.description).toContain("Cloudflare");
 	});
 });
 

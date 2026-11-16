@@ -14,10 +14,14 @@ import {
 	generateTalksCollectionSchema,
 	stringifySchema,
 	TALKS_COLLECTION_DESCRIPTION,
+	TALKS_COLLECTION_LEAD,
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
-const collectionSchema = generateTalksCollectionSchema(site);
+const collectionSchema = generateTalksCollectionSchema(
+	site,
+	TALKS_COLLECTION_DESCRIPTION,
+);
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Talks", path: "/talks/" },
 ]);
@@ -59,7 +63,7 @@ const lcpTalk = TALKS[0];
 				Talks
 			</h1>
 			<p class="text-(--text-secondary)">
-				{TALKS_COLLECTION_DESCRIPTION}
+				{TALKS_COLLECTION_LEAD}
 			</p>
 		</header>
 
