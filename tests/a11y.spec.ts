@@ -72,12 +72,29 @@ test.describe("Accessibility (TA-2174)", () => {
 			await expect(page.locator("h1")).toHaveCount(1);
 			await expect(page.locator(".tweet-embed")).not.toHaveCount(0);
 			await expect(page.locator(".tweet-embed-follow")).toHaveCount(0);
-			await expect(
-				page.locator(".tweet-embed-identity:not([inert])"),
-			).toHaveCount(0);
+
+			const identity = page.locator(".tweet-embed-identity").first();
+			await expect(identity).toHaveAttribute(
+				"aria-label",
+				/の X プロフィール$/,
+			);
+			await expect(identity).toHaveAttribute("tabindex", "-1");
+			await expect(identity).not.toHaveAttribute("inert");
+			await expect(identity).not.toHaveAttribute("aria-hidden");
+
+			const popupPromise = page.waitForEvent("popup");
+			await identity.click();
+			const popup = await popupPromise;
+			expect(popup.url()).toMatch(/^https:\/\/x\.com\//);
+			await popup.close();
 
 			const results = await new AxeBuilder({ page })
-				.withRules(["link-name", "color-contrast", "target-size"])
+				.withRules([
+					"link-name",
+					"color-contrast",
+					"target-size",
+					"aria-hidden-focus",
+				])
 				.analyze();
 			expect(
 				results.violations,

@@ -240,8 +240,9 @@ function renderAuthor(author: TweetAuthor): string {
 		? `<img class="tweet-embed-avatar" src="${escapeHtml(author.avatarUrl)}" alt="" width="48" height="48" loading="lazy" decoding="async" referrerpolicy="no-referrer" />`
 		: `<span class="tweet-embed-avatar tweet-embed-avatar-fallback" aria-hidden="true"></span>`;
 	const verified = author.verified ? verifiedSvg() : "";
-	// 名前・ハンドルと同じプロフィールへのリンクなので、AT とキーボードからは外す（マウスでは押せる）
-	return `<div class="tweet-embed-author"><a class="tweet-embed-identity" href="${profile}" rel="noopener noreferrer" target="_blank" aria-hidden="true" inert><span class="tweet-embed-avatar-wrap">${avatar}</span></a><span class="tweet-embed-names"><a class="tweet-embed-name" href="${profile}" rel="noopener noreferrer" target="_blank">${escapeHtml(author.name)}${verified}</a><a class="tweet-embed-handle" href="${profile}" rel="noopener noreferrer" target="_blank">@${escapeHtml(author.screenName)}</a></span></div>`;
+	const identityLabel = `${escapeHtml(author.name)} (@${escapeHtml(author.screenName)}) の X プロフィール`;
+	// 名前・ハンドルと同じ href。aria-label で link-name を満たし、tabindex=-1 で順次フォーカスからは外す（マウスでは押せる。inert はクリックも止める）
+	return `<div class="tweet-embed-author"><a class="tweet-embed-identity" href="${profile}" rel="noopener noreferrer" target="_blank" aria-label="${identityLabel}" tabindex="-1"><span class="tweet-embed-avatar-wrap">${avatar}</span></a><span class="tweet-embed-names"><a class="tweet-embed-name" href="${profile}" rel="noopener noreferrer" target="_blank">${escapeHtml(author.name)}${verified}</a><a class="tweet-embed-handle" href="${profile}" rel="noopener noreferrer" target="_blank">@${escapeHtml(author.screenName)}</a></span></div>`;
 }
 
 function renderQuoted(quoted: TweetEmbedData): string {

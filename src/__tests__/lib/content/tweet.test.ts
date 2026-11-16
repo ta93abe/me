@@ -81,8 +81,10 @@ describe("tweetEmbedHtml", () => {
 		expect(html).toContain('aria-label="Xでポストを見る"');
 		expect(html).toContain("tweet-embed-verified");
 		expect(html).toContain('class="tweet-embed-identity"');
-		expect(html).toContain('aria-hidden="true"');
-		expect(html).toContain(" inert");
+		expect(html).toContain('aria-label="jack (@jack) の X プロフィール"');
+		expect(html).toContain('tabindex="-1"');
+		expect(html).not.toContain(" inert");
+		expect(html).not.toMatch(/tweet-embed-identity"[^>]*aria-hidden/);
 		expect(html).not.toContain("tweet-embed-follow");
 		expect(html).not.toContain("Follow");
 		expect(html).not.toContain("intent/follow");
@@ -150,6 +152,9 @@ describe("tweetEmbedHtml", () => {
 		expect(html).toContain("&lt;script&gt;");
 		expect(html).not.toContain("<img src=x");
 		expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+		expect(html).toContain(
+			'aria-label="&lt;img src=x onerror=alert(1)&gt; (@jack&quot;&gt;) の X プロフィール"',
+		);
 		expect(html).toContain('href="https://example.com/safe"');
 		expect(html).toContain("example.com/safe");
 	});
