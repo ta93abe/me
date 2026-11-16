@@ -88,6 +88,10 @@ function checkA11y(audits, categories, a11y) {
 			failures.push(`${id}: audit missing`);
 			continue;
 		}
+		if (audit.scoreDisplayMode === "error") {
+			failures.push(`${id}: audit error`);
+			continue;
+		}
 		if (audit.score !== null && audit.score < 1) {
 			failures.push(`${id}=${audit.score} (expected pass)`);
 		}

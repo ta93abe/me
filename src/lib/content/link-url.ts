@@ -9,7 +9,7 @@ export type ParsedLinkUrl = {
 const PRIVATE_HOST =
 	/^(localhost|127\.0\.0\.1|0\.0\.0\.0|::1|\[::1\])$|\.local$|^10\.\d+\.\d+\.\d+$|^192\.168\.\d+\.\d+$|^172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+$|^169\.254\.\d+\.\d+$/;
 
-function isPublicHttpUrl(parsed: URL): boolean {
+export function isPublicHttpUrl(parsed: URL): boolean {
 	if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
 		return false;
 	}

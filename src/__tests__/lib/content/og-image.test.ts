@@ -97,4 +97,76 @@ describe("resolveOgImage", () => {
 		expect(first).toBe(second);
 		expect(fetchImpl).toHaveBeenCalledOnce();
 	});
+
+	it("does not request loopback or private og:image hosts", async () => {
+		const fetchImpl = vi.fn();
+		await expect(
+			resolveOgImage("https://127.0.0.1/og.png", { fetch: fetchImpl }),
+		).resolves.toBeUndefined();
+		await expect(
+			resolveOgImage("https://192.168.0.8/og.png", { fetch: fetchImpl }),
+		).resolves.toBeUndefined();
+		await expect(
+			resolveOgImage("https://localhost/og.png", { fetch: fetchImpl }),
+		).resolves.toBeUndefined();
+		expect(fetchImpl).not.toHaveBeenCalled();
+	});
+
+	it("follows a public https redirect and refuses a private one", async () => {
+		const publicFetch = vi.fn(async (input: RequestInfo | URL) => {
+			const href = String(input);
+			if (href === "https://example.com/og.png") {
+				return new Response(null, {
+					status: 302,
+					headers: { location: "https://cdn.example.com/og.png" },
+				});
+			}
+			return new Response(PNG_1X1, {
+				headers: { "content-type": "image/png" },
+			});
+		});
+		await expect(
+			resolveOgImage("https://example.com/og.png", { fetch: publicFetch }),
+		).resolves.toMatch(/^data:image\/webp;base64,/);
+		expect(publicFetch).toHaveBeenCalledTimes(2);
+
+		const privateFetch = vi.fn(async () => {
+			return new Response(null, {
+				status: 302,
+				headers: { location: "https://127.0.0.1/secret.png" },
+			});
+		});
+		await expect(
+			resolveOgImage("https://example.com/og.png", { fetch: privateFetch }),
+		).resolves.toBeUndefined();
+		expect(privateFetch).toHaveBeenCalledOnce();
+	});
+
+	it("stops reading once the source exceeds the size limit", async () => {
+		const oversized = new Uint8Array(2_500_001);
+		const listed = vi.fn(
+			async () =>
+				new Response(oversized, {
+					headers: {
+						"content-type": "image/png",
+						"content-length": String(oversized.byteLength),
+					},
+				}),
+		);
+		await expect(
+			resolveOgImage("https://example.com/og.png", { fetch: listed }),
+		).resolves.toBeUndefined();
+
+		const streamed = vi.fn(
+			async () =>
+				new Response(oversized, {
+					headers: { "content-type": "image/png" },
+				}),
+		);
+		await expect(
+			resolveOgImage("https://example.com/og.png", { fetch: streamed }),
+		).resolves.toBeUndefined();
+		expect(listed).toHaveBeenCalledOnce();
+		expect(streamed).toHaveBeenCalledOnce();
+	});
 });
