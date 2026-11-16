@@ -1,6 +1,7 @@
 import type { BlogEmbed } from "./embed-types.ts";
 import type { FaviconCache } from "./favicon.ts";
 import { fetchLinkCard, linkCardHtml } from "./link-card.ts";
+import type { OgImageCache } from "./og-image.ts";
 import { spotifyEmbedHtml } from "./spotify.ts";
 import {
 	fetchTweetEmbed,
@@ -12,6 +13,7 @@ import { fetchYoutubeEmbed, youtubeEmbedHtml } from "./youtube.ts";
 export type BlogEmbedFetchOptions = {
 	fetch?: typeof fetch;
 	favicons?: FaviconCache;
+	ogImages?: OgImageCache;
 };
 
 /**
@@ -41,6 +43,7 @@ export async function blogEmbedHtml(
 				await fetchLinkCard(embed.href, {
 					fetch: options.fetch,
 					favicons: options.favicons,
+					ogImages: options.ogImages,
 				}),
 			);
 	}
@@ -48,13 +51,14 @@ export async function blogEmbedHtml(
 
 const cache = new Map<string, Promise<string>>();
 const favicons: FaviconCache = new Map();
+const ogImages: OgImageCache = new Map();
 
 /** 同じ URL はビルド中に 1 回だけ取りに行く（ページと RSS などで共有）。 */
 export function cachedBlogEmbedHtml(embed: BlogEmbed): Promise<string> {
 	const key = `${embed.kind}:${embed.href}`;
 	let pending = cache.get(key);
 	if (!pending) {
-		pending = blogEmbedHtml(embed, { favicons });
+		pending = blogEmbedHtml(embed, { favicons, ogImages });
 		cache.set(key, pending);
 	}
 	return pending;

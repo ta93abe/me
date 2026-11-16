@@ -50,6 +50,50 @@ test.describe("Accessibility (TA-1482)", () => {
 	});
 });
 
+test.describe("Accessibility (TA-2174)", () => {
+	test(
+		"tweet-heavy blog post has named links, contrast, and 24px targets",
+		{ tag: "@smoke" },
+		async ({ page }) => {
+			const consoleErrors: string[] = [];
+			page.on("console", (msg) => {
+				if (msg.type() === "error") {
+					consoleErrors.push(msg.text());
+				}
+			});
+			const remoteOg: string[] = [];
+			page.on("request", (request) => {
+				if (request.url().includes("opengraph.githubassets.com")) {
+					remoteOg.push(request.url());
+				}
+			});
+
+			await page.goto("/blog/snowflake-world-tour-tokyo-2026/");
+			await expect(page.locator("h1")).toHaveCount(1);
+			await expect(page.locator(".tweet-embed")).not.toHaveCount(0);
+			await expect(page.locator(".tweet-embed-follow")).toHaveCount(0);
+			await expect(
+				page.locator(".tweet-embed-identity:not([inert])"),
+			).toHaveCount(0);
+
+			const results = await new AxeBuilder({ page })
+				.withRules(["link-name", "color-contrast", "target-size"])
+				.analyze();
+			expect(
+				results.violations,
+				JSON.stringify(results.violations, null, 2),
+			).toEqual([]);
+
+			expect(remoteOg, remoteOg.join("\n")).toEqual([]);
+			expect(
+				consoleErrors.filter((line) =>
+					line.includes("opengraph.githubassets.com"),
+				),
+			).toEqual([]);
+		},
+	);
+});
+
 test.describe("Accessibility (TA-1542)", () => {
 	test("gadgets listing has no redundant alt or color-only text links", async ({
 		page,

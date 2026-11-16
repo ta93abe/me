@@ -1,5 +1,15 @@
 {
 	"urls": ["/", "/blog/", "/links/"],
+	"a11y": {
+		"urls": ["/blog/snowflake-world-tour-tokyo-2026/"],
+		"score": 1,
+		"audits": [
+			"link-name",
+			"color-contrast",
+			"target-size",
+			"errors-in-console"
+		]
+	},
 	"budgets": {
 		"performanceScore": 0.9,
 		"lcp": 2500,

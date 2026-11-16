@@ -7,6 +7,11 @@ import {
 	type FaviconCache,
 } from "./favicon.ts";
 import { parseLinkUrl } from "./link-url.ts";
+import {
+	firstPartyOgImageSrc,
+	resolveOgImage,
+	type OgImageCache,
+} from "./og-image.ts";
 
 const FETCH_TIMEOUT_MS = 2500;
 const MAX_HTML_BYTES = 512_000;
@@ -27,6 +32,8 @@ export type LinkCardFetcher = (url: string) => Promise<LinkCardData>;
 export type LinkCardFetchOptions = {
 	fetch?: typeof fetch;
 	favicons?: FaviconCache;
+	ogImages?: OgImageCache;
+	ogRetryDelayMs?: number;
 };
 
 function escapeHtml(value: string): string {
@@ -136,10 +143,11 @@ export function linkCardHtml(card: LinkCardData): string {
 	const favicon = faviconSrc
 		? `<img class="embed-card-favicon" src="${escapeHtml(faviconSrc)}" alt="" width="16" height="16" loading="lazy" decoding="async" referrerpolicy="no-referrer" />`
 		: "";
-	const thumb = card.image
-		? `<span class="embed-card-thumb"><img src="${escapeHtml(card.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>`
+	const image = firstPartyOgImageSrc(card.image);
+	const thumb = image
+		? `<span class="embed-card-thumb"><img src="${escapeHtml(image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>`
 		: "";
-	const noImage = card.image ? "" : " embed-card-no-image";
+	const noImage = image ? "" : " embed-card-no-image";
 
 	return `<a class="embed-card${noImage}" href="${escapeHtml(card.href)}" rel="noopener noreferrer" target="_blank"><span class="embed-card-body"><span class="embed-card-title">${title}</span>${description}<span class="embed-card-site">${favicon}<span class="embed-card-domain">${escapeHtml(card.domain)}</span></span></span>${thumb}</a>\n`;
 }
@@ -178,6 +186,13 @@ export async function fetchLinkCard(
 		const card = fromHtml(href, html, base);
 		return {
 			...card,
+			image: card.image
+				? await resolveOgImage(card.image, {
+						fetch: fetchImpl,
+						cache: options.ogImages,
+						retryDelayMs: options.ogRetryDelayMs,
+					})
+				: undefined,
 			favicon: await resolveFavicon(card.domain, {
 				fetch: fetchImpl,
 				candidates: card.favicon ? [card.favicon] : [],

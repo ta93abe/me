@@ -80,8 +80,12 @@ describe("tweetEmbedHtml", () => {
 		expect(html).toContain('datetime="2006-03-21T20:50:14.000Z"');
 		expect(html).toContain('aria-label="Xでポストを見る"');
 		expect(html).toContain("tweet-embed-verified");
-		expect(html).toContain("Follow");
-		expect(html).toContain("intent/follow?screen_name=jack");
+		expect(html).toContain('class="tweet-embed-identity"');
+		expect(html).toContain('aria-hidden="true"');
+		expect(html).toContain(" inert");
+		expect(html).not.toContain("tweet-embed-follow");
+		expect(html).not.toContain("Follow");
+		expect(html).not.toContain("intent/follow");
 	});
 
 	it("renders photos, video poster, and a quoted post", () => {

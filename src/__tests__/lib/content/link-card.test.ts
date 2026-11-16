@@ -17,22 +17,41 @@ const PNG_1X1 = Uint8Array.from([
 	0x60, 0x82,
 ]);
 
+const PNG_DATA_URI =
+	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
 function sampleCard(overrides: Partial<LinkCardData> = {}): LinkCardData {
 	return {
 		href: "https://coosenp.ai/",
 		title: "CooSenpAI — アレコレソレが通じるAI",
 		description:
 			"AI に聞くたびチャットを開いてコピペして状況を説明する。その手間を...",
-		image: "https://coosenp.ai/og.png",
+		image: PNG_DATA_URI,
 		domain: "coosenp.ai",
 		favicon: "https://www.google.com/s2/favicons?domain=coosenp.ai&sz=32",
 		...overrides,
 	};
 }
 
-function expectNoGoogleFavicon(html: string) {
+function expectFirstPartyAssets(html: string) {
 	expect(html).not.toContain("google.com/s2/favicons");
 	expect(html).not.toContain("gstatic.com");
+	expect(html).not.toContain("opengraph.githubassets.com");
+	expect(html).not.toMatch(/src="https:/);
+}
+
+function pngResponse(): Response {
+	return new Response(PNG_1X1, {
+		headers: { "content-type": "image/png" },
+	});
+}
+
+function isImageRequest(url: string): boolean {
+	return (
+		url.includes("/og.png") ||
+		url.includes("opengraph.githubassets.com") ||
+		/\.(png|jpe?g|webp|gif)(\?|$)/i.test(url)
+	);
 }
 
 describe("linkCardHtml", () => {
@@ -43,13 +62,25 @@ describe("linkCardHtml", () => {
 		expect(html).toContain("CooSenpAI — アレコレソレが通じるAI");
 		expect(html).toContain("その手間を");
 		expect(html).toContain("coosenp.ai");
-		expect(html).toContain('src="https://coosenp.ai/og.png"');
+		expect(html).toContain(`src="${PNG_DATA_URI}"`);
 		expect(html).toContain('href="https://coosenp.ai/"');
 		expect(html).toContain('rel="noopener noreferrer"');
 		expect(html).toContain('target="_blank"');
 		expect(html).not.toContain("embed-card-no-image");
 		expect(html).toContain(`src="${DEFAULT_EMBED_FAVICON}"`);
-		expectNoGoogleFavicon(html);
+		expectFirstPartyAssets(html);
+	});
+
+	it("never emits remote OG image URLs", () => {
+		const html = linkCardHtml(
+			sampleCard({
+				image:
+					"https://opengraph.githubassets.com/abc/civitaspo/dbt-authorized-models",
+			}),
+		);
+		expect(html).toContain("embed-card-no-image");
+		expect(html).not.toContain("embed-card-thumb");
+		expectFirstPartyAssets(html);
 	});
 
 	it("never emits Google favicon URLs, even when the cache still has one", () => {
@@ -65,9 +96,9 @@ describe("linkCardHtml", () => {
 			sampleCard({ favicon: "https://coosenp.ai/favicon.png" }),
 		);
 
-		expectNoGoogleFavicon(google);
-		expectNoGoogleFavicon(gstatic);
-		expectNoGoogleFavicon(remote);
+		expectFirstPartyAssets(google);
+		expectFirstPartyAssets(gstatic);
+		expectFirstPartyAssets(remote);
 		expect(gstatic).toContain('src="/icons/embed/github.com.svg"');
 		expect(remote).toContain(`src="${DEFAULT_EMBED_FAVICON}"`);
 	});
@@ -86,8 +117,8 @@ describe("linkCardHtml", () => {
 
 		expect(data).toContain(`src="${png}"`);
 		expect(github).toContain('src="/icons/embed/github.com.svg"');
-		expectNoGoogleFavicon(data);
-		expectNoGoogleFavicon(github);
+		expectFirstPartyAssets(data);
+		expectFirstPartyAssets(github);
 	});
 
 	it("omits the thumbnail when no https image is present", () => {
@@ -111,7 +142,7 @@ describe("linkCardHtml", () => {
 		expect(html).not.toContain("<img src=x");
 		expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
 		expect(html).toContain("ex.com&quot;&gt;");
-		expectNoGoogleFavicon(html);
+		expectFirstPartyAssets(html);
 	});
 });
 
@@ -123,7 +154,7 @@ describe("fallbackLinkCard", () => {
 		expect(fallbackLinkCard("https://example.com/x").favicon).toBe(
 			DEFAULT_EMBED_FAVICON,
 		);
-		expectNoGoogleFavicon(
+		expectFirstPartyAssets(
 			linkCardHtml(fallbackLinkCard("https://example.com/x")),
 		);
 	});
@@ -133,10 +164,8 @@ describe("fetchLinkCard", () => {
 	it("reads Open Graph tags and inlines a downloaded favicon", async () => {
 		const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("favicon.png")) {
-				return new Response(PNG_1X1, {
-					headers: { "content-type": "image/png" },
-				});
+			if (url.includes("favicon.png") || isImageRequest(url)) {
+				return pngResponse();
 			}
 			return new Response(
 				`<!doctype html><html><head>
@@ -156,11 +185,16 @@ describe("fetchLinkCard", () => {
 
 		expect(card.title).toBe("CooSenpAI");
 		expect(card.description).toBe("A helper AI");
-		expect(card.image).toBe("https://coosenp.ai/og.png");
+		expect(card.image).toMatch(/^data:image\/webp;base64,/);
 		expect(card.domain).toBe("coosenp.ai");
 		expect(card.favicon).toMatch(/^data:image\/png;base64,/);
 		expect(card.href).toBe("https://coosenp.ai/app");
-		expectNoGoogleFavicon(linkCardHtml(card));
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"https://coosenp.ai/og.png",
+			expect.anything(),
+		);
+		expectFirstPartyAssets(linkCardHtml(card));
+		expect(linkCardHtml(card)).toContain('src="data:image/webp;base64,');
 	});
 
 	it("resolves relative og:image against the final response URL", async () => {
@@ -183,15 +217,22 @@ describe("fetchLinkCard", () => {
 			) {
 				return new Response("no", { status: 404 });
 			}
+			if (isImageRequest(url)) {
+				return pngResponse();
+			}
 			return response;
 		});
 
 		const card = await fetchLinkCard("https://coosenp.ai/app", {
 			fetch: fetchImpl,
 		});
-		expect(card.image).toBe("https://www.coosenp.ai/og.png");
+		expect(card.image).toMatch(/^data:image\/webp;base64,/);
 		expect(card.favicon).toBe(DEFAULT_EMBED_FAVICON);
-		expectNoGoogleFavicon(linkCardHtml(card));
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"https://www.coosenp.ai/og.png",
+			expect.anything(),
+		);
+		expectFirstPartyAssets(linkCardHtml(card));
 	});
 
 	it("falls back to domain when fetch fails and drops http images", async () => {
@@ -204,7 +245,7 @@ describe("fetchLinkCard", () => {
 		expect(failed.image).toBeUndefined();
 		expect(failed.domain).toBe("example.com");
 		expect(failed.favicon).toBe(DEFAULT_EMBED_FAVICON);
-		expectNoGoogleFavicon(linkCardHtml(failed));
+		expectFirstPartyAssets(linkCardHtml(failed));
 
 		const httpImage = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
@@ -248,7 +289,7 @@ describe("fetchLinkCard", () => {
 		expect(card.description).not.toContain("<script>");
 		expect(card.description).not.toContain("document.cookie");
 		expect(card.description).not.toContain("<b>");
-		expectNoGoogleFavicon(linkCardHtml(card));
+		expectFirstPartyAssets(linkCardHtml(card));
 	});
 
 	it("uses a repo SVG for GitHub and never stores a Google favicon URL", async () => {
@@ -270,6 +311,49 @@ describe("fetchLinkCard", () => {
 				return !url.includes("google.com") && !url.includes("gstatic.com");
 			}),
 		).toBe(true);
-		expectNoGoogleFavicon(linkCardHtml(card));
+		expectFirstPartyAssets(linkCardHtml(card));
+	});
+
+	it("inlines a GitHub OG image and omits it after a lasting 429", async () => {
+		const ok = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("opengraph.githubassets.com")) {
+				return pngResponse();
+			}
+			return new Response(
+				`<!doctype html><html><head>
+<meta property="og:title" content="dbt-authorized-models">
+<meta property="og:image" content="https://opengraph.githubassets.com/abc/civitaspo/dbt-authorized-models">
+</head></html>`,
+				{ headers: { "content-type": "text/html" } },
+			);
+		});
+		const okCard = await fetchLinkCard(
+			"https://github.com/civitaspo/dbt-authorized-models",
+			{ fetch: ok },
+		);
+		expect(okCard.image).toMatch(/^data:image\/webp;base64,/);
+		expectFirstPartyAssets(linkCardHtml(okCard));
+
+		const limited = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("opengraph.githubassets.com")) {
+				return new Response("rate limited", { status: 429 });
+			}
+			return new Response(
+				`<!doctype html><html><head>
+<meta property="og:title" content="dbt-authorized-models">
+<meta property="og:image" content="https://opengraph.githubassets.com/abc/civitaspo/dbt-authorized-models">
+</head></html>`,
+				{ headers: { "content-type": "text/html" } },
+			);
+		});
+		const failed = await fetchLinkCard(
+			"https://github.com/civitaspo/dbt-authorized-models",
+			{ fetch: limited, ogRetryDelayMs: 0 },
+		);
+		expect(failed.image).toBeUndefined();
+		expect(linkCardHtml(failed)).toContain("embed-card-no-image");
+		expectFirstPartyAssets(linkCardHtml(failed));
 	});
 });
