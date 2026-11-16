@@ -51,6 +51,8 @@ test.describe("Accessibility (TA-1482)", () => {
 });
 
 test.describe("Accessibility (TA-2174)", () => {
+	test.use({ viewport: { width: 412, height: 823 } });
+
 	test(
 		"tweet-heavy blog post has named links, contrast, and 24px targets",
 		{ tag: "@smoke" },

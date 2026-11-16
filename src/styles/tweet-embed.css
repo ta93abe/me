@@ -160,6 +160,11 @@
 :is(.prose, .slide-body) .tweet-embed-text a {
 	color: var(--tweet-link);
 	text-decoration: underline;
+	/* ハッシュタグが行として並ぶと 18px 高で target-size に落ちる */
+	display: inline-block;
+	min-height: 24px;
+	line-height: 24px;
+	vertical-align: baseline;
 }
 
 :is(.prose, .slide-body) .tweet-embed-text a:hover {
