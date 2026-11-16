@@ -1,0 +1,57 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M7J3Z6RSTSPBF4AY90X17XRQ",
+  "session_id": "84d7216d-792e-41a9-ac4c-a6b80c2a9fe5",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-16T12:05:39.853835Z",
+  "branch": "docs/remove-slides-host-retire",
+  "checkpoints_count": 11,
+  "files_touched": [
+    "docs/slides-host-retire.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "39323a73260c",
+  "checkpoint_transcript_start": 5308,
+  "transcript_lines_at_start": 5308,
+  "compact_transcript_start": 580,
+  "token_usage": {
+    "input_tokens": 116,
+    "cache_creation_tokens": 295636,
+    "cache_read_tokens": 7246035,
+    "output_tokens": 26747,
+    "api_call_count": 47
+  },
+  "session_token_usage": {
+    "input_tokens": 1258,
+    "cache_creation_tokens": 1453635,
+    "cache_read_tokens": 206091821,
+    "output_tokens": 381172,
+    "api_call_count": 577,
+    "subagent_tokens": {
+      "input_tokens": 8,
+      "cache_creation_tokens": 46542,
+      "cache_read_tokens": 45323,
+      "output_tokens": 8052,
+      "api_call_count": 3
+    },
+    "subagent_tokens_complete": true
+  },
+  "redaction": {
+    "replacements": 30,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 14,
+      "credentialed_uri": 0,
+      "entropy": 29,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "session_metrics": {
+    "turn_count": 42
+  }
+}
