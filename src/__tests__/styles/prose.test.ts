@@ -56,6 +56,11 @@ describe("blog article prose", () => {
 		expect(tweetDeclarations(".slide-body")).toContain(
 			"--tweet-border: var(--color-line)",
 		);
+		expect(tweetCss).not.toContain("tweet-embed-follow");
+		expect(tweetCss).not.toContain("#1d9bf0");
+		expect(
+			tweetDeclarations(":is(.prose, .slide-body) .tweet-embed-text a"),
+		).toContain("min-height: 24px");
 	});
 
 	it("styles YouTube embeds as bordered 16:9 cards", () => {

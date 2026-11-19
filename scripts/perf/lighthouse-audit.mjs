@@ -73,6 +73,33 @@ function checkBudgets(audits, categories, budgets) {
 	return failures;
 }
 
+function checkA11y(audits, categories, a11y) {
+	const failures = [];
+	const score = categories.accessibility?.score;
+	if (a11y.score != null && (score == null || score < a11y.score)) {
+		failures.push(
+			`accessibilityScore=${score == null ? "null" : score.toFixed(2)} below budget ${a11y.score}`,
+		);
+	}
+
+	for (const id of a11y.audits ?? []) {
+		const audit = audits[id];
+		if (!audit) {
+			failures.push(`${id}: audit missing`);
+			continue;
+		}
+		if (audit.scoreDisplayMode === "error") {
+			failures.push(`${id}: audit error`);
+			continue;
+		}
+		if (audit.score !== null && audit.score < 1) {
+			failures.push(`${id}=${audit.score} (expected pass)`);
+		}
+	}
+
+	return failures;
+}
+
 async function main() {
 	const config = await loadBudgets();
 	await mkdir(outDir, { recursive: true });
@@ -150,6 +177,62 @@ async function main() {
 				for (const f of failures) console.error(`  ✗ ${f}`);
 			} else {
 				console.log("  ✓ within budgets");
+			}
+		}
+
+		for (const pathname of config.a11y?.urls ?? []) {
+			const url = `${baseUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
+			console.log(`[lh] A11y ${url}`);
+
+			const result = await lighthouse(url, {
+				port: chrome.port,
+				output: ["json", "html"],
+				logLevel: "error",
+				onlyCategories: ["accessibility", "best-practices"],
+				formFactor: "mobile",
+				screenEmulation: {
+					mobile: true,
+					width: 412,
+					height: 823,
+					deviceScaleFactor: 1.75,
+					disabled: false,
+				},
+				throttlingMethod: "provided",
+			});
+
+			if (!result?.lhr) {
+				allFailures.push(`${pathname}: lighthouse a11y returned no result`);
+				continue;
+			}
+
+			const { lhr, report } = result;
+			const slug = `a11y_${pathname.replaceAll("/", "_") || "home"}`;
+			const jsonPath = path.join(outDir, `lighthouse-${slug}.json`);
+			const htmlPath = path.join(outDir, `lighthouse-${slug}.html`);
+
+			await writeFile(jsonPath, JSON.stringify(lhr, null, "\t"));
+			const html = Array.isArray(report) ? report[1] : report;
+			if (typeof html === "string") {
+				await writeFile(htmlPath, html);
+			}
+
+			const failures = checkA11y(lhr.audits, lhr.categories, config.a11y);
+			const row = {
+				url,
+				accessibilityScore: lhr.categories.accessibility?.score ?? null,
+				bestPracticesScore: lhr.categories["best-practices"]?.score ?? null,
+				failures,
+			};
+			summary.push(row);
+
+			console.log(
+				`[lh] ${pathname} a11y=${row.accessibilityScore?.toFixed(2)} bp=${row.bestPracticesScore?.toFixed(2)}`,
+			);
+			if (failures.length) {
+				allFailures.push(...failures.map((f) => `${pathname}: ${f}`));
+				for (const f of failures) console.error(`  ✗ ${f}`);
+			} else {
+				console.log("  ✓ a11y audits pass");
 			}
 		}
 	} finally {
