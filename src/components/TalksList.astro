@@ -1,10 +1,13 @@
 ---
-import { TALKS, talkYoutubeUrl } from "@/data/talks";
+import { getTalks } from "@/lib/content/site-collections";
+import { talkYoutubeUrl } from "@/lib/talks/talks";
+
+const talks = await getTalks();
 ---
 
 <ul class="talks-list">
 	{
-		TALKS.map((talk) => (
+		talks.map((talk) => (
 			<li>
 				<a
 					href={talkYoutubeUrl(talk)}

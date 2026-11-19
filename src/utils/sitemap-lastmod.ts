@@ -11,7 +11,8 @@ export type SitemapLastmodItem = {
 };
 
 const GADGETS_SOURCE = "src/data/gadgets.ts";
-const TALKS_SOURCE = "src/data/talks.ts";
+/** 1 件 1 ファイル（TA-2152）。git log はディレクトリ単位で読む。 */
+const TALKS_DIR = "src/content/talks";
 const SLIDES_DECKS_DIR = "src/slides/decks";
 const SLIDES_INDEX_SOURCE = "src/pages/slides/index.astro";
 
@@ -219,21 +220,25 @@ function readSlideDates(
 }
 
 function readTalkDates(rootDir: string): Date[] {
+	const talksDir = path.join(rootDir, TALKS_DIR);
+	let files: string[] = [];
 	try {
-		const text = readFileSync(path.join(rootDir, TALKS_SOURCE), "utf8");
-		const dates: Date[] = [];
-		for (const match of text.matchAll(
-			/^\s*date:\s*["'](\d{4}-\d{2}-\d{2})["']/gm,
-		)) {
-			const date = parseFrontmatterDate(match[1]);
-			if (date) {
-				dates.push(date);
-			}
-		}
-		return dates;
+		files = readdirSync(talksDir);
 	} catch {
 		return [];
 	}
+	const dates: Date[] = [];
+	for (const file of files) {
+		if (!file.endsWith(".mdx")) {
+			continue;
+		}
+		const text = readFileSync(path.join(talksDir, file), "utf8");
+		const date = parseFrontmatterDate(text.match(/^date:\s*(.+)$/m)?.[1]);
+		if (date) {
+			dates.push(date);
+		}
+	}
+	return dates;
 }
 
 function lastmodForPath(
@@ -292,7 +297,7 @@ export function createStaticSitemapSerializer(
 	setLastmod(
 		lastmodByPath,
 		"/talks/",
-		readGitLastmod(TALKS_SOURCE, rootDir) ?? maxDate(readTalkDates(rootDir)),
+		readGitLastmod(TALKS_DIR, rootDir) ?? maxDate(readTalkDates(rootDir)),
 	);
 
 	const slides = readSlideDates(rootDir);

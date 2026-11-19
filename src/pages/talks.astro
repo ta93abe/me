@@ -1,14 +1,13 @@
 ---
 import TalkCard from "@/components/TalkCard.astro";
 import { SITE } from "@/config/site";
+import Layout from "@/layouts/Layout.astro";
+import { getProfileUrls, getTalks } from "@/lib/content/site-collections";
 import {
-	TALKS,
 	TALK_THUMBNAIL_SIZES,
 	talkThumbnailSrcset,
 	talkThumbnailUrl,
-} from "@/data/talks";
-import Layout from "@/layouts/Layout.astro";
-import { getProfileUrls } from "@/lib/content/site-collections";
+} from "@/lib/talks/talks";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	generateBreadcrumbSchema,
@@ -19,16 +18,18 @@ import {
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
-const TALKS_COLLECTION_DESCRIPTION = talksCollectionDescription(TALKS);
+const talks = await getTalks();
+const TALKS_COLLECTION_DESCRIPTION = talksCollectionDescription(talks);
 const collectionSchema = generateTalksCollectionSchema(
 	site,
+	talks,
 	await getProfileUrls(),
 	TALKS_COLLECTION_DESCRIPTION,
 );
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Talks", path: "/talks/" },
 ]);
-const lcpTalk = TALKS[0];
+const lcpTalk = talks[0];
 ---
 
 <Layout
@@ -71,7 +72,7 @@ const lcpTalk = TALKS[0];
 		</header>
 
 		<div class="talks-cards">
-			{TALKS.map((talk, index) => (
+			{talks.map((talk, index) => (
 				<TalkCard talk={talk} priority={index === 0} />
 			))}
 		</div>

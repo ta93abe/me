@@ -3,8 +3,8 @@ import { getEntry, render } from "astro:content";
 
 import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
-import { talkBySlug } from "@/data/talk-slide-crosslinks";
-import { talkYoutubeUrl } from "@/data/talks";
+import { getTalk } from "@/lib/content/site-collections";
+import { talkYoutubeUrl } from "@/lib/talks/talks";
 import { getProfileUrls } from "@/lib/content/site-collections";
 import { talkAnchorPath } from "@/lib/slides/paths";
 import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
@@ -80,7 +80,7 @@ const seriesNeighbors = print
 	: getSeriesNeighbors(slug, await loadDecks());
 const hasSeriesNav = Boolean(seriesNeighbors.prev || seriesNeighbors.next);
 const linkedTalk = deck.frontmatter.talkSlug
-	? talkBySlug(deck.frontmatter.talkSlug)
+	? await getTalk(deck.frontmatter.talkSlug)
 	: undefined;
 ---
 

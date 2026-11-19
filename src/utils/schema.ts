@@ -1,7 +1,7 @@
 import { SITE } from "@/config/site";
 import { type GadgetRating, isGadgetRating } from "@/data/gadgets";
-import { TALKS, talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
 import type { FeaturedWork, SiteLink } from "@/lib/content/site-data";
+import { talkThumbnailUrl, talkYoutubeUrl, type Talk } from "@/lib/talks/talks";
 import {
 	articleBodyText,
 	countWords,
@@ -571,6 +571,7 @@ interface TalksCollectionSchema {
 
 export const generateTalksCollectionSchema = (
 	siteUrl: string,
+	talks: readonly Talk[],
 	sameAs: readonly string[],
 	description: string,
 ): TalksCollectionSchema => {
@@ -583,7 +584,7 @@ export const generateTalksCollectionSchema = (
 		url: `${origin}/talks/`,
 		inLanguage: SITE.lang,
 		isPartOf: websitePart(origin),
-		hasPart: TALKS.map((talk) => {
+		hasPart: talks.map((talk) => {
 			const youtubeUrl = talkYoutubeUrl(talk);
 			return {
 				"@type": "Event" as const,

@@ -1,12 +1,12 @@
 ---
-import { talkBySlug } from "@/data/talk-slide-crosslinks";
+import { getTalk } from "@/lib/content/site-collections";
 import type { DeckFrontmatter } from "@/slides/parser/types";
 import {
 	slidePdfPath,
 	slidePlayerPath,
 	talkAnchorPath,
 } from "@/lib/slides/paths";
-import { talkYoutubeUrl } from "@/data/talks";
+import { talkYoutubeUrl } from "@/lib/talks/talks";
 import { formatDate, toDatetimeAttr } from "@/utils/date";
 
 interface Props {
@@ -21,7 +21,7 @@ const TitleTag = isGrouped ? "h3" : "h2";
 const playerHref = slidePlayerPath(frontmatter.slug);
 const pdfHref = slidePdfPath(frontmatter.slug);
 const linkedTalk = frontmatter.talkSlug
-	? talkBySlug(frontmatter.talkSlug)
+	? await getTalk(frontmatter.talkSlug)
 	: undefined;
 ---
 

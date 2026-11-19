@@ -48,17 +48,18 @@ function writeFixture(rootDir: string, relativePath: string, contents: string) {
 	writeFileSync(filePath, contents);
 }
 
-const TALKS_FIXTURE = `export const TALKS = [
-	{
-		slug: "newer",
-		date: "2026-08-27",
-	},
-	{
-		slug: "older",
-		date: "2026-05-14",
-	},
-];
-`;
+const TALK_FIXTURES = {
+	"src/content/talks/newer.mdx": `---
+title: "newer"
+date: "2026-08-27"
+---
+`,
+	"src/content/talks/older.mdx": `---
+title: "older"
+date: "2026-05-14"
+---
+`,
+} as const;
 
 const SLIDE_FIXTURE = `---
 slug: demo
@@ -73,7 +74,9 @@ const SLIDES_COMMIT_DATE = "2026-10-03T06:21:53Z";
 
 function fixtureRoot(): string {
 	const rootDir = mkdtempSync(path.join(tmpdir(), "sitemap-lastmod-"));
-	writeFixture(rootDir, "src/data/talks.ts", TALKS_FIXTURE);
+	for (const [file, contents] of Object.entries(TALK_FIXTURES)) {
+		writeFixture(rootDir, file, contents);
+	}
 	writeFixture(rootDir, "src/data/gadgets.ts", "export const GADGETS = [];\n");
 	writeFixture(rootDir, "src/slides/decks/demo.mdx", SLIDE_FIXTURE);
 	writeFixture(rootDir, "src/pages/index.astro", "<h1>home</h1>\n");
@@ -136,12 +139,9 @@ function gitHistoryFixture(): string {
 		"export const GADGETS = [];\n",
 		GADGETS_COMMIT_DATE,
 	);
-	commitFile(
-		rootDir,
-		"src/data/talks.ts",
-		TALKS_FIXTURE,
-		"2026-09-27T00:06:00Z",
-	);
+	for (const [file, contents] of Object.entries(TALK_FIXTURES)) {
+		commitFile(rootDir, file, contents, "2026-09-27T00:06:00Z");
+	}
 	commitFile(
 		rootDir,
 		"src/slides/decks/demo.mdx",

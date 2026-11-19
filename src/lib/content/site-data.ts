@@ -1,5 +1,8 @@
 import { z } from "astro/zod";
 
+import type { Talk } from "../talks/talks.ts";
+import { isYoutubeId } from "./youtube-url.ts";
+
 /**
  * Works / Links など「1 項目 1 ファイル」のコレクション（TA-2152）。
  * スキーマと並び替えは純関数にして、Astro・Worker・テストのどこからでも使えるようにする。
@@ -32,6 +35,44 @@ export const linkFrontmatterSchema = z
 		order,
 	})
 	.strict();
+
+/** `src/content/talks/<slug>.mdx`。slug はファイル名。並び順は `date` の新しい順。 */
+export const talkFrontmatterSchema = z
+	.object({
+		title: nonEmpty,
+		event: nonEmpty,
+		/** `YYYY-MM-DD`。表示・JSON-LD・sitemap がこの文字列をそのまま使う。 */
+		date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+		excerpt: nonEmpty,
+		youtubeId: z
+			.string()
+			.refine(isYoutubeId, "YouTube の動画 ID ではありません"),
+		/** 公開デッキの slug。存在と unlisted でないことはテストで確かめる。 */
+		slideSlug: z
+			.string()
+			.regex(/^[a-z][a-z0-9-]*$/)
+			.optional(),
+		youtubeThumbnailFit: z.enum(["wide", "square"]).optional(),
+		links: z
+			.array(z.object({ label: nonEmpty, href: z.url() }).strict())
+			.optional(),
+	})
+	.strict();
+
+export type TalkFrontmatter = z.infer<typeof talkFrontmatterSchema>;
+
+/** 新しい順。同じ日付はファイル名順にして並びを決める。 */
+export function talksFromEntries(
+	entries: readonly { id: string; data: TalkFrontmatter }[],
+): Talk[] {
+	return entries
+		.toSorted(
+			(left, right) =>
+				right.data.date.localeCompare(left.data.date) ||
+				left.id.localeCompare(right.id),
+		)
+		.map(({ id, data }) => ({ slug: id, ...data }));
+}
 
 export type FeaturedWork = {
 	href: string;

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	collectTalkSlideCrosslinkIssues,
-	validateTalkSlideCrosslinks,
-} from "@/data/talk-slide-crosslinks";
+import { collectTalkSlideCrosslinkIssues } from "@/lib/talks/slide-crosslinks";
+import { loadDecks } from "@/slides/load-decks";
+
+import { readTalks } from "../../helpers/site-content.ts";
 
 function deck(
 	slug: string,
@@ -20,7 +20,10 @@ function deck(
 
 describe("talk ↔ slide crosslinks", () => {
 	it("keeps catalog references aligned with git decks", async () => {
-		const issues = await validateTalkSlideCrosslinks();
+		const issues = collectTalkSlideCrosslinkIssues(
+			readTalks(),
+			await loadDecks(),
+		);
 		expect(issues).toEqual([]);
 	});
 

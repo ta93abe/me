@@ -4,10 +4,13 @@ import path from "node:path";
 import {
 	linkFrontmatterSchema,
 	sortByOrder,
+	talkFrontmatterSchema,
+	talksFromEntries,
 	workFrontmatterSchema,
 	type FeaturedWork,
 	type SiteLink,
 } from "@/lib/content/site-data";
+import type { Talk } from "@/lib/talks/talks";
 
 const CONTENT_DIR = path.resolve(import.meta.dirname, "../../content");
 
@@ -63,4 +66,13 @@ export function readLinks(): SiteLink[] {
 		url: data.url,
 		icon: data.icon,
 	}));
+}
+
+export function readTalks(): Talk[] {
+	return talksFromEntries(
+		readCollection("talks").map((entry) => ({
+			id: entry.id,
+			data: talkFrontmatterSchema.parse(entry.data),
+		})),
+	);
 }

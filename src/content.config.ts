@@ -4,6 +4,7 @@ import { defineCollection } from "astro:content";
 
 import {
 	linkFrontmatterSchema,
+	talkFrontmatterSchema,
 	workFrontmatterSchema,
 } from "./lib/content/site-data.ts";
 import { deckFrontmatterSchema } from "./slides/mdx/deck-schema.ts";
@@ -45,4 +46,10 @@ const links = defineCollection({
 	schema: linkFrontmatterSchema,
 });
 
-export const collections = { blog, slides, works, links };
+/** 登壇・配信（TA-2152）。`src/content/talks/<slug>.mdx`。並び順は `date` の新しい順。 */
+const talks = defineCollection({
+	loader: glob({ pattern: "*.mdx", base: "./src/content/talks" }),
+	schema: talkFrontmatterSchema,
+});
+
+export const collections = { blog, slides, works, links, talks };

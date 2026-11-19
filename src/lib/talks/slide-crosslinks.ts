@@ -1,8 +1,9 @@
-import { TALKS, type Talk } from "@/data/talks";
 import { isUnlistedDeck } from "@/lib/slides/visibility";
-import { loadDecks } from "@/slides/load-decks";
 import type { DeckFrontmatter } from "@/slides/parser/types";
 
+import type { Talk } from "./talks.ts";
+
+/** Talk の `slideSlug` とデッキの `talkSlug` の食い違い。 */
 export type CrosslinkIssue = {
 	readonly kind: "talk-slide" | "talk-unlisted-slide" | "deck-talk";
 	readonly from: string;
@@ -13,19 +14,6 @@ type TalkRef = Pick<Talk, "slug" | "slideSlug">;
 type DeckRef = {
 	readonly frontmatter: Pick<DeckFrontmatter, "slug" | "talkSlug" | "unlisted">;
 };
-
-export function talkSlugs(): Set<string> {
-	return new Set(TALKS.map((talk) => talk.slug));
-}
-
-export function talkBySlug(slug: string): Talk | undefined {
-	return TALKS.find((talk) => talk.slug === slug);
-}
-
-export async function deckSlugs(): Promise<Set<string>> {
-	const decks = await loadDecks();
-	return new Set(decks.map((deck) => deck.frontmatter.slug));
-}
 
 export function collectTalkSlideCrosslinkIssues(
 	talks: readonly TalkRef[],
@@ -71,17 +59,4 @@ export function collectTalkSlideCrosslinkIssues(
 	}
 
 	return issues;
-}
-
-export async function validateTalkSlideCrosslinks(): Promise<CrosslinkIssue[]> {
-	return collectTalkSlideCrosslinkIssues(TALKS, await loadDecks());
-}
-
-export function deckTalkYoutubeId(
-	frontmatter: Pick<DeckFrontmatter, "talkSlug">,
-): string | undefined {
-	if (!frontmatter.talkSlug) {
-		return undefined;
-	}
-	return talkBySlug(frontmatter.talkSlug)?.youtubeId;
 }
