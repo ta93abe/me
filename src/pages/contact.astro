@@ -2,16 +2,24 @@
 import SnsLinks from "@/components/SnsLinks.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { getLinks } from "@/lib/content/site-collections";
+import { profileUrls } from "@/lib/content/site-data";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
-	CONTACT_DESCRIPTION,
+	contactPageDescription,
 	generateBreadcrumbSchema,
 	generateContactPageSchema,
 	stringifySchema,
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
-const contactSchema = generateContactPageSchema(site);
+const links = await getLinks();
+const description = contactPageDescription(links);
+const contactSchema = generateContactPageSchema(
+	site,
+	profileUrls(links),
+	description,
+);
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Contact", path: "/contact/" },
 ]);
@@ -19,7 +27,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 
 <Layout
 	title={`Contact | ${SITE.name}`}
-	description={CONTACT_DESCRIPTION}
+	description={description}
 	ogImage={ogSectionPath("contact")}
 	ogImageAlt="Contact"
 >

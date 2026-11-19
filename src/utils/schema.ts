@@ -1,7 +1,7 @@
-import { FEATURED_WORKS, SITE } from "@/config/site";
+import { SITE } from "@/config/site";
 import { type GadgetRating, isGadgetRating } from "@/data/gadgets";
-import linksData from "@/data/links.json";
 import { TALKS, talkThumbnailUrl, talkYoutubeUrl } from "@/data/talks";
+import type { FeaturedWork, SiteLink } from "@/lib/content/site-data";
 import {
 	articleBodyText,
 	countWords,
@@ -11,10 +11,7 @@ import {
 import { withTrailingSlash } from "@/utils/canonical";
 import {
 	blogCollectionDescription,
-	CONTACT_DESCRIPTION,
 	slidesCollectionDescription,
-	TALKS_COLLECTION_DESCRIPTION,
-	WORKS_COLLECTION_DESCRIPTION,
 } from "@/utils/collection-description";
 import { toDatetimeAttr } from "@/utils/date";
 import { ogSectionPath } from "@/utils/og/sections";
@@ -22,13 +19,10 @@ import { ogSectionPath } from "@/utils/og/sections";
 export {
 	BLOG_COLLECTION_DESCRIPTION,
 	BLOG_COLLECTION_LEAD,
-	CONTACT_DESCRIPTION,
 	CONTACT_LEAD,
 	SLIDES_COLLECTION_DESCRIPTION,
 	SLIDES_COLLECTION_LEAD,
-	TALKS_COLLECTION_DESCRIPTION,
 	TALKS_COLLECTION_LEAD,
-	WORKS_COLLECTION_DESCRIPTION,
 	WORKS_COLLECTION_LEAD,
 	blogCollectionDescription,
 	contactPageDescription,
@@ -82,6 +76,7 @@ interface WebSiteSchemaOptions {
  */
 export const generateWebSiteSchema = (
 	siteUrl: string,
+	sameAs: readonly string[],
 	options: WebSiteSchemaOptions = {},
 ): WebSiteSchema => {
 	const origin = originBase(siteUrl);
@@ -96,7 +91,7 @@ export const generateWebSiteSchema = (
 		name: SITE.name,
 		url: `${origin}/`,
 		description: SITE.description,
-		author: personFields(siteUrl),
+		author: personFields(siteUrl, sameAs),
 		inLanguage: SITE.lang,
 	};
 
@@ -122,7 +117,11 @@ function originBase(siteUrl: string): string {
 	return siteUrl.replace(/\/+$/, "");
 }
 
-function personFields(siteUrl: string): PersonFields {
+/** `sameAs` は Links の URL（`profileUrls(await getLinks())`）。 */
+function personFields(
+	siteUrl: string,
+	sameAs: readonly string[],
+): PersonFields {
 	const origin = originBase(siteUrl);
 	return {
 		"@type": "Person",
@@ -130,14 +129,17 @@ function personFields(siteUrl: string): PersonFields {
 		url: `${origin}${SITE.authorPath}`,
 		jobTitle: "Software Engineer",
 		description: SITE.tagline,
-		sameAs: linksData.links.map((link) => link.url),
+		sameAs: [...sameAs],
 		image: `${origin}${ogSectionPath("about")}`,
 	};
 }
 
-export const generatePersonSchema = (siteUrl: string): PersonSchema => ({
+export const generatePersonSchema = (
+	siteUrl: string,
+	sameAs: readonly string[],
+): PersonSchema => ({
 	"@context": "https://schema.org",
-	...personFields(siteUrl),
+	...personFields(siteUrl, sameAs),
 });
 
 export type SlideDeckListItem = {
@@ -223,6 +225,7 @@ export const generateSlidesCollectionSchema = (
 export const generateSlideDeckSchema = (
 	siteUrl: string,
 	deck: SlideDeckListItem,
+	sameAs: readonly string[],
 ): SlideDeckSchema => {
 	const origin = originBase(siteUrl);
 	const url = `${origin}/slides/${deck.slug}/`;
@@ -234,7 +237,7 @@ export const generateSlideDeckSchema = (
 		url,
 		inLanguage: SITE.lang,
 		datePublished: deck.date,
-		author: personFields(siteUrl),
+		author: personFields(siteUrl, sameAs),
 		image: `${origin}/og/slides/${deck.slug}.png`,
 		isPartOf: {
 			"@type": "CollectionPage",
@@ -443,6 +446,7 @@ export const GADGETS_COLLECTION_DESCRIPTION =
 
 export const generateProfilePageSchema = (
 	siteUrl: string,
+	sameAs: readonly string[],
 	description: string = ABOUT_DESCRIPTION,
 ): ProfilePageSchema => {
 	const origin = originBase(siteUrl);
@@ -453,14 +457,15 @@ export const generateProfilePageSchema = (
 		description,
 		url: `${origin}${SITE.authorPath}`,
 		inLanguage: SITE.lang,
-		mainEntity: personFields(siteUrl),
+		mainEntity: personFields(siteUrl, sameAs),
 		isPartOf: websitePart(origin),
 	};
 };
 
 export const generateContactPageSchema = (
 	siteUrl: string,
-	description: string = CONTACT_DESCRIPTION,
+	sameAs: readonly string[],
+	description: string,
 ): ContactPageSchema => {
 	const origin = originBase(siteUrl);
 	return {
@@ -470,7 +475,7 @@ export const generateContactPageSchema = (
 		description,
 		url: `${origin}/contact/`,
 		inLanguage: SITE.lang,
-		mainEntity: personFields(siteUrl),
+		mainEntity: personFields(siteUrl, sameAs),
 		isPartOf: websitePart(origin),
 	};
 };
@@ -502,7 +507,8 @@ export const generateBreadcrumbSchema = (
 
 export const generateWorksCollectionSchema = (
 	siteUrl: string,
-	description: string = WORKS_COLLECTION_DESCRIPTION,
+	works: readonly FeaturedWork[],
+	description: string,
 ): WorksCollectionSchema => {
 	const origin = originBase(siteUrl);
 	return {
@@ -513,7 +519,7 @@ export const generateWorksCollectionSchema = (
 		url: `${origin}/works/`,
 		inLanguage: SITE.lang,
 		isPartOf: websitePart(origin),
-		hasPart: FEATURED_WORKS.map((work) => ({
+		hasPart: works.map((work) => ({
 			"@type": "SoftwareSourceCode",
 			name: work.title,
 			description: work.excerpt,
@@ -565,7 +571,8 @@ interface TalksCollectionSchema {
 
 export const generateTalksCollectionSchema = (
 	siteUrl: string,
-	description: string = TALKS_COLLECTION_DESCRIPTION,
+	sameAs: readonly string[],
+	description: string,
 ): TalksCollectionSchema => {
 	const origin = originBase(siteUrl);
 	return {
@@ -591,7 +598,7 @@ export const generateTalksCollectionSchema = (
 					"@type": "VirtualLocation" as const,
 					url: youtubeUrl,
 				},
-				performer: personFields(siteUrl),
+				performer: personFields(siteUrl, sameAs),
 				superEvent: {
 					"@type": "Event" as const,
 					name: talk.event,
@@ -611,6 +618,7 @@ export const generateTalksCollectionSchema = (
 
 export const generateLinksCollectionSchema = (
 	siteUrl: string,
+	links: readonly SiteLink[],
 	description: string = LINKS_COLLECTION_DESCRIPTION,
 ): LinksCollectionSchema => {
 	const origin = originBase(siteUrl);
@@ -622,7 +630,7 @@ export const generateLinksCollectionSchema = (
 		url: `${origin}/links/`,
 		inLanguage: SITE.lang,
 		isPartOf: websitePart(origin),
-		hasPart: linksData.links.map((link) => ({
+		hasPart: links.map((link) => ({
 			"@type": "WebPage",
 			name: link.name,
 			url: link.url,
@@ -902,6 +910,7 @@ export const generateBlogPostingSchema = (
 		tags?: readonly string[];
 		body?: string;
 	},
+	sameAs: readonly string[],
 ): BlogPostingSchema => {
 	const origin = originBase(siteUrl);
 	const url = `${origin}/blog/${post.slug}/`;
@@ -917,8 +926,8 @@ export const generateBlogPostingSchema = (
 		dateModified: post.updatedDate
 			? toIsoDate(post.updatedDate)
 			: datePublished,
-		author: personFields(siteUrl),
-		publisher: personFields(siteUrl),
+		author: personFields(siteUrl, sameAs),
+		publisher: personFields(siteUrl, sameAs),
 		image: post.image,
 		mainEntityOfPage: {
 			"@type": "WebPage",

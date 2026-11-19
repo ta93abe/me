@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FEATURED_WORKS, HOME_CTAS, SITE } from "@/config/site";
+import { HOME_CTAS, SITE } from "@/config/site";
 
 describe("SITE intro", () => {
 	it("exposes a trailing-slash About path as the author canonical", () => {
@@ -33,26 +33,6 @@ describe("HOME_CTAS", () => {
 		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/gallery");
 		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/atelier");
 		expect(HOME_CTAS.map((cta) => cta.href)).not.toContain("/bookshelf");
-	});
-});
-
-describe("FEATURED_WORKS", () => {
-	it("is the single source for three GitHub or blog works, never unpublished collections", () => {
-		expect(FEATURED_WORKS.map((work) => work.title)).toEqual([
-			"dbt-jobs",
-			"dbt-intro",
-			"enbu",
-		]);
-		for (const work of FEATURED_WORKS) {
-			expect(work.href.startsWith("/gallery")).toBe(false);
-			expect(work.href.startsWith("/atelier")).toBe(false);
-			expect(work.href.startsWith("/bookshelf")).toBe(false);
-			expect(work.href.startsWith("/works")).toBe(false);
-			expect(
-				work.href.startsWith("https://github.com/") ||
-					work.href.startsWith("/blog/"),
-			).toBe(true);
-		}
 	});
 });
 

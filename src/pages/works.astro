@@ -2,16 +2,19 @@
 import FeaturedWorksList from "@/components/FeaturedWorksList.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { getWorks } from "@/lib/content/site-collections";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	generateBreadcrumbSchema,
 	generateWorksCollectionSchema,
 	stringifySchema,
-	WORKS_COLLECTION_DESCRIPTION,
+	worksCollectionDescription,
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
-const collectionSchema = generateWorksCollectionSchema(site);
+const works = await getWorks();
+const description = worksCollectionDescription(works);
+const collectionSchema = generateWorksCollectionSchema(site, works, description);
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Works", path: "/works/" },
 ]);
@@ -19,7 +22,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 
 <Layout
 	title={`Works | ${SITE.name}`}
-	description={WORKS_COLLECTION_DESCRIPTION}
+	description={description}
 	ogImage={ogSectionPath("works")}
 	ogImageAlt="Works"
 >

@@ -5,6 +5,7 @@ import PostHog from "@/components/posthog.astro";
 import { SITE } from "@/config/site";
 import { talkBySlug } from "@/data/talk-slide-crosslinks";
 import { talkYoutubeUrl } from "@/data/talks";
+import { getProfileUrls } from "@/lib/content/site-collections";
 import { talkAnchorPath } from "@/lib/slides/paths";
 import { getSeriesNeighbors } from "@/lib/slides/series-neighbors";
 import { slideDeckRobotsContent } from "@/lib/slides/visibility";
@@ -52,12 +53,16 @@ const robotsContent = slideDeckRobotsContent({
 	print,
 	unlisted: deck.frontmatter.unlisted,
 });
-const deckSchema = generateSlideDeckSchema(siteBase, {
-	slug,
-	title,
-	description,
-	date,
-});
+const deckSchema = generateSlideDeckSchema(
+	siteBase,
+	{
+		slug,
+		title,
+		description,
+		date,
+	},
+	await getProfileUrls(),
+);
 const breadcrumbSchema = generateBreadcrumbSchema(siteBase, [
 	{ name: "Slides", path: "/slides/" },
 	{ name: title, path: `/slides/${slug}/` },

@@ -1,22 +1,26 @@
 import { describe, expect, it } from "vitest";
 
-import { FEATURED_WORKS } from "@/config/site";
 import { TALKS } from "@/data/talks";
 import {
 	BLOG_COLLECTION_LEAD,
 	blogCollectionDescription,
 	COLLECTION_DESCRIPTION_MAX_LENGTH,
-	CONTACT_DESCRIPTION,
+	contactPageDescription,
 	firstClause,
 	namedListDescription,
 	SLIDES_COLLECTION_LEAD,
 	slidesCollectionDescription,
-	TALKS_COLLECTION_DESCRIPTION,
 	TALKS_COLLECTION_LEAD,
 	talksCollectionDescription,
-	WORKS_COLLECTION_DESCRIPTION,
 	worksCollectionDescription,
 } from "@/utils/collection-description";
+
+import { readLinks, readWorks } from "../helpers/site-content.ts";
+
+const FEATURED_WORKS = readWorks();
+const TALKS_COLLECTION_DESCRIPTION = talksCollectionDescription(TALKS);
+const WORKS_COLLECTION_DESCRIPTION = worksCollectionDescription(FEATURED_WORKS);
+const CONTACT_DESCRIPTION = contactPageDescription(readLinks());
 
 const META_MIN_LENGTH = 50;
 
@@ -96,7 +100,9 @@ describe("listing meta descriptions", () => {
 			talksCollectionDescription(TALKS),
 		);
 		expect(TALKS_COLLECTION_DESCRIPTION).toContain(TALKS[0]?.title ?? "");
-		expect(WORKS_COLLECTION_DESCRIPTION).toBe(worksCollectionDescription());
+		expect(WORKS_COLLECTION_DESCRIPTION).toBe(
+			worksCollectionDescription(FEATURED_WORKS),
+		);
 		expect(WORKS_COLLECTION_DESCRIPTION.startsWith("代表作。")).toBe(true);
 	});
 

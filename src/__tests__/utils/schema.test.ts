@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { SITE } from "@/config/site";
+import { TALKS } from "@/data/talks";
+import { profileUrls } from "@/lib/content/site-data";
 import { toDatetimeAttr } from "@/utils/date";
 import {
 	generateArticleItemListSchema,
@@ -22,13 +24,22 @@ import {
 	generateWebSiteSchema,
 	generateWorksCollectionSchema,
 	stringifySchema,
+	talksCollectionDescription,
+	worksCollectionDescription,
+	contactPageDescription,
 } from "@/utils/schema";
+
+import { readLinks, readWorks } from "../helpers/site-content.ts";
+
+const LINKS = readLinks();
+const WORKS = readWorks();
+const SAME_AS = profileUrls(LINKS);
 
 describe("generateWebSiteSchema", () => {
 	const siteUrl = "https://example.com";
 
 	it("should generate valid WebSite schema", () => {
-		const schema = generateWebSiteSchema(siteUrl);
+		const schema = generateWebSiteSchema(siteUrl, SAME_AS);
 
 		expect(schema["@context"]).toBe("https://schema.org");
 		expect(schema["@type"]).toBe("WebSite");
@@ -36,7 +47,7 @@ describe("generateWebSiteSchema", () => {
 	});
 
 	it("should include author information", () => {
-		const schema = generateWebSiteSchema(siteUrl);
+		const schema = generateWebSiteSchema(siteUrl, SAME_AS);
 
 		expect(schema.author["@type"]).toBe("Person");
 		expect(schema.author.name).toBe("Takumi Abe");
@@ -52,13 +63,13 @@ describe("generateWebSiteSchema", () => {
 	});
 
 	it("should exclude search action by default", () => {
-		const schema = generateWebSiteSchema(siteUrl);
+		const schema = generateWebSiteSchema(siteUrl, SAME_AS);
 
 		expect(schema.potentialAction).toBeUndefined();
 	});
 
 	it("should include search action when enabled", () => {
-		const schema = generateWebSiteSchema(siteUrl, {
+		const schema = generateWebSiteSchema(siteUrl, SAME_AS, {
 			includeSearchAction: true,
 		});
 
@@ -69,7 +80,7 @@ describe("generateWebSiteSchema", () => {
 
 describe("generatePersonSchema", () => {
 	it("includes Person fields and sameAs profiles", () => {
-		const schema = generatePersonSchema("https://example.com/");
+		const schema = generatePersonSchema("https://example.com/", SAME_AS);
 
 		expect(schema["@type"]).toBe("Person");
 		expect(schema.name).toBe("Takumi Abe");
@@ -116,12 +127,16 @@ describe("generateSlidesCollectionSchema", () => {
 
 describe("generateSlideDeckSchema", () => {
 	it("points image and PDF encoding at the same-origin deck", () => {
-		const schema = generateSlideDeckSchema("https://example.com/", {
-			slug: "showcase",
-			title: "デザインシステム ショーケース",
-			description: "全スライド型の見本。",
-			date: "2026-09-06",
-		});
+		const schema = generateSlideDeckSchema(
+			"https://example.com/",
+			{
+				slug: "showcase",
+				title: "デザインシステム ショーケース",
+				description: "全スライド型の見本。",
+				date: "2026-09-06",
+			},
+			SAME_AS,
+		);
 
 		expect(schema["@type"]).toBe("PresentationDigitalDocument");
 		expect(schema.url).toBe("https://example.com/slides/showcase/");
@@ -138,7 +153,7 @@ describe("generateSlideDeckSchema", () => {
 
 describe("generateProfilePageSchema", () => {
 	it("wraps Person as the About main entity", () => {
-		const schema = generateProfilePageSchema("https://example.com/");
+		const schema = generateProfilePageSchema("https://example.com/", SAME_AS);
 		expect(schema["@type"]).toBe("ProfilePage");
 		expect(schema.url).toBe("https://example.com/about/");
 		expect(schema.mainEntity["@type"]).toBe("Person");
@@ -148,7 +163,11 @@ describe("generateProfilePageSchema", () => {
 
 describe("generateContactPageSchema", () => {
 	it("points Contact at the same Person", () => {
-		const schema = generateContactPageSchema("https://example.com/");
+		const schema = generateContactPageSchema(
+			"https://example.com/",
+			SAME_AS,
+			contactPageDescription(LINKS),
+		);
 		expect(schema["@type"]).toBe("ContactPage");
 		expect(schema.url).toBe("https://example.com/contact/");
 		expect(schema.mainEntity.name).toBe("Takumi Abe");
@@ -159,7 +178,11 @@ describe("generateContactPageSchema", () => {
 
 describe("generateWorksCollectionSchema", () => {
 	it("lists featured GitHub works as SoftwareSourceCode", () => {
-		const schema = generateWorksCollectionSchema("https://example.com/");
+		const schema = generateWorksCollectionSchema(
+			"https://example.com/",
+			WORKS,
+			worksCollectionDescription(WORKS),
+		);
 		expect(schema["@type"]).toBe("CollectionPage");
 		expect(schema.url).toBe("https://example.com/works/");
 		expect(schema.hasPart.map((part) => part.name)).toEqual([
@@ -176,7 +199,11 @@ describe("generateWorksCollectionSchema", () => {
 
 describe("generateTalksCollectionSchema", () => {
 	it("lists appearances as Event parts with YouTube recordings", () => {
-		const schema = generateTalksCollectionSchema("https://example.com/");
+		const schema = generateTalksCollectionSchema(
+			"https://example.com/",
+			SAME_AS,
+			talksCollectionDescription(TALKS),
+		);
 		expect(schema["@type"]).toBe("CollectionPage");
 		expect(schema.url).toBe("https://example.com/talks/");
 		expect(schema.hasPart.map((part) => part.name)).toEqual([
@@ -210,7 +237,7 @@ describe("generateTalksCollectionSchema", () => {
 
 describe("generateLinksCollectionSchema", () => {
 	it("lists curated profile URLs", () => {
-		const schema = generateLinksCollectionSchema("https://example.com/");
+		const schema = generateLinksCollectionSchema("https://example.com/", LINKS);
 		expect(schema.hasPart.map((part) => part.name)).toEqual(
 			expect.arrayContaining(["GitHub", "Zenn", "X"]),
 		);
@@ -259,14 +286,18 @@ describe("generateBlogCollectionSchema", () => {
 
 describe("generateBlogPostingSchema", () => {
 	it("uses Person author and Blog collection", () => {
-		const schema = generateBlogPostingSchema("https://example.com/", {
-			slug: "hello-world",
-			title: "Hello",
-			excerpt: "note",
-			date: new Date("2026-08-30T00:00:00.000Z"),
-			image: "https://example.com/og/blog/hello-world.png",
-			tags: ["ci"],
-		});
+		const schema = generateBlogPostingSchema(
+			"https://example.com/",
+			{
+				slug: "hello-world",
+				title: "Hello",
+				excerpt: "note",
+				date: new Date("2026-08-30T00:00:00.000Z"),
+				image: "https://example.com/og/blog/hello-world.png",
+				tags: ["ci"],
+			},
+			SAME_AS,
+		);
 		expect(schema["@type"]).toBe("BlogPosting");
 		expect(schema.url).toBe("https://example.com/blog/hello-world/");
 		expect(schema.author.url).toBe("https://example.com/about/");
@@ -276,14 +307,18 @@ describe("generateBlogPostingSchema", () => {
 	});
 
 	it("adds wordCount and articleBody from the markdown body", () => {
-		const schema = generateBlogPostingSchema("https://example.com/", {
-			slug: "hello-world",
-			title: "Hello World",
-			excerpt: "最初の Pubme 投稿",
-			date: new Date("2026-08-30T00:00:00.000Z"),
-			image: "https://example.com/og/blog/hello-world.png",
-			body: "ブログを始めようじゃないか。",
-		});
+		const schema = generateBlogPostingSchema(
+			"https://example.com/",
+			{
+				slug: "hello-world",
+				title: "Hello World",
+				excerpt: "最初の Pubme 投稿",
+				date: new Date("2026-08-30T00:00:00.000Z"),
+				image: "https://example.com/og/blog/hello-world.png",
+				body: "ブログを始めようじゃないか。",
+			},
+			SAME_AS,
+		);
 		expect(schema.wordCount).toBeGreaterThan(0);
 		expect(Number.isInteger(schema.wordCount)).toBe(true);
 		expect(schema.articleBody).toContain("ブログを始めようじゃないか");
@@ -293,14 +328,18 @@ describe("generateBlogPostingSchema", () => {
 	it("keeps visible datetime and byline aligned with JSON-LD", () => {
 		const date = new Date("2026-08-30T00:00:00.000Z");
 		const updatedDate = new Date("2026-09-16T00:00:00.000Z");
-		const schema = generateBlogPostingSchema("https://example.com/", {
-			slug: "hello-world",
-			title: "Hello",
-			excerpt: "note",
-			date,
-			updatedDate,
-			image: "https://example.com/og/blog/hello-world.png",
-		});
+		const schema = generateBlogPostingSchema(
+			"https://example.com/",
+			{
+				slug: "hello-world",
+				title: "Hello",
+				excerpt: "note",
+				date,
+				updatedDate,
+				image: "https://example.com/og/blog/hello-world.png",
+			},
+			SAME_AS,
+		);
 
 		expect(schema.datePublished).toBe(toDatetimeAttr(date));
 		expect(schema.dateModified).toBe(toDatetimeAttr(updatedDate));
@@ -309,13 +348,17 @@ describe("generateBlogPostingSchema", () => {
 	});
 
 	it("falls dateModified back to datePublished when unrevised", () => {
-		const schema = generateBlogPostingSchema("https://example.com/", {
-			slug: "hello-world",
-			title: "Hello",
-			excerpt: "note",
-			date: new Date("2026-08-30T00:00:00.000Z"),
-			image: "https://example.com/og/blog/hello-world.png",
-		});
+		const schema = generateBlogPostingSchema(
+			"https://example.com/",
+			{
+				slug: "hello-world",
+				title: "Hello",
+				excerpt: "note",
+				date: new Date("2026-08-30T00:00:00.000Z"),
+				image: "https://example.com/og/blog/hello-world.png",
+			},
+			SAME_AS,
+		);
 		expect(schema.dateModified).toBe(schema.datePublished);
 	});
 
@@ -326,15 +369,19 @@ describe("generateBlogPostingSchema", () => {
 
 Semantic view は何となく作ってはみたもののになりがち。
 `;
-		const schema = generateBlogPostingSchema("https://example.com/", {
-			slug: "snowflake-world-tour-tokyo-2026",
-			title: "Snowflake World Tour Tokyo に行ってきたよー",
-			excerpt: "いち参加者のラップアップ",
-			date: new Date("2026-09-16T00:00:00.000Z"),
-			image: "https://example.com/og/blog/snowflake.png",
-			tags: ["Snowflake"],
-			body,
-		});
+		const schema = generateBlogPostingSchema(
+			"https://example.com/",
+			{
+				slug: "snowflake-world-tour-tokyo-2026",
+				title: "Snowflake World Tour Tokyo に行ってきたよー",
+				excerpt: "いち参加者のラップアップ",
+				date: new Date("2026-09-16T00:00:00.000Z"),
+				image: "https://example.com/og/blog/snowflake.png",
+				tags: ["Snowflake"],
+				body,
+			},
+			SAME_AS,
+		);
 		expect(schema.wordCount).toBeGreaterThan(0);
 		expect(schema.articleBody).toContain("9/12");
 		expect(schema.articleBody).toContain("Semantic View");

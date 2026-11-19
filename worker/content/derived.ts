@@ -1,5 +1,8 @@
-import { FEATURED_WORKS, SITE } from "../../src/config/site.ts";
-import linksData from "../../src/data/links.json";
+import { SITE } from "../../src/config/site.ts";
+import type {
+	FeaturedWork,
+	SiteLink,
+} from "../../src/lib/content/site-data.ts";
 import { blogCollectionDescription } from "../../src/utils/collection-description.ts";
 import { toDate } from "./dates.ts";
 import { sanitizeFeedHtml } from "./feed-html.ts";
@@ -273,19 +276,20 @@ export function buildLlmsBlogSection(
 	return `## Blog\n\n${lines.join("\n")}\n`;
 }
 
-function featuredWorksMarkdown(): string {
-	return FEATURED_WORKS.map(
-		(work) => `- [${work.title}](${work.href}) — ${work.excerpt}`,
-	).join("\n");
-}
-
-function snsMarkdown(): string {
-	return linksData.links
-		.map((link) => `- [${link.name}](${link.url})`)
+function featuredWorksMarkdown(works: readonly FeaturedWork[]): string {
+	return works
+		.map((work) => `- [${work.title}](${work.href}) — ${work.excerpt}`)
 		.join("\n");
 }
 
-export function buildAboutMarkdown(): string {
+function snsMarkdown(links: readonly SiteLink[]): string {
+	return links.map((link) => `- [${link.name}](${link.url})`).join("\n");
+}
+
+export function buildAboutMarkdown(site: {
+	works: readonly FeaturedWork[];
+	links: readonly SiteLink[];
+}): string {
 	return `# About
 
 ${SITE.handle}
@@ -296,22 +300,22 @@ ${SITE.tagline}
 
 ## 代表作
 
-${featuredWorksMarkdown()}
+${featuredWorksMarkdown(site.works)}
 
 ## SNS
 
-${snsMarkdown()}
+${snsMarkdown(site.links)}
 
 連絡は Contact からどうぞ。
 `;
 }
 
-export function buildWorksMarkdown(): string {
+export function buildWorksMarkdown(works: readonly FeaturedWork[]): string {
 	return `# Works
 
 GitHub に置いている代表作です。
 
-${featuredWorksMarkdown()}
+${featuredWorksMarkdown(works)}
 `;
 }
 
@@ -325,12 +329,13 @@ function llmsFullPage(url: string, markdown: string): string {
 
 export function buildLlmsFullDocument(
 	posts: LlmsFullPost[],
-	origin: string = DEFAULT_ORIGIN,
+	origin: string,
+	site: { works: readonly FeaturedWork[]; links: readonly SiteLink[] },
 ): string {
 	const base = originBase(origin);
 	const pages = [
-		llmsFullPage(`${base}/about/`, buildAboutMarkdown()),
-		llmsFullPage(`${base}/works/`, buildWorksMarkdown()),
+		llmsFullPage(`${base}/about/`, buildAboutMarkdown(site)),
+		llmsFullPage(`${base}/works/`, buildWorksMarkdown(site.works)),
 		...sortFeedPosts(posts).map((post) =>
 			llmsFullPage(
 				`${base}/blog/${post.slug}/`,

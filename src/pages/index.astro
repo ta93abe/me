@@ -5,9 +5,13 @@ import HomeManifesto from "@/components/landing/HomeManifesto.astro";
 import HomeStage from "@/components/landing/HomeStage.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { getProfileUrls } from "@/lib/content/site-collections";
 import { generatePersonSchema, stringifySchema } from "@/utils/schema";
 
-const personSchema = generatePersonSchema(Astro.site?.href || SITE.url);
+const personSchema = generatePersonSchema(
+	Astro.site?.href || SITE.url,
+	await getProfileUrls(),
+);
 ---
 
 <Layout

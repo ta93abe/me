@@ -1,6 +1,5 @@
-import { FEATURED_WORKS, SITE, type FeaturedWork } from "@/config/site";
-import linksData from "@/data/links.json";
-import { TALKS, type Talk } from "@/data/talks";
+import { SITE } from "@/config/site";
+import type { FeaturedWork, SiteLink } from "@/lib/content/site-data";
 
 /** Google スニペット向け。完了条件は 50 文字以上、目安は 60〜110。 */
 export const COLLECTION_DESCRIPTION_MAX_LENGTH = 110;
@@ -78,7 +77,7 @@ export function slidesCollectionDescription(titles: readonly string[]): string {
 }
 
 export function talksCollectionDescription(
-	talks: readonly Talk[] = TALKS,
+	talks: readonly { title: string }[],
 ): string {
 	return namedListDescription(
 		TALKS_COLLECTION_LEAD,
@@ -95,7 +94,7 @@ export function blogCollectionDescription(titles: readonly string[]): string {
 }
 
 export function worksCollectionDescription(
-	works: readonly FeaturedWork[] = FEATURED_WORKS,
+	works: readonly FeaturedWork[],
 ): string {
 	const titles = namedListDescription(
 		WORKS_COLLECTION_LEAD,
@@ -108,7 +107,7 @@ export function worksCollectionDescription(
 }
 
 export function contactPageDescription(
-	links: readonly { name: string }[] = linksData.links,
+	links: readonly Pick<SiteLink, "name">[],
 	twitter: string = SITE.twitter,
 ): string {
 	const others = uniqueNames(links.map((link) => link.name)).filter(
@@ -120,8 +119,5 @@ export function contactPageDescription(
 	);
 }
 
-export const TALKS_COLLECTION_DESCRIPTION = talksCollectionDescription();
-export const WORKS_COLLECTION_DESCRIPTION = worksCollectionDescription();
-export const CONTACT_DESCRIPTION = contactPageDescription();
 export const BLOG_COLLECTION_DESCRIPTION = BLOG_COLLECTION_LEAD;
 export const SLIDES_COLLECTION_DESCRIPTION = SLIDES_COLLECTION_LEAD;

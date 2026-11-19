@@ -8,18 +8,21 @@ import {
 	talkThumbnailUrl,
 } from "@/data/talks";
 import Layout from "@/layouts/Layout.astro";
+import { getProfileUrls } from "@/lib/content/site-collections";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	generateBreadcrumbSchema,
 	generateTalksCollectionSchema,
 	stringifySchema,
-	TALKS_COLLECTION_DESCRIPTION,
 	TALKS_COLLECTION_LEAD,
+	talksCollectionDescription,
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
+const TALKS_COLLECTION_DESCRIPTION = talksCollectionDescription(TALKS);
 const collectionSchema = generateTalksCollectionSchema(
 	site,
+	await getProfileUrls(),
 	TALKS_COLLECTION_DESCRIPTION,
 );
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
