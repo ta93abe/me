@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>bret98kq5</task-id>
+<tool-use-id>toolu_012Rx5cQQjV7Ytb2UQhQcq4A</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/bret98kq5.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for PR #375 CI checks" completed (exit code 0)</summary>
+</task-notification>
