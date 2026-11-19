@@ -10,6 +10,7 @@ import BackToTop from "@/components/ui/BackToTop.astro";
 import Tag from "@/components/ui/Tag.astro";
 import { SITE } from "@/config/site";
 import { blogNeighbors } from "@/lib/content/blog";
+import { getProfileUrls } from "@/lib/content/site-collections";
 import {
 	blogEntryToListItem,
 	getBlogEntries,
@@ -68,16 +69,20 @@ const publishedTime = toDatetimeAttr(publish_date);
 const modifiedTime = revise_date ? toDatetimeAttr(revise_date) : publishedTime;
 const ogImageURL = new URL(`/og/blog/${slug}.png`, Astro.site);
 const site = Astro.site?.href || SITE.url;
-const blogSchema = generateBlogPostingSchema(site, {
-	slug,
-	title,
-	excerpt,
-	date: publish_date,
-	updatedDate: revise_date,
-	tags,
-	image: ogImageURL.href,
-	body,
-});
+const blogSchema = generateBlogPostingSchema(
+	site,
+	{
+		slug,
+		title,
+		excerpt,
+		date: publish_date,
+		updatedDate: revise_date,
+		tags,
+		image: ogImageURL.href,
+		body,
+	},
+	await getProfileUrls(),
+);
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Blog", path: "/blog/" },
 	{ name: title || "Blog", path: `/blog/${slug}/` },

@@ -30,32 +30,3 @@ export const HOME_CTAS = [
 	{ href: "/blog/", label: "Blog" },
 	{ href: "/contact/", label: "Contact" },
 ] as const;
-
-export type FeaturedWork = {
-	href: string;
-	title: string;
-	excerpt: string;
-};
-
-/**
- * 代表作の正。`/works` と About がこれを読む。blog か GitHub。
- * Gallery の URL は使わない。
- */
-export const FEATURED_WORKS: readonly FeaturedWork[] = [
-	{
-		href: "https://github.com/ta93abe/dbt-jobs",
-		title: "dbt-jobs",
-		excerpt:
-			"dbt の CI/CD パイプラインを GitHub Actions で実行する composite action。",
-	},
-	{
-		href: "https://github.com/ta93abe/dbt-intro",
-		title: "dbt-intro",
-		excerpt: "DuckDB と dbt Fusion で組んだ、小売 MDM の入門デモ。",
-	},
-	{
-		href: "https://github.com/ta93abe/enbu",
-		title: "enbu",
-		excerpt: "Cloudflare 上に置くデータ基盤。",
-	},
-];

@@ -2,6 +2,7 @@
 import SnsLinks from "@/components/SnsLinks.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { getLinks } from "@/lib/content/site-collections";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	generateBreadcrumbSchema,
@@ -11,7 +12,7 @@ import {
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
-const collectionSchema = generateLinksCollectionSchema(site);
+const collectionSchema = generateLinksCollectionSchema(site, await getLinks());
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "Links", path: "/links/" },
 ]);

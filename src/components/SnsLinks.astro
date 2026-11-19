@@ -2,7 +2,7 @@
 import * as simpleIcons from "simple-icons";
 import type { SimpleIcon } from "simple-icons";
 import { CUSTOM_ICONS } from "@/data/custom-icons";
-import linksData from "@/data/links.json";
+import { getLinks } from "@/lib/content/site-collections";
 
 interface ResolvedIcon {
 	path: string;
@@ -35,7 +35,7 @@ const resolveIcon = (slug: string): ResolvedIcon => {
 	return { path: icon.path, hex: `#${icon.hex}`, viewBox: "0 0 24 24" };
 };
 
-const links = linksData.links.map((link) => ({
+const links = (await getLinks()).map((link) => ({
 	...link,
 	iconData: resolveIcon(link.icon),
 }));

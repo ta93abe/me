@@ -5,6 +5,7 @@ import TalksList from "@/components/TalksList.astro";
 import Button from "@/components/ui/Button.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { getProfileUrls } from "@/lib/content/site-collections";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	ABOUT_DESCRIPTION,
@@ -14,7 +15,7 @@ import {
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
-const profileSchema = generateProfilePageSchema(site);
+const profileSchema = generateProfilePageSchema(site, await getProfileUrls());
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "About", path: "/about/" },
 ]);

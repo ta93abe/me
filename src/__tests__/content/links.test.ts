@@ -1,17 +1,9 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { describe, expect, it } from "vitest";
 
-const linksPath = join(
-	dirname(fileURLToPath(import.meta.url)),
-	"../../data/links.json",
-);
+import { readLinks } from "../helpers/site-content.ts";
 
-const linksData = JSON.parse(readFileSync(linksPath, "utf8")) as {
-	links: Array<{ name: string; url: string; icon: string }>;
-};
+// src/content/links/*.mdx を schema で検証し、order 順に読む。
+const linksData = { links: readLinks() };
 
 describe("curated links", () => {
 	it("keeps 6–8 active profiles", () => {

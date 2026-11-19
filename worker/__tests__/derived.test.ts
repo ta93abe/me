@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { FEATURED_WORKS, SITE } from "@/config/site";
+import { SITE } from "@/config/site";
 
+import {
+	readLinks,
+	readWorks,
+} from "../../src/__tests__/helpers/site-content.ts";
 import {
 	buildBlogRssXml,
 	buildBlogSitemapXml,
@@ -183,6 +187,9 @@ describe("derived discovery feeds", () => {
 	});
 });
 
+const FEATURED_WORKS = readWorks();
+const SITE_DATA = { works: FEATURED_WORKS, links: readLinks() };
+
 const SNOWFLAKE_BODY =
 	"シアターセッションを反復横跳びしていました。UNIQUE_SNOWFLAKE_BODY";
 
@@ -196,6 +203,7 @@ describe("llms-full corpus", () => {
 				},
 			],
 			"https://ta93abe.com",
+			SITE_DATA,
 		);
 
 		expect(full).toContain("## https://ta93abe.com/about/");
@@ -204,6 +212,7 @@ describe("llms-full corpus", () => {
 		expect(full).toContain(SITE.name);
 		expect(full).toContain(SITE.tagline);
 		expect(full).toContain(SITE.handle);
+		expect(full).toContain("- [GitHub](https://github.com/ta93abe)");
 		for (const work of FEATURED_WORKS) {
 			expect(full).toContain(`[${work.title}](${work.href})`);
 			expect(full).toContain(work.excerpt);
@@ -218,7 +227,7 @@ describe("llms-full corpus", () => {
 	it("keeps llms.txt blog index separate from the inlined corpus", () => {
 		const posts = [{ ...HELLO, body: SNOWFLAKE_BODY }];
 		const index = buildLlmsBlogSection(posts, "https://ta93abe.com");
-		const full = buildLlmsFullDocument(posts, "https://ta93abe.com");
+		const full = buildLlmsFullDocument(posts, "https://ta93abe.com", SITE_DATA);
 
 		expect(index).toContain(
 			"[Hello & Friends](https://ta93abe.com/blog/hello-world/)",

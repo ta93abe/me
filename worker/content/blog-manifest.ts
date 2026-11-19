@@ -8,6 +8,7 @@ import {
 	sortFeedPosts,
 	type LlmsFullPost,
 } from "./derived.ts";
+import { loadSiteManifest } from "./site-manifest.ts";
 
 /**
  * ビルド時に `src/pages/blog.json.ts` が出すブログ一覧（本文の正は `src/content/blog/*.mdx`）。
@@ -109,10 +110,11 @@ export async function buildLlmsFullText(
 	assets: AssetFetcher | undefined,
 	origin: string,
 ): Promise<string> {
-	return buildLlmsFullDocument(
-		await loadBlogManifestPosts(assets, origin),
-		origin,
-	);
+	const [posts, site] = await Promise.all([
+		loadBlogManifestPosts(assets, origin),
+		loadSiteManifest(assets, origin),
+	]);
+	return buildLlmsFullDocument(posts, origin, site);
 }
 
 export async function loadSitemapIndexXml(

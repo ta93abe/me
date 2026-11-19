@@ -81,6 +81,12 @@ src/pages/
 5. Worker の llms.txt / llms-full.txt / MCP / sitemap index は、ビルド時に出す `/blog.json` を ASSETS から読む
 6. 画像は公開 R2 `me-images`（`images.ta93abe.com`）
 
+その他のコンテンツ（TA-2152、移行中）:
+
+1. 1 項目 1 ファイルの MDX にする。今は Works（`src/content/works/`）と Links（`src/content/links/`）。並び順は frontmatter の `order`（重複はビルド失敗）
+2. ページとコンポーネントは `src/lib/content/site-collections.ts`（`getWorks` / `getLinks` / `getProfileUrls`）から読む。JSON-LD の `sameAs` は Links の URL
+3. Worker の llms-full.txt は、ビルド時に出す `/site.json` を ASSETS から読む（`worker/content/site-manifest.ts`）
+
 旧経路（pubme → Content API → 非公開 R2 → Queue `content-events`）は外した（TA-1899）。非公開 R2 `me-content` はスライド PDF の置き場としてだけ使う。
 
 ## 主要な設計パターン

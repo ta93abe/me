@@ -1,11 +1,12 @@
 ---
-import { FEATURED_WORKS } from "@/config/site";
+import { getWorks } from "@/lib/content/site-collections";
 
 interface Props {
 	source: "works" | "about";
 }
 
 const { source } = Astro.props;
+const works = await getWorks();
 
 const isExternalHref = (href: string) =>
 	href.startsWith("https://") || href.startsWith("http://");
@@ -13,7 +14,7 @@ const isExternalHref = (href: string) =>
 
 <ul class="featured-works-list">
 	{
-		FEATURED_WORKS.map((work) => {
+		works.map((work) => {
 			const external = isExternalHref(work.href);
 			return (
 				<li>
