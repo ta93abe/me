@@ -17,13 +17,39 @@ const TALKS_DIR = "src/content/talks";
 const SLIDES_DECKS_DIR = "src/slides/decks";
 const SLIDES_INDEX_SOURCE = "src/pages/slides/index.astro";
 
+/** ページのテンプレートと、そのページが読む `src/content/` の MDX（TA-2152）。git log はまとめて読む。 */
 const STATIC_PAGE_SOURCES = [
-	{ pathname: "/", source: "src/pages/index.astro" },
-	{ pathname: "/about/", source: "src/pages/about.astro" },
-	{ pathname: "/works/", source: "src/pages/works.astro" },
-	{ pathname: "/contact/", source: "src/pages/contact.astro" },
-	{ pathname: "/links/", source: "src/pages/links.astro" },
-	{ pathname: "/tools/", source: "src/pages/tools.astro" },
+	{ pathname: "/", sources: ["src/pages/index.astro"] },
+	{
+		pathname: "/about/",
+		sources: [
+			"src/pages/about.astro",
+			"src/content/pages/about.mdx",
+			"src/content/works",
+			"src/content/talks",
+			"src/content/links",
+		],
+	},
+	{
+		pathname: "/works/",
+		sources: ["src/pages/works.astro", "src/content/works"],
+	},
+	{
+		pathname: "/contact/",
+		sources: ["src/pages/contact.astro", "src/content/links"],
+	},
+	{
+		pathname: "/links/",
+		sources: ["src/pages/links.astro", "src/content/links"],
+	},
+	{
+		pathname: "/tools/",
+		sources: [
+			"src/pages/tools.astro",
+			"src/content/tools",
+			"src/content/pages/tools.mdx",
+		],
+	},
 ] as const;
 
 export function toW3cLastmod(date: Date | string): string {
@@ -137,7 +163,7 @@ function tryUnshallowGitRepository(rootDir: string): void {
 }
 
 function readGitLastmod(
-	relativePath: string,
+	relativePaths: string | readonly string[],
 	rootDir: string,
 ): Date | undefined {
 	if (isShallowGitRepository(rootDir)) {
@@ -149,7 +175,7 @@ function readGitLastmod(
 		"-1",
 		"--format=%cI",
 		"--",
-		relativePath,
+		...(typeof relativePaths === "string" ? [relativePaths] : relativePaths),
 	]);
 	if (!iso) {
 		return undefined;
@@ -300,7 +326,7 @@ export function createStaticSitemapSerializer(
 		setLastmod(
 			lastmodByPath,
 			page.pathname,
-			readGitLastmod(page.source, rootDir),
+			readGitLastmod(page.sources, rootDir),
 		);
 	}
 

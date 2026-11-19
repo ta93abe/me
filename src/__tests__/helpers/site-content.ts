@@ -1,41 +1,29 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
+import { parseFrontmatter } from "@astrojs/markdown-remark";
+
 import {
 	gadgetFrontmatterSchema,
 	gadgetsFromEntries,
 	linkFrontmatterSchema,
+	pageFrontmatterSchema,
 	sortByOrder,
 	talkFrontmatterSchema,
 	talksFromEntries,
+	toolCategoriesFromEntries,
+	toolCategoryFrontmatterSchema,
 	workFrontmatterSchema,
 	type FeaturedWork,
+	type PageCopy,
 	type SiteLink,
+	type ToolCategory,
 } from "@/lib/content/site-data";
 import type { Gadget } from "@/lib/gadgets/gadgets";
 import type { Talk } from "@/lib/talks/talks";
 
+/** テスト用。本番は `astro:content` が読む。ここはテストから実データを見るためだけに使う。 */
 const CONTENT_DIR = path.resolve(import.meta.dirname, "../../content");
-
-/**
- * テスト用。`key: value` だけの平坦な frontmatter を読む（値は JSON の文字列・数値・真偽値）。
- * 本番は `astro:content` が読むので、ここはテストから実データを見るためだけに使う。
- */
-export function readFlatFrontmatter(source: string): Record<string, unknown> {
-	const match = source.match(/^---\n([\s\S]*?)\n---/);
-	if (!match?.[1]) {
-		throw new Error("frontmatter がありません");
-	}
-	const data: Record<string, unknown> = {};
-	for (const line of match[1].split("\n")) {
-		const field = line.match(/^([A-Za-z][\w-]*):\s*(.+)$/);
-		if (!field?.[1] || !field[2]) {
-			throw new Error(`平坦な key: value ではありません: ${line}`);
-		}
-		data[field[1]] = JSON.parse(field[2]);
-	}
-	return data;
-}
 
 export function readCollection(name: string): { id: string; data: unknown }[] {
 	const dir = path.join(CONTENT_DIR, name);
@@ -43,7 +31,8 @@ export function readCollection(name: string): { id: string; data: unknown }[] {
 		.filter((file) => file.endsWith(".mdx"))
 		.map((file) => ({
 			id: file.replace(/\.mdx$/, ""),
-			data: readFlatFrontmatter(readFileSync(path.join(dir, file), "utf8")),
+			data: parseFrontmatter(readFileSync(path.join(dir, file), "utf8"))
+				.frontmatter as unknown,
 		}));
 }
 
@@ -87,4 +76,21 @@ export function readGadgets(): Gadget[] {
 			data: gadgetFrontmatterSchema.parse(entry.data),
 		})),
 	);
+}
+
+export function readToolCategories(): ToolCategory[] {
+	return toolCategoriesFromEntries(
+		readCollection("tools").map((entry) => ({
+			id: entry.id,
+			data: toolCategoryFrontmatterSchema.parse(entry.data),
+		})),
+	);
+}
+
+export function readPageCopy(id: string): PageCopy {
+	const entry = readCollection("pages").find((page) => page.id === id);
+	if (!entry) {
+		throw new Error(`src/content/pages/${id}.mdx がありません`);
+	}
+	return pageFrontmatterSchema.parse(entry.data);
 }

@@ -1,7 +1,7 @@
 ---
 import * as simpleIcons from "simple-icons";
 import type { SimpleIcon } from "simple-icons";
-import { CUSTOM_ICONS } from "@/data/custom-icons";
+import { CUSTOM_ICONS } from "@/lib/icons/custom-icons";
 import { getLinks } from "@/lib/content/site-collections";
 
 interface ResolvedIcon {
@@ -29,7 +29,7 @@ const resolveIcon = (slug: string): ResolvedIcon => {
 	const icon = (simpleIcons as unknown as Record<string, SimpleIcon>)[key];
 	if (!icon) {
 		throw new Error(
-			`Unknown icon slug "${slug}". simple-icons のスラッグを指定するか、src/data/custom-icons.ts に追加してください。`,
+			`Unknown icon slug "${slug}". simple-icons のスラッグを指定するか、src/lib/icons/custom-icons.ts に追加してください。`,
 		);
 	}
 	return { path: icon.path, hex: `#${icon.hex}`, viewBox: "0 0 24 24" };

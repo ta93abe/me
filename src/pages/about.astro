@@ -5,7 +5,7 @@ import TalksList from "@/components/TalksList.astro";
 import Button from "@/components/ui/Button.astro";
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
-import { getProfileUrls } from "@/lib/content/site-collections";
+import { getPageCopy, getProfileUrls } from "@/lib/content/site-collections";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	ABOUT_DESCRIPTION,
@@ -15,6 +15,7 @@ import {
 } from "@/utils/schema";
 
 const site = Astro.site?.href || SITE.url;
+const copy = await getPageCopy("about");
 const profileSchema = generateProfilePageSchema(site, await getProfileUrls());
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
 	{ name: "About", path: "/about/" },
@@ -101,7 +102,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 			<SnsLinks />
 		</section>
 
-		<p class="text-(--text-secondary)">連絡は Contact からどうぞ。</p>
+		{copy.closing ? <p class="text-(--text-secondary)">{copy.closing}</p> : null}
 		<div class="mt-4">
 			<Button href="/contact/" variant="primary">Contact</Button>
 		</div>

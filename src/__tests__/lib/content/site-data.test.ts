@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
 	linkFrontmatterSchema,
+	pageFrontmatterSchema,
 	profileUrls,
 	sortByOrder,
 	talkFrontmatterSchema,
 	talksFromEntries,
+	toolCategoriesFromEntries,
+	toolCategoryFrontmatterSchema,
 	workFrontmatterSchema,
 } from "@/lib/content/site-data";
 
@@ -155,5 +158,51 @@ describe("talksFromEntries", () => {
 			"b-same-day",
 			"older",
 		]);
+	});
+});
+
+describe("toolCategoryFrontmatterSchema", () => {
+	const category = {
+		title: "CLI",
+		order: 10,
+		tools: [{ name: "jq", description: "JSON", url: "https://jqlang.org/" }],
+	};
+
+	it("rejects empty categories and unknown tool keys", () => {
+		expect(toolCategoryFrontmatterSchema.safeParse(category).success).toBe(
+			true,
+		);
+		expect(
+			toolCategoryFrontmatterSchema.safeParse({ ...category, tools: [] })
+				.success,
+		).toBe(false);
+		expect(
+			toolCategoryFrontmatterSchema.safeParse({
+				...category,
+				tools: [{ ...category.tools[0], icon: "x" }],
+			}).success,
+		).toBe(false);
+	});
+
+	it("uses the file name as the anchor id and sorts by order", () => {
+		expect(
+			toolCategoriesFromEntries([
+				{ id: "b", data: { ...category, order: 20 } },
+				{ id: "a", data: category },
+			]).map((entry) => entry.id),
+		).toEqual(["a", "b"]);
+	});
+});
+
+describe("pageFrontmatterSchema", () => {
+	it("rejects unknown keys and relative CTA links", () => {
+		expect(pageFrontmatterSchema.safeParse({ closing: "x" }).success).toBe(
+			true,
+		);
+		expect(pageFrontmatterSchema.safeParse({ body: "x" }).success).toBe(false);
+		expect(
+			pageFrontmatterSchema.safeParse({ cta: { label: "x", href: "/x" } })
+				.success,
+		).toBe(false);
 	});
 });

@@ -13,7 +13,7 @@
 | パッケージマネージャー  | pnpm                                             | 高速・効率的な依存管理                                                 |
 | リンター/フォーマッター | Oxlint / Oxfmt                                   | コード品質管理                                                         |
 | テスティング            | Vitest + Playwright                              | ユニット・E2E テスト                                                   |
-| CMS                     | git 上の MDX（`src/content/blog/`）              | ADR-0003。Astro の content collection と `@astrojs/mdx` でビルド時に描画 |
+| CMS                     | git 上の MDX（`src/content/`）                   | ADR-0003。Astro の content collection と `@astrojs/mdx` でビルド時に描画 |
 | デプロイ先              | Cloudflare Workers                               | エッジ配信 + Worker ロジック                                           |
 
 ## ディレクトリ構造
@@ -28,6 +28,8 @@
 ├── src/
 │   ├── components/          # UI / landing / blog / creative
 │   ├── config/              # site.ts / navigation.ts
+│   ├── content/             # MDX のコンテンツ（blog / works / links / talks / gadgets / tools / pages）
+│   ├── lib/                 # content / talks / gadgets / slides / icons
 │   ├── layouts/Layout.astro, SlideDeck.astro
 │   ├── pages/               # ファイルベースルーティング
 │   ├── slides/              # デッキ MDX / MDX プラグイン / プレイヤー
@@ -81,12 +83,23 @@ src/pages/
 5. Worker の llms.txt / llms-full.txt / MCP / sitemap index は、ビルド時に出す `/blog.json` を ASSETS から読む
 6. 画像は公開 R2 `me-images`（`images.ta93abe.com`）
 
-その他のコンテンツ（TA-2152、移行中）:
+その他のコンテンツ（TA-2152）:
 
-1. 1 項目 1 ファイルの MDX にする。今は Works（`src/content/works/`）、Links（`src/content/links/`）、Talks（`src/content/talks/`）、Gadgets（`src/content/gadgets/`）。Works・Links・Gadgets の並び順は frontmatter の `order`（重複はビルド失敗）。Talks は `date` の新しい順で、slug はファイル名
-2. ページとコンポーネントは `src/lib/content/site-collections.ts`（`getWorks` / `getLinks` / `getProfileUrls` / `getTalks` / `getTalk` / `getGadgets` / `getGadget`）から読む。JSON-LD の `sameAs` は Links の URL。Talk の `slideSlug` とデッキの `talkSlug` の食い違いはユニットテストで落とす（`src/lib/talks/slide-crosslinks.ts`）
+1. 1 項目 1 ファイルの MDX。ファイル名が slug。スキーマは `src/lib/content/site-data.ts`（strict。未知キーはビルド失敗）
+
+   | コレクション | 置き場 | 並び順 |
+   | -- | -- | -- |
+   | Works | `src/content/works/<slug>.mdx` | `order` |
+   | Links | `src/content/links/<slug>.mdx` | `order` |
+   | Talks | `src/content/talks/<slug>.mdx` | `date` の新しい順 |
+   | Gadgets | `src/content/gadgets/<slug>.mdx` | `order` |
+   | Tools | `src/content/tools/<category>.mdx`（カテゴリー 1 つで 1 ファイル） | `order` |
+   | Pages | `src/content/pages/<page>.mdx`（`/tools` の導入文、About の末尾の文） | — |
+
+   `order` の重複はビルド失敗。サイト名や tagline などのサイト設定は `src/config/site.ts` に残す
+2. ページとコンポーネントは `src/lib/content/site-collections.ts`（`getWorks` / `getLinks` / `getProfileUrls` / `getTalks` / `getTalk` / `getGadgets` / `getGadget` / `getToolCategories` / `getPageCopy`）から読む。JSON-LD の `sameAs` は Links の URL。Talk の `slideSlug` とデッキの `talkSlug` の食い違いはユニットテストで落とす（`src/lib/talks/slide-crosslinks.ts`）
 3. Worker は、ビルド時に出す `/site.json` を ASSETS から読む（`worker/content/site-manifest.ts`）。llms-full.txt の代表作と SNS、Gadget 詳細に Markdown alternate を出すかどうか（`indexableGadgetSlugs`）
-4. sitemap（`src/utils/sitemap-lastmod.ts`）は `astro:content` を読めないので、Talk の `date` と Gadget の `indexable: true` を MDX から正規表現で読む
+4. sitemap（`src/utils/sitemap-lastmod.ts`）は `astro:content` を読めないので、Talk の `date` と Gadget の `indexable: true` を MDX から正規表現で読む。各ページの lastmod は、テンプレートと読んでいる `src/content/` の git log の新しいほう
 
 旧経路（pubme → Content API → 非公開 R2 → Queue `content-events`）は外した（TA-1899）。非公開 R2 `me-content` はスライド PDF の置き場としてだけ使う。
 
@@ -144,8 +157,7 @@ pnpm install
 ## 拡張ポイント
 
 1. ブラウザから記事を編集する `/admin`（TA-1898）
-2. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
-3. Agent Readiness 残タスク（DNS-AID など）
+2. Agent Readiness 残タスク（DNS-AID など）
 
 ## 参考資料
 

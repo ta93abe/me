@@ -38,6 +38,8 @@
 ├── src/
 │   ├── components/            # UI / landing / blog コンポーネント
 │   ├── config/                # site / navigation
+│   ├── content/               # MDX のコンテンツ（blog / works / links / talks / gadgets / tools / pages）
+│   ├── lib/                   # コレクションの読み出し・スキーマ・ヘルパー
 │   ├── layouts/Layout.astro
 │   ├── pages/                 # ファイルベースルーティング
 │   ├── styles/global.css
@@ -315,9 +317,9 @@ Conventional Commits に従う:
 - ページ: About / Works / Blog / Contact / Links / Tools / Talks / Slides
 - SEO（OG / JSON-LD / sitemap / robots）、PostHog、perf CI まで実装済み
 - ブログ本文は `src/content/blog/<slug>.mdx`（ADR-0003）、スライドは `src/slides/decks/<slug>.mdx`（ADR-0002）。content collection でビルド時に描画
+- Works / Links / Talks / Gadgets / Tools とページの文章も `src/content/` の MDX（TA-2152）。追加・修正は MDX を編集するだけ。スキーマは `src/lib/content/site-data.ts`、詳細は `docs/ARCHITECTURE.md`
 - `/gallery` `/atelier` `/bookshelf` は公開コンテンツができるまで `/` へリダイレクト
 
 ## 次のステップ
 
-1. ブログ・スライド以外のコンテンツも MDX にする（TA-2152）
-2. Agent Readiness の残タスク（DNS-AID など）
+1. Agent Readiness の残タスク（DNS-AID など）

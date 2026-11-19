@@ -1,6 +1,7 @@
 ---
 import { SITE } from "@/config/site";
 import Layout from "@/layouts/Layout.astro";
+import { getPageCopy, getToolCategories } from "@/lib/content/site-collections";
 import { ogSectionPath } from "@/utils/og/sections";
 import {
 	generateBreadcrumbSchema,
@@ -9,17 +10,6 @@ import {
 	TOOLS_COLLECTION_DESCRIPTION,
 } from "@/utils/schema";
 
-type Tool = {
-	name: string;
-	description: string;
-	url: string;
-};
-
-type Category = {
-	title: string;
-	tools: Tool[];
-};
-
 const toId = (value: string) =>
 	value
 		.toLowerCase()
@@ -27,120 +17,8 @@ const toId = (value: string) =>
 		.replace(/[\s_\\/]+/g, "-")
 		.replace(/[^a-z0-9-]/g, "");
 
-const DOTFILES_URL = "https://github.com/ta93abe/dotfiles";
-
-const categories: Category[] = [
-	{
-		title: "シェル・ターミナル",
-		tools: [
-			{
-				name: "Fish",
-				description: "補完とハイライトが最初から入っているシェル",
-				url: "https://fishshell.com/",
-			},
-			{
-				name: "Starship",
-				description: "クロスシェルのプロンプト。Nix でテーマまで固定する",
-				url: "https://starship.rs/",
-			},
-			{
-				name: "Ghostty",
-				description: "GPU アクセラレーションのターミナル。Tokyo Night",
-				url: "https://ghostty.org/",
-			},
-			{
-				name: "Zellij",
-				description: "ターミナルマルチプレクサ。キーバインドも Nix で管理",
-				url: "https://zellij.dev/",
-			},
-		],
-	},
-	{
-		title: "エディタ",
-		tools: [
-			{
-				name: "Cursor",
-				description: "日常のコーディングはここ。設定は dotfiles 側",
-				url: "https://cursor.com/",
-			},
-		],
-	},
-	{
-		title: "毎日の CLI",
-		tools: [
-			{
-				name: "ripgrep",
-				description: "コード検索",
-				url: "https://github.com/BurntSushi/ripgrep",
-			},
-			{
-				name: "fd",
-				description: "ファイル検索",
-				url: "https://github.com/sharkdp/fd",
-			},
-			{
-				name: "fzf",
-				description: "ファジーファインダー。Tokyo Night",
-				url: "https://github.com/junegunn/fzf",
-			},
-			{
-				name: "zoxide",
-				description: "よく行くディレクトリへ飛ぶ",
-				url: "https://github.com/ajeetdsouza/zoxide",
-			},
-			{
-				name: "eza",
-				description: "ls の代替",
-				url: "https://github.com/eza-community/eza",
-			},
-			{
-				name: "bat",
-				description: "シンタックスハイライト付きの cat",
-				url: "https://github.com/sharkdp/bat",
-			},
-			{
-				name: "gh",
-				description: "GitHub CLI。PR と Issue はターミナルから",
-				url: "https://cli.github.com/",
-			},
-			{
-				name: "delta",
-				description: "Git diff の見やすさ用",
-				url: "https://github.com/dandavison/delta",
-			},
-			{
-				name: "jq",
-				description: "JSON をその場で見る",
-				url: "https://jqlang.github.io/jq/",
-			},
-		],
-	},
-	{
-		title: "パッケージ",
-		tools: [
-			{
-				name: "Nix",
-				description: "CLI はすべてここ。再現可能な開発環境の本体",
-				url: "https://nixos.org/",
-			},
-			{
-				name: "pnpm",
-				description: "Node のパッケージマネージャ",
-				url: "https://pnpm.io/",
-			},
-			{
-				name: "uv",
-				description: "Python のパッケージマネージャ",
-				url: "https://github.com/astral-sh/uv",
-			},
-			{
-				name: "topgrade",
-				description: "Nix とそれ以外をまとめて更新する",
-				url: "https://github.com/topgrade-rs/topgrade",
-			},
-		],
-	},
-];
+const categories = await getToolCategories();
+const copy = await getPageCopy("tools");
 
 const site = Astro.site?.href || SITE.url;
 const collectionSchema = generateToolsCollectionSchema(
@@ -173,45 +51,47 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 			<h1 class="mb-4 font-display text-4xl font-bold text-(--text-primary)">
 				Tools
 			</h1>
-			<p class="mb-4 text-lg text-(--text-secondary)">
-				開発環境は Nix + Home Manager で宣言的に管理しています。百科事典ではなく、毎日触っているものと、そうしている理由だけを置いています。
-			</p>
-			<a
-				href={DOTFILES_URL}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="inline-text-link inline-flex items-center gap-2 text-sm font-medium"
-			>
-				→ dotfiles リポジトリ（Nix + Home Manager）
-			</a>
+			{
+				copy.lead ? (
+					<p class="mb-4 text-lg text-(--text-secondary)">{copy.lead}</p>
+				) : null
+			}
+			{
+				copy.cta ? (
+					<a
+						href={copy.cta.href}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-text-link inline-flex items-center gap-2 text-sm font-medium"
+					>
+						{copy.cta.label}
+					</a>
+				) : null
+			}
 		</header>
 
-		<section id="why-nix" class="mb-14">
-			<h2 class="mb-4 text-lg font-bold text-(--text-primary)">なぜ Nix か</h2>
-			<ul class="space-y-3 text-(--text-secondary)">
-				<li>
-					<strong class="text-(--text-primary)">CLI は 100% Nix。</strong>
-					マシンを作り直しても同じシェル・同じツールが入る。
-				</li>
-				<li>
-					<strong class="text-(--text-primary)">Homebrew は GUI だけ。</strong>
-					nixpkgs にないアプリに限る。
-				</li>
-				<li>
-					<strong class="text-(--text-primary)">テーマは Tokyo Night。</strong>
-					Ghostty、fzf、Zellij まで同じ色にする。
-				</li>
-				<li>
-					<strong class="text-(--text-primary)">更新は topgrade。</strong>
-					Nix もそれ以外も一度に上げる。
-				</li>
-			</ul>
-		</section>
+		{
+			copy.points?.length ? (
+				<section id="why-nix" class="mb-14">
+					<h2 class="mb-4 text-lg font-bold text-(--text-primary)">
+						{copy.pointsTitle}
+					</h2>
+					<ul class="space-y-3 text-(--text-secondary)">
+						{copy.points.map((point) => (
+							<li>
+								<strong class="text-(--text-primary)">{point.label}</strong>
+								{point.text}
+							</li>
+						))}
+					</ul>
+				</section>
+			) : null
+		}
 
 		<div class="space-y-12">
 			{
 				categories.map((category) => (
-					<section id={toId(category.title)}>
+					<section id={category.id}>
 						<h2 class="mb-4 text-lg font-bold text-(--text-primary)">
 							{category.title}
 							<span class="ml-2 text-sm font-normal text-(--text-muted)">
@@ -221,7 +101,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 
 						<div class="space-y-4">
 							{category.tools.map((tool) => {
-								const toolId = toId(`${category.title}-${tool.name}`);
+								const toolId = `${category.id}-${toId(tool.name)}`;
 								return (
 									<article id={toolId}>
 										<a

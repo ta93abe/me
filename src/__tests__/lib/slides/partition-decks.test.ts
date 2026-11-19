@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { SLIDE_DECK_GROUPS } from "@/data/slide-deck-groups";
 import { partitionDecksForIndex } from "@/lib/slides/partition-decks";
 import { listedDecks } from "@/lib/slides/visibility";
+import { SLIDE_DECK_GROUPS } from "@/slides/deck-groups";
 import { loadDecks } from "@/slides/load-decks";
 import type { Deck } from "@/slides/parser/types";
 

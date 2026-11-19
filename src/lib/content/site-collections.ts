@@ -1,4 +1,4 @@
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 
 import { gadgetBySlug, type Gadget } from "../gadgets/gadgets.ts";
 import { talkBySlug, type Talk } from "../talks/talks.ts";
@@ -6,6 +6,9 @@ import {
 	profileUrls,
 	gadgetsFromEntries,
 	sortByOrder,
+	toolCategoriesFromEntries,
+	type PageCopy,
+	type ToolCategory,
 	talksFromEntries,
 	type FeaturedWork,
 	type SiteLink,
@@ -50,4 +53,18 @@ export async function getGadgets(): Promise<Gadget[]> {
 
 export async function getGadget(slug: string): Promise<Gadget | undefined> {
 	return gadgetBySlug(await getGadgets(), slug);
+}
+
+/** `/tools` のカテゴリー。`order` 順。 */
+export async function getToolCategories(): Promise<ToolCategory[]> {
+	return toolCategoriesFromEntries(await getCollection("tools"));
+}
+
+/** `src/content/pages/<id>.mdx` の文章。無いとビルド失敗にする。 */
+export async function getPageCopy(id: "tools" | "about"): Promise<PageCopy> {
+	const entry = await getEntry("pages", id);
+	if (!entry) {
+		throw new Error(`src/content/pages/${id}.mdx がありません`);
+	}
+	return entry.data;
 }
