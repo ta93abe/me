@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { SITE } from "@/config/site";
-import { TALKS } from "@/data/talks";
 import { profileUrls } from "@/lib/content/site-data";
 import { toDatetimeAttr } from "@/utils/date";
 import {
@@ -29,10 +28,11 @@ import {
 	contactPageDescription,
 } from "@/utils/schema";
 
-import { readLinks, readWorks } from "../helpers/site-content.ts";
+import { readLinks, readTalks, readWorks } from "../helpers/site-content.ts";
 
 const LINKS = readLinks();
 const WORKS = readWorks();
+const TALKS = readTalks();
 const SAME_AS = profileUrls(LINKS);
 
 describe("generateWebSiteSchema", () => {
@@ -201,6 +201,7 @@ describe("generateTalksCollectionSchema", () => {
 	it("lists appearances as Event parts with YouTube recordings", () => {
 		const schema = generateTalksCollectionSchema(
 			"https://example.com/",
+			TALKS,
 			SAME_AS,
 			talksCollectionDescription(TALKS),
 		);

@@ -4,6 +4,8 @@ import {
 	linkFrontmatterSchema,
 	profileUrls,
 	sortByOrder,
+	talkFrontmatterSchema,
+	talksFromEntries,
 	workFrontmatterSchema,
 } from "@/lib/content/site-data";
 
@@ -96,5 +98,62 @@ describe("profileUrls", () => {
 				{ name: "X", url: "https://x.com/ta93abe_", icon: "x" },
 			]),
 		).toEqual(["https://github.com/ta93abe", "https://x.com/ta93abe_"]);
+	});
+});
+
+const TALK = {
+	title: "Talk",
+	event: "Event",
+	date: "2026-05-14",
+	excerpt: "excerpt",
+	youtubeId: "7yvAfZ8vCDU",
+};
+
+describe("talkFrontmatterSchema", () => {
+	it("accepts the optional fields", () => {
+		expect(
+			talkFrontmatterSchema.parse({
+				...TALK,
+				slideSlug: "snowflake-dbt",
+				youtubeThumbnailFit: "square",
+				links: [{ label: "イベント", href: "https://example.com/" }],
+			}).links,
+		).toEqual([{ label: "イベント", href: "https://example.com/" }]);
+	});
+
+	it("rejects unknown keys, bad dates and bad YouTube ids", () => {
+		expect(
+			talkFrontmatterSchema.safeParse({ ...TALK, slug: "x" }).success,
+		).toBe(false);
+		expect(
+			talkFrontmatterSchema.safeParse({ ...TALK, date: "2026/05/14" }).success,
+		).toBe(false);
+		expect(
+			talkFrontmatterSchema.safeParse({ ...TALK, date: "2026-02-30" }).success,
+		).toBe(false);
+		expect(
+			talkFrontmatterSchema.safeParse({ ...TALK, youtubeId: "short" }).success,
+		).toBe(false);
+		expect(
+			talkFrontmatterSchema.safeParse({
+				...TALK,
+				links: [{ label: "x", href: "/relative" }],
+			}).success,
+		).toBe(false);
+	});
+});
+
+describe("talksFromEntries", () => {
+	it("sorts newest first, then by file name, and uses the file name as slug", () => {
+		const talks = talksFromEntries([
+			{ id: "older", data: { ...TALK, date: "2026-05-14" } },
+			{ id: "b-same-day", data: { ...TALK, date: "2026-08-27" } },
+			{ id: "a-same-day", data: { ...TALK, date: "2026-08-27" } },
+		]);
+		expect(talks.map((talk) => talk.slug)).toEqual([
+			"a-same-day",
+			"b-same-day",
+			"older",
+		]);
 	});
 });

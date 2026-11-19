@@ -1,15 +1,19 @@
 import { describe, expect, it } from "vitest";
 
+import { isYoutubeId } from "@/lib/content/youtube-url";
 import {
-	TALKS,
 	TALK_THUMBNAIL_SIZES,
 	talkThumbnailSrcset,
 	talkThumbnailUrl,
 	talkYoutubeUrl,
-} from "@/data/talks";
-import { isYoutubeId } from "@/lib/content/youtube-url";
+} from "@/lib/talks/talks";
 
-describe("TALKS catalog", () => {
+import { readTalks } from "../helpers/site-content.ts";
+
+// src/content/talks/*.mdx を schema で検証し、新しい順に読む。
+const TALKS = readTalks();
+
+describe("talks collection", () => {
 	it("lists recorded appearances newest first", () => {
 		expect(TALKS.map((talk) => talk.slug)).toEqual([
 			"frosty-friday-live-challenge-vol56",

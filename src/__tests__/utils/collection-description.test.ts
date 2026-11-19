@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { TALKS } from "@/data/talks";
 import {
 	BLOG_COLLECTION_LEAD,
 	blogCollectionDescription,
@@ -15,9 +14,10 @@ import {
 	worksCollectionDescription,
 } from "@/utils/collection-description";
 
-import { readLinks, readWorks } from "../helpers/site-content.ts";
+import { readLinks, readTalks, readWorks } from "../helpers/site-content.ts";
 
 const FEATURED_WORKS = readWorks();
+const TALKS = readTalks();
 const TALKS_COLLECTION_DESCRIPTION = talksCollectionDescription(TALKS);
 const WORKS_COLLECTION_DESCRIPTION = worksCollectionDescription(FEATURED_WORKS);
 const CONTACT_DESCRIPTION = contactPageDescription(readLinks());

@@ -1,8 +1,10 @@
 import { getCollection } from "astro:content";
 
+import { talkBySlug, type Talk } from "../talks/talks.ts";
 import {
 	profileUrls,
 	sortByOrder,
+	talksFromEntries,
 	type FeaturedWork,
 	type SiteLink,
 } from "./site-data.ts";
@@ -28,4 +30,13 @@ export async function getLinks(): Promise<SiteLink[]> {
 /** JSON-LD Person.sameAs 用。 */
 export async function getProfileUrls(): Promise<string[]> {
 	return profileUrls(await getLinks());
+}
+
+/** 登壇・配信。新しい順。`/talks`、About、スライドがこれを読む。 */
+export async function getTalks(): Promise<Talk[]> {
+	return talksFromEntries(await getCollection("talks"));
+}
+
+export async function getTalk(slug: string): Promise<Talk | undefined> {
+	return talkBySlug(await getTalks(), slug);
 }

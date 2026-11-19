@@ -1,5 +1,4 @@
 ---
-import type { Talk } from "@/data/talks";
 import {
 	TALK_THUMBNAIL_HEIGHT,
 	TALK_THUMBNAIL_SIZES,
@@ -7,7 +6,8 @@ import {
 	talkThumbnailSrcset,
 	talkThumbnailUrl,
 	talkYoutubeUrl,
-} from "@/data/talks";
+	type Talk,
+} from "@/lib/talks/talks";
 import { slidePdfPath, slidePlayerPath } from "@/lib/slides/paths";
 import { formatDate, toDatetimeAttr } from "@/utils/date";
 

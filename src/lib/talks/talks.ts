@@ -7,6 +7,7 @@ export type TalkLink = {
 
 export type YoutubeThumbnailVariant = "mqdefault" | "hqdefault";
 
+/** 登壇・配信 1 件。正は `src/content/talks/<slug>.mdx`（TA-2152）。 */
 export type Talk = {
 	readonly slug: string;
 	readonly title: string;
@@ -40,59 +41,26 @@ export const TALK_THUMBNAIL_HEIGHT = 360;
 export const TALK_THUMBNAIL_SIZES =
 	"(min-width: 48rem) 720px, calc(100vw - 3rem)";
 
-/**
- * 登壇・配信の正。`/talks` と About がこれを読む。新しいものが先。
- */
-export const TALKS: readonly Talk[] = [
-	{
-		slug: "frosty-friday-live-challenge-vol56",
-		title: "Frosty Friday Live Challenge Vol.56",
-		event: "SnowVillage",
-		date: "2026-08-27",
-		excerpt: "SnowVillage の Frosty Friday Live Challenge にゲスト出演。",
-		youtubeId: "KLEApocYmww",
-		links: [
-			{
-				label: "再生リスト",
-				href: "https://www.youtube.com/playlist?list=PLVj4iIZgzTAq2FzaBBgqFOtZaJTcoG3JR",
-			},
-		],
-	},
-	{
-		slug: "mintsuyo-2026-rookie",
-		title: "Cloudflare で始める Data Platform",
-		event:
-			"みんなの考えた最強のデータ基盤アーキテクチャ'26前期〜前夜祭〜ルーキーズ",
-		date: "2026-05-14",
-		excerpt: "みん強'26前期 前夜祭。Cloudflare 上でデータ基盤を組む話。",
-		youtubeId: "7yvAfZ8vCDU",
-		youtubeThumbnailFit: "square",
-		links: [
-			{
-				label: "イベント",
-				href: "https://datatech-jp.connpass.com/event/386885/",
-			},
-			{
-				label: "スライド",
-				href: "https://speakerdeck.com/ta93abe/cloudflare-dehazimeru-data-platform",
-			},
-		],
-	},
-];
-
-export function talkYoutubeUrl(talk: Talk): string {
+export function talkYoutubeUrl(talk: Pick<Talk, "youtubeId">): string {
 	return youtubeWatchUrl(talk.youtubeId);
 }
 
 export function talkThumbnailUrl(
-	talk: Talk,
+	talk: Pick<Talk, "youtubeId">,
 	variant: YoutubeThumbnailVariant = "hqdefault",
 ): string {
 	return `https://i.ytimg.com/vi/${talk.youtubeId}/${variant}.jpg`;
 }
 
-export function talkThumbnailSrcset(talk: Talk): string {
+export function talkThumbnailSrcset(talk: Pick<Talk, "youtubeId">): string {
 	return TALK_THUMBNAIL_VARIANTS.map(
 		({ name, width }) => `${talkThumbnailUrl(talk, name)} ${width}w`,
 	).join(", ");
+}
+
+export function talkBySlug(
+	talks: readonly Talk[],
+	slug: string,
+): Talk | undefined {
+	return talks.find((talk) => talk.slug === slug);
 }
