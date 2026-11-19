@@ -1,7 +1,4 @@
-import {
-	SLIDE_DECK_GROUPS,
-	type SlideDeckGroup,
-} from "@/data/slide-deck-groups";
+import { SLIDE_DECK_GROUPS, type SlideDeckGroup } from "@/slides/deck-groups";
 import type { Deck } from "@/slides/parser/types";
 
 export type SeriesDeckLink = {

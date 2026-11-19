@@ -5,7 +5,9 @@ import { defineCollection } from "astro:content";
 import {
 	gadgetFrontmatterSchema,
 	linkFrontmatterSchema,
+	pageFrontmatterSchema,
 	talkFrontmatterSchema,
+	toolCategoryFrontmatterSchema,
 	workFrontmatterSchema,
 } from "./lib/content/site-data.ts";
 import { deckFrontmatterSchema } from "./slides/mdx/deck-schema.ts";
@@ -59,4 +61,25 @@ const gadgets = defineCollection({
 	schema: gadgetFrontmatterSchema,
 });
 
-export const collections = { blog, slides, works, links, talks, gadgets };
+/** 毎日使っている開発ツール（TA-2152）。`src/content/tools/<category>.mdx`。並び順は `order`。 */
+const tools = defineCollection({
+	loader: glob({ pattern: "*.mdx", base: "./src/content/tools" }),
+	schema: toolCategoryFrontmatterSchema,
+});
+
+/** 一覧の外にあるページの文章（TA-2152）。`src/content/pages/<page>.mdx`。 */
+const pages = defineCollection({
+	loader: glob({ pattern: "*.mdx", base: "./src/content/pages" }),
+	schema: pageFrontmatterSchema,
+});
+
+export const collections = {
+	blog,
+	slides,
+	works,
+	links,
+	talks,
+	gadgets,
+	tools,
+	pages,
+};

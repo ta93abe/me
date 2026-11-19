@@ -31,7 +31,7 @@ export const linkFrontmatterSchema = z
 	.object({
 		name: nonEmpty,
 		url: z.url(),
-		/** simple-icons のスラッグか `src/data/custom-icons.ts` のキー */
+		/** simple-icons のスラッグか `src/lib/icons/custom-icons.ts` のキー */
 		icon: nonEmpty,
 		order,
 	})
@@ -122,6 +122,57 @@ export function gadgetsFromEntries(
 		({ id, data: { order: _order, ...data } }) => ({ slug: id, ...data }),
 	);
 }
+
+const toolSchema = z
+	.object({ name: nonEmpty, description: nonEmpty, url: z.url() })
+	.strict();
+
+/** `src/content/tools/<category>.mdx`。カテゴリー 1 つで 1 ファイル。並び順は `order`。 */
+export const toolCategoryFrontmatterSchema = z
+	.object({
+		title: nonEmpty,
+		order,
+		tools: z.array(toolSchema).min(1),
+	})
+	.strict();
+
+export type ToolCategory = {
+	/** ファイル名。ページ内アンカー（`#<id>`）に使う */
+	id: string;
+	title: string;
+	tools: { name: string; description: string; url: string }[];
+};
+
+export function toolCategoriesFromEntries(
+	entries: readonly {
+		id: string;
+		data: z.infer<typeof toolCategoryFrontmatterSchema>;
+	}[],
+): ToolCategory[] {
+	return sortByOrder("tools", entries).map(({ id, data }) => ({
+		id,
+		title: data.title,
+		tools: data.tools,
+	}));
+}
+
+/**
+ * `src/content/pages/<page>.mdx`。一覧やカードの外にあるページの文章。
+ * 今は `tools`（導入文と「なぜ Nix か」）と `about`（末尾の一文）。
+ */
+export const pageFrontmatterSchema = z
+	.object({
+		lead: nonEmpty.optional(),
+		cta: z.object({ label: nonEmpty, href: z.url() }).strict().optional(),
+		pointsTitle: nonEmpty.optional(),
+		points: z
+			.array(z.object({ label: nonEmpty, text: nonEmpty }).strict())
+			.optional(),
+		closing: nonEmpty.optional(),
+	})
+	.strict();
+
+export type PageCopy = z.infer<typeof pageFrontmatterSchema>;
 
 export type FeaturedWork = {
 	href: string;

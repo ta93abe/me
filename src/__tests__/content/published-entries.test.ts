@@ -4,7 +4,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /** `src/content.config.ts` で宣言しているコレクション（ADR-0003、TA-2152）。 */
-const COLLECTIONS = ["blog", "gadgets", "links", "talks", "works"];
+const COLLECTIONS = [
+	"blog",
+	"gadgets",
+	"links",
+	"pages",
+	"talks",
+	"tools",
+	"works",
+];
 
 describe("published content", () => {
 	it("keeps only declared collections of <slug>.mdx in src/content", () => {
