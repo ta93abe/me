@@ -1,8 +1,8 @@
 import type { APIRoute } from "astro";
 
-import { GADGET_SOURCE_WIDTH, GADGET_THUMB_WIDTHS } from "@/data/gadget-images";
-import { resizeGadgetThumb } from "@/data/gadget-thumbs";
-import { GADGETS } from "@/data/gadgets";
+import { getGadgets } from "@/lib/content/site-collections";
+import { GADGET_SOURCE_WIDTH, GADGET_THUMB_WIDTHS } from "@/lib/gadgets/images";
+import { resizeGadgetThumb } from "@/lib/gadgets/thumbs";
 
 export const prerender = true;
 
@@ -11,8 +11,8 @@ const thumbWidths = GADGET_THUMB_WIDTHS.filter(
 );
 const thumbWidthSet = new Set<number>(thumbWidths);
 
-export function getStaticPaths() {
-	return GADGETS.flatMap((gadget) =>
+export async function getStaticPaths() {
+	return (await getGadgets()).flatMap((gadget) =>
 		thumbWidths.map((width) => ({
 			params: { slug: gadget.slug, width: String(width) },
 		})),

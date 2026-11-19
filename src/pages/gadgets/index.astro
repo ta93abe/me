@@ -2,8 +2,9 @@
 import GadgetThumb from "@/components/gadgets/GadgetThumb.astro";
 import GadgetsViewTransitions from "@/components/gadgets/GadgetsViewTransitions.astro";
 import { SITE } from "@/config/site";
-import { GADGETS, gadgetPath } from "@/data/gadgets";
 import Layout from "@/layouts/Layout.astro";
+import { getGadgets } from "@/lib/content/site-collections";
+import { gadgetPath } from "@/lib/gadgets/gadgets";
 import {
 	GADGETS_COLLECTION_DESCRIPTION,
 	generateBreadcrumbSchema,
@@ -11,11 +12,12 @@ import {
 	stringifySchema,
 } from "@/utils/schema";
 
+const gadgets = await getGadgets();
 const description = GADGETS_COLLECTION_DESCRIPTION;
 const site = Astro.site?.href || SITE.url;
 const itemListSchema = generateGadgetsItemListSchema(
 	site,
-	GADGETS,
+	gadgets,
 	description,
 );
 const breadcrumbSchema = generateBreadcrumbSchema(site, [
@@ -51,7 +53,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(site, [
 			class="grid w-full grid-cols-2 gap-x-5 gap-y-10 pb-10 sm:grid-cols-3 lg:grid-cols-4"
 		>
 			{
-				GADGETS.map((gadget) => (
+				gadgets.map((gadget) => (
 					<article class="min-w-0">
 						<a
 							href={gadgetPath(gadget.slug)}

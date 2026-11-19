@@ -1,4 +1,4 @@
-const gadgetPhotos = import.meta.glob<string>("../assets/gadgets/*.webp", {
+const gadgetPhotos = import.meta.glob<string>("../../assets/gadgets/*.webp", {
 	eager: true,
 	query: "?inline",
 	import: "default",

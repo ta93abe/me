@@ -2,6 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import {
+	gadgetFrontmatterSchema,
+	gadgetsFromEntries,
 	linkFrontmatterSchema,
 	sortByOrder,
 	talkFrontmatterSchema,
@@ -10,6 +12,7 @@ import {
 	type FeaturedWork,
 	type SiteLink,
 } from "@/lib/content/site-data";
+import type { Gadget } from "@/lib/gadgets/gadgets";
 import type { Talk } from "@/lib/talks/talks";
 
 const CONTENT_DIR = path.resolve(import.meta.dirname, "../../content");
@@ -73,6 +76,15 @@ export function readTalks(): Talk[] {
 		readCollection("talks").map((entry) => ({
 			id: entry.id,
 			data: talkFrontmatterSchema.parse(entry.data),
+		})),
+	);
+}
+
+export function readGadgets(): Gadget[] {
+	return gadgetsFromEntries(
+		readCollection("gadgets").map((entry) => ({
+			id: entry.id,
+			data: gadgetFrontmatterSchema.parse(entry.data),
 		})),
 	);
 }

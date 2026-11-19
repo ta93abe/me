@@ -1,9 +1,6 @@
 import { AGENT_DISCOVERY_HTTP_LINK_HEADER } from "../src/config/agent-discovery.ts";
 import { SITE } from "../src/config/site.ts";
-import {
-	gadgetSlugFromPath,
-	isIndexableGadgetPath,
-} from "../src/data/gadgets.ts";
+import { gadgetSlugFromPath } from "../src/lib/gadgets/gadgets.ts";
 import { canonicalPageUrl } from "../src/utils/canonical.ts";
 import {
 	composeLinkHeader,
@@ -64,12 +61,16 @@ export function shouldAttachHtmlDiscoveryHeaders(
 	return !isNoindexHtmlPath(new URL(request.url).pathname);
 }
 
-function shouldAdvertiseMarkdownAlternate(pathname: string): boolean {
+function shouldAdvertiseMarkdownAlternate(
+	pathname: string,
+	indexableGadgetSlugs: ReadonlySet<string>,
+): boolean {
 	if (isNoindexHtmlPath(pathname)) {
 		return false;
 	}
-	if (gadgetSlugFromPath(pathname)) {
-		return isIndexableGadgetPath(pathname);
+	const gadgetSlug = gadgetSlugFromPath(pathname);
+	if (gadgetSlug) {
+		return indexableGadgetSlugs.has(gadgetSlug);
 	}
 	return true;
 }
@@ -82,9 +83,11 @@ function markdownAlternateFor(request: Request): string {
 function withDiscoveryLinkHeader(
 	existing: string | null,
 	request: Request,
+	indexableGadgetSlugs: ReadonlySet<string>,
 ): string {
 	const advertiseMarkdown = shouldAdvertiseMarkdownAlternate(
 		new URL(request.url).pathname,
+		indexableGadgetSlugs,
 	);
 	const base =
 		!advertiseMarkdown || hasMarkdownAlternateLink(existing)
@@ -99,16 +102,24 @@ function withDiscoveryLinkHeader(
 	return composeLinkHeader(base, DISCOVERY_LINKS);
 }
 
+/**
+ * `indexableGadgetSlugs` は `/site.json` の値（正は `src/content/gadgets/`）。
+ * Gadget 詳細はここに無ければ noindex なので Markdown alternate を出さない。
+ */
 export function addPublicHtmlDiscoveryHeaders(
 	request: Request,
 	response: Response,
+	indexableGadgetSlugs: ReadonlySet<string> = new Set(),
 ): Response {
 	if (!shouldAttachHtmlDiscoveryHeaders(request, response)) {
 		return response;
 	}
 
 	const headers = new Headers(response.headers);
-	headers.set("Link", withDiscoveryLinkHeader(headers.get("Link"), request));
+	headers.set(
+		"Link",
+		withDiscoveryLinkHeader(headers.get("Link"), request, indexableGadgetSlugs),
+	);
 	headers.set("Vary", appendHeaderToken(headers.get("Vary"), "Accept"));
 	headers.set("Content-Signal", CONTENT_SIGNAL);
 

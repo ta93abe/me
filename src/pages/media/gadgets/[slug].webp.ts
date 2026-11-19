@@ -1,12 +1,12 @@
 import type { APIRoute } from "astro";
 
-import { gadgetImageBytes } from "@/data/gadget-images";
-import { GADGETS } from "@/data/gadgets";
+import { getGadgets } from "@/lib/content/site-collections";
+import { gadgetImageBytes } from "@/lib/gadgets/images";
 
 export const prerender = true;
 
-export function getStaticPaths() {
-	return GADGETS.map((gadget) => ({
+export async function getStaticPaths() {
+	return (await getGadgets()).map((gadget) => ({
 		params: { slug: gadget.slug },
 	}));
 }

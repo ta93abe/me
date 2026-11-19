@@ -4,6 +4,7 @@ import { pageAliasRedirect } from "../src/config/redirects.ts";
 import { BLOG_HTML_CACHE_CONTROL } from "../src/lib/content/cache.ts";
 import { isRetiredSitePath } from "../src/lib/content/retired-paths.ts";
 import { isSitemapIndexDocument } from "../src/lib/content/sitemap-aliases.ts";
+import { gadgetSlugFromPath } from "../src/lib/gadgets/gadgets.ts";
 import {
 	permanentRedirectStatus,
 	trailingSlashRedirectUrl,
@@ -27,6 +28,7 @@ import {
 	readLlmsBlogSection,
 } from "./content/blog-manifest.ts";
 import { buildLlmsOverviewMarkdown } from "./content/llms.ts";
+import { loadSiteManifest } from "./content/site-manifest.ts";
 import { discoveryResponse } from "./discovery-cache.ts";
 import {
 	CONTENT_SIGNAL,
@@ -515,7 +517,17 @@ async function handleSiteRequest(
 		contentSignal: CONTENT_SIGNAL,
 	});
 	const withCsp = await promoteHtmlCspHeader(negotiated);
-	const discovered = addPublicHtmlDiscoveryHeaders(request, withCsp);
+	// Gadget 詳細だけ /site.json を読んで、indexable かどうかで Markdown alternate を決める。
+	const indexableGadgetSlugs = gadgetSlugFromPath(pathname)
+		? new Set(
+				(await loadSiteManifest(env.ASSETS, SITE_URL)).indexableGadgetSlugs,
+			)
+		: undefined;
+	const discovered = addPublicHtmlDiscoveryHeaders(
+		request,
+		withCsp,
+		indexableGadgetSlugs,
+	);
 	if (method !== "HEAD") {
 		return discovered;
 	}

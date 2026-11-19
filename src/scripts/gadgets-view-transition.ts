@@ -2,7 +2,7 @@ import {
 	gadgetSlugFromPath,
 	gadgetViewTransitionName,
 	isGadgetsIndexPath,
-} from "@/data/gadgets";
+} from "@/lib/gadgets/gadgets";
 
 const STORAGE_KEY = "gadgets-view-transition-slug";
 

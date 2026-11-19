@@ -3,6 +3,7 @@ import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 
 import {
+	gadgetFrontmatterSchema,
 	linkFrontmatterSchema,
 	talkFrontmatterSchema,
 	workFrontmatterSchema,
@@ -52,4 +53,10 @@ const talks = defineCollection({
 	schema: talkFrontmatterSchema,
 });
 
-export const collections = { blog, slides, works, links, talks };
+/** 使っている道具（TA-2152）。`src/content/gadgets/<slug>.mdx`。並び順は `order`。 */
+const gadgets = defineCollection({
+	loader: glob({ pattern: "*.mdx", base: "./src/content/gadgets" }),
+	schema: gadgetFrontmatterSchema,
+});
+
+export const collections = { blog, slides, works, links, talks, gadgets };

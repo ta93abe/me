@@ -1,8 +1,10 @@
 import { getCollection } from "astro:content";
 
+import { gadgetBySlug, type Gadget } from "../gadgets/gadgets.ts";
 import { talkBySlug, type Talk } from "../talks/talks.ts";
 import {
 	profileUrls,
+	gadgetsFromEntries,
 	sortByOrder,
 	talksFromEntries,
 	type FeaturedWork,
@@ -39,4 +41,13 @@ export async function getTalks(): Promise<Talk[]> {
 
 export async function getTalk(slug: string): Promise<Talk | undefined> {
 	return talkBySlug(await getTalks(), slug);
+}
+
+/** 使っている道具。`order` 順。`/gadgets` と詳細ページ、画像の生成がこれを読む。 */
+export async function getGadgets(): Promise<Gadget[]> {
+	return gadgetsFromEntries(await getCollection("gadgets"));
+}
+
+export async function getGadget(slug: string): Promise<Gadget | undefined> {
+	return gadgetBySlug(await getGadgets(), slug);
 }
