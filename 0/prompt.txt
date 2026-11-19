@@ -1,0 +1,11 @@
+<task-notification>
+<task-id>ba26s4r39</task-id>
+<tool-use-id>toolu_01RBhBAGzteJRhGjHRYtKSNv</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/ba26s4r39.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for re-run CI on PR #375" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+続けて
