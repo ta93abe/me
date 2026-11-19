@@ -83,9 +83,10 @@ src/pages/
 
 その他のコンテンツ（TA-2152、移行中）:
 
-1. 1 項目 1 ファイルの MDX にする。今は Works（`src/content/works/`）、Links（`src/content/links/`）、Talks（`src/content/talks/`）。Works と Links の並び順は frontmatter の `order`（重複はビルド失敗）。Talks は `date` の新しい順で、slug はファイル名
-2. ページとコンポーネントは `src/lib/content/site-collections.ts`（`getWorks` / `getLinks` / `getProfileUrls` / `getTalks` / `getTalk`）から読む。JSON-LD の `sameAs` は Links の URL。Talk の `slideSlug` とデッキの `talkSlug` の食い違いはユニットテストで落とす（`src/lib/talks/slide-crosslinks.ts`）
-3. Worker の llms-full.txt は、ビルド時に出す `/site.json` を ASSETS から読む（`worker/content/site-manifest.ts`）
+1. 1 項目 1 ファイルの MDX にする。今は Works（`src/content/works/`）、Links（`src/content/links/`）、Talks（`src/content/talks/`）、Gadgets（`src/content/gadgets/`）。Works・Links・Gadgets の並び順は frontmatter の `order`（重複はビルド失敗）。Talks は `date` の新しい順で、slug はファイル名
+2. ページとコンポーネントは `src/lib/content/site-collections.ts`（`getWorks` / `getLinks` / `getProfileUrls` / `getTalks` / `getTalk` / `getGadgets` / `getGadget`）から読む。JSON-LD の `sameAs` は Links の URL。Talk の `slideSlug` とデッキの `talkSlug` の食い違いはユニットテストで落とす（`src/lib/talks/slide-crosslinks.ts`）
+3. Worker は、ビルド時に出す `/site.json` を ASSETS から読む（`worker/content/site-manifest.ts`）。llms-full.txt の代表作と SNS、Gadget 詳細に Markdown alternate を出すかどうか（`indexableGadgetSlugs`）
+4. sitemap（`src/utils/sitemap-lastmod.ts`）は `astro:content` を読めないので、Talk の `date` と Gadget の `indexable: true` を MDX から正規表現で読む
 
 旧経路（pubme → Content API → 非公開 R2 → Queue `content-events`）は外した（TA-1899）。非公開 R2 `me-content` はスライド PDF の置き場としてだけ使う。
 

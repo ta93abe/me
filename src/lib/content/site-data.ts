@@ -1,5 +1,6 @@
 import { z } from "astro/zod";
 
+import type { Gadget } from "../gadgets/gadgets.ts";
 import type { Talk } from "../talks/talks.ts";
 import { isYoutubeId } from "./youtube-url.ts";
 
@@ -81,6 +82,45 @@ export function talksFromEntries(
 				left.id.localeCompare(right.id),
 		)
 		.map(({ id, data }) => ({ slug: id, ...data }));
+}
+
+/** `src/content/gadgets/<slug>.mdx`。slug はファイル名。並び順は `order`。 */
+export const gadgetFrontmatterSchema = z
+	.object({
+		name: nonEmpty,
+		note: nonEmpty,
+		brand: nonEmpty,
+		/** 1–5。書いたときだけ Product JSON-LD を出す */
+		rating: z
+			.union([
+				z.literal(1),
+				z.literal(2),
+				z.literal(3),
+				z.literal(4),
+				z.literal(5),
+			])
+			.optional(),
+		pros: z.array(nonEmpty).optional(),
+		cons: z.array(nonEmpty).optional(),
+		/** 画像の出典 */
+		imageSource: z
+			.object({ href: z.url(), label: nonEmpty.optional() })
+			.strict()
+			.optional(),
+		/** 本文が十分なページだけ true。sitemap-lastmod.ts はこの行を正規表現で読む */
+		indexable: z.boolean().optional(),
+		order,
+	})
+	.strict();
+
+export type GadgetFrontmatter = z.infer<typeof gadgetFrontmatterSchema>;
+
+export function gadgetsFromEntries(
+	entries: readonly { id: string; data: GadgetFrontmatter }[],
+): Gadget[] {
+	return sortByOrder("gadgets", entries).map(
+		({ id, data: { order: _order, ...data } }) => ({ slug: id, ...data }),
+	);
 }
 
 export type FeaturedWork = {

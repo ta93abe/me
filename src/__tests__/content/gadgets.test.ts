@@ -5,34 +5,38 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
+	gadgetBySlug,
+	gadgetPath,
+	gadgetRatingLabel,
+	gadgetSlugFromPath,
+	gadgetViewTransitionName,
+	hasGadgetRating,
+	indexableGadgetSlugs,
+	isGadgetRating,
+	isGadgetsIndexPath,
+	isIndexableGadget,
+} from "@/lib/gadgets/gadgets";
+import {
 	GADGET_THUMB_SIZES,
 	GADGET_THUMB_WIDTHS,
 	gadgetImageBytes,
 	gadgetImageUrl,
 	gadgetThumbSrcset,
 	gadgetThumbUrl,
-} from "@/data/gadget-images";
-import { resizeGadgetThumb } from "@/data/gadget-thumbs";
-import {
-	GADGETS,
-	gadgetPath,
-	gadgetRatingLabel,
-	gadgetSlugFromPath,
-	gadgetViewTransitionName,
-	getGadget,
-	hasGadgetRating,
-	isGadgetRating,
-	isGadgetsIndexPath,
-	isIndexableGadget,
-	isIndexableGadgetPath,
-} from "@/data/gadgets";
+} from "@/lib/gadgets/images";
+import { resizeGadgetThumb } from "@/lib/gadgets/thumbs";
+
+import { readGadgets } from "../helpers/site-content.ts";
 
 const assetsDir = path.resolve(
 	path.dirname(fileURLToPath(import.meta.url)),
 	"../../assets/gadgets",
 );
 
-describe("GADGETS catalog", () => {
+// src/content/gadgets/*.mdx を schema で検証し、order 順に読む。
+const GADGETS = readGadgets();
+
+describe("gadgets collection", () => {
 	it("keeps unique kebab slugs and on-disk images", () => {
 		const slugs = GADGETS.map((gadget) => gadget.slug);
 		expect(new Set(slugs).size).toBe(slugs.length);
@@ -47,7 +51,7 @@ describe("GADGETS catalog", () => {
 				true,
 			);
 			expect(gadget.imageSource?.href.startsWith("https://")).toBe(true);
-			expect(getGadget(gadget.slug)).toEqual(gadget);
+			expect(gadgetBySlug(GADGETS, gadget.slug)).toEqual(gadget);
 			expect(gadgetPath(gadget.slug)).toBe(`/gadgets/${gadget.slug}/`);
 			expect(gadgetViewTransitionName(gadget.slug)).toBe(
 				`gadget-${gadget.slug}`,
@@ -97,11 +101,9 @@ describe("GADGETS catalog", () => {
 			expect(gadget.cons).toBeUndefined();
 			expect(isIndexableGadget(gadget)).toBe(false);
 			expect(gadget.indexable).toBeUndefined();
-			expect(isIndexableGadgetPath(`/gadgets/${gadget.slug}/`)).toBe(false);
 		}
 
-		expect(isIndexableGadgetPath("/gadgets/")).toBe(false);
-		expect(isIndexableGadgetPath("/gadgets/missing/")).toBe(false);
+		expect(indexableGadgetSlugs(GADGETS)).toEqual([]);
 		expect(
 			isIndexableGadget({
 				slug: "demo",
@@ -111,6 +113,21 @@ describe("GADGETS catalog", () => {
 				indexable: true,
 			}),
 		).toBe(true);
+		expect(
+			indexableGadgetSlugs([
+				{ slug: "a", name: "A", note: "n", brand: "b", indexable: true },
+				{ slug: "b", name: "B", note: "n", brand: "b" },
+			]),
+		).toEqual(["a"]);
+	});
+
+	it("keeps the listing order of the old catalog", () => {
+		expect(GADGETS.map((gadget) => gadget.slug).slice(0, 3)).toEqual([
+			"mac-studio",
+			"hhkb-type-s",
+			"shure-sm7b",
+		]);
+		expect(GADGETS.at(-1)?.slug).toBe("milestone-ms-i1");
 	});
 
 	it("distinguishes the index from item paths", () => {
@@ -120,7 +137,7 @@ describe("GADGETS catalog", () => {
 		expect(gadgetSlugFromPath("/gadgets")).toBeNull();
 		expect(gadgetSlugFromPath("/gadgets/mac-studio")).toBe("mac-studio");
 		expect(gadgetSlugFromPath("/gadgets/mac-studio/")).toBe("mac-studio");
-		expect(getGadget("missing")).toBeUndefined();
+		expect(gadgetBySlug(GADGETS, "missing")).toBeUndefined();
 	});
 
 	it("keeps software tools off the object shelf", () => {

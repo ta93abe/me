@@ -21,6 +21,7 @@ const site = {
 	links: [
 		{ name: "GitHub", url: "https://github.com/ta93abe", icon: "github" },
 	],
+	indexableGadgetSlugs: ["hhkb-type-s"],
 };
 
 function assets(byPath: Record<string, unknown>) {
@@ -44,6 +45,7 @@ describe("siteManifestFromJson", () => {
 			siteManifestFromJson({
 				works: [...site.works, { title: "no href" }, "x"],
 				links: [...site.links, { name: "no url", icon: "x" }],
+				indexableGadgetSlugs: [...site.indexableGadgetSlugs, 1, null],
 			}),
 		).toEqual(site);
 	});

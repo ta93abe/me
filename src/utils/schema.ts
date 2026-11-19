@@ -1,6 +1,6 @@
 import { SITE } from "@/config/site";
-import { type GadgetRating, isGadgetRating } from "@/data/gadgets";
 import type { FeaturedWork, SiteLink } from "@/lib/content/site-data";
+import { type GadgetRating, isGadgetRating } from "@/lib/gadgets/gadgets";
 import { talkThumbnailUrl, talkYoutubeUrl, type Talk } from "@/lib/talks/talks";
 import {
 	articleBodyText,

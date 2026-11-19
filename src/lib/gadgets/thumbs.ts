@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-import { GADGET_SOURCE_WIDTH, gadgetImageBytes } from "@/data/gadget-images";
+import { GADGET_SOURCE_WIDTH, gadgetImageBytes } from "./images.ts";
 
 export async function resizeGadgetThumb(
 	slug: string,

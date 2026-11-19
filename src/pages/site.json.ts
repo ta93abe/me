@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 
-import { getLinks, getWorks } from "@/lib/content/site-collections";
+import { getGadgets, getLinks, getWorks } from "@/lib/content/site-collections";
+import { indexableGadgetSlugs } from "@/lib/gadgets/gadgets";
 
 import type { SiteManifest } from "../../worker/content/site-manifest.ts";
 
@@ -9,6 +10,7 @@ export const GET: APIRoute = async () => {
 	const manifest: SiteManifest = {
 		works: await getWorks(),
 		links: await getLinks(),
+		indexableGadgetSlugs: indexableGadgetSlugs(await getGadgets()),
 	};
 
 	return new Response(JSON.stringify(manifest), {

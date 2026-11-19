@@ -5,7 +5,6 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { GADGETS } from "@/data/gadgets";
 import {
 	applyStaticSitemapLastmod,
 	createStaticSitemapSerializer,
@@ -15,6 +14,7 @@ import {
 } from "@/utils/sitemap-lastmod";
 
 import { buildBlogSitemapXml } from "../../../worker/content/derived.ts";
+import { readGadgets } from "../helpers/site-content.ts";
 
 const W3C_DATETIME =
 	/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
@@ -61,6 +61,12 @@ date: "2026-05-14"
 `,
 } as const;
 
+const GADGET_FIXTURE = `---
+name: "Mac Studio"
+order: 10
+---
+`;
+
 const SLIDE_FIXTURE = `---
 slug: demo
 date: 2026-03-02
@@ -77,7 +83,7 @@ function fixtureRoot(): string {
 	for (const [file, contents] of Object.entries(TALK_FIXTURES)) {
 		writeFixture(rootDir, file, contents);
 	}
-	writeFixture(rootDir, "src/data/gadgets.ts", "export const GADGETS = [];\n");
+	writeFixture(rootDir, "src/content/gadgets/mac-studio.mdx", GADGET_FIXTURE);
 	writeFixture(rootDir, "src/slides/decks/demo.mdx", SLIDE_FIXTURE);
 	writeFixture(rootDir, "src/pages/index.astro", "<h1>home</h1>\n");
 	return rootDir;
@@ -135,8 +141,8 @@ function gitHistoryFixture(): string {
 	);
 	commitFile(
 		rootDir,
-		"src/data/gadgets.ts",
-		"export const GADGETS = [];\n",
+		"src/content/gadgets/mac-studio.mdx",
+		GADGET_FIXTURE,
 		GADGETS_COMMIT_DATE,
 	);
 	for (const [file, contents] of Object.entries(TALK_FIXTURES)) {
@@ -166,13 +172,39 @@ describe("includeInStaticSitemap", () => {
 
 	it("drops thin gadget detail pages until they opt back in", () => {
 		expect(includeInStaticSitemap("https://ta93abe.com/gadgets/")).toBe(true);
-		expect(GADGETS.length).toBeGreaterThan(0);
-		for (const gadget of GADGETS) {
+		const gadgets = readGadgets();
+		expect(gadgets.length).toBeGreaterThan(0);
+		for (const gadget of gadgets) {
 			expect(
 				includeInStaticSitemap(`https://ta93abe.com/gadgets/${gadget.slug}/`),
 				gadget.slug,
 			).toBe(false);
 		}
+	});
+
+	it("keeps a gadget detail once its MDX opts in with indexable: true", () => {
+		const rootDir = fixtureRoot();
+		writeFixture(
+			rootDir,
+			"src/content/gadgets/reviewed.mdx",
+			`---
+name: "Reviewed"
+indexable: true
+order: 20
+---
+`,
+		);
+
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/gadgets/reviewed/", {
+				rootDir,
+			}),
+		).toBe(true);
+		expect(
+			includeInStaticSitemap("https://ta93abe.com/gadgets/mac-studio/", {
+				rootDir,
+			}),
+		).toBe(false);
 	});
 
 	it("leaves /blog/ and post URLs to sitemap-blog", () => {

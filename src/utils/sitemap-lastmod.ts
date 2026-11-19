@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-import { gadgetSlugFromPath, isIndexableGadgetPath } from "../data/gadgets.ts";
+import { gadgetSlugFromPath } from "../lib/gadgets/gadgets.ts";
 import { withTrailingSlash } from "./canonical.ts";
 
 export type SitemapLastmodItem = {
@@ -10,7 +10,8 @@ export type SitemapLastmodItem = {
 	lastmod?: string;
 };
 
-const GADGETS_SOURCE = "src/data/gadgets.ts";
+/** 1 件 1 ファイル（TA-2152）。git log はディレクトリ単位で読む。 */
+const GADGETS_DIR = "src/content/gadgets";
 /** 1 件 1 ファイル（TA-2152）。git log はディレクトリ単位で読む。 */
 const TALKS_DIR = "src/content/talks";
 const SLIDES_DECKS_DIR = "src/slides/decks";
@@ -55,8 +56,9 @@ export function includeInStaticSitemap(
 		return false;
 	}
 
-	if (gadgetSlugFromPath(pathname)) {
-		return isIndexableGadgetPath(pathname);
+	const gadgetSlug = gadgetSlugFromPath(pathname);
+	if (gadgetSlug) {
+		return isIndexableGadgetFile(options.rootDir ?? process.cwd(), gadgetSlug);
 	}
 
 	const slideMatch = pathname.match(/^\/slides\/([^/]+)\/$/);
@@ -168,6 +170,19 @@ function setLastmod(
 		return;
 	}
 	lastmodByPath.set(pathname, toW3cLastmod(date));
+}
+
+/** `src/content/gadgets/<slug>.mdx` に `indexable: true` があるときだけ sitemap に載せる。 */
+function isIndexableGadgetFile(rootDir: string, slug: string): boolean {
+	try {
+		const text = readFileSync(
+			path.join(rootDir, GADGETS_DIR, `${slug}.mdx`),
+			"utf8",
+		);
+		return /^indexable:\s*true\s*$/m.test(text);
+	} catch {
+		return false;
+	}
 }
 
 function isUnlistedFrontmatter(text: string): boolean {
@@ -289,11 +304,7 @@ export function createStaticSitemapSerializer(
 		);
 	}
 
-	setLastmod(
-		lastmodByPath,
-		"/gadgets/",
-		readGitLastmod(GADGETS_SOURCE, rootDir),
-	);
+	setLastmod(lastmodByPath, "/gadgets/", readGitLastmod(GADGETS_DIR, rootDir));
 	setLastmod(
 		lastmodByPath,
 		"/talks/",

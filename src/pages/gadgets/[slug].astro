@@ -2,23 +2,22 @@
 import GadgetThumb from "@/components/gadgets/GadgetThumb.astro";
 import GadgetsViewTransitions from "@/components/gadgets/GadgetsViewTransitions.astro";
 import { SITE } from "@/config/site";
-import { gadgetImageUrl } from "@/data/gadget-images";
+import Layout from "@/layouts/Layout.astro";
+import { getGadget, getGadgets } from "@/lib/content/site-collections";
 import {
-	GADGETS,
 	gadgetRatingLabel,
-	getGadget,
 	hasGadgetRating,
 	isIndexableGadget,
-} from "@/data/gadgets";
-import Layout from "@/layouts/Layout.astro";
+} from "@/lib/gadgets/gadgets";
+import { gadgetImageUrl } from "@/lib/gadgets/images";
 import {
 	generateBreadcrumbSchema,
 	generateGadgetDetailSchema,
 	stringifySchema,
 } from "@/utils/schema";
 
-export function getStaticPaths() {
-	return GADGETS.map((gadget) => ({
+export async function getStaticPaths() {
+	return (await getGadgets()).map((gadget) => ({
 		params: { slug: gadget.slug },
 	}));
 }
@@ -28,7 +27,7 @@ if (!slug) {
 	throw new Error("Missing gadget slug");
 }
 
-const gadget = getGadget(slug);
+const gadget = await getGadget(slug);
 if (!gadget) {
 	throw new Error(`Unknown gadget: ${slug}`);
 }

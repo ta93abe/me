@@ -12,9 +12,15 @@ export const SITE_MANIFEST_PATH = "/site.json";
 export type SiteManifest = {
 	works: FeaturedWork[];
 	links: SiteLink[];
+	/** indexable な Gadget 詳細の slug。Markdown alternate を出すかの判定に使う。 */
+	indexableGadgetSlugs: string[];
 };
 
-export const EMPTY_SITE_MANIFEST: SiteManifest = { works: [], links: [] };
+export const EMPTY_SITE_MANIFEST: SiteManifest = {
+	works: [],
+	links: [],
+	indexableGadgetSlugs: [],
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
@@ -54,7 +60,12 @@ export function siteManifestFromJson(value: unknown): SiteManifest {
 				return link ? [link] : [];
 			})
 		: [];
-	return { works, links };
+	const indexableGadgetSlugs = Array.isArray(value.indexableGadgetSlugs)
+		? value.indexableGadgetSlugs.filter(
+				(slug): slug is string => typeof slug === "string",
+			)
+		: [];
+	return { works, links, indexableGadgetSlugs };
 }
 
 type AssetFetcher = { fetch: (request: Request) => Promise<Response> };

@@ -207,6 +207,26 @@ describe("addPublicHtmlDiscoveryHeaders", () => {
 		expect(listing.headers.get("Link")).toBe(expectedLink("/gadgets/"));
 	});
 
+	it("advertises markdown alternate on gadget details listed as indexable", () => {
+		const detail = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/gadgets/hhkb-type-s/"),
+			htmlResponse(),
+			new Set(["hhkb-type-s"]),
+		);
+		expect(detail.headers.get("Link")).toBe(
+			expectedLink("/gadgets/hhkb-type-s/"),
+		);
+
+		const other = addPublicHtmlDiscoveryHeaders(
+			htmlRequest("/gadgets/mac-studio/"),
+			htmlResponse(),
+			new Set(["hhkb-type-s"]),
+		);
+		expect(other.headers.get("Link")).not.toMatch(
+			/rel="alternate";\s*type="text\/markdown"/,
+		);
+	});
+
 	it("does not attach discovery headers to 404 HTML", () => {
 		const missing = addPublicHtmlDiscoveryHeaders(
 			htmlRequest("/blog/does-not-exist/"),
