@@ -1,0 +1,21 @@
+<task-notification>
+<task-id>bdagzhuy4</task-id>
+<tool-use-id>toolu_01GSTtktRrf15N96jyAqrgpV</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/bdagzhuy4.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for PR #377 rerun and show comments" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>bvdlnl6ui</task-id>
+<tool-use-id>toolu_01Efir1wajicuMKVwKXWiNKX</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/bvdlnl6ui.output</output-file>
+<status>completed</status>
+<summary>Background command "Rerun failed E2E job and wait" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+続けて
