@@ -68,6 +68,26 @@ describe("frontmatter schemas", () => {
 	});
 });
 
+describe("work href", () => {
+	const work = (href: string) =>
+		workFrontmatterSchema.safeParse({
+			title: "x",
+			href,
+			excerpt: "x",
+			order: 1,
+		}).success;
+
+	it("accepts GitHub URLs and on-site blog paths", () => {
+		expect(work("https://github.com/ta93abe/enbu")).toBe(true);
+		expect(work("/blog/hello-world/")).toBe(true);
+	});
+
+	it("rejects protocol-relative and bare paths", () => {
+		expect(work("//evil.example.com/")).toBe(false);
+		expect(work("blog/hello-world/")).toBe(false);
+	});
+});
+
 describe("profileUrls", () => {
 	it("keeps link order", () => {
 		expect(

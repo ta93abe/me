@@ -8,11 +8,15 @@ import { z } from "astro/zod";
 const nonEmpty = z.string().trim().min(1);
 const order = z.number().int().nonnegative();
 
+/** 外部の絶対 URL か、サイト内のパス（`/blog/<slug>/` など）。 */
+const workHref = z.union([z.url(), z.string().regex(/^\/[^/]/)]);
+
 /** `src/content/works/<slug>.mdx` */
 export const workFrontmatterSchema = z
 	.object({
 		title: nonEmpty,
-		href: z.url(),
+		/** GitHub のリポジトリか、サイト内のブログ記事 */
+		href: workHref,
 		excerpt: nonEmpty,
 		order,
 	})
