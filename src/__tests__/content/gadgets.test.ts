@@ -104,15 +104,8 @@ describe("gadgets collection", () => {
 		}
 
 		expect(indexableGadgetSlugs(GADGETS)).toEqual([]);
-		expect(
-			isIndexableGadget({
-				slug: "demo",
-				name: "Demo",
-				note: "長い本文がある想定",
-				brand: "Demo",
-				indexable: true,
-			}),
-		).toBe(true);
+		expect(isIndexableGadget({ indexable: true })).toBe(true);
+		expect(isIndexableGadget({})).toBe(false);
 		expect(
 			indexableGadgetSlugs([
 				{ slug: "a", name: "A", note: "n", brand: "b", indexable: true },
