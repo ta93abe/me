@@ -129,6 +129,9 @@ describe("talkFrontmatterSchema", () => {
 			talkFrontmatterSchema.safeParse({ ...TALK, date: "2026/05/14" }).success,
 		).toBe(false);
 		expect(
+			talkFrontmatterSchema.safeParse({ ...TALK, date: "2026-02-30" }).success,
+		).toBe(false);
+		expect(
 			talkFrontmatterSchema.safeParse({ ...TALK, youtubeId: "short" }).success,
 		).toBe(false);
 		expect(

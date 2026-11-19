@@ -36,13 +36,22 @@ export const linkFrontmatterSchema = z
 	})
 	.strict();
 
+/** `2026-02-30` のように形だけ合っていて実在しない日付を落とす。 */
+function isCalendarDate(value: string): boolean {
+	const date = new Date(`${value}T00:00:00Z`);
+	return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+}
+
 /** `src/content/talks/<slug>.mdx`。slug はファイル名。並び順は `date` の新しい順。 */
 export const talkFrontmatterSchema = z
 	.object({
 		title: nonEmpty,
 		event: nonEmpty,
 		/** `YYYY-MM-DD`。表示・JSON-LD・sitemap がこの文字列をそのまま使う。 */
-		date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+		date: z
+			.string()
+			.regex(/^\d{4}-\d{2}-\d{2}$/)
+			.refine(isCalendarDate, "存在しない日付です"),
 		excerpt: nonEmpty,
 		youtubeId: z
 			.string()
