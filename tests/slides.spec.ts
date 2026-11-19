@@ -113,6 +113,13 @@ test.describe("Slides", () => {
 			.locator('script[type="application/ld+json"]')
 			.allTextContents();
 		expect(jsonLd.some((text) => text.includes("CollectionPage"))).toBe(true);
+		expect(jsonLd.some((text) => text.includes("BreadcrumbList"))).toBe(true);
+		expect(
+			jsonLd.some(
+				(text) =>
+					text.includes('"name":"Home"') && text.includes('"name":"Slides"'),
+			),
+		).toBe(true);
 		expect(
 			jsonLd.some((text) => text.includes("/slides/snowflake-observability/")),
 		).toBe(true);

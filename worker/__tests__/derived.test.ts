@@ -33,6 +33,9 @@ describe("derived discovery feeds", () => {
 		const xml = buildBlogRssXml([HELLO, OLDER], "https://ta93abe.com");
 
 		expect(xml).toContain("<title>ta93abe | Blog</title>");
+		expect(xml).toContain(
+			"<description>技術ブログ。Hello &amp; Friends、Older。</description>",
+		);
 		expect(xml).toContain("<language>ja</language>");
 		expect(xml).toContain("https://ta93abe.com/blog/hello-world/");
 		expect(xml.indexOf("hello-world")).toBeLessThan(xml.indexOf("older-note"));

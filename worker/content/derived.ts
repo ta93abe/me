@@ -1,5 +1,6 @@
 import { FEATURED_WORKS, SITE } from "../../src/config/site.ts";
 import linksData from "../../src/data/links.json";
+import { blogCollectionDescription } from "../../src/utils/collection-description.ts";
 import { toDate } from "./dates.ts";
 import { sanitizeFeedHtml } from "./feed-html.ts";
 
@@ -117,7 +118,7 @@ export function buildBlogRssXml(
   <channel>
     <title>ta93abe | Blog</title>
     <link>${escapeXml(`${base}/blog/`)}</link>
-    <description>技術ブログ。日々の学びや開発の記録を共有しています。</description>
+    <description>${escapeXml(blogCollectionDescription(posts.map((post) => post.title)))}</description>
     <language>ja</language>
     <lastBuildDate>${escapeXml(lastBuildDate)}</lastBuildDate>
 ${items}

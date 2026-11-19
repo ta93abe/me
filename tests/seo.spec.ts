@@ -131,6 +131,12 @@ test.describe("Sitewide SEO", () => {
 				type: "SoftwareApplication",
 				canonical: "https://ta93abe.com/tools/",
 			},
+			{
+				path: "/slides",
+				og: "https://ta93abe.com/og/slides.png",
+				type: "CollectionPage",
+				canonical: "https://ta93abe.com/slides/",
+			},
 		] as const;
 
 		for (const item of cases) {
@@ -144,6 +150,60 @@ test.describe("Sitewide SEO", () => {
 				'property="og:image:type" content="image/png"',
 			);
 		}
+	});
+
+	test("listing meta descriptions stay aligned with OG and Twitter", async ({
+		request,
+	}) => {
+		const cases = [
+			{
+				path: "/talks/",
+				needles: ["Frosty Friday", "Cloudflare"],
+			},
+			{
+				path: "/contact/",
+				needles: ["@ta93abe_", "GitHub"],
+			},
+			{
+				path: "/slides/",
+				needles: ["Snowflake", "dbt"],
+			},
+			{
+				path: "/blog/",
+				needles: ["Snowflake World Tour Tokyo"],
+			},
+			{
+				path: "/works/",
+				needles: ["dbt-jobs", "DuckDB"],
+			},
+		] as const;
+
+		for (const item of cases) {
+			const html = await pageHtml(request, item.path);
+			const meta = html.match(
+				/<meta name="description" content="([^"]*)"/,
+			)?.[1];
+			expect(meta, item.path).toBeTruthy();
+			expect(meta?.length, item.path).toBeGreaterThanOrEqual(50);
+			expect(html, item.path).toContain(
+				`<meta property="og:description" content="${meta}"`,
+			);
+			expect(html, item.path).toContain(
+				`<meta name="twitter:description" content="${meta}"`,
+			);
+			for (const needle of item.needles) {
+				expect(meta, item.path).toContain(needle);
+			}
+		}
+	});
+
+	test("gadgets listing JSON-LD includes BreadcrumbList", async ({
+		request,
+	}) => {
+		const html = await pageHtml(request, "/gadgets/");
+		expect(html).toContain('"@type":"ItemList"');
+		expect(html).toContain('"@type":"BreadcrumbList"');
+		expect(html).toContain("https://ta93abe.com/gadgets/");
 	});
 
 	test("404 responses are noindex without rel=canonical", async ({
