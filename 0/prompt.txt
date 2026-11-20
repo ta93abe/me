@@ -1,0 +1,33 @@
+<task-notification>
+<task-id>booobsj66</task-id>
+<tool-use-id>toolu_01XyLUjXKxyThVK4EoXhJgQy</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/booobsj66.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for PR #378 checks and show comments" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+続けて
+
+---
+
+<task-notification>
+<task-id>b8w2g06r7</task-id>
+<tool-use-id>toolu_01BnWhJmbrXRDJEGRheB6PW9</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/b8w2g06r7.output</output-file>
+<status>completed</status>
+<summary>Background command "Rerun failed E2E and wait" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+1
+
+---
+
+tugiha?
+
+---
+
+やって
