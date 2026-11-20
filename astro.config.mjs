@@ -12,18 +12,20 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, logHandlers, sessionDrivers } from "astro/config";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import subsetFont from "subset-font";
 
 import { PAGE_ALIASES } from "./src/config/redirects.ts";
 import { remarkBlogEmbeds } from "./src/lib/content/remark-blog-embeds.ts";
+import { copySlideMedia } from "./src/slides/copy-media.ts";
 import { remarkSlideGuard } from "./src/slides/mdx/remark-slide-guard.ts";
 import { remarkSlides } from "./src/slides/mdx/remark-slides.ts";
-import { rehypeCodeHighlight } from "./src/utils/rehype-code-highlight.ts";
-import { copySlideMedia } from "./src/slides/copy-media.ts";
 import { optionalFontDisplayPlugin } from "./src/utils/optional-font-display.ts";
+import { rehypeCodeHighlight } from "./src/utils/rehype-code-highlight.ts";
 import {
 	createStaticSitemapSerializer,
 	includeInStaticSitemap,
 } from "./src/utils/sitemap-lastmod.ts";
+import { subsetJapaneseWebfonts } from "./src/utils/webfont-subset.ts";
 
 const sitemapRootDir = path.dirname(fileURLToPath(import.meta.url));
 const sitemapSerialize = createStaticSitemapSerializer({
@@ -71,7 +73,8 @@ export default defineConfig({
 	},
 	integrations: [
 		sitemap({
-			filter: (page) => includeInStaticSitemap(page, { rootDir: sitemapRootDir }),
+			filter: (page) =>
+				includeInStaticSitemap(page, { rootDir: sitemapRootDir }),
 			serialize(item) {
 				return sitemapSerialize(item);
 			},
@@ -79,6 +82,26 @@ export default defineConfig({
 		react(),
 		// ブログ記事とスライドのデッキ（MDX）。プラグインは markdown.processor から継承する。
 		mdx(),
+		{
+			// 日本語 woff2 をサイトで使う文字だけにする（TA-2173）
+			name: "subset-japanese-webfonts",
+			hooks: {
+				"astro:build:done": async ({ dir, logger }) => {
+					const result = await subsetJapaneseWebfonts(
+						fileURLToPath(dir),
+						(font, text) => subsetFont(font, text, { targetFormat: "woff2" }),
+					);
+					const before = result.fonts.reduce(
+						(sum, f) => sum + f.beforeBytes,
+						0,
+					);
+					const after = result.fonts.reduce((sum, f) => sum + f.afterBytes, 0);
+					logger.info(
+						`${result.fonts.length} fonts, ${result.chars} chars: ${Math.round(before / 1024)}KB -> ${Math.round(after / 1024)}KB`,
+					);
+				},
+			},
+		},
 		{
 			name: "slide-deck-media",
 			hooks: {
@@ -115,7 +138,12 @@ export default defineConfig({
 	markdown: {
 		syntaxHighlight: false,
 		processor: unified({
-			remarkPlugins: [remarkMath, remarkSlideGuard, remarkSlides, remarkBlogEmbeds],
+			remarkPlugins: [
+				remarkMath,
+				remarkSlideGuard,
+				remarkSlides,
+				remarkBlogEmbeds,
+			],
 			rehypePlugins: [[rehypeKatex, { strict: "ignore" }], rehypeCodeHighlight],
 			// 原稿の引用符をそのまま出す
 			smartypants: false,
