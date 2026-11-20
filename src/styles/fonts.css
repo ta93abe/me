@@ -8,8 +8,12 @@
  * latin + japanese の subset ファイルならウェイトあたり 2 宣言で足りる。
  * latin に unicode-range を付け、japanese はそれ以外を受け持つ。
  * ブラウザはページ上の文字に必要な subset だけを取る。
- * japanese subset は約 1.4MB あるので `font-display: optional` にする。
- * swap だと低速回線でテキスト LCP がフォント待ちになる。
+ * `font-display: optional` にする。swap だと低速回線でテキスト LCP が
+ * フォント待ちになり、遅れて届くと文字が組み替わる。
+ *
+ * japanese subset は 1 本 1.4MB 前後あるが、本番ビルドでは
+ * `src/utils/webfont-subset.ts`（astro.config.mjs の integration）が
+ * サイトで使う文字だけに削って差し替える（TA-2173）。
  *
  * Shippori Mincho 500 は Layout では未使用（500 は Inter / inline code）。
  * スライドは tokens.css 側で 500 を個別に読む。
