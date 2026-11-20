@@ -117,6 +117,18 @@ export function subsetFontUrl(originalUrl: string, hash: string): string {
 	return `${match[1]}.${hash}.woff2`;
 }
 
+/** 参照を書き換える対象のテキストファイル。 */
+const REFERENCE_FILE = /\.(?:html|js|mjs|cjs|css|json)$/;
+
+/** `Layout.DCj2o1X9.css` を `Layout.<hash>.css` にする。 */
+export function rehashedCssName(fileName: string, hash: string): string {
+	const match = fileName.match(/^(.+)\.[A-Za-z0-9_-]+\.css$/);
+	if (!match) {
+		throw new Error(`Unexpected CSS asset name: ${fileName}`);
+	}
+	return `${match[1]}.${hash}.css`;
+}
+
 export function rewriteFontUrls(
 	css: string,
 	replacements: ReadonlyMap<string, string>,
@@ -147,11 +159,18 @@ export interface SubsetReport {
 /**
  * `clientDir`（`dist/client`）の日本語 woff2 をサブセット化し、CSS の参照を
  * 書き換える。元の woff2 は消す（参照は CSS からしかない）。
+ * 書き換えた CSS は改名し、`clientDir` と `referenceDirs`（`dist/server` など）に
+ * ある HTML / JS / CSS / JSON の参照を新しい名前にする。
  */
 export async function subsetJapaneseWebfonts(
 	clientDir: string,
 	subset: SubsetFn,
-): Promise<{ chars: number; fonts: SubsetReport[] }> {
+	referenceDirs: readonly string[] = [],
+): Promise<{
+	chars: number;
+	fonts: SubsetReport[];
+	css: [from: string, to: string][];
+}> {
 	const files = await listFiles(clientDir);
 	const htmlFiles = files.filter((file) => file.endsWith(".html"));
 	const jsFiles = files.filter((file) => file.endsWith(".js"));
@@ -208,9 +227,40 @@ export async function subsetJapaneseWebfonts(
 		});
 	}
 
+	// `/_astro/*` は immutable で 1 年キャッシュされる。フォント URL を変えた CSS を
+	// 同じ名前で上書きすると、再訪ユーザーには消えた旧フォントを指す CSS が残る。
+	// 中身のハッシュで CSS も改名し、dist 全体の参照を差し替える。
+	const renamedCss = new Map<string, string>();
 	for (const [file, css] of cssByFile) {
-		await writeFile(file, rewriteFontUrls(css, replacements));
+		const rewritten = rewriteFontUrls(css, replacements);
+		const oldName = path.basename(file);
+		const newName = rehashedCssName(
+			oldName,
+			contentHash(new TextEncoder().encode(rewritten)),
+		);
+		await writeFile(path.join(path.dirname(file), newName), rewritten);
+		if (newName !== oldName) {
+			await rm(file);
+			renamedCss.set(oldName, newName);
+		}
 	}
 
-	return { chars: chars.size, fonts };
+	// サーバーバンドルのアセット一覧も旧フォント名を持っているので一緒に直す
+	const renamed = new Map<string, string>([...replacements, ...renamedCss]);
+	if (renamed.size > 0) {
+		for (const dir of [clientDir, ...referenceDirs]) {
+			for (const file of await listFiles(dir)) {
+				if (!REFERENCE_FILE.test(file)) {
+					continue;
+				}
+				const content = await readFile(file, "utf8");
+				const rewritten = rewriteFontUrls(content, renamed);
+				if (rewritten !== content) {
+					await writeFile(file, rewritten);
+				}
+			}
+		}
+	}
+
+	return { chars: chars.size, fonts, css: [...renamedCss] };
 }

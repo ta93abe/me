@@ -17,6 +17,7 @@ import {
 	contentHash,
 	htmlTextForSubset,
 	japaneseFontUrls,
+	rehashedCssName,
 	rewriteFontUrls,
 	subsetFontUrl,
 	subsetJapaneseWebfonts,
@@ -76,6 +77,13 @@ describe("webfont subset helpers (TA-2173)", () => {
 		expect(() => subsetFontUrl("/_astro/inter-latin-400.woff2", "x")).toThrow();
 	});
 
+	it("renames hashed CSS assets", () => {
+		expect(rehashedCssName("Layout.DCj2o1X9.css", "abcd1234")).toBe(
+			"Layout.abcd1234.css",
+		);
+		expect(() => rehashedCssName("Layout.css", "x")).toThrow();
+	});
+
 	it("hashes content to a URL-safe 8 character id", () => {
 		const hash = contentHash(new Uint8Array([1, 2, 3]));
 		expect(hash).toMatch(/^[A-Za-z0-9_-]{8}$/);
@@ -100,7 +108,7 @@ describe("subsetJapaneseWebfonts", () => {
 		await writeFile(path.join(dir, "blog/index.html"), html);
 		await writeFile(path.join(dir, "_astro/page.js"), 'el.textContent="検索";');
 		await writeFile(
-			path.join(dir, "_astro/Layout.css"),
+			path.join(dir, "_astro/Layout.OLDCSS01.css"),
 			"@font-face{src:url(/_astro/noto-serif-jp-japanese-400-normal.OLDHASH1.woff2)}",
 		);
 		await writeFile(
@@ -111,7 +119,19 @@ describe("subsetJapaneseWebfonts", () => {
 	}
 
 	it("subsets with page and script text, writes a new hashed file and rewrites CSS", async () => {
-		const clientDir = await setup("<p>夢の話</p>");
+		const clientDir = await setup(
+			'<link rel="stylesheet" href="/_astro/Layout.OLDCSS01.css"><p>夢の話</p>',
+		);
+		const serverDir = path.join(
+			clientDir,
+			"..",
+			`${path.basename(clientDir)}-server`,
+		);
+		await mkdir(serverDir);
+		await writeFile(
+			path.join(serverDir, "entry.mjs"),
+			'const assets=["/_astro/Layout.OLDCSS01.css","/_astro/noto-serif-jp-japanese-400-normal.OLDHASH1.woff2"];',
+		);
 		const seen: string[] = [];
 		const result = await subsetJapaneseWebfonts(
 			clientDir,
@@ -119,6 +139,7 @@ describe("subsetJapaneseWebfonts", () => {
 				seen.push(text);
 				return new TextEncoder().encode(`subset:${text.length}`);
 			},
+			[serverDir],
 		);
 
 		expect(seen).toHaveLength(1);
@@ -134,12 +155,26 @@ describe("subsetJapaneseWebfonts", () => {
 			"noto-serif-jp-japanese-400-normal.OLDHASH1.woff2",
 		);
 		expect(files).toContain(path.basename(font?.newUrl ?? ""));
-		const css = await readFile(
-			path.join(clientDir, "_astro/Layout.css"),
-			"utf8",
-		);
+		// フォント URL が変わった CSS は改名する（/_astro/* は immutable キャッシュ）
+		expect(files).not.toContain("Layout.OLDCSS01.css");
+		expect(result.css).toHaveLength(1);
+		const newCss = result.css[0]?.[1] ?? "";
+		expect(newCss).toMatch(/^Layout\.[A-Za-z0-9_-]{8}\.css$/);
+		const css = await readFile(path.join(clientDir, "_astro", newCss), "utf8");
 		expect(css).toContain(font?.newUrl);
 		expect(css).not.toContain("OLDHASH1");
+
+		const html = await readFile(
+			path.join(clientDir, "blog/index.html"),
+			"utf8",
+		);
+		expect(html).toContain(`/_astro/${newCss}`);
+		expect(html).not.toContain("OLDCSS01");
+		const entry = await readFile(path.join(serverDir, "entry.mjs"), "utf8");
+		expect(entry).toContain(`/_astro/${newCss}`);
+		expect(entry).toContain(font?.newUrl);
+		expect(entry).not.toContain("OLDHASH1");
+		await rm(serverDir, { recursive: true, force: true });
 	});
 
 	it("refuses inline references so CSP hashes stay valid", async () => {

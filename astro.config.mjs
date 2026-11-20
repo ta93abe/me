@@ -27,6 +27,9 @@ import {
 } from "./src/utils/sitemap-lastmod.ts";
 import { subsetJapaneseWebfonts } from "./src/utils/webfont-subset.ts";
 
+/** @type {string[]} */
+let subsetReferenceDirs = [];
+
 const sitemapRootDir = path.dirname(fileURLToPath(import.meta.url));
 const sitemapSerialize = createStaticSitemapSerializer({
 	rootDir: sitemapRootDir,
@@ -86,10 +89,15 @@ export default defineConfig({
 			// 日本語 woff2 をサイトで使う文字だけにする（TA-2173）
 			name: "subset-japanese-webfonts",
 			hooks: {
+				"astro:config:done": ({ config }) => {
+					// CSS を改名したらサーバーバンドル（SSR ページとアセット一覧）の参照も直す
+					subsetReferenceDirs = [fileURLToPath(config.build.server)];
+				},
 				"astro:build:done": async ({ dir, logger }) => {
 					const result = await subsetJapaneseWebfonts(
 						fileURLToPath(dir),
 						(font, text) => subsetFont(font, text, { targetFormat: "woff2" }),
+						subsetReferenceDirs,
 					);
 					const before = result.fonts.reduce(
 						(sum, f) => sum + f.beforeBytes,
@@ -97,7 +105,7 @@ export default defineConfig({
 					);
 					const after = result.fonts.reduce((sum, f) => sum + f.afterBytes, 0);
 					logger.info(
-						`${result.fonts.length} fonts, ${result.chars} chars: ${Math.round(before / 1024)}KB -> ${Math.round(after / 1024)}KB`,
+						`${result.fonts.length} fonts, ${result.chars} chars: ${Math.round(before / 1024)}KB -> ${Math.round(after / 1024)}KB; css ${result.css.map(([from, to]) => `${from} -> ${to}`).join(", ")}`,
 					);
 				},
 			},
