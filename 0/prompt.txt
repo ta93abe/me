@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>bhio78f3m</task-id>
+<tool-use-id>toolu_01JuQT8nUtEwaFTtU8nLKqtD</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-ta93abe-Developer-github-com-ta93abe-me/84d7216d-792e-41a9-ac4c-a6b80c2a9fe5/tasks/bhio78f3m.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for PR checks to finish" completed (exit code 0)</summary>
+</task-notification>
