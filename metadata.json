@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M84F5BD1P78J4XC2WGC3HHQK",
+  "strategy": "manual-commit",
+  "branch": "fix/ta-2249-cwv-lcp-cls",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "scripts/perf/collect-cwv.mjs"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 58,
+    "cache_creation_tokens": 96335,
+    "cache_read_tokens": 2641066,
+    "output_tokens": 11912,
+    "api_call_count": 26
+  },
+  "redaction": {
+    "replacements": 10,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 2,
+      "credentialed_uri": 0,
+      "entropy": 8,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
