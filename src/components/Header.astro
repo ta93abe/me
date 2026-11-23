@@ -3,7 +3,7 @@
 import { NAV_LINKS } from "@/config/navigation";
 import "@/styles/mobile-nav.css";
 import Logo from "./Logo.astro";
-import MobileNav from "./MobileNav";
+import MobileNav from "./MobileNav.astro";
 import NavLink from "./ui/NavLink.astro";
 
 const isHome =
@@ -37,10 +37,6 @@ const isHome =
 			</ul>
 		</div>
 
-		<MobileNav
-			client:media="(max-width: 767px)"
-			links={NAV_LINKS}
-			currentPath={Astro.url.pathname}
-		/>
+		<MobileNav />
 	</nav>
 </header>
