@@ -58,4 +58,14 @@ describe("home layout shift guards", () => {
 		expect(css).toMatch(/prefers-reduced-motion:\s*reduce/);
 		expect(css).toMatch(/transition:\s*none/);
 	});
+
+	it("reserves home-stage pin travel in CSS so idle GSAP cannot insert pin-spacer padding", () => {
+		const stage = readSrc("components/landing/HomeStage.astro");
+		expect(stage).toMatch(/home-stage-slot/);
+		expect(stage).toMatch(/padding-bottom:\s*45vh/);
+		expect(stage).toMatch(/prefers-reduced-motion:\s*reduce/);
+		const scroll = readSrc("scripts/home/scroll.ts");
+		expect(scroll).toMatch(/end:\s*"\+=45%"/);
+		expect(scroll).toMatch(/pinSpacing:\s*false/);
+	});
 });

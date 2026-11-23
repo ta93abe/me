@@ -16,6 +16,7 @@ import {
 	collectNonLatinChars,
 	contentHash,
 	htmlTextForSubset,
+	inlineScriptBodies,
 	japaneseFontUrls,
 	rehashedCssName,
 	rewriteFontUrls,
@@ -184,5 +185,31 @@ describe("subsetJapaneseWebfonts", () => {
 		await expect(
 			subsetJapaneseWebfonts(clientDir, async (font) => font),
 		).rejects.toThrow(/直接参照/);
+	});
+
+	it("rewrites CSS names on data attributes without touching inline scripts", async () => {
+		const clientDir = await setup(
+			'<html data-deferred-fonts="/_astro/Layout.OLDCSS01.css"><script>var e=1</script><p>夢</p></html>',
+		);
+		const result = await subsetJapaneseWebfonts(
+			clientDir,
+			async (_font, text) => new TextEncoder().encode(`subset:${text.length}`),
+		);
+		const html = await readFile(
+			path.join(clientDir, "blog/index.html"),
+			"utf8",
+		);
+		expect(html).toContain(`/_astro/${result.css[0]?.[1]}`);
+		expect(html).not.toContain("OLDCSS01");
+		expect(inlineScriptBodies(html)).toEqual(["var e=1"]);
+	});
+
+	it("refuses to rewrite CSS names inside inline scripts", async () => {
+		const clientDir = await setup(
+			'<link rel="stylesheet" href="/_astro/Layout.OLDCSS01.css"><script>var t="/_astro/Layout.OLDCSS01.css"</script><p>夢</p>',
+		);
+		await expect(
+			subsetJapaneseWebfonts(clientDir, async (font) => font),
+		).rejects.toThrow(/インライン script/);
 	});
 });

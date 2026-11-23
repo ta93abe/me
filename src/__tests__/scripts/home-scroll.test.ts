@@ -44,6 +44,7 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(scroll).not.toMatch(/\bheight:\s*["']/);
 		expect(scroll).not.toMatch(/\btop:\s*["']/);
 		expect(scroll).not.toMatch(/fontSize/);
+		expect(scroll).toMatch(/pinSpacing:\s*false/);
 	});
 
 	it("exposes a decorative hero shader mount with aria-hidden", () => {
