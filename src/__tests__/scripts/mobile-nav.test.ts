@@ -100,7 +100,7 @@ describe("enhanceMobileNav", () => {
 			get matches() {
 				return matchesDesktop;
 			},
-			media: "(min-width: 768px)",
+			media: "(min-width: 48rem)",
 			addEventListener: (type: string, listener: EventListener) => {
 				listeners.set(type, listener);
 			},
@@ -110,10 +110,13 @@ describe("enhanceMobileNav", () => {
 			addListener: () => {},
 			removeListener: () => {},
 		};
-		vi.spyOn(window, "matchMedia").mockReturnValue(mediaQuery);
+		const matchMedia = vi
+			.spyOn(window, "matchMedia")
+			.mockReturnValue(mediaQuery);
 
 		const { header, dialog, openButton } = mountNav();
 		enhanceMobileNav();
+		expect(matchMedia).toHaveBeenCalledWith("(min-width: 48rem)");
 		openButton.click();
 		expect(dialog.open).toBe(true);
 

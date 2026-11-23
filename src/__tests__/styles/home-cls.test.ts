@@ -44,6 +44,7 @@ describe("home layout shift guards", () => {
 		expect(header).toMatch(/MobileNav\.astro/);
 		expect(readSrc("components/MobileNav.astro")).toMatch(/<dialog/);
 		expect(readSrc("components/MobileNav.astro")).not.toMatch(/framer-motion/);
+		expect(readSrc("scripts/mobile-nav.ts")).toMatch(/min-width:\s*48rem/);
 		const pkg = JSON.parse(readSrc("../package.json")) as {
 			dependencies: Record<string, string>;
 		};

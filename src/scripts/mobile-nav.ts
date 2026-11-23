@@ -1,4 +1,4 @@
-const DESKTOP_MQ = "(min-width: 768px)";
+const DESKTOP_MQ = "(min-width: 48rem)";
 const MENU_OPEN_ATTR = "data-menu-open";
 const enhanced = new WeakSet<HTMLElement>();
 
