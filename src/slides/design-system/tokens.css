@@ -40,7 +40,7 @@ html[data-theme="dark"] {
 	--slide-w: 16;
 	--slide-h: 9;
 	/* Site parity: `.font-display` / `.font-sans` in global.css */
-	--font-display: "Shippori Mincho", "Noto Serif JP", serif;
+	--font-display: "Shippori Mincho", "Georgia", serif;
 	--font-body:
 		"Inter", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
 		"Yu Gothic", "Noto Sans JP", sans-serif;

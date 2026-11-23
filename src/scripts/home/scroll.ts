@@ -51,22 +51,8 @@ export function initHomeScroll(): HomeScrollHandle | null {
 
 	ScrollTrigger.defaults({ scroller });
 
-	const tagline = root.querySelector<HTMLElement>(".home-hero-tagline");
-	if (tagline) {
-		splitWords(tagline);
-		gsap.from(tagline.querySelectorAll(".home-split-word"), {
-			opacity: 0,
-			y: 14,
-			duration: 0.75,
-			stagger: 0.045,
-			ease: "power2.out",
-			scrollTrigger: {
-				trigger: tagline,
-				start: "top bottom",
-				toggleActions: "play none none none",
-			},
-		});
-	}
+	// TA-2241: ヒーローのタグラインは SSR テキストのまま初回から見せる。
+	// splitWords + opacity:0 は LCP の Render Delay になるので対象にしない。
 
 	const stage = root.querySelector<HTMLElement>(".home-stage");
 	const stageScreen = root.querySelector<HTMLElement>(".home-stage-screen");
@@ -112,7 +98,8 @@ export function initHomeScroll(): HomeScrollHandle | null {
 			start: "top top+=4.5rem",
 			end: "+=45%",
 			pin: true,
-			pinSpacing: true,
+			// ピン距離は .home-stage-slot の padding-bottom: 45vh で先に確保する
+			pinSpacing: false,
 			anticipatePin: 1,
 		});
 	}
@@ -155,8 +142,6 @@ export function initHomeScroll(): HomeScrollHandle | null {
 		});
 	}
 
-	document.documentElement.classList.add("home-motion-ready");
-
 	return {
 		destroy: () => {
 			lenis.destroy();
@@ -164,7 +149,6 @@ export function initHomeScroll(): HomeScrollHandle | null {
 			for (const trigger of ScrollTrigger.getAll()) {
 				trigger.kill();
 			}
-			document.documentElement.classList.remove("home-motion-ready");
 		},
 	};
 }

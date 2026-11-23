@@ -197,6 +197,29 @@ test.describe("Home", () => {
 		]);
 	});
 
+	test("keeps the hero tagline as visible SSR text after motion boots", async ({
+		page,
+	}) => {
+		await page.goto("/");
+
+		const tagline = page.locator(".home-hero-tagline");
+		await expect(tagline).toBeVisible();
+		await expect(tagline).toHaveCSS("opacity", "1");
+		await expect(tagline).toHaveText(HOME_TAGLINE);
+		await expect(tagline).not.toHaveAttribute("data-split");
+		await expect(tagline.locator(".home-split-word")).toHaveCount(0);
+		await expect(tagline.locator(".sr-only")).toHaveCount(0);
+
+		await expect(
+			page.locator(".home-manifesto-heading .home-split-word").first(),
+		).toBeAttached({ timeout: 8_000 });
+
+		await expect(tagline).toHaveText(HOME_TAGLINE);
+		await expect(tagline).toHaveCSS("opacity", "1");
+		await expect(tagline.locator(".home-split-word")).toHaveCount(0);
+		await expect(tagline).not.toHaveAttribute("data-split");
+	});
+
 	test("keeps the intro readable with reduced motion", async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/");

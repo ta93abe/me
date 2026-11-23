@@ -29,6 +29,11 @@
 	--blockquote-border: #6b4c9a;
 	--code-bg: #1e1e1e;
 	--code-text: #f0f0f0;
+	/* 書体は役割ごとに 1 webfont。フォールバックに別 webfont を積むと
+	 * サブセット後も両方取りに行かれる（TA-2240）。 */
+	--font-sans: "Inter", system-ui, sans-serif;
+	--font-body: "Noto Serif JP", "Georgia", serif;
+	--font-display: "Shippori Mincho", "Georgia", serif;
 }
 
 /* Top `/` only — 白地に紫のシェーダー（ADR-0001 の紫のスクロールストーリー） */
@@ -82,7 +87,7 @@ html {
 }
 
 body {
-	font-family: "Noto Serif JP", "Shippori Mincho", "Georgia", serif;
+	font-family: var(--font-body);
 	background-color: var(--bg-primary);
 	color: var(--text-primary);
 	-webkit-font-smoothing: antialiased;
@@ -181,11 +186,11 @@ body.lock-viewport .footer-docked nav ul {
 
 /* Font utilities */
 .font-display {
-	font-family: "Shippori Mincho", "Noto Serif JP", serif;
+	font-family: var(--font-display);
 }
 
 .font-sans {
-	font-family: "Inter", system-ui, sans-serif;
+	font-family: var(--font-sans);
 }
 
 /* Accent text utility */
@@ -215,7 +220,7 @@ body.lock-viewport .footer-docked nav ul {
 
 /* Editorial article body */
 .prose {
-	font-family: "Shippori Mincho", "Noto Serif JP", serif;
+	font-family: var(--font-display);
 	font-size: 1.0625rem;
 	line-height: 2;
 	color: var(--text-primary);
@@ -234,7 +239,7 @@ body.lock-viewport .footer-docked nav ul {
 .prose h2,
 .prose h3,
 .prose h4 {
-	font-family: "Shippori Mincho", "Noto Serif JP", serif;
+	font-family: var(--font-display);
 	font-weight: 700;
 	line-height: 1.4;
 	color: var(--text-primary);

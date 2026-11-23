@@ -378,41 +378,30 @@ test.describe("Slides", () => {
 		const box = await deck.boundingBox();
 		expect(box).not.toBeNull();
 		if (!box) {
+			await context.close();
 			return;
 		}
 
 		const startX = box.x + box.width * 0.5;
 		const startY = box.y + box.height * 0.55;
 
+		// Playwright synthesizes Touch/TouchList for dispatchEvent (WebKit uses
+		// document.createTouch). `new Touch()` is an Illegal constructor there.
 		const swipeDeck = async (endX: number) => {
-			await page.evaluate(
-				({ endX, startX, startY }) => {
-					const deck = document.querySelector(".deck");
-					if (!(deck instanceof HTMLElement)) {
-						throw new Error("deck missing");
-					}
-					const touch = (x: number, y: number) =>
-						new Touch({
-							identifier: 1,
-							target: deck,
-							clientX: x,
-							clientY: y,
-						});
-					deck.dispatchEvent(
-						new TouchEvent("touchstart", {
-							bubbles: true,
-							changedTouches: [touch(startX, startY)],
-						}),
-					);
-					deck.dispatchEvent(
-						new TouchEvent("touchend", {
-							bubbles: true,
-							changedTouches: [touch(endX, startY)],
-						}),
-					);
-				},
-				{ endX, startX, startY },
-			);
+			const startTouches = [
+				{ identifier: 0, clientX: startX, clientY: startY },
+			];
+			const endTouches = [{ identifier: 0, clientX: endX, clientY: startY }];
+			await deck.dispatchEvent("touchstart", {
+				touches: startTouches,
+				changedTouches: startTouches,
+				targetTouches: startTouches,
+			});
+			await deck.dispatchEvent("touchend", {
+				touches: [],
+				changedTouches: endTouches,
+				targetTouches: [],
+			});
 		};
 
 		await swipeDeck(startX + 4);

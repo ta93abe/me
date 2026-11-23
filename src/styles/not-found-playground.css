@@ -454,7 +454,7 @@
 
 .nf-panel h1 {
 	margin: 0;
-	font-family: "Shippori Mincho", "Noto Serif JP", serif;
+	font-family: "Shippori Mincho", "Georgia", serif;
 	font-size: clamp(1.85rem, 3.2vw, 3.1rem);
 	font-weight: 700;
 	line-height: 1.15;
