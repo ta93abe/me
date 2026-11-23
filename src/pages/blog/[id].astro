@@ -123,13 +123,13 @@ const itemListSchema = generateArticleItemListSchema(body);
   <main class="mx-auto max-w-3xl px-6 py-12">
     <a
       href="/blog/"
-      class="mb-6 inline-block text-sm tracking-wide text-(--text-muted) hover:text-(--text-primary)"
+      class="font-sans mb-6 inline-block text-sm tracking-wide text-(--text-muted) hover:text-(--text-primary)"
     >
       ← 一覧へ戻る
     </a>
 
     <header class="mb-12 pb-10">
-      <div class="mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
+      <div class="font-sans mb-4 flex flex-wrap items-center gap-3 text-sm text-(--text-muted)">
         <time class="font-medium" datetime={publishedTime}>
           {formatBlogSurfaceDate(publish_date, revise_date)}
         </time>

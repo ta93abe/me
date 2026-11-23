@@ -2,6 +2,9 @@
 	border: none;
 	outline: none;
 	box-shadow: none;
+	margin: 0;
+	max-width: none;
+	padding: 0;
 }
 
 .mobile-nav-dialog:not([open]) {
@@ -21,16 +24,77 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+	.mobile-nav-dialog {
+		opacity: 0;
+		transition:
+			display 0.24s allow-discrete,
+			overlay 0.24s allow-discrete,
+			opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.mobile-nav-dialog[open] {
+		opacity: 1;
+	}
+
+	@starting-style {
+		.mobile-nav-dialog[open] {
+			opacity: 0;
+		}
+	}
+
+	.mobile-nav-dialog::backdrop {
+		opacity: 0;
+		transition:
+			display 0.2s allow-discrete,
+			overlay 0.2s allow-discrete,
+			opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
 	.mobile-nav-dialog[open]::backdrop {
-		animation: mobile-nav-backdrop-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+		opacity: 1;
+	}
+
+	@starting-style {
+		.mobile-nav-dialog[open]::backdrop {
+			opacity: 0;
+		}
+	}
+
+	.mobile-nav-dialog[open] .mobile-nav-list > li {
+		animation: mobile-nav-item-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.mobile-nav-dialog[open] .mobile-nav-list > li:nth-child(1) {
+		animation-delay: 0.04s;
+	}
+
+	.mobile-nav-dialog[open] .mobile-nav-list > li:nth-child(2) {
+		animation-delay: 0.095s;
+	}
+
+	.mobile-nav-dialog[open] .mobile-nav-list > li:nth-child(3) {
+		animation-delay: 0.15s;
 	}
 }
 
-@keyframes mobile-nav-backdrop-in {
+@media (prefers-reduced-motion: reduce) {
+	.mobile-nav-dialog,
+	.mobile-nav-dialog::backdrop {
+		transition: none;
+	}
+
+	.mobile-nav-dialog[open] .mobile-nav-list > li {
+		animation: none;
+	}
+}
+
+@keyframes mobile-nav-item-in {
 	from {
 		opacity: 0;
+		transform: translateX(36px);
 	}
 	to {
 		opacity: 1;
+		transform: none;
 	}
 }
