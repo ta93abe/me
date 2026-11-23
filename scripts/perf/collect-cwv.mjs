@@ -44,7 +44,8 @@ async function loadBudgets() {
  * observers before any page script runs so nothing is missed.
  */
 function installVitalsObservers() {
-	const vitals = { lcp: null, cls: 0 };
+	// cls stays null unless the layout-shift observer could be installed.
+	const vitals = { lcp: null, cls: null };
 	window.__cwv = vitals;
 	try {
 		new PerformanceObserver((list) => {
@@ -53,11 +54,30 @@ function installVitalsObservers() {
 		}).observe({ type: "largest-contentful-paint", buffered: true });
 	} catch {}
 	try {
+		// CLS = the largest session window: shifts less than 1s apart,
+		// the whole window at most 5s long (same as web-vitals).
+		let sessionValue = 0;
+		let sessionFirst = 0;
+		let sessionLast = 0;
 		new PerformanceObserver((list) => {
 			for (const entry of list.getEntries()) {
-				if (!entry.hadRecentInput) vitals.cls += entry.value;
+				if (entry.hadRecentInput) continue;
+				const t = entry.startTime;
+				if (
+					sessionValue > 0 &&
+					t - sessionLast < 1000 &&
+					t - sessionFirst < 5000
+				) {
+					sessionValue += entry.value;
+				} else {
+					sessionValue = entry.value;
+					sessionFirst = t;
+				}
+				sessionLast = t;
+				vitals.cls = Math.max(vitals.cls ?? 0, sessionValue);
 			}
 		}).observe({ type: "layout-shift", buffered: true });
+		vitals.cls = 0;
 	} catch {}
 }
 
