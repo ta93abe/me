@@ -140,6 +140,27 @@ export function rewriteFontUrls(
 	return out;
 }
 
+/** インライン script 本文。サブセットの URL 置換でここが変わると CSP ハッシュが壊れる。 */
+export function inlineScriptBodies(html: string): string[] {
+	return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(
+		(match) => match[1] ?? "",
+	);
+}
+
+function assertInlineScriptsUnchanged(
+	before: string,
+	after: string,
+	relativePath: string,
+): void {
+	const beforeScripts = inlineScriptBodies(before);
+	const afterScripts = inlineScriptBodies(after);
+	if (beforeScripts.join("\0") !== afterScripts.join("\0")) {
+		throw new Error(
+			`${relativePath} のインライン script がサブセット後に変わる。CSP ハッシュが壊れるので、アセット URL は data-* に出すこと`,
+		);
+	}
+}
+
 async function listFiles(dir: string): Promise<string[]> {
 	const entries = await readdir(dir, { recursive: true, withFileTypes: true });
 	return entries
@@ -256,6 +277,13 @@ export async function subsetJapaneseWebfonts(
 				const content = await readFile(file, "utf8");
 				const rewritten = rewriteFontUrls(content, renamed);
 				if (rewritten !== content) {
+					if (file.endsWith(".html")) {
+						assertInlineScriptsUnchanged(
+							content,
+							rewritten,
+							path.relative(dir, file),
+						);
+					}
 					await writeFile(file, rewritten);
 				}
 			}

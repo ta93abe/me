@@ -26,6 +26,23 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(mount).not.toMatch(/from "\.\/bloom\.ts"/);
 	});
 
+	it("does not split or fade the hero tagline before LCP (TA-2241)", () => {
+		const scroll = readSrc("scripts/home/scroll.ts");
+		expect(scroll).not.toMatch(/home-hero-tagline/);
+		expect(scroll).toMatch(/home-manifesto-heading/);
+		expect(scroll).toMatch(/splitWords/);
+	});
+
+	it("loads Paper Shaders after LCP instead of with Lenis (TA-2241)", () => {
+		const mount = readSrc("scripts/home/mount.ts");
+		expect(mount).toMatch(/scheduleAfterLcpOrIdle/);
+		expect(mount).toMatch(/largest-contentful-paint/);
+		expect(mount).not.toMatch(/Promise\.all/);
+		expect(mount).toMatch(/home-motion-ready/);
+		const scroll = readSrc("scripts/home/scroll.ts");
+		expect(scroll).not.toMatch(/home-motion-ready/);
+	});
+
 	it("skips motion when reduced motion is preferred", () => {
 		const mount = readSrc("scripts/home/mount.ts");
 		expect(mount).toMatch(/prefersReducedMotion\(\)/);
@@ -44,6 +61,7 @@ describe("home scroll story (TA-1109 stage 2)", () => {
 		expect(scroll).not.toMatch(/\bheight:\s*["']/);
 		expect(scroll).not.toMatch(/\btop:\s*["']/);
 		expect(scroll).not.toMatch(/fontSize/);
+		expect(scroll).toMatch(/pinSpacing:\s*false/);
 	});
 
 	it("exposes a decorative hero shader mount with aria-hidden", () => {
