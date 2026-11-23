@@ -115,21 +115,21 @@ jobs:
       - name: Check Cloudflare secrets
         id: secrets
         env:
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           if [ -n "$CF_ACCOUNT_ID" ] && [ -n "$CF_API_TOKEN" ]; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::error::CF_ACCOUNT_ID / CF_API_TOKEN 未設定のため Browser Run CWV を計測できません。Dashboard で Browser Rendering - Edit 権限の API Token を secrets に登録してください。"
+            echo "::error::CF_API_TOKEN（または CF_ACCOUNT_ID / CLOUDFLARE_ACCOUNT_ID）が未設定のため Browser Run CWV を計測できません。Account > Browser Rendering - Edit 権限だけの API Token を作り、Actions secrets の CF_API_TOKEN に登録してください。"
             exit 1
           fi
 
       - name: Run Browser Run Core Web Vitals
         if: steps.secrets.outputs.present == 'true'
         env:
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           PERF_BASE_URL: ${{ inputs.base_url || 'https://ta93abe.com' }}
         run: pnpm perf:cwv
