@@ -106,7 +106,10 @@ describe("layout webfonts (TA-1539 / TA-2240)", () => {
 
 	it("loads the remaining CJK faces after window load", () => {
 		expect(layout).toMatch(/scripts\/deferred-fonts\.ts/);
-		expect(deferredScript).toContain("fonts-defer.css?url");
+		expect(layout).toContain("fonts-defer.css?url");
+		expect(layout).toMatch(/data-deferred-fonts=\{deferredFontsHref\}/);
+		expect(deferredScript).not.toContain("fonts-defer.css?url");
+		expect(deferredScript).toMatch(/dataset\.deferredFonts/);
 		expect(deferredScript).toMatch(/addEventListener\(\s*"load"/);
 		expect(layout).not.toMatch(/styles\/fonts-defer\.css"/);
 	});
