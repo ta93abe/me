@@ -1,15 +1,24 @@
 /*
- * Compact webfonts for Layout (TA-1539).
+ * Compact webfonts for Layout (TA-1539 / TA-2173 / TA-2240).
  *
  * `@fontsource/<family>/400.css` は日本語を ~120 個の unicode-range に
  * 分割した CSS を出す。それを全ウェイト分バンドルすると Layout CSS が
  * 680KB（@font-face 635 個）になり render-blocking になる。
  *
  * latin + japanese の subset ファイルならウェイトあたり 2 宣言で足りる。
- * latin に unicode-range を付け、japanese はそれ以外を受け持つ。
- * ブラウザはページ上の文字に必要な subset だけを取る。
+ * latin と japanese の両方に unicode-range を付ける。japanese に range が
+ * 無いと ASCII のロゴや英語タイトルでも 140KB 級の CJK ファイルを取りに
+ * 行き、LCP 前の帯域を食う（TA-2240）。
  * `font-display: optional` にする。swap だと低速回線でテキスト LCP が
  * フォント待ちになり、遅れて届くと文字が組み替わる。
+ *
+ * このファイルは LCP 前に使われる面だけ:
+ * - Inter（UI）
+ * - Noto Serif JP 400（本文・トップのタグライン）
+ * - Noto Serif JP 700 latin（ロゴ "ta93abe"）
+ * - Shippori Mincho 700（見出し。ブログ記事の LCP）
+ * 本文用 Shippori 400 と Noto 700 の日本語は fonts-defer.css に分け、
+ * load 後に読む。
  *
  * japanese subset は 1 本 1.4MB 前後あるが、本番ビルドでは
  * `src/utils/webfont-subset.ts`（astro.config.mjs の integration）が
@@ -39,6 +48,11 @@
 	font-weight: 400;
 	src: url("@fontsource/noto-serif-jp/files/noto-serif-jp-japanese-400-normal.woff2")
 		format("woff2");
+	unicode-range:
+		U+2E80-2EFF, U+2F00-2FDF, U+2FF0-2FFF, U+3000-303F, U+3040-309F,
+		U+30A0-30FF, U+3190-319F, U+31C0-31EF, U+31F0-31FF, U+3200-32FF,
+		U+3300-33FF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F,
+		U+FE30-FE4F, U+FF00-FFEF;
 }
 
 @font-face {
@@ -52,37 +66,6 @@
 		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
 		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
 		U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-	font-family: "Noto Serif JP";
-	font-style: normal;
-	font-display: optional;
-	font-weight: 700;
-	src: url("@fontsource/noto-serif-jp/files/noto-serif-jp-japanese-700-normal.woff2")
-		format("woff2");
-}
-
-@font-face {
-	font-family: "Shippori Mincho";
-	font-style: normal;
-	font-display: optional;
-	font-weight: 400;
-	src: url("@fontsource/shippori-mincho/files/shippori-mincho-latin-400-normal.woff2")
-		format("woff2");
-	unicode-range:
-		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-		U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-	font-family: "Shippori Mincho";
-	font-style: normal;
-	font-display: optional;
-	font-weight: 400;
-	src: url("@fontsource/shippori-mincho/files/shippori-mincho-japanese-400-normal.woff2")
-		format("woff2");
 }
 
 @font-face {
@@ -105,6 +88,11 @@
 	font-weight: 700;
 	src: url("@fontsource/shippori-mincho/files/shippori-mincho-japanese-700-normal.woff2")
 		format("woff2");
+	unicode-range:
+		U+2E80-2EFF, U+2F00-2FDF, U+2FF0-2FFF, U+3000-303F, U+3040-309F,
+		U+30A0-30FF, U+3190-319F, U+31C0-31EF, U+31F0-31FF, U+3200-32FF,
+		U+3300-33FF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F,
+		U+FE30-FE4F, U+FF00-FFEF;
 }
 
 @font-face {

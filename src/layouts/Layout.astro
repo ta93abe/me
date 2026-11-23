@@ -1,4 +1,5 @@
 ---
+import deferredFontsHref from "../styles/fonts-defer.css?url";
 import "../styles/fonts.css";
 import "../styles/global.css";
 import Footer from "@/components/Footer.astro";
@@ -85,7 +86,7 @@ const profileUrls = includeSiteSchema ? await getProfileUrls() : [];
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-deferred-fonts={deferredFontsHref}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -170,7 +171,7 @@ const profileUrls = includeSiteSchema ? await getProfileUrls() : [];
 		data-theme={homeTheme ? "home" : undefined}
 	>
 		<!-- スキップリンク -->
-		<a href="#main-content" class="skip-link">
+		<a href="#main-content" class="skip-link font-sans">
 			コンテンツにスキップ
 		</a>
 		{!noHeader && <Header />}
@@ -180,6 +181,7 @@ const profileUrls = includeSiteSchema ? await getProfileUrls() : [];
 		{!noFooter && <Footer docked={lockViewport} />}
 		<script>
 			import "../scripts/animations/observer.ts";
+			import "../scripts/deferred-fonts.ts";
 		</script>
 	</body>
 </html>

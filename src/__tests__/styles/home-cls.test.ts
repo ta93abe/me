@@ -38,9 +38,34 @@ describe("home layout shift guards", () => {
 		expect(css).not.toMatch(/\bh-dvh\b/);
 	});
 
-	it("does not hydrate the mobile nav island on desktop", () => {
+	it("does not hydrate a React island for the mobile nav", () => {
 		const header = readSrc("components/Header.astro");
-		expect(header).toMatch(/client:media="\(max-width:\s*767px\)"/);
-		expect(header).not.toMatch(/client:load/);
+		expect(header).not.toMatch(/client:/);
+		expect(header).toMatch(/MobileNav\.astro/);
+		expect(readSrc("components/MobileNav.astro")).toMatch(/<dialog/);
+		expect(readSrc("components/MobileNav.astro")).not.toMatch(/framer-motion/);
+		expect(readSrc("scripts/mobile-nav.ts")).toMatch(/min-width:\s*48rem/);
+		const pkg = JSON.parse(readSrc("../package.json")) as {
+			dependencies: Record<string, string>;
+		};
+		expect(pkg.dependencies["framer-motion"]).toBeUndefined();
+	});
+
+	it("animates the mobile nav with starting-style and honors reduced motion", () => {
+		const css = readSrc("styles/mobile-nav.css");
+		expect(css).toMatch(/@starting-style/);
+		expect(css).toMatch(/allow-discrete/);
+		expect(css).toMatch(/prefers-reduced-motion:\s*reduce/);
+		expect(css).toMatch(/transition:\s*none/);
+	});
+
+	it("reserves home-stage pin travel in CSS so idle GSAP cannot insert pin-spacer padding", () => {
+		const stage = readSrc("components/landing/HomeStage.astro");
+		expect(stage).toMatch(/home-stage-slot/);
+		expect(stage).toMatch(/padding-bottom:\s*45vh/);
+		expect(stage).toMatch(/prefers-reduced-motion:\s*reduce/);
+		const scroll = readSrc("scripts/home/scroll.ts");
+		expect(scroll).toMatch(/end:\s*"\+=45%"/);
+		expect(scroll).toMatch(/pinSpacing:\s*false/);
 	});
 });

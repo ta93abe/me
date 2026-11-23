@@ -82,4 +82,66 @@ test.describe("Navigation", { tag: "@smoke" }, () => {
 			).toBeVisible();
 		}
 	});
+
+	test("mobile menu opens, marks the current page, and closes on Escape", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto("/blog/");
+
+		const header = page.getByRole("banner");
+		const openButton = page.getByRole("button", { name: "メニューを開く" });
+		await expect(openButton).toHaveAttribute("aria-expanded", "false");
+		await openButton.click();
+
+		const dialog = page.getByRole("dialog", { name: "メニュー" });
+		await expect(dialog).toBeVisible();
+		await expect(openButton).toHaveAttribute("aria-expanded", "true");
+		await expect(header).toHaveAttribute("data-menu-open", "");
+		expect(await dialog.evaluate((el) => el.matches(":modal"))).toBe(true);
+		await expect(
+			dialog.getByRole("button", { name: "メニューを閉じる" }),
+		).toBeFocused();
+		await expect(dialog.getByRole("link", { name: "Blog" })).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+		await expect(
+			dialog.getByRole("link", { name: "About" }),
+		).not.toHaveAttribute("aria-current");
+
+		await page.keyboard.press("Escape");
+		await expect(dialog).toBeHidden();
+		await expect(openButton).toHaveAttribute("aria-expanded", "false");
+		await expect(header).not.toHaveAttribute("data-menu-open");
+		await expect(openButton).toBeFocused();
+	});
+
+	test("mobile menu close button restores focus and traps tab", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto("/about/");
+
+		const openButton = page.getByRole("button", { name: "メニューを開く" });
+		await openButton.click();
+
+		const dialog = page.getByRole("dialog", { name: "メニュー" });
+		await expect(dialog).toBeVisible();
+		expect(await dialog.evaluate((el) => el.matches(":modal"))).toBe(true);
+		await expect(
+			dialog.getByRole("button", { name: "メニューを閉じる" }),
+		).toBeFocused();
+
+		await page.keyboard.press("Tab");
+		await expect(dialog.getByRole("link", { name: "About" })).toBeFocused();
+		await page.keyboard.press("Shift+Tab");
+		await expect(
+			dialog.getByRole("button", { name: "メニューを閉じる" }),
+		).toBeFocused();
+
+		await dialog.getByRole("button", { name: "メニューを閉じる" }).click();
+		await expect(dialog).toBeHidden();
+		await expect(openButton).toBeFocused();
+	});
 });
