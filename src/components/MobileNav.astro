@@ -1,0 +1,90 @@
+---
+import { isActiveNavPath, NAV_LINKS } from "@/config/navigation";
+
+const currentPath = Astro.url.pathname;
+---
+
+<div class="md:hidden" data-mobile-nav>
+	<button
+		type="button"
+		class="flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-(--bg-secondary)"
+		aria-label="メニューを開く"
+		aria-haspopup="dialog"
+		aria-expanded="false"
+		data-mobile-nav-open
+	>
+		<svg
+			class="h-5 w-5"
+			fill="none"
+			stroke="currentColor"
+			viewBox="0 0 24 24"
+			aria-hidden="true"
+		>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="2"
+				d="M4 6h16M4 12h16M4 18h16"></path>
+		</svg>
+	</button>
+
+	<dialog
+		class="mobile-nav-dialog m-0 max-w-none border-0 bg-(--bg-primary) p-0 text-(--text-primary)"
+		aria-label="メニュー"
+	>
+		<div class="flex h-(--header-height) items-center justify-end px-6">
+			<button
+				type="button"
+				class="flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-(--bg-secondary)"
+				aria-label="メニューを閉じる"
+				data-mobile-nav-close
+			>
+				<svg
+					class="h-5 w-5"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
+		</div>
+
+		<nav aria-label="モバイルナビゲーション">
+			<ul class="mobile-nav-list space-y-1 px-6 py-4">
+				{
+					NAV_LINKS.map((link) => {
+						const active = isActiveNavPath(link.href, currentPath);
+						return (
+							<li>
+								<a
+									href={link.href}
+									aria-current={active ? "page" : undefined}
+									class:list={[
+										"block rounded-lg px-4 py-3 text-lg font-medium transition-colors duration-200 hover:bg-(--bg-secondary) hover:text-(--text-primary)",
+										active
+											? "font-semibold text-(--text-primary)"
+											: "text-(--text-secondary)",
+									]}
+								>
+									{link.text}
+								</a>
+							</li>
+						);
+					})
+				}
+			</ul>
+		</nav>
+	</dialog>
+</div>
+
+<script>
+	import { enhanceMobileNav } from "@/scripts/mobile-nav.ts";
+
+	enhanceMobileNav();
+</script>

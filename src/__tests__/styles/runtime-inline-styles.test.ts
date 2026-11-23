@@ -52,7 +52,7 @@ describe("runtime inline styles (TA-1483)", () => {
 	});
 
 	it("does not let React islands inject <style> at hydration", () => {
-		expect(readSrc("components/MobileNav.tsx")).not.toMatch(/<style[\s>]/);
+		expect(readSrc("components/MobileNav.astro")).not.toMatch(/<style[\s>]/);
 		expect(readSrc("components/NotFoundPlayground.tsx")).not.toMatch(
 			/<style[\s>]/,
 		);
