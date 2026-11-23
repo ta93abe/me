@@ -30,4 +30,9 @@ describe("blog post header markup", () => {
 		expect(source).toContain("enhanceCodeCopyButtons");
 		expect(source).toContain("@/scripts/blog-copy-button.ts");
 	});
+
+	it("keeps Japanese chrome in font-sans so Noto CJK is not fetched for the title LCP", () => {
+		expect(source).toMatch(/class="font-sans mb-6 inline-block/);
+		expect(source).toMatch(/class="font-sans mb-4 flex flex-wrap items-center/);
+	});
 });

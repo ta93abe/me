@@ -2,17 +2,30 @@
 /** 紫ディザの装飾ステージ。操作 UI ではない。 */
 ---
 
-<section class="home-stage" aria-hidden="true">
-	<div class="home-stage-frame">
-		<div class="home-stage-screen">
-			<div class="home-stage-dither"></div>
-			<div class="home-stage-bar"></div>
-			<div class="home-stage-bar home-stage-bar--short"></div>
+<div class="home-stage-slot">
+	<section class="home-stage" aria-hidden="true">
+		<div class="home-stage-frame">
+			<div class="home-stage-screen">
+				<div class="home-stage-dither"></div>
+				<div class="home-stage-bar"></div>
+				<div class="home-stage-bar home-stage-bar--short"></div>
+			</div>
 		</div>
-	</div>
-</section>
+	</section>
+</div>
 
 <style>
+	/* ScrollTrigger の end: +=45% と同じピン距離。JS 後に pin-spacer を足すと CLS になる。 */
+	.home-stage-slot {
+		padding-bottom: 45vh;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.home-stage-slot {
+			padding-bottom: 0;
+		}
+	}
+
 	.home-stage {
 		position: relative;
 		padding: 2rem 1.5rem 3.5rem;

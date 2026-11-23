@@ -98,7 +98,8 @@ export function initHomeScroll(): HomeScrollHandle | null {
 			start: "top top+=4.5rem",
 			end: "+=45%",
 			pin: true,
-			pinSpacing: true,
+			// ピン距離は .home-stage-slot の padding-bottom: 45vh で先に確保する
+			pinSpacing: false,
 			anticipatePin: 1,
 		});
 	}
