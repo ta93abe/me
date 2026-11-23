@@ -181,12 +181,15 @@ test.describe("Home", () => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/");
 
+		// home-stage is wrapped in .home-stage-slot (pin travel reserved in CSS).
 		const order = await page
 			.locator("main.home-scroll")
 			.evaluate((main) =>
-				[...main.querySelectorAll(":scope > section")].map(
-					(section) => section.classList[0] ?? "",
-				),
+				[
+					...main.querySelectorAll(
+						":scope > section, :scope > .home-stage-slot > section",
+					),
+				].map((section) => section.classList[0] ?? ""),
 			);
 
 		expect(order).toEqual([
