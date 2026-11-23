@@ -15,12 +15,16 @@ function fontFaceBlocks(css: string): string[] {
 	return css.match(/@font-face\s*\{[\s\S]*?\}/g) ?? [];
 }
 
-describe("layout webfonts (TA-1539)", () => {
+describe("layout webfonts (TA-1539 / TA-2240)", () => {
 	const fonts = readSrc("styles/fonts.css");
+	const deferred = readSrc("styles/fonts-defer.css");
 	const globalCss = readSrc("styles/global.css");
 	const layout = readSrc("layouts/Layout.astro");
+	const deferredScript = readSrc("scripts/deferred-fonts.ts");
 	const slideTokens = readSrc("slides/design-system/tokens.css");
-	const faces = fontFaceBlocks(fonts);
+	const faces = [...fontFaceBlocks(fonts), ...fontFaceBlocks(deferred)];
+	const criticalFaces = fontFaceBlocks(fonts);
+	const japaneseFaces = faces.filter((face) => face.includes("-japanese-"));
 
 	it("keeps @font-face out of the exploded @fontsource weight CSS", () => {
 		expect(globalCss).not.toMatch(/@fontsource\/[^"' ]+\/\d{3}\.css/);
@@ -58,6 +62,8 @@ describe("layout webfonts (TA-1539)", () => {
 	it("uses subset woff2 files instead of unicode-range shards", () => {
 		expect(fonts).toMatch(/noto-serif-jp-japanese-400-normal\.woff2/);
 		expect(fonts).toMatch(/shippori-mincho-japanese-700-normal\.woff2/);
+		expect(deferred).toMatch(/shippori-mincho-japanese-400-normal\.woff2/);
+		expect(deferred).toMatch(/noto-serif-jp-japanese-700-normal\.woff2/);
 		expect(fonts).toMatch(/inter-latin-500-normal\.woff2/);
 		expect(fonts).not.toMatch(/noto-serif-jp-\d+-400-normal/);
 		expect(fonts).not.toMatch(/\.woff"/);
@@ -78,5 +84,40 @@ describe("layout webfonts (TA-1539)", () => {
 		for (const face of latinFaces) {
 			expect(face).toMatch(/unicode-range:\s*U\+0000-00FF/);
 		}
+	});
+
+	it("ranges japanese faces to CJK so ASCII does not fetch the 140KB files", () => {
+		expect(japaneseFaces.length).toBeGreaterThan(0);
+		for (const face of japaneseFaces) {
+			expect(face).toMatch(/unicode-range:/);
+			expect(face).toMatch(/U\+3040-309F/);
+			expect(face).toMatch(/U\+4E00-9FFF/);
+			expect(face).not.toMatch(/U\+0000-00FF/);
+		}
+	});
+
+	it("keeps body 400 japanese and display 700 in the render-blocking CSS", () => {
+		expect(fonts).toMatch(/noto-serif-jp-japanese-400-normal\.woff2/);
+		expect(fonts).toMatch(/shippori-mincho-japanese-700-normal\.woff2/);
+		expect(fonts).not.toMatch(/shippori-mincho-japanese-400-normal\.woff2/);
+		expect(fonts).not.toMatch(/noto-serif-jp-japanese-700-normal\.woff2/);
+		expect(criticalFaces.length).toBeLessThan(faces.length);
+	});
+
+	it("loads the remaining CJK faces after window load", () => {
+		expect(layout).toMatch(/scripts\/deferred-fonts\.ts/);
+		expect(deferredScript).toContain("fonts-defer.css?url");
+		expect(deferredScript).toMatch(/addEventListener\(\s*"load"/);
+		expect(layout).not.toMatch(/styles\/fonts-defer\.css"/);
+	});
+
+	it("does not stack two webfonts as fallbacks of each other", () => {
+		expect(globalCss).toMatch(/--font-body:\s*"Noto Serif JP"/);
+		expect(globalCss).toMatch(/--font-display:\s*"Shippori Mincho"/);
+		expect(globalCss).not.toMatch(/--font-body:[^;]*"Shippori Mincho"/);
+		expect(globalCss).not.toMatch(/--font-display:[^;]*"Noto Serif JP"/);
+		expect(layout).toMatch(/skip-link font-sans/);
+		expect(readSrc("components/Header.astro")).toMatch(/font-sans/);
+		expect(readSrc("components/Footer.astro")).toMatch(/font-sans/);
 	});
 });

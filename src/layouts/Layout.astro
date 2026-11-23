@@ -170,7 +170,7 @@ const profileUrls = includeSiteSchema ? await getProfileUrls() : [];
 		data-theme={homeTheme ? "home" : undefined}
 	>
 		<!-- スキップリンク -->
-		<a href="#main-content" class="skip-link">
+		<a href="#main-content" class="skip-link font-sans">
 			コンテンツにスキップ
 		</a>
 		{!noHeader && <Header />}
@@ -180,6 +180,7 @@ const profileUrls = includeSiteSchema ? await getProfileUrls() : [];
 		{!noFooter && <Footer docked={lockViewport} />}
 		<script>
 			import "../scripts/animations/observer.ts";
+			import "../scripts/deferred-fonts.ts";
 		</script>
 	</body>
 </html>
