@@ -96,7 +96,7 @@
 		"effect": "4.0.0-rc.117",
 		"happy-dom": "^21.0.4",
 		"lighthouse": "^13.6.0",
-		"oxfmt": "^0.78.0",
+		"oxfmt": "^0.79.0",
 		"oxlint": "^1.94.0",
 		"puppeteer-core": "^25.17.0",
 		"remark-mdx": "^3.1.1",
