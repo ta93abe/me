@@ -38,6 +38,49 @@ async function loadBudgets() {
 	return JSON.parse(raw);
 }
 
+/**
+ * LCP and layout-shift entries are not returned by performance.getEntriesByType()
+ * in Chrome; they are only delivered to a PerformanceObserver. Install the
+ * observers before any page script runs so nothing is missed.
+ */
+function installVitalsObservers() {
+	// cls stays null unless the layout-shift observer could be installed.
+	const vitals = { lcp: null, cls: null };
+	window.__cwv = vitals;
+	try {
+		new PerformanceObserver((list) => {
+			const last = list.getEntries().at(-1);
+			if (last) vitals.lcp = last.startTime;
+		}).observe({ type: "largest-contentful-paint", buffered: true });
+	} catch {}
+	try {
+		// CLS = the largest session window: shifts less than 1s apart,
+		// the whole window at most 5s long (same as web-vitals).
+		let sessionValue = 0;
+		let sessionFirst = 0;
+		let sessionLast = 0;
+		new PerformanceObserver((list) => {
+			for (const entry of list.getEntries()) {
+				if (entry.hadRecentInput) continue;
+				const t = entry.startTime;
+				if (
+					sessionValue > 0 &&
+					t - sessionLast < 1000 &&
+					t - sessionFirst < 5000
+				) {
+					sessionValue += entry.value;
+				} else {
+					sessionValue = entry.value;
+					sessionFirst = t;
+				}
+				sessionLast = t;
+				vitals.cls = Math.max(vitals.cls ?? 0, sessionValue);
+			}
+		}).observe({ type: "layout-shift", buffered: true });
+		vitals.cls = 0;
+	} catch {}
+}
+
 async function collectPageMetrics(page, settleMs) {
 	return page.evaluate(async (waitMs) => {
 		await new Promise((resolve) => {
@@ -52,24 +95,19 @@ async function collectPageMetrics(page, settleMs) {
 
 		const nav = performance.getEntriesByType("navigation")[0];
 		const paints = performance.getEntriesByType("paint");
-		const lcpEntries = performance.getEntriesByType("largest-contentful-paint");
-		const shiftEntries = performance.getEntriesByType("layout-shift");
+		const vitals = window.__cwv ?? { lcp: null, cls: null };
 
 		const fcp = paints.find(
 			(p) => p.name === "first-contentful-paint",
 		)?.startTime;
-		const lcp = lcpEntries.at(-1)?.startTime;
-		const cls = shiftEntries
-			.filter((e) => !e.hadRecentInput)
-			.reduce((sum, e) => sum + e.value, 0);
 		const ttfb = nav?.responseStart;
 
 		return {
 			url: location.href,
 			title: document.title,
 			fcp: fcp ?? null,
-			lcp: lcp ?? null,
-			cls: Number(cls.toFixed(4)),
+			lcp: vitals.lcp ?? null,
+			cls: vitals.cls == null ? null : Number(vitals.cls.toFixed(4)),
 			ttfb: ttfb ?? null,
 			domContentLoaded: nav?.domContentLoadedEventEnd ?? null,
 			loadEvent: nav?.loadEventEnd ?? null,
@@ -88,8 +126,10 @@ function checkBudgets(metrics, budgets) {
 
 	for (const [key, value, unit] of map) {
 		const limit = budgets[key];
-		if (limit == null || value == null) continue;
-		if (value > limit) {
+		if (limit == null) continue;
+		if (value == null) {
+			failures.push(`${key} was not measured (budget ${limit}${unit})`);
+		} else if (value > limit) {
 			failures.push(`${key}=${value}${unit} exceeds budget ${limit}${unit}`);
 		}
 	}
@@ -130,6 +170,7 @@ async function main() {
 				deviceScaleFactor: 1,
 			});
 			page.setDefaultNavigationTimeout(navigationTimeoutMs);
+			await page.evaluateOnNewDocument(installVitalsObservers);
 
 			console.log(`[cwv] Navigating ${url}`);
 			await page.goto(url, { waitUntil: "networkidle2" });
