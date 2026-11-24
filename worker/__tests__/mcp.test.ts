@@ -128,6 +128,11 @@ describe("MCP Streamable HTTP methods", () => {
 		expect(response.status).toBe(405);
 		expect(response.headers.get("Accept-Post")).toBe("application/json");
 		expect(response.headers.get("MCP-Protocol-Version")).toBe("2025-06-18");
+		// Browser clients only see these if they are exposed.
+		const exposed = response.headers.get("Access-Control-Expose-Headers") ?? "";
+		for (const name of ["Allow", "Accept-Post", "MCP-Protocol-Version"]) {
+			expect(exposed).toContain(name);
+		}
 	});
 
 	it("returns 405 for HEAD and DELETE without offering SSE", async () => {

@@ -10,7 +10,7 @@ export const MCP_CORS_ALLOW_METHODS = "POST, GET, OPTIONS";
 export const MCP_CORS_ALLOW_HEADERS =
 	"Content-Type, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
 export const MCP_CORS_EXPOSE_HEADERS =
-	"MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
+	"Allow, Accept-Post, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
 
 export function applyMcpCorsHeaders(headers: Headers): void {
 	headers.set("Access-Control-Allow-Origin", MCP_CORS_ALLOW_ORIGIN);
