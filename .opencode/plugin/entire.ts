@@ -153,6 +153,9 @@ const EntirePlugin: Plugin = async ({ directory }) => {
         })
         proc.on("error", () => resolve())
         proc.on("close", () => resolve())
+        // The guard shell exits at once when entire is not on PATH; without a
+        // listener the resulting EPIPE on stdin is an unhandled error event.
+        proc.stdin?.on("error", () => {})
         proc.stdin?.end(json + "\n")
       })
     } catch {
