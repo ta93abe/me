@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M85EK4BZEKCV9EHY9KF1W6J0",
+  "strategy": "manual-commit",
+  "branch": "feature/ta-940-mcp-accept-post",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "worker/__tests__/mcp.test.ts",
+    "worker/mcp.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 3310,
+    "cache_read_tokens": 1084694,
+    "output_tokens": 2900,
+    "api_call_count": 6
+  },
+  "redaction": {
+    "replacements": 24,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 4,
+      "credentialed_uri": 0,
+      "entropy": 20,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
