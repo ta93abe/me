@@ -3,13 +3,14 @@ const SITE_HOST = "ta93abe.com";
 const SESSION_HEADER = "Mcp-Session-Id";
 
 export const MCP_ENDPOINT = `${SITE_URL}/mcp`;
+export const MCP_PROTOCOL_VERSION = "2025-06-18";
 
 export const MCP_CORS_ALLOW_ORIGIN = "*";
 export const MCP_CORS_ALLOW_METHODS = "POST, GET, OPTIONS";
 export const MCP_CORS_ALLOW_HEADERS =
 	"Content-Type, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
 export const MCP_CORS_EXPOSE_HEADERS =
-	"MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
+	"Allow, Accept-Post, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID";
 
 export function applyMcpCorsHeaders(headers: Headers): void {
 	headers.set("Access-Control-Allow-Origin", MCP_CORS_ALLOW_ORIGIN);
@@ -28,9 +29,20 @@ export function withMcpCors(response: Response): Response {
 	});
 }
 
+/**
+ * Tell a client probing the endpoint (GET / OPTIONS) what to POST:
+ * a JSON-RPC body, spoken in this protocol version.
+ */
+function applyMcpDiscoveryHeaders(headers: Headers): void {
+	headers.set("Allow", "POST");
+	headers.set("Accept-Post", "application/json");
+	headers.set("MCP-Protocol-Version", MCP_PROTOCOL_VERSION);
+}
+
 export function mcpPreflightResponse(): Response {
 	const headers = new Headers();
 	applyMcpCorsHeaders(headers);
+	applyMcpDiscoveryHeaders(headers);
 	return new Response(null, {
 		status: 204,
 		headers,
@@ -321,14 +333,12 @@ export async function handleMcp(
 	if (method !== "POST") {
 		// Streamable HTTP: GET is optional SSE. This read-only server does not
 		// stream, so unsupported methods (including GET) are 405.
+		const headers = new Headers({
+			"Content-Type": "text/plain; charset=utf-8",
+		});
+		applyMcpDiscoveryHeaders(headers);
 		return withMcpCors(
-			new Response("Method Not Allowed", {
-				status: 405,
-				headers: {
-					Allow: "POST",
-					"Content-Type": "text/plain; charset=utf-8",
-				},
-			}),
+			new Response("Method Not Allowed", { status: 405, headers }),
 		);
 	}
 
@@ -369,7 +379,7 @@ export async function handleMcp(
 			jsonResponse,
 			id,
 			{
-				protocolVersion: "2025-06-18",
+				protocolVersion: MCP_PROTOCOL_VERSION,
 				capabilities: {
 					tools: {},
 					resources: {

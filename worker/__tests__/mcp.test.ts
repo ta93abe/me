@@ -122,6 +122,19 @@ describe("MCP Streamable HTTP methods", () => {
 		expect(() => JSON.parse(body)).toThrow();
 	});
 
+	it("tells a GET probe what to POST with Accept-Post and the protocol version", async () => {
+		const response = await mcpHttp("GET");
+
+		expect(response.status).toBe(405);
+		expect(response.headers.get("Accept-Post")).toBe("application/json");
+		expect(response.headers.get("MCP-Protocol-Version")).toBe("2025-06-18");
+		// Browser clients only see these if they are exposed.
+		const exposed = response.headers.get("Access-Control-Expose-Headers") ?? "";
+		for (const name of ["Allow", "Accept-Post", "MCP-Protocol-Version"]) {
+			expect(exposed).toContain(name);
+		}
+	});
+
 	it("returns 405 for HEAD and DELETE without offering SSE", async () => {
 		for (const method of ["HEAD", "DELETE"]) {
 			const response = await mcpHttp(method);
@@ -490,6 +503,9 @@ describe("MCP CORS and preflight", () => {
 
 		expect(response.status).toBe(204);
 		expect(response.headers.get("Content-Type")).toBeNull();
+		expect(response.headers.get("Allow")).toBe("POST");
+		expect(response.headers.get("Accept-Post")).toBe("application/json");
+		expect(response.headers.get("MCP-Protocol-Version")).toBe("2025-06-18");
 		expectMcpCors(response);
 		expect(await response.text()).toBe("");
 	});
